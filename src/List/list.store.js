@@ -93,24 +93,30 @@ export default Store.create({
     getPreviousPage() {
         this.listSourceSubject.onNext(Observable.fromPromise(this.state.pager.getPreviousPage()));
     },
-    buildPager(toShow, modelCollection) {
-        return toShow.then(model => {
-            modelCollection.then(model1 => {
+
+    buildPager(listSearchPromiseWithPagination, listSearchPromiseWithAllUsers) {
+        return Promise.all([listSearchPromiseWithPagination, listSearchPromiseWithAllUsers]).then(
+            ([model, model1]) => {
                 model.pager.total = model1.valuesContainerMap.size;
-            });
-            return model;
-        });
+                return model;
+            }
+        );
     },
     filter(options, complete, error) {
         getD2().then(d2 => {
             const { filters, ...listOptions } = options;
-            const listSearchPromise = getList(d2, filters, listOptions);
-            const listSearchPromise1 = getList(d2, filters, {
+            const listSearchPromiseWithPagination = getList(d2, filters, listOptions);
+            const listSearchPromiseWithAllUsers = getList(d2, filters, {
                 ...listOptions,
                 paging: false,
             });
-            const newModel = this.buildPager(listSearchPromise, listSearchPromise1);
-            this.listSourceSubject.onNext(Observable.fromPromise(newModel));
+            const newModelWithCorrectPaginationTotal = this.buildPager(
+                listSearchPromiseWithPagination,
+                listSearchPromiseWithAllUsers
+            );
+            this.listSourceSubject.onNext(
+                Observable.fromPromise(newModelWithCorrectPaginationTotal)
+            );
             complete(`list with filters '${filters}' is loading`);
         });
     },
