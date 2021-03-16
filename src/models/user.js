@@ -37,7 +37,7 @@ class User {
     replicateFromPlainFields(newUserFields) {
         const optional = value => value || undefined;
         const nullable = value => value || null;
-
+        console.log(newUserFields);
         const newUsersAttributes = newUserFields.map(userFields => ({
             id: userFields.id,
             email: optional(userFields.email),
@@ -76,7 +76,7 @@ class User {
             users: userGroup.users.concat(newUsers.map(newUser => ({ id: newUser.id }))),
         }));
         const payload = { users: newUsers, userGroups: userGroupsWithNewUsers };
-
+        console.log(payload);
         return this.api
             .post("metadata?importStrategy=CREATE_AND_UPDATE&mergeMode=REPLACE", payload)
             .then(res => parseResponse(res, payload))
@@ -85,6 +85,7 @@ class User {
 
     static async getById(d2, userId) {
         const api = d2.Api.getApi();
+        console.log(api);
         const userAttributes = await api.get(`/users/${userId}`, {
             fields:
                 ":all," +

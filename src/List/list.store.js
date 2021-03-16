@@ -35,7 +35,6 @@ export default Store.create({
     listRolesSubject: new Subject(),
     listGroupsSubject: new Subject(),
     listOrgUnitsSubject: new Subject(),
-
     initialise() {
         this.listSourceSubject
             .concatAll()
@@ -94,12 +93,24 @@ export default Store.create({
     getPreviousPage() {
         this.listSourceSubject.onNext(Observable.fromPromise(this.state.pager.getPreviousPage()));
     },
-
+    buildPager(toShow, modelCollection) {
+        return toShow.then(model => {
+            modelCollection.then(model1 => {
+                model.pager.total = model1.valuesContainerMap.size;
+            });
+            return model;
+        });
+    },
     filter(options, complete, error) {
         getD2().then(d2 => {
             const { filters, ...listOptions } = options;
             const listSearchPromise = getList(d2, filters, listOptions);
-            this.listSourceSubject.onNext(Observable.fromPromise(listSearchPromise));
+            const listSearchPromise1 = getList(d2, filters, {
+                ...listOptions,
+                paging: false,
+            });
+            const newModel = this.buildPager(listSearchPromise, listSearchPromise1);
+            this.listSourceSubject.onNext(Observable.fromPromise(newModel));
             complete(`list with filters '${filters}' is loading`);
         });
     },

@@ -33,7 +33,6 @@ function UserRolesDialog(props, context) {
         getChildren: user => user.userCredentials.userRoles,
         getPayload: getPayload,
     };
-
     return (
         <BatchModelsMultiSelectComponent
             model={new BatchModelsMultiSelectModel(context.d2, modelOptions)}

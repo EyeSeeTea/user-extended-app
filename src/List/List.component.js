@@ -448,8 +448,8 @@ const List = React.createClass({
 
     render() {
         if (!this.state.dataRows) return null;
+        //const { pager } = this.state;
         const currentlyShown = calculatePageValue(this.state.pager);
-        const { pager } = this.state;
         const { d2 } = this.context;
 
         const paginationProps = {
@@ -458,10 +458,14 @@ const List = React.createClass({
             hasPreviousPage: () =>
                 Boolean(this.state.pager.hasPreviousPage) && this.state.pager.hasPreviousPage(),
             onNextPageClick: () => {
-                this.setState({ isLoading: true }, () => this.filterList({ page: pager.page + 1 }));
+                this.setState({ isLoading: true }, () =>
+                    this.filterList({ page: this.state.pager.page + 1 })
+                );
             },
             onPreviousPageClick: () => {
-                this.setState({ isLoading: true }, () => this.filterList({ page: pager.page - 1 }));
+                this.setState({ isLoading: true }, () =>
+                    this.filterList({ page: this.state.pager.page - 1 })
+                );
             },
             total: this.state.pager.total,
             currentlyShown,
