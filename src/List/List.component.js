@@ -448,7 +448,6 @@ const List = React.createClass({
 
     render() {
         if (!this.state.dataRows) return null;
-        //const { pager } = this.state;
         const currentlyShown = calculatePageValue(this.state.pager);
         const { d2 } = this.context;
 

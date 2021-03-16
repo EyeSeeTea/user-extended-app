@@ -52,10 +52,8 @@ export default class BatchModelsMultiSelectModel {
         const metadataUrl = "metadata?importStrategy=UPDATE&mergeMode=REPLACE";
         return api.post(metadataUrl, payload).then(response => {
             if (response.status !== "OK") {
-                console.error("Response error", response);
                 throw new Error(response.status);
             } else {
-                console.log(response);
                 return response;
             }
         });
