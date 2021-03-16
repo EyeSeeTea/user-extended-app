@@ -77,7 +77,6 @@ export default class BatchModelsMultiSelectComponent extends React.Component {
     }
 
     close(snackMessage = null) {
-        console.log("in close!");
         if (snackMessage) snackActions.show({ message: snackMessage });
         this.props.onRequestClose();
     }

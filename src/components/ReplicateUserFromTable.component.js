@@ -35,7 +35,6 @@ class ReplicateUserFromTable extends React.Component {
 
     replicateUsers = async users => {
         const { userToReplicate } = this.state;
-        console.log(userToReplicate);
         const response = await userToReplicate.replicateFromPlainFields(users);
 
         if (response.success) {

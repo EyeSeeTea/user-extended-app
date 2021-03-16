@@ -50,7 +50,6 @@ export default class BatchModelsMultiSelectModel {
         const childrenForParents = this.getNewChildren(parents, selectedChildren, updateStrategy);
         const payload = this.getPayload(allChildren, _.zip(parents, childrenForParents));
         const metadataUrl = "metadata?importStrategy=UPDATE&mergeMode=REPLACE";
-        console.log(payload);
         return api.post(metadataUrl, payload).then(response => {
             if (response.status !== "OK") {
                 console.error("Response error", response);
