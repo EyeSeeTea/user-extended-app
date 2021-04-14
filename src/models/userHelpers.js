@@ -574,7 +574,7 @@ function getList(d2, filters, listOptions) {
         return model.list({
             paging: true,
             fields: queryFields,
-            filter: _(listFilters).isEmpty() ? "name:ne:default" : listFilters,
+            ...(_(listFilters).isEmpty() ? {} : { filter: listFilters }),
             ...listOptions,
         });
     }
@@ -601,7 +601,7 @@ function getList(d2, filters, listOptions) {
         return model.list({
             paging: true,
             fields: queryFields,
-            filter: _(filters).isEmpty() ? "name:ne:default" : filters,
+            ...(_(filters).isEmpty() ? {} : { filter: filters }),
             ...listOptions,
         });
     });

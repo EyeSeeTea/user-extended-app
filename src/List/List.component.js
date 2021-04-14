@@ -327,7 +327,6 @@ const List = React.createClass({
             ? this.state.sorting[0] + ":i" + this.state.sorting[1]
             : null;
         const { pager, filters } = this.state;
-
         const options = {
             modelType: this.props.params.modelType,
             order: order,
