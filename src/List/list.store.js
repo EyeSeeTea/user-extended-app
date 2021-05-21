@@ -95,20 +95,18 @@ export default Store.create({
         this.listSourceSubject.onNext(Observable.fromPromise(this.state.pager.getPreviousPage()));
     },
 
-    buildPager(listSearchPromiseWithPagination, listSearchPromiseWithAllUsers) {
-        return Promise.all([listSearchPromiseWithPagination, listSearchPromiseWithAllUsers]).then(
-            ([model, model1]) => {
-                model.pager.total = model1.valuesContainerMap.size;
-                return model;
-            }
-        );
+    buildPager(paginatedUsers, allUsers) {
+        return Promise.all([paginatedUsers, allUsers]).then(([model, model1]) => {
+            model.pager.total = model1.valuesContainerMap.size;
+            return model;
+        });
     },
     filter(options, complete, error) {
         getD2().then(d2 => {
             const { filters, ...listOptions } = options;
             const listSearchPromiseWithPagination = getList(d2, filters, listOptions);
             const listSearchPromiseWithAllUsers = getList(d2, filters, {
-                ...listOptions,
+                fields: "id",
                 paging: false,
             });
             const newModelWithCorrectPaginationTotal = this.buildPager(
