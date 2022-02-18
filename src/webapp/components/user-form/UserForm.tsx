@@ -102,10 +102,10 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
     useEffect(() => {
         if (field !== "accountExpiry") return;
 
-        if (values.users[row].accountExpiry.includes('T00:00:00.000')){
-            values.users[row].accountExpiry = values.users[row].accountExpiry.split("T", 1)[0]
+        if (values.users[row].accountExpiry.includes("T00:00:00.000")) {
+            values.users[row].accountExpiry = values.users[row].accountExpiry.split("T", 1)[0];
         }
-    },);
+    });
 
     switch (field) {
         case "id":
@@ -125,12 +125,16 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
             return <FormField {...props} component={InputFieldFF} disabled={isEdit} />;
         case "password":
             return (
-                <FormField
-                    {...props}
-                    component={InputFieldFF}
-                    type="password"
-                    disabled={values.users[row].externalAuth === true}
-                />
+                // This hack intercepts the autocomplete
+                <React.Fragment>
+                    <input autoComplete="new-password" name="hidden" type="password" style={{ display: "none" }}></input>
+                    <FormField
+                        {...props}
+                        component={InputFieldFF}
+                        type="password"
+                        disabled={values.users[row].externalAuth === true}
+                    />
+                </React.Fragment>
             );
         case "accountExpiry":
             return <FormField {...props} component={InputFieldFF} type="date" />;

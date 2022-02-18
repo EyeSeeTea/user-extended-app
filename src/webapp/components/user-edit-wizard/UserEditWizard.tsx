@@ -17,7 +17,17 @@ const steps: WizardStep[] = [
         label: i18n.t("General info"),
         component: UserEditWizardStep,
         props: {
-            fields: ["username", "firstName", "surname", "email", "externalAuth", "password", "openId", "ldapId", "accountExpiry"],
+            fields: [
+                "username",
+                "firstName",
+                "surname",
+                "email",
+                "externalAuth",
+                "password",
+                "openId",
+                "ldapId",
+                "accountExpiry",
+            ],
         },
     },
 
@@ -81,9 +91,8 @@ export const UserEditWizard: React.FC<UserEditWizardProps> = ({ user, onSave, on
     return (
         <Form<{ users: User[] }>
             // The browser just ignores this for name/email and password fields with saved logins
-            // Plenty of hacks on this gist: https://gist.github.com/niksumeiko/360164708c3b326bd1c8
             // autoComplete="new-password", autoComplete="nope" also gets ignored
-            autocomplete="off"
+            autoComplete="off"
             onSubmit={onSubmit}
             initialValues={{ users: [user] }}
             render={({ handleSubmit, submitError }) => (
