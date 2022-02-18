@@ -84,6 +84,7 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
         name,
         placeholder: getUserFieldName(field),
         validate: validation,
+        autoComplete: "new-password",
         ...validationProps,
     };
 
@@ -125,16 +126,12 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
             return <FormField {...props} component={InputFieldFF} disabled={isEdit} />;
         case "password":
             return (
-                // This hack intercepts the autocomplete
-                <React.Fragment>
-                    <input autoComplete="new-password" name="hidden" type="password" style={{ display: "none" }}></input>
-                    <FormField
-                        {...props}
-                        component={InputFieldFF}
-                        type="password"
-                        disabled={values.users[row].externalAuth === true}
-                    />
-                </React.Fragment>
+                <FormField
+                    {...props}
+                    component={InputFieldFF}
+                    type="password"
+                    disabled={values.users[row].externalAuth === true}
+                />
             );
         case "accountExpiry":
             return <FormField {...props} component={InputFieldFF} type="date" />;

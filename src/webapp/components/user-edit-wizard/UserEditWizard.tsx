@@ -90,8 +90,6 @@ export const UserEditWizard: React.FC<UserEditWizardProps> = ({ user, onSave, on
 
     return (
         <Form<{ users: User[] }>
-            // The browser just ignores this for name/email and password fields with saved logins
-            // autoComplete="new-password", autoComplete="nope" also gets ignored
             autoComplete="off"
             onSubmit={onSubmit}
             initialValues={{ users: [user] }}
