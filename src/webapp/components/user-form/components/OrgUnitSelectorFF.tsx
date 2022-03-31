@@ -23,8 +23,8 @@ export const OrgUnitSelectorFF = ({ input, meta, validationText, ...rest }: OrgU
     const message = validationText ?? meta.error ?? meta.submitError;
 
     const onChange = useCallback(
-        ({ selected }: { selected: string[] }) => {
-            input.onChange(selected.map(id => ({ id })));
+        (selected: string[]) => {
+            input.onChange(selected.map(path => ({ id: path2id(path) })));
         },
         [input]
     );
@@ -56,6 +56,10 @@ export const OrgUnitSelectorFF = ({ input, meta, validationText, ...rest }: OrgU
         </React.Fragment>
     );
 };
+
+// Return an organisation unit id from its path.
+// Example: '/WDYsAeG2lYx/seXn9oC8bhZ' -> 'seXn9oC8bhZ'
+const path2id = (path: string) => path.slice(path.lastIndexOf('/') + 1);
 
 const WarningBox = styled(NoticeBox)`
     margin-top: 20px;
