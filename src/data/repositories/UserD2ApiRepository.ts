@@ -304,7 +304,7 @@ export class UserD2ApiRepository implements UserRepository {
                 ldapId: input.ldapId ?? "",
                 externalAuth: input.externalAuth ?? "",
                 password: input.password ?? "",
-                accountExpiry: input.accountExpiry ?? "",
+                ...(input.accountExpiry ? { accountExpiry: input.accountExpiry } : {}),
             },
         };
     }
@@ -341,7 +341,15 @@ const fields = {
     },
 } as const;
 
-export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
+type BaseApiUser = SelectedPick<D2UserSchema, typeof fields>;
+
+export type ApiUser = Omit<BaseApiUser, "userCredentials"> & {
+    userCredentials: Omit<BaseApiUser["userCredentials"], "accountExpiry"> & {
+        accountExpiry?: string;
+    };
+};
+// This way we allow accountExpiry to not be necessarily present.
+// Otherwise an empty value would be sent as "", which dhis2 sets as "1970-01-01".
 
 const defaultColumns: Array<keyof User> = [
     "username",
