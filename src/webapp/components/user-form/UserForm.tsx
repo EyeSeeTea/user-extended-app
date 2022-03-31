@@ -103,8 +103,10 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
     useEffect(() => {
         if (field !== "accountExpiry") return;
 
-        if (values.users[row].accountExpiry.includes("T00:00:00.000")) {
-            values.users[row].accountExpiry = values.users[row].accountExpiry.split("T", 1)[0];
+        const user = values.users[row];
+
+        if (user.accountExpiry?.includes("T00:00:00.000")) {
+            user.accountExpiry = user.accountExpiry.split("T", 1)[0];
         }
     });
 
