@@ -58,8 +58,8 @@ export const OrgUnitSelectorFF = ({ input, meta, validationText, ...rest }: OrgU
 };
 
 // Return an organisation unit id from its path.
-// Example: '/WDYsAeG2lYx/seXn9oC8bhZ' -> 'seXn9oC8bhZ'
-const path2id = (path: string) => path.slice(path.lastIndexOf('/') + 1);
+// Example: "/WDYsAeG2lYx/seXn9oC8bhZ" -> "seXn9oC8bhZ"
+const path2id = (path: string) => path.slice(path.lastIndexOf("/") + 1);
 
 const WarningBox = styled(NoticeBox)`
     margin-top: 20px;
