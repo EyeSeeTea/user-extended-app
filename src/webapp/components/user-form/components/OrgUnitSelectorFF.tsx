@@ -2,6 +2,7 @@ import { FieldState, NoticeBox } from "@dhis2/ui";
 import { OrgUnitsSelector } from "@eyeseetea/d2-ui-components";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+import { extractIdFromPath } from "../../../../domain/entities/OrgUnit";
 import { NamedRef } from "../../../../domain/entities/Ref";
 import { useAppContext } from "../../../contexts/app-context";
 
@@ -24,7 +25,7 @@ export const OrgUnitSelectorFF = ({ input, meta, validationText, ...rest }: OrgU
 
     const onChange = useCallback(
         (selected: string[]) => {
-            input.onChange(selected.map(path => ({ id: path2id(path) })));
+            input.onChange(selected.map(path => ({ id: extractIdFromPath(path) })));
         },
         [input]
     );
@@ -56,10 +57,6 @@ export const OrgUnitSelectorFF = ({ input, meta, validationText, ...rest }: OrgU
         </React.Fragment>
     );
 };
-
-// Return an organisation unit id from its path.
-// Example: "/WDYsAeG2lYx/seXn9oC8bhZ" -> "seXn9oC8bhZ"
-const path2id = (path: string) => path.slice(path.lastIndexOf("/") + 1);
 
 const WarningBox = styled(NoticeBox)`
     margin-top: 20px;
