@@ -30,6 +30,8 @@ export interface User {
     password: string;
     accountExpiry?: string;
     authorities: string[];
+    uiLocale?: string;
+    dbLocale?: string;
 }
 
 export const defaultUser: User = {
@@ -61,7 +63,10 @@ export const defaultUser: User = {
     password: "",
     accountExpiry: undefined,
     authorities: [""],
+    uiLocale: undefined,
+    dbLocale: undefined,
 };
+
 export interface AccessPermissions {
     read: boolean;
     update: boolean;

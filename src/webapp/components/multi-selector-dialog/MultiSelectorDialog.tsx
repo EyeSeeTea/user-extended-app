@@ -44,9 +44,10 @@ export const MultiSelectorDialog: React.FC<MultiSelectorDialogProps> = ({ type, 
     }, [type, ids, onClose, snackbar, updateStrategy, items, users, selected, compositionRoot, loading]);
 
     useEffect(() => {
+        const extraData = false;
         return Future.joinObj({
             items: compositionRoot.metadata.list(type).map(({ objects }) => objects),
-            users: compositionRoot.users.get(ids),
+            users: compositionRoot.users.get(ids, extraData),
         }).run(
             ({ items, users }) => {
                 const roleIds = users.map(user => user[type].map(({ id }) => id));

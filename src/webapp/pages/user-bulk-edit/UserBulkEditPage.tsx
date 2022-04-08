@@ -44,7 +44,8 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
         async ({ users }: { users: User[] }) => {
             loading.show(true, i18n.t("Saving users"));
 
-            const { data, error } = await compositionRoot.users.save(users).runAsync();
+            const extraData = false; // avoid expensive extra api calls
+            const { data, error } = await compositionRoot.users.save(users, extraData).runAsync();
             loading.reset();
 
             if (error) {

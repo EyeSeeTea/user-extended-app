@@ -25,7 +25,8 @@ export class UserD2ApiRepository implements UserRepository {
 
     @cache()
     public getCurrent(): FutureData<User> {
-        return apiToFuture(this.api.currentUser.get({ fields })).map(user => this.toDomainUser(user));
+        const userSettings = { keyUiLocale: undefined, keyDbLocale: undefined };
+        return apiToFuture(this.api.currentUser.get({ fields })).map(user => this.toDomainUser(user, userSettings));
     }
 
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
@@ -43,7 +44,7 @@ export class UserD2ApiRepository implements UserRepository {
             })
         ).map(({ objects, pager }) => ({
             pager,
-            objects: objects.map(user => this.toDomainUser(user)),
+            objects: objects.map(user => this.toDomainUser(user, { keyUiLocale: undefined, keyDbLocale: undefined })),
         }));
     }
 
@@ -62,10 +63,29 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects }) => objects.map(user => user.id));
     }
 
-    public getByIds(ids: string[]): FutureData<User[]> {
+    public getByIds(ids: string[], extraData: boolean): FutureData<User[]> {
+        // if (extraData) {
+
+        //     this.api.models.users.get({ fields, filter: { id: { in: ids } } }).getData().then(users => {
+        //         const usersSettings = Promise.all(ids.map(id =>
+        //                 this.api.get<{ keyUiLocale: string; keyDbLocale: string }>("/userSettings", { userId: id })
+        //         ));
+        //         return Promise.all([users, usersSettings]);
+        //     }).then((users_and_usersSettings) => {
+        //         const [users, usersSettings] = users_and_usersSettings;
+        //         _.zip(users, usersSettings).map((user, userSettings) => {
+        //             console.log(user);  // I AM HERE RIGHT NOW
+
+        //         })
+        //     })
+        // }
+        // else {
         return apiToFuture(this.api.models.users.get({ fields, filter: { id: { in: ids } } })).flatMap(({ objects }) =>
-            Future.success(objects.map(user => this.toDomainUser(user)))
+            Future.success(
+                objects.map(user => this.toDomainUser(user, { keyUiLocale: undefined, keyDbLocale: undefined }))
+            )
         );
+        // }
     }
 
     private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
@@ -143,7 +163,8 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
-        return this.getByIds(ids).flatMap(storedUsers => {
+        const extraData = false;
+        return this.getByIds(ids, extraData).flatMap(storedUsers => {
             const commonRoles = _.intersectionBy(
                 ...storedUsers.map(user => user.userRoles.map(role => role)),
                 ({ id }) => id
@@ -167,7 +188,8 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
-        return this.getByIds(ids).flatMap(storedUsers => {
+        const extraData = false;
+        return this.getByIds(ids, extraData).flatMap(storedUsers => {
             const commonGroups = _.intersectionBy(
                 ...storedUsers.map(user => user.userGroups.map(group => group)),
                 ({ id }) => id
@@ -237,7 +259,7 @@ export class UserD2ApiRepository implements UserRepository {
         );
     }
 
-    private toDomainUser(input: ApiUser): User {
+    private toDomainUser(input: ApiUser, userSettings: UserSettings): User {
         const { userCredentials, ...user } = input;
         const authorities = _(userCredentials.userRoles.map(userRole => userRole.authorities))
             .flatten()
@@ -273,6 +295,8 @@ export class UserD2ApiRepository implements UserRepository {
             password: userCredentials.password,
             accountExpiry: userCredentials.accountExpiry,
             authorities,
+            uiLocale: userSettings.keyUiLocale,
+            dbLocale: userSettings.keyDbLocale,
         };
     }
 
@@ -350,6 +374,8 @@ export type ApiUser = Omit<BaseApiUser, "userCredentials"> & {
 };
 // This way we allow accountExpiry to not be necessarily present.
 // Otherwise an empty value would be sent as "", which dhis2 sets as "1970-01-01".
+
+type UserSettings = { keyUiLocale: string | undefined; keyDbLocale: string | undefined };
 
 const defaultColumns: Array<keyof User> = [
     "username",

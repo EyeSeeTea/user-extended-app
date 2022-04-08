@@ -6,7 +6,7 @@ import { UserRepository } from "../repositories/UserRepository";
 export class GetUsersByIdsUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
-    public execute(ids: string[]): FutureData<User[]> {
-        return this.userRepository.getByIds(ids);
+    public execute(ids: string[], extraData: boolean): FutureData<User[]> {
+        return this.userRepository.getByIds(ids, extraData);
     }
 }

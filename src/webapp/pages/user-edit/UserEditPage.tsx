@@ -39,7 +39,8 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
 
     const saveUser = useCallback(
         async (user: User) => {
-            const { data = [], error } = await compositionRoot.users.save([user]).runAsync();
+            const extraData = true;
+            const { data = [], error } = await compositionRoot.users.save([user], extraData).runAsync();
             if (error || _.some(data, ({ status }) => status === "ERROR")) {
                 return error ?? i18n.t("Network error");
             } else {
@@ -60,8 +61,9 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
             return;
         }
 
+        const extraData = true;
         compositionRoot.users
-            .get([id])
+            .get([id], extraData)
             .toPromise()
             .then(([user]) => {
                 if (!user) snackbar.error(i18n.t("Unable to load user {{id}}", { id }));
