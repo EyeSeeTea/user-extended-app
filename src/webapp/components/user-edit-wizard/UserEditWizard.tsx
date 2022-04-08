@@ -7,7 +7,7 @@ import _ from "lodash";
 import React, { FunctionComponent, useCallback, useState } from "react";
 import { Form } from "react-final-form";
 import styled from "styled-components";
-import { User } from "../../../domain/entities/User";
+import { User, UserWithSettings } from "../../../domain/entities/User";
 import { useGoBack } from "../../hooks/useGoBack";
 import { UserEditWizardStep, UserEditWizardStepProps } from "./UserEditWizardStep";
 
@@ -66,17 +66,17 @@ interface WizardStep {
 }
 
 export interface UserEditWizardProps {
-    user: User;
+    user: UserWithSettings;
     isEdit: boolean;
     onCancel: () => void;
-    onSave: (user: User) => Promise<string | undefined>;
+    onSave: (user: UserWithSettings) => Promise<string | undefined>;
 }
 
 export const UserEditWizard: React.FC<UserEditWizardProps> = ({ user, onSave, onCancel, isEdit }) => {
     const goBack = useGoBack();
 
     const onSubmit = useCallback(
-        async (values: { users: User[] }) => {
+        async (values: { users: UserWithSettings[] }) => {
             const user = values.users[0];
             if (!user) return { [FORM_ERROR]: i18n.t("Error saving user") };
 
@@ -89,7 +89,7 @@ export const UserEditWizard: React.FC<UserEditWizardProps> = ({ user, onSave, on
     );
 
     return (
-        <Form<{ users: User[] }>
+        <Form<{ users: UserWithSettings[] }>
             autoComplete="off"
             onSubmit={onSubmit}
             initialValues={{ users: [user] }}

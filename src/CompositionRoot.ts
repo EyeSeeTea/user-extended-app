@@ -13,6 +13,7 @@ import { ListMetadataUseCase } from "./domain/usecases/ListMetadataUseCase";
 import { ListUsersUseCase } from "./domain/usecases/ListUsersUseCase";
 import { SaveColumnsUseCase } from "./domain/usecases/SaveColumnsUseCase";
 import { SaveUsersUseCase } from "./domain/usecases/SaveUsersUseCase";
+import { SaveUserWithSettingsUseCase } from "./domain/usecases/SaveUserWithSettingsUseCase";
 import { UpdateUserPropUseCase } from "./domain/usecases/UpdateUserPropUseCase";
 
 export function getCompositionRoot(instance: Instance) {
@@ -31,6 +32,7 @@ export function getCompositionRoot(instance: Instance) {
             listAllIds: new ListAllUserIdsUseCase(userRepository),
             get: new GetUsersByIdsUseCase(userRepository),
             save: new SaveUsersUseCase(userRepository),
+            saveWithSettings: new SaveUserWithSettingsUseCase(userRepository),
             updateProp: new UpdateUserPropUseCase(userRepository),
             getColumns: new GetColumnsUseCase(userRepository),
             saveColumns: new SaveColumnsUseCase(userRepository),

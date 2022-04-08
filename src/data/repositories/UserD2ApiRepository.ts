@@ -3,7 +3,7 @@ import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { NamedRef } from "../../domain/entities/Ref";
-import { User } from "../../domain/entities/User";
+import { User, UserWithSettings } from "../../domain/entities/User";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { cache } from "../../utils/cache";
 import { getD2APiFromInstance } from "../../utils/d2-api";
@@ -63,9 +63,29 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public getByIds(ids: string[]): FutureData<User[]> {
-        return apiToFuture(this.api.models.users.get({ fields, filter: { id: { in: ids } } })).flatMap(({ objects }) =>
-            Future.success(objects.map(user => this.toDomainUser(user)))
+        return apiToFuture(this.api.models.users.get({ fields, filter: { id: { in: ids } } })).map(({ objects }) =>
+            objects.map(user => this.toDomainUser(user))
         );
+    }
+
+    public getById(id: string): FutureData<UserWithSettings> {
+        const user$ = apiToFuture(this.api.models.users.get({ fields, filter: { id: { eq: id } } })).flatMap(
+            ({ objects }): FutureData<User> => {
+                const user = objects[0];
+                if (!user) return Future.error("Cannot find user");
+                return Future.success(this.toDomainUser(user));
+            }
+        );
+
+        const userSettings$ = apiToFuture(
+            this.api.get<{ keyUiLocale: string; keyDbLocale: string }>("/userSettings", { userId: id })
+        );
+
+        return Future.joinObj({ user: user$, userSettings: userSettings$ }).map(({ user, userSettings }) => ({
+            ...user,
+            uiLocale: userSettings.keyUiLocale,
+            dbLocale: userSettings.keyDbLocale,
+        }));
     }
 
     private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
@@ -139,6 +159,23 @@ export class UserD2ApiRepository implements UserRepository {
                     })
                 ).map(data => data);
             });
+        });
+    }
+
+    public saveWithSettings(user: UserWithSettings): FutureData<[{ status: string }, { status: string }]> {
+        return this.save([user]).flatMap((response: MetadataResponse) => {
+            if (response.status !== "OK") return Future.error("Cannot update user");
+
+            const key2url = (key: string, value: string) => `userSettings/${key}?userId=${user.id}&value=${value}`;
+
+            const responseUiLocale$ = apiToFuture<{ status: string }>(
+                this.api.post(key2url("keyUiLocale", user.uiLocale))
+            );
+            const responseDbLocale$ = apiToFuture<{ status: string }>(
+                this.api.post(key2url("keyDbLocale", user.dbLocale))
+            );
+
+            return Future.join2(responseUiLocale$, responseDbLocale$);
         });
     }
 

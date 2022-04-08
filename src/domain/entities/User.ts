@@ -32,6 +32,11 @@ export interface User {
     authorities: string[];
 }
 
+export interface UserWithSettings extends User {
+    uiLocale: string;
+    dbLocale: string;
+}
+
 export const defaultUser: User = {
     id: "",
     name: "",
@@ -62,6 +67,13 @@ export const defaultUser: User = {
     accountExpiry: undefined,
     authorities: [""],
 };
+
+export const defaultUserWithSettings: UserWithSettings = {
+    ...defaultUser,
+    uiLocale: "",
+    dbLocale: "",
+};
+
 export interface AccessPermissions {
     read: boolean;
     update: boolean;
