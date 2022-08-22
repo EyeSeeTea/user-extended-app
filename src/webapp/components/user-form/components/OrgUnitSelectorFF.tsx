@@ -2,6 +2,7 @@ import { FieldState, NoticeBox } from "@dhis2/ui";
 import { OrgUnitsSelector } from "@eyeseetea/d2-ui-components";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+import { extractIdFromPath } from "../../../../domain/entities/OrgUnit";
 import { NamedRef } from "../../../../domain/entities/Ref";
 import { useAppContext } from "../../../contexts/app-context";
 
@@ -23,8 +24,8 @@ export const OrgUnitSelectorFF = ({ input, meta, validationText, ...rest }: OrgU
     const message = validationText ?? meta.error ?? meta.submitError;
 
     const onChange = useCallback(
-        ({ selected }: { selected: string[] }) => {
-            input.onChange(selected.map(id => ({ id })));
+        (selected: string[]) => {
+            input.onChange(selected.map(path => ({ id: extractIdFromPath(path) })));
         },
         [input]
     );

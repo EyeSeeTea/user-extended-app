@@ -84,6 +84,7 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
         name,
         placeholder: getUserFieldName(field),
         validate: validation,
+        autoComplete: "new-password",
         ...validationProps,
     };
 
@@ -95,6 +96,19 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
             error => console.error(error)
         );
     }, [field, compositionRoot]);
+
+    // accountExpiry format: 2024-06-02T00:00:00.000
+    // InputFieldFF date type only accepts 2024-06-02
+    // Probably not the clean way to do this, but it works
+    useEffect(() => {
+        if (field !== "accountExpiry") return;
+
+        const user = values.users[row];
+
+        if (user.accountExpiry?.includes("T00:00:00.000")) {
+            user.accountExpiry = user.accountExpiry.split("T", 1)[0];
+        }
+    });
 
     switch (field) {
         case "id":
@@ -121,9 +135,8 @@ export const RenderUserWizardField: React.FC<{ row: number; field: UserFormField
                     disabled={values.users[row].externalAuth === true}
                 />
             );
-        // TODO: Convert to date field
         case "accountExpiry":
-            return <FormField {...props} component={InputFieldFF} type="datetime-local" />;
+            return <FormField {...props} component={InputFieldFF} type="date" />;
         case "userGroups":
             return <FormField {...props} component={UserRoleGroupFF} modelType="userGroups" />;
         case "userRoles":

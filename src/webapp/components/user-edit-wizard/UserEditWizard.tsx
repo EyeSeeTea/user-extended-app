@@ -17,7 +17,17 @@ const steps: WizardStep[] = [
         label: i18n.t("General info"),
         component: UserEditWizardStep,
         props: {
-            fields: ["username", "firstName", "surname", "email", "externalAuth", "password", "openId", "ldapId"],
+            fields: [
+                "username",
+                "firstName",
+                "surname",
+                "email",
+                "externalAuth",
+                "password",
+                "openId",
+                "ldapId",
+                "accountExpiry",
+            ],
         },
     },
 
@@ -80,7 +90,7 @@ export const UserEditWizard: React.FC<UserEditWizardProps> = ({ user, onSave, on
 
     return (
         <Form<{ users: User[] }>
-            autocomplete="off"
+            autoComplete="off"
             onSubmit={onSubmit}
             initialValues={{ users: [user] }}
             render={({ handleSubmit, submitError }) => (

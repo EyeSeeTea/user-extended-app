@@ -26,6 +26,7 @@ export const userFormFields = [
     "skype",
     "telegram",
     "twitter",
+    "accountExpiry",
 ];
 
 export const userRequiredFields: UserFormField[] = ["id", "name"];

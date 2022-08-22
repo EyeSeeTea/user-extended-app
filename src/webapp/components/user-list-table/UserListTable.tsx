@@ -331,7 +331,7 @@ export const columns: TableColumn<User>[] = [
     },
     {
         name: "organisationUnits",
-        sortable: false,
+        sortable: true,
         text: i18n.t("Organisation units"),
         getValue: user => buildEllipsizedList(user.organisationUnits),
     },
