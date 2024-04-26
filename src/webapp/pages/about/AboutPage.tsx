@@ -14,11 +14,11 @@ export const AboutPage: React.FC = React.memo(() => {
             "User-Extended App is a DHIS2 Web Application that provides an easy and integrated way to perform common operations to DHIS2 users which would be burdensome to perform using the in-built DHIS2 User management application."
         ),
         i18n.t(
-            "This application has been funded by the the Norwegian Refugee Council (NRC), the WHO Global Malaria Programme, Samaritan’s Purse and Medecins Sans Frontières (MSF) to support countries in strengthening the collection and use of health data by using DHIS2. The application has been developed by [EyeSeeTea SL](http://eyeseetea.com). Source code, documentation and release notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea.github.io/user-extended-app-blessed/)",
+            "User-Extended App development is sustainable thanks to the partners for which we build customized DHIS2 solutions. It has been funded by the Norwegian Refugee Council, the WHO Global Malaria Programme, Samaritan’s Purse and Medecins Sans Frontières to support countries in strengthening the collection and use of health data through DHIS2. Also, the WHO Integrated Data Platform (WIDP), where several WHO departments and units share a dedicated hosting and maintenance provided by EyeSeeTea, back some specific new features. The Long Term Agreement EyeSeeTea holds with WHO for this maintenance includes maintenance of this application, ensuring that it will always work at least with the last version of WIDP. We are passionate about both DHIS2 and open source, so giving back to the community through dedicated open-source development is and will always be part of EyeSeeTea’s commitment.",
             { nsSeparator: false }
         ),
         i18n.t(
-            "If you wish to contribute to the development of User Extended App with new features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com).",
+            "The application has been developed by [EyeSeeTea SL](http://eyeseetea.com). Source code, documentation and release notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea.github.io/user-extended-app-blessed/). If you wish to contribute to the development of User Extended App with new features, please contact [EyeSeeTea](mailto:community@eyeseetea.com). You can also support our work through a [one-time contribution or becoming a regular github sponsor](https://github.com/sponsors/EyeSeeTea).",
             { nsSeparator: false }
         ),
     ].join("\n\n");
