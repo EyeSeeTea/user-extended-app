@@ -8,7 +8,7 @@ export const appConfig: AppConfig = {
     feedback: {
         repositories: {
             clickUp: {
-                listId: "170646832",
+                listId: "170646828",
                 title: "[User feedback] {title}",
                 body: "## dhis2\n\nUsername: {username}\n\n{body}",
             },
