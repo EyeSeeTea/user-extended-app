@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-04-19T23:05:49.157Z\n"
+"POT-Creation-Date: 2024-05-17T00:27:02.084Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -9,10 +9,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Copiar"
 
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 msgid "User {{user}} replicated successfully {{n}} times"
 msgstr ""
@@ -36,28 +36,28 @@ msgid "Replicate error"
 msgstr "Replicar error"
 
 msgid "Settings"
-msgstr ""
+msgstr "Configuración"
 
 msgid "Columns to show in table"
-msgstr ""
+msgstr "Columnas a mostrar en tabla"
 
 msgid "Column"
-msgstr ""
+msgstr "Columna"
 
 msgid "Type"
 msgstr ""
 
 msgid "Created"
-msgstr ""
+msgstr "Creado"
 
 msgid "Updated"
-msgstr ""
+msgstr "Actualizado"
 
 msgid "Deleted"
-msgstr ""
+msgstr "Eliminado"
 
 msgid "Ignored"
-msgstr ""
+msgstr "Ignorado"
 
 msgid "Total"
 msgstr ""
@@ -66,7 +66,7 @@ msgid "Identifier"
 msgstr ""
 
 msgid "Message"
-msgstr ""
+msgstr "Mensaje"
 
 msgid "Import Results"
 msgstr ""
@@ -75,13 +75,13 @@ msgid "Ok"
 msgstr ""
 
 msgid "Users"
-msgstr ""
+msgstr "Usuarios"
 
 msgid "Import"
-msgstr ""
+msgstr "Importar"
 
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 msgid "Summary"
 msgstr ""
@@ -102,10 +102,10 @@ msgid "Merge"
 msgstr ""
 
 msgid "Replace"
-msgstr ""
+msgstr "Reemplazar"
 
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 msgid "Assign roles to {{usernames}}"
 msgstr ""
@@ -129,16 +129,16 @@ msgid "Assignment"
 msgstr ""
 
 msgid "Other information"
-msgstr ""
+msgstr "Otra información"
 
 msgid "Error saving user"
-msgstr ""
+msgstr "Error al guardar usuario"
 
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 msgid "Please provide a valid identifier"
 msgstr ""
@@ -252,10 +252,10 @@ msgid "API URL"
 msgstr ""
 
 msgid "Roles"
-msgstr ""
+msgstr "Roles"
 
 msgid "Groups"
-msgstr ""
+msgstr "Grupos"
 
 msgid "OU Capture"
 msgstr ""
@@ -270,7 +270,7 @@ msgid "Details"
 msgstr "Detalles"
 
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 msgid "Copy in user"
 msgstr ""
@@ -285,28 +285,28 @@ msgid "Assign to search organisation units"
 msgstr ""
 
 msgid "Assign roles"
-msgstr ""
+msgstr "Asignar roles"
 
 msgid "Assign groups"
-msgstr ""
+msgstr "Asignar grupos"
 
 msgid "Enable"
-msgstr ""
+msgstr "Habilitar"
 
 msgid "Disable"
-msgstr ""
+msgstr "Deshabilitar"
 
 msgid "Remove"
-msgstr ""
+msgstr "Eliminar"
 
 msgid "Replicate user from template"
-msgstr ""
+msgstr "Replicar usuario desde plantilla"
 
 msgid "Replicate user from table"
-msgstr ""
+msgstr "Replicar usuario desde tabla"
 
 msgid "Search by name or username..."
-msgstr ""
+msgstr "Buscar por nombre y nombre de usuario"
 
 msgid "Assign to organisation units capture"
 msgstr ""
@@ -321,13 +321,13 @@ msgid "{{action}}: {{users}} {{remainingCount}}"
 msgstr ""
 
 msgid "User ID"
-msgstr ""
+msgstr "ID"
 
 msgid "First name"
-msgstr ""
+msgstr "Nombre"
 
 msgid "Phone number"
-msgstr ""
+msgstr "Número de teléfono móvil"
 
 msgid "Organisation units"
 msgstr ""
@@ -339,19 +339,19 @@ msgid "Search organisation units"
 msgstr ""
 
 msgid "Created By"
-msgstr ""
+msgstr "Creado por"
 
 msgid "Last Modified By"
-msgstr ""
+msgstr "Última actualización hecha por"
 
 msgid "And {{overflow}} more..."
-msgstr ""
+msgstr "Y {{overflow}} más..."
 
 msgid "Users {{action}}. {{users}} {{remainingCount}}"
-msgstr ""
+msgstr "Usuarios {{action}}. {{users}} {{remainingCount}}"
 
 msgid "{{action}} users"
-msgstr ""
+msgstr "{{action}} usuarios"
 
 msgid ""
 "Are you sure you want to {{action}} the selected users? {{users}} "
@@ -359,10 +359,10 @@ msgid ""
 msgstr ""
 
 msgid "Confirm"
-msgstr ""
+msgstr "Confirmar"
 
 msgid "Saving..."
-msgstr ""
+msgstr "Guardando..."
 
 msgid "Distributed under GNU GLPv3"
 msgstr ""
@@ -407,34 +407,34 @@ msgid "MSF"
 msgstr ""
 
 msgid "Edit users"
-msgstr ""
+msgstr "Editar usuarios"
 
 msgid "Column settings"
-msgstr ""
+msgstr "Gestionar columnas"
 
 msgid "Error saving users"
-msgstr ""
+msgstr "Error al guardar usuarios"
 
 msgid "Add user"
-msgstr ""
+msgstr "Agregar usuario"
 
 msgid "Delete"
-msgstr ""
+msgstr "Eliminar2"
 
 msgid "Edit user"
-msgstr ""
+msgstr "Editar usuario"
 
 msgid "New user"
 msgstr "Nuevo usuario"
 
 msgid "Network error"
-msgstr ""
+msgstr "Error de red"
 
 msgid "Unable to load user {{id}}"
-msgstr ""
+msgstr "Error al obtener el usuario {{id}}"
 
 msgid "Open in user management"
-msgstr ""
+msgstr "Abrir en Administración de usuarios"
 
 msgid " and {{overflow}} more..."
-msgstr ""
+msgstr " y {{overflow}} más..."
