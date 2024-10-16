@@ -1,14 +1,18 @@
 import _ from "lodash";
-import { anything, deepEqual, instance, mock, when, verify } from "ts-mockito";
+import { anything, instance, mock, when, capture } from "ts-mockito";
 import { sourceUser } from "./data/user";
 
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 
 import { ReplicateFromTemplateUseCase } from "../ReplicateFromTemplateUseCase";
 import { User } from "../../entities/User";
+import { Future } from "../../entities/Future";
+import { MetadataResponse } from "@eyeseetea/d2-api/api";
+import { getFromTemplate } from "../../../utils/templates";
 
 let userRepositoryMock: UserD2ApiRepository;
 let replicateFromTemplateUseCase: ReplicateFromTemplateUseCase;
+let generatedUsers: User[] = [];
 
 describe("ReplicateFromTemplateUseCase", () => {
     beforeEach(() => {
@@ -17,58 +21,119 @@ describe("ReplicateFromTemplateUseCase", () => {
     });
 
     it("Should replicate provided user", async () => {
-        const expectedUser: User = {
-            ...sourceUser,
-            username: sourceUser.username + "_1",
-            password: sourceUser.password + "_1",
-        };
+        const count = 1;
+        const usernameTemplate = sourceUser.username + "_$index";
+        const passwordTemplate = "District123_$index";
 
-        const replicatedUser = replicateFromTemplateUseCase.execute(sourceUser, 1, "_1", "_1");
+        const expectedUsers: User[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
 
-        expect(replicatedUser).toEqual(expectedUser);
+        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+
+        [generatedUsers] = capture(userRepositoryMock.save).last();
+        compareUsers(generatedUsers, expectedUsers);
+    });
+
+    it("Should replicate provided user 'count' times", async () => {
+        const count = 3;
+        const usernameTemplate = sourceUser.username + "_$index";
+        const passwordTemplate = "District123_$index";
+
+        const expectedUsers: User[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
+
+        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+
+        [generatedUsers] = capture(userRepositoryMock.save).last();
+        compareUsers(generatedUsers, expectedUsers);
     });
 
     it("Should disble openID from replicated users", async () => {
         const openIdUser: User = {
             ...sourceUser,
-            twoFA: true,
+            externalAuth: true,
             openId: "openId",
         };
 
-        const expectedUser: User = {
-            ...openIdUser,
-            twoFA: false,
-            openId: undefined,
-            username: sourceUser.username + "_1",
-            password: sourceUser.password + "_1",
-        };
+        const count = 1;
+        const usernameTemplate = openIdUser.username + "_$index";
+        const passwordTemplate = "District123_$index";
 
-        const replicatedUser = replicateFromTemplateUseCase.execute(openIdUser, 1, "_1", "_1");
+        const expectedUsers: User[] = givenAnExpectedUsers(openIdUser, count, usernameTemplate, passwordTemplate);
 
-        expect(replicatedUser).toEqual(expectedUser);
+        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+
+        [generatedUsers] = capture(userRepositoryMock.save).last();
+        compareUsers(generatedUsers, expectedUsers);
     });
 
-    it("Should disble openID from replicated users", async () => {
+    it("Should disble LDAP from replicated users", async () => {
         const ldapUser: User = {
             ...sourceUser,
-            twoFA: true,
+            externalAuth: true,
             ldapId: "ldapId",
         };
 
-        const expectedUser: User = {
-            ...ldapUser,
-            twoFA: false,
-            openId: undefined,
-            username: sourceUser.username + "_1",
-            password: sourceUser.password + "_1",
+        const count = 1;
+        const usernameTemplate = ldapUser.username + "_$index";
+        const passwordTemplate = "District123_$index";
+
+        const expectedUsers: User[] = givenAnExpectedUsers(ldapUser, count, usernameTemplate, passwordTemplate);
+
+        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+
+        [generatedUsers] = capture(userRepositoryMock.save).last();
+        compareUsers(generatedUsers, expectedUsers);
+    });
+
+    it("Should disble twoFA from replicated users", async () => {
+        const tfaUser: User = {
+            ...sourceUser,
+            twoFA: true,
         };
 
-        const replicatedUser = replicateFromTemplateUseCase.execute(ldapUser, 1, "_1", "_1");
+        const count = 1;
+        const usernameTemplate = tfaUser.username + "_$index";
+        const passwordTemplate = "District123_$index";
 
-        expect(replicatedUser).toEqual(expectedUser);
+        const expectedUsers: User[] = givenAnExpectedUsers(tfaUser, count, usernameTemplate, passwordTemplate);
+
+        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+
+        [generatedUsers] = capture(userRepositoryMock.save).last();
+        compareUsers(generatedUsers, expectedUsers);
     });
 
-    it("Should check if username is unique", async () => {
-        // add duplicate user error
-    });
+    function givenAnExpectedUsers(
+        user: User,
+        count: number,
+        usernameTemplate: string,
+        passwordTemplate: string
+    ): User[] {
+        when(userRepositoryMock.save(anything())).thenReturn(Future.success({ status: "OK" } as MetadataResponse));
+
+        return _.times(count, index => {
+            return {
+                ...user,
+                id: "",
+                username: getFromTemplate(usernameTemplate, index),
+                password: getFromTemplate(passwordTemplate, index),
+                externalAuth: false,
+                twoFA: false,
+                openId: "",
+                ldapId: "",
+            };
+        });
+    }
+
+    function compareUsers(generatedUsers: User[], expectedUsers: User[]) {
+        expect(generatedUsers).toHaveLength(expectedUsers.length);
+
+        generatedUsers.forEach((user, index) => {
+            const generatedUser = {
+                ...user,
+                id: "",
+            };
+
+            expect(generatedUser).toEqual(expectedUsers[index]);
+        });
+    }
 });

@@ -26,6 +26,7 @@ import { getD2APiFromInstance } from "./utils/d2-api";
 import { LoggerSettingsD2Repository } from "./data/repositories/LoggerSettingsD2Repository";
 import { GetLoggerSettingsUseCase } from "./domain/usecases/GetLoggerSettingsUseCase";
 import { SaveLoggerSettingsUseCase } from "./domain/usecases/SaveLoggerSettingsUseCase";
+import { ReplicateFromTemplateUseCase } from "./domain/usecases/ReplicateFromTemplateUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const api = getD2APiFromInstance(instance);
@@ -60,6 +61,7 @@ export function getCompositionRoot(instance: Instance) {
             saveOrgUnits: new SaveUserOrgUnitUseCase(userRepository),
             export: new ExportUsersUseCase(userRepository),
             copyInUser: new CopyInUserUseCase(userRepository),
+            replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
         }),
         metadata: getExecute({
             list: new ListMetadataUseCase(metadataRepository),
