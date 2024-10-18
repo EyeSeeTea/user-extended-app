@@ -168,7 +168,10 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     };
 
     const toggleAllowOverwrite = useCallback(
-        (_event, newValue: boolean) => {
+        (_event, newValue: boolean, form) => {
+            requestAnimationFrame(() => {
+                form.change("updateValidation", newValue);
+            });
             setAreUsersValid(newValue || !errorsCount);
             setAllowOverwrite(newValue);
         },
@@ -304,7 +307,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                 autocomplete="off"
                                 onSubmit={onSubmit}
                                 initialValues={{ users }}
-                                render={({ handleSubmit, values }) => {
+                                render={({ handleSubmit, form, values }) => {
                                     const canAddNewUser = values.users.length < ImportUser.MAX_USERS;
                                     return (
                                         <>
@@ -344,17 +347,24 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                                     />
                                                 </AddButtonRow>
                                             </form>
+                                            {showOverwriteToggle && !templateUser && (
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={allowOverwrite}
+                                                            onChange={(event, newValue) =>
+                                                                toggleAllowOverwrite(event, newValue, form)
+                                                            }
+                                                        />
+                                                    }
+                                                    label={i18n.t("Overwrite existing users")}
+                                                />
+                                            )}
                                         </>
                                     );
                                 }}
                             />
                         </TableContainer>
-                        {showOverwriteToggle && !templateUser && (
-                            <FormControlLabel
-                                control={<Switch checked={allowOverwrite} onChange={toggleAllowOverwrite} />}
-                                label={i18n.t("Overwrite existing users")}
-                            />
-                        )}
                     </div>
                 )}
             </DialogContent>
@@ -388,6 +398,8 @@ const RowItem: React.FC<RowItemProps> = ({ data, columnIndex, rowIndex, onDelete
     const form = useForm<{ users: User[] }>();
     const deleteRow = columnIndex === data.columns.length - 1;
     const field = data.columns[columnIndex];
+    const username = form.getState().values.users[rowIndex]?.username;
+    const isExistingUser = username ? data.existingUsersNames.includes(username) : false;
 
     const removeRow = useCallback(() => {
         const original = form.getState().values.users;
@@ -409,8 +421,8 @@ const RowItem: React.FC<RowItemProps> = ({ data, columnIndex, rowIndex, onDelete
         <RenderUserImportField
             rowIndex={rowIndex}
             field={field}
-            existingUsersNames={data.existingUsersNames}
             allowOverwrite={allowOverwrite}
+            isExistingUser={isExistingUser}
         />
     );
 };
@@ -418,9 +430,9 @@ const RowItem: React.FC<RowItemProps> = ({ data, columnIndex, rowIndex, onDelete
 const RenderUserImportField: React.FC<{
     rowIndex: number;
     field: UserFormField;
-    existingUsersNames: string[];
     allowOverwrite: boolean;
-}> = ({ rowIndex, field, existingUsersNames, allowOverwrite }) => {
+    isExistingUser: boolean;
+}> = ({ rowIndex, field, allowOverwrite, isExistingUser }) => {
     const name = `users[${rowIndex}].${field}`;
 
     const { validation, props: validationProps = {} } = useValidations(field);
@@ -443,8 +455,8 @@ const RenderUserImportField: React.FC<{
                     <RenderField
                         rowIndex={rowIndex}
                         field={field}
-                        existingUsersNames={existingUsersNames}
                         allowOverwrite={allowOverwrite}
+                        isExistingUser={isExistingUser}
                     />
                 </PreviewInputFF>
             );
@@ -453,8 +465,8 @@ const RenderUserImportField: React.FC<{
                 <RenderField
                     rowIndex={rowIndex}
                     field={field}
-                    existingUsersNames={existingUsersNames}
                     allowOverwrite={allowOverwrite}
+                    isExistingUser={isExistingUser}
                 />
             );
     }
@@ -463,10 +475,10 @@ const RenderUserImportField: React.FC<{
 const RenderField: React.FC<{
     rowIndex: number;
     field: UserFormField;
-    existingUsersNames: string[];
     allowOverwrite: boolean;
-}> = ({ rowIndex, field, existingUsersNames, allowOverwrite }) => {
-    const { validation, props: validationProps = {} } = useValidations(field, existingUsersNames, allowOverwrite);
+    isExistingUser: boolean;
+}> = ({ rowIndex, field, allowOverwrite, isExistingUser }) => {
+    const { validation, props: validationProps = {} } = useValidations(field, allowOverwrite, isExistingUser);
     const name = `users[${rowIndex}].${field}`;
     const props = {
         name,
@@ -544,20 +556,37 @@ const FormTextField = (props: FormTextFieldProps) => {
     );
 };
 
-const userRequiredFields = ["username", "firstName", "surname", "password"];
+const userRequiredFields = [
+    "username",
+    "firstName",
+    "surname",
+    "password",
+    "userRoles",
+    "userGroups",
+    "organisationUnits",
+];
 
 const useValidations = (
     field: UserFormField,
-    existingUsersNames: string[] = [],
-    allowOverwrite = false
+    allowOverwrite = false,
+    isExistingUser = false
 ): { validation?: (...args: any[]) => Maybe<string>; props?: object } => {
     switch (field) {
         case "username": {
             return {
                 validation: (value: string) => {
-                    const errorMessage = !existingUsersNames.includes(value) ? "" : i18n.t("User already exists");
-                    if (allowOverwrite) return "";
-                    return errorMessage;
+                    if (!value) return i18n.t("Please provide a username");
+                    if (allowOverwrite && isExistingUser) return "";
+                    if (isExistingUser) {
+                        return i18n.t("User already exists");
+                    } else {
+                        const validators = composeValidators(
+                            string,
+                            createMinCharacterLength(2),
+                            createMaxCharacterLength(140)
+                        );
+                        return validators(value);
+                    }
                 },
             };
         }
@@ -570,19 +599,38 @@ const useValidations = (
             };
         case "password":
             return {
-                validation: composeValidators(
-                    string,
-                    createMinCharacterLength(8),
-                    createMaxCharacterLength(255),
-                    createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
-                    createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
-                    createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
-                    createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
-                ),
+                validation: (value: string) => {
+                    if (isExistingUser && !value) return "";
+                    if (!value) {
+                        return i18n.t("Please provide a password");
+                    } else {
+                        const validators = composeValidators(
+                            string,
+                            createMinCharacterLength(8),
+                            createMaxCharacterLength(255),
+                            createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
+                            createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
+                            createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
+                            createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
+                        );
+                        return validators(value);
+                    }
+                },
             };
         case "phoneNumber":
             return {
                 validation: createPattern(/^\+?[0-9 \-()]+$/, i18n.t("Please provide a valid phone number")),
+            };
+        case "userRoles":
+        case "userGroups":
+        case "organisationUnits":
+            // NOTE: userGroups is not a mandatory field but its required by src/domain/usecases/ImportUsersUseCase.ts
+            return {
+                validation: (value: string[]) => {
+                    const errorMessage = "Please select at least one item";
+                    if (!value) return i18n.t(errorMessage);
+                    return value.length > 0 ? undefined : i18n.t(errorMessage);
+                },
             };
         default: {
             const required = userRequiredFields.includes(field);

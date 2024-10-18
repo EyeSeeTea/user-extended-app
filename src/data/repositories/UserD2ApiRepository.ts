@@ -589,7 +589,17 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getApiOrgUnits(orgUnits: OrgUnit[]): ApiD2OrgUnit[] {
-        return orgUnits.map(orgUnit => ({ ...orgUnit, path: joinPaths(orgUnit) }));
+        return _.compact(
+            orgUnits.map(orgUnit => {
+                if (orgUnit.id === "") {
+                    return undefined;
+                }
+                return {
+                    ...orgUnit,
+                    path: joinPaths(orgUnit),
+                };
+            })
+        );
     }
 }
 
