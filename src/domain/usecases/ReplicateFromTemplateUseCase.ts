@@ -2,7 +2,7 @@ import _ from "lodash";
 import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
 
 import { generateUid } from "../../utils/uid";
-import { getFromTemplate } from "../../utils/templates";
+import { getFromTemplate } from "../../utils/template";
 
 import { UseCase } from "../../CompositionRoot";
 import { UserRepository } from "../repositories/UserRepository";
