@@ -6,7 +6,6 @@ import React, { useState, useEffect, useCallback, SetStateAction, ComponentType 
 import InfoDialog from "../../../legacy/components/InfoDialog";
 import { generateUid } from "../../../utils/uid";
 import i18n from "../../../locales";
-import UserLegacy from "../../../legacy/models/user";
 import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
 import {
     composeValidators,
@@ -88,9 +87,10 @@ type ImportTableProps = {
     title: string;
     usersFromFile: User[];
     columns: Columns[];
-    onSave: (users: User[]) => void;
+    onSave?: (users: User[]) => void;
+    onSubmit?: (params: { users: User[] }) => void;
     onRequestClose: () => void;
-    templateUser?: UserLegacy;
+    templateUser?: User;
     actionText: string;
     warnings: string[];
 };
@@ -105,6 +105,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         templateUser = null,
         actionText,
         warnings = [],
+        onSubmit: customOnSubmit,
     } = props;
     const [users, setUsers] = useState<User[]>(usersFromFile);
     const [existingUsers, setExistingUsers] = React.useState<Record<string, User>>({});
@@ -217,14 +218,16 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         );
     };
 
-    const onSubmit = useCallback(
+    const defaultOnSubmit = useCallback(
         ({ users }: { users: User[] }) => {
             loading.show(true, i18n.t("Importing users"));
             return compositionRoot.users.import({ users }).run(
                 () => {
                     onRequestClose();
                     loading.hide();
-                    onSave([]);
+                    if (onSave) {
+                        onSave([]);
+                    }
                     snackbar.success(i18n.t("Users imported successfully"));
                 },
                 error => {
@@ -236,7 +239,9 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         [loading, onRequestClose, onSave, snackbar, compositionRoot.users]
     );
 
-    const addRow = useCallback((currentUsers: User[]) => {
+    const onSubmit = customOnSubmit || defaultOnSubmit;
+
+    const defaultAddRow = useCallback((currentUsers: User[]) => {
         const newUser: User = {
             ...defaultUser,
             id: generateUid(),
@@ -247,6 +252,26 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         };
         setUsers(currentUsers.concat(newUser));
     }, []);
+
+    const replicateAddRow = useCallback(
+        (currentUsers: User[]) => {
+            if (templateUser) {
+                const existingNames = existingUsersNames.concat(currentUsers.map(user => user.username));
+                const makeUsername = (i = 0) => `${templateUser.username}_${i}`;
+                const index = _.range(1, 1000).find(i => !existingNames.some(username => username === makeUsername(i)));
+                const newUser = {
+                    ...templateUser,
+                    username: makeUsername(index),
+                    password: UserLogic.DEFAULT_PASSWORD,
+                    id: generateUid(),
+                };
+                setUsers(currentUsers.concat(newUser));
+            }
+        },
+        [existingUsersNames, templateUser]
+    );
+
+    const addRow = templateUser ? replicateAddRow : defaultAddRow;
 
     const renderTableRow = useCallback(
         (user: User, rowIndex: number, users: User[]) => {
