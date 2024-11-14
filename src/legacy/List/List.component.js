@@ -4,11 +4,13 @@ import ViewColumnIcon from "material-ui/svg-icons/action/view-column";
 import PropTypes from "prop-types";
 import React from "react";
 import { UserListTable } from "../../webapp/components/user-list-table/UserListTable";
-import ReplicateUserFromTable from "../components/ReplicateUserFromTable.component";
-import ReplicateUserFromTemplate from "../components/ReplicateUserFromTemplate.component";
+import ReplicateUserFromTable from "../../webapp/components/replicate/ReplicateUserFromTable";
+// import ReplicateUserFromTemplate from "../components/ReplicateUserFromTemplate.component";
 import Settings from "../models/settings";
 import snackActions from "../Snackbar/snack.actions";
 import Filters from "./Filters.component";
+
+import ReplicateUserFromTemplateFC from "../../webapp/components/replicate/ReplicateUserFromTemplate";
 
 const initialSorting = ["name", "asc"];
 
@@ -142,8 +144,9 @@ export class ListHybrid extends React.Component {
 
     getReplicateDialog = info => {
         const componentsByType = {
-            replicate_template: ReplicateUserFromTemplate,
+            // replicate_template: ReplicateUserFromTemplate,
             replicate_table: ReplicateUserFromTable,
+            replicate_template: ReplicateUserFromTemplateFC,
         };
         const ReplicateComponent = componentsByType[info.action];
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import i18n from "../../../locales";
 import { Id } from "../../../domain/entities/Ref";
 import { useAppContext } from "../../contexts/app-context";
@@ -37,11 +37,18 @@ export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = pro
                 }
             },
             error => {
-                snackbar.error(i18n.t(`Error loading user(${userToReplicateId}): ${error}`));
+                snackbar.error(i18n.t(`Error loading user (${userToReplicateId}): ${error}`));
                 onRequestClose();
             }
         );
-    }, [compositionRoot, loading, onRequestClose, snackbar, userToReplicateId]);
+    }, [compositionRoot.users, onRequestClose, snackbar, userToReplicateId]);
+
+    const replicateTitle = useMemo(() => {
+        console.debug("useMemo replicateTitle");
+        return i18n.t("Replicate {{user}}", {
+            user: userToReplicate ? `${userToReplicate.name} (${userToReplicate.username})` : "",
+        });
+    }, [userToReplicate]);
 
     const columns: Columns[] = [
         "username",
@@ -100,7 +107,7 @@ export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = pro
 
     return (
         <ImportTable
-            title={i18n.t("Replicate user")}
+            title={replicateTitle}
             actionText={i18n.t("Replicate")}
             usersFromFile={[]}
             columns={columns}
