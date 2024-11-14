@@ -9,10 +9,11 @@ import { GetInstanceLocalesUseCase } from "./domain/usecases/GetInstanceLocalesU
 import { GetInstanceVersionUseCase } from "./domain/usecases/GetInstanceVersionUseCase";
 import { GetOrgUnitPathsUseCase } from "./domain/usecases/GetOrgUnitPathsUseCase";
 import { GetUsersByIdsUseCase } from "./domain/usecases/GetUsersByIdsUseCase";
-import { ListAllUserIdsUseCase } from "./domain/usecases/ListAllUserIdsUseCase";
 import { ListMetadataUseCase } from "./domain/usecases/ListMetadataUseCase";
 import { ListUsersUseCase } from "./domain/usecases/ListUsersUseCase";
 import { ListAllUsersUseCase } from "./domain/usecases/ListAllUsersUseCase";
+import { ListAllUserIdsUseCase } from "./domain/usecases/ListAllUserIdsUseCase";
+import { ListAllUsernamesUseCase } from "./domain/usecases/ListAllUsernamesUseCase";
 import { RemoveUsersUseCase } from "./domain/usecases/RemoveUsersUseCase";
 import { SaveColumnsUseCase } from "./domain/usecases/SaveColumnsUseCase";
 import { SaveUserOrgUnitUseCase } from "./domain/usecases/SaveUserOrgUnitUseCase";
@@ -52,6 +53,7 @@ export function getCompositionRoot(instance: Instance) {
             list: new ListUsersUseCase(userRepository),
             listAll: new ListAllUsersUseCase(userRepository),
             listAllIds: new ListAllUserIdsUseCase(userRepository),
+            listAllUsernames: new ListAllUsernamesUseCase(userRepository),
             get: new GetUsersByIdsUseCase(userRepository),
             save: new SaveUsersUseCase(userRepository),
             saveStatus: new SaveUserStatusUseCase(userRepository),

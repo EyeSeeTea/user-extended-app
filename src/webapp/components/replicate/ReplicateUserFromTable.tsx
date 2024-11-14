@@ -26,19 +26,22 @@ export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = pro
     const snackbar = useSnackbar();
 
     useEffect(() => {
+        const handleUsersError = (message: string) => {
+            snackbar.error(i18n.t(message));
+            onRequestClose();
+        };
+
         compositionRoot.users.get([userToReplicateId]).run(
             ([user]) => {
                 if (!user) {
-                    snackbar.error(i18n.t(`Unable to load user: ${userToReplicateId}`));
-                    onRequestClose();
+                    handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
                     setUserToReplicate(user);
                     setIsMounted(true);
                 }
             },
             error => {
-                snackbar.error(i18n.t(`Error loading user (${userToReplicateId}): ${error}`));
-                onRequestClose();
+                handleUsersError(`Error loading user (${userToReplicateId}): ${error}`);
             }
         );
     }, [compositionRoot.users, onRequestClose, snackbar, userToReplicateId]);

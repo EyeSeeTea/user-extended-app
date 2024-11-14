@@ -152,6 +152,22 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects }) => objects.map(user => user.id));
     }
 
+    public listAllUsernames(options: ListOptions): FutureData<string[]> {
+        const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
+        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+
+        return apiToFuture(
+            this.api.models.users.get({
+                fields: { userCredentials: { username: true } },
+                paging: false,
+                query: search !== "" ? search : undefined,
+                canManage: canManage === "true" ? "true" : undefined,
+                filter: otherFilters,
+                order: `${sorting.field}:${sorting.order}`,
+            })
+        ).map(({ objects }) => objects.map(user => user.userCredentials.username));
+    }
+
     public getByIds(ids: string[]): FutureData<User[]> {
         if (ids.length === 0) return Future.success([]);
         return this.getUsersByIds(ids);

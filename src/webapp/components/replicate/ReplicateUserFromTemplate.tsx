@@ -18,6 +18,7 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
     const { userToReplicateId, onRequestClose } = props;
 
     const [userToReplicate, setUserToReplicate] = React.useState<User>(defaultUser);
+    const [existingUsernames, setExistingUsernames] = React.useState<string[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
 
     const loading = useLoading();
@@ -31,6 +32,12 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
     }, [userToReplicate]);
 
     useEffect(() => {
+        const handleUsersError = (message: string) => {
+            console.debug("useEffect handleUsersError");
+            snackbar.error(i18n.t(message));
+            onRequestClose();
+        };
+
         console.debug("useEffect userToReplicate");
 
         loading.show(true);
@@ -39,15 +46,24 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
         compositionRoot.users.get([userToReplicateId]).run(
             ([user]) => {
                 if (!user) {
-                    snackbar.error(i18n.t(`Unable to load user: ${userToReplicateId}`));
-                    onRequestClose();
+                    handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
                     setUserToReplicate(user);
                 }
             },
             error => {
-                snackbar.error(i18n.t(`Error loading user (${userToReplicateId}): ${error}`));
-                onRequestClose();
+                handleUsersError(`Error loading user (${userToReplicateId}): ${error}`);
+            }
+        );
+
+        compositionRoot.users.listAllUsernames({}).run(
+            usernames => {
+                console.debug("usernames", usernames);
+                setExistingUsernames(usernames);
+            },
+            error => {
+                console.debug("Error loading usernames", error);
+                handleUsersError(`Error loading user (${userToReplicateId}): ${error}`);
             }
         );
 
@@ -71,6 +87,8 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
                     ID: {userToReplicate.id}
                     <br />
                     Username: {userToReplicate.username}
+                    <br />
+                    Usernames count: {existingUsernames.length}
                 </div>
             )}
         </ConfirmationDialog>
