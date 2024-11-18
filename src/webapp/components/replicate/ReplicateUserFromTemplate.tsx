@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import { ConfirmationDialog, useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { DialogContent } from "@material-ui/core";
@@ -32,20 +32,20 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
 
     const [userToReplicate, setUserToReplicate] = React.useState<User>(defaultUser);
     const [existingUsernames, setExistingUsernames] = React.useState<string[]>([]);
+    const [replicateTitle, setReplicateTitle] = React.useState<string>("");
     const [replicateCount, setReplicateCount] = React.useState<string>("1");
     const [usernameTemplate, setUsernameTemplate] = React.useState<string>("");
     const [passwordTemplate, setPasswordTemplate] = React.useState<string>(`${UserLogic.DEFAULT_PASSWORD}_$index`);
+    const [hasValidationErrors, setValidationError] = React.useState<validationErrors>({
+        usersToCreate: false,
+        username: false,
+        password: false,
+    });
     const [isLoading, setIsLoading] = React.useState(true);
     const [infoDialog, setInfoDialog] = React.useState<{ response: string }>();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
-
-    const replicateTitle = useMemo(() => {
-        return i18n.t("Replicate {{user}}", {
-            user: userToReplicate ? `${userToReplicate.name} (${userToReplicate.username})` : "",
-        });
-    }, [userToReplicate]);
 
     useEffect(() => {
         const handleUsersError = (message: string) => {
@@ -84,9 +84,14 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
 
     useEffect(() => {
         if (!isLoading) {
+            setReplicateTitle(
+                i18n.t("Replicate {{user}}", {
+                    user: `${userToReplicate.name} (${userToReplicate.username})`,
+                })
+            );
             setUsernameTemplate(`${userToReplicate.username}_$index`);
         }
-    }, [isLoading, userToReplicate.username]);
+    }, [isLoading, userToReplicate]);
 
     const replicateUsers = useCallback(async () => {
         loading.show(true, i18n.t("Replicating users"));
@@ -97,7 +102,12 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
                 () => {
                     loading.hide();
                     onRequestClose();
-                    snackbar.success(i18n.t("Users replicated successfully"));
+                    snackbar.success(
+                        i18n.t("User {{user}} replicated successfully {{n}} times", {
+                            user: userToReplicate.username,
+                            n: replicateCount,
+                        })
+                    );
                 },
                 error => {
                     loading.hide();
@@ -115,6 +125,14 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
         usernameTemplate,
     ]);
 
+
+    const CheckFormError = useCallback(
+        (label: string, error: boolean) => {
+            setValidationError({ ...hasValidationErrors, [label]: error });
+        },
+        [hasValidationErrors]
+    );
+
     return (
         <ConfirmationDialog
             isOpen={true}
@@ -123,6 +141,7 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
             fullWidth={true}
             onSave={replicateUsers}
             saveText={i18n.t("Replicate")}
+            disableSave={Object.values(hasValidationErrors).some(validField => validField)}
             onCancel={onRequestClose}
         >
             {infoDialog && (
@@ -141,18 +160,21 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
                         value={replicateCount}
                         setValue={setReplicateCount}
                         validator={getValidators("usersToCreate").validation}
+                        setValidationError={CheckFormError}
                     />
                     <RenderInputField
                         label={"username"}
                         value={usernameTemplate}
                         setValue={setUsernameTemplate}
                         validator={getValidators("username", existingUsernames).validation}
+                        setValidationError={CheckFormError}
                     />
                     <RenderInputField
                         label={"password"}
                         value={passwordTemplate}
                         setValue={setPasswordTemplate}
                         validator={getValidators("password").validation}
+                        setValidationError={CheckFormError}
                     />
                 </DialogContent>
             )}
@@ -227,20 +249,28 @@ const getValidators = (
     }
 };
 
+interface validationErrors {
+    usersToCreate: boolean;
+    username: boolean;
+    password: boolean;
+}
+
 interface InputFieldProps {
     label: string;
     value: string;
     setValue: React.Dispatch<React.SetStateAction<string>>;
     validator: (value: string) => string | undefined;
+    setValidationError: (label: string, error: boolean) => void;
 }
 
-const RenderInputField: React.FC<InputFieldProps> = ({ label, value, setValue, validator }) => {
+const RenderInputField: React.FC<InputFieldProps> = ({ label, value, setValue, validator, setValidationError }) => {
     const [error, setError] = React.useState<string | undefined>(undefined);
 
     const handleChange = (data: { name?: string; value?: string }) => {
         const newValue = data.value || "";
         const validationError = validator(newValue);
         setError(validationError);
+        validationError ? setValidationError(label, true) : setValidationError(label, false);
         setValue(newValue);
     };
 
