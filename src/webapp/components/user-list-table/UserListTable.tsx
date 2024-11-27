@@ -312,12 +312,30 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     },
                     isActive: checkAccess(["delete"]),
                 },
+                // TODO: Remove after testing
+                {
+                    name: "replicate_user_from_template_old",
+                    text: i18n.t("Replicate user from template (old)"),
+                    icon: <FileCopyIcon />,
+                    multiple: false,
+                    onClick: users => onAction(users, "replicate_template_old"),
+                    isActive: () => enableReplicate,
+                },
                 {
                     name: "replicate_user_from_template",
                     text: i18n.t("Replicate user from template"),
                     icon: <FileCopyIcon />,
                     multiple: false,
                     onClick: users => onAction(users, "replicate_template"),
+                    isActive: () => enableReplicate,
+                },
+                // TODO: Remove after testing
+                {
+                    name: "replicate_user_from_template_FF",
+                    text: i18n.t("Replicate user from template (FF)"),
+                    icon: <FileCopyIcon />,
+                    multiple: false,
+                    onClick: users => onAction(users, "replicate_template_FF"),
                     isActive: () => enableReplicate,
                 },
                 {
@@ -665,11 +683,14 @@ function isStateActionVisible(action: string) {
         currentUserHasUpdateAccessOn(users) && _(users).some(user => user.disabled === requiredDisabledValue);
 }
 
+// TODO: Revert after testing
 export type UserActionName =
     | "remove"
     | "disable"
     | "enable"
     | "replicate_template"
+    | "replicate_template_old"
+    | "replicate_template_FF"
     | "replicate_table"
     | "copy_in_user";
 
