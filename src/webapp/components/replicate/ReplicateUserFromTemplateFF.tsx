@@ -229,12 +229,12 @@ const getValidators = (
                     if (countInt > 1 && !value.includes("$index")) {
                         return i18n.t("Username must contain $index");
                     }
+                    if (existingUsernames.includes(value)) {
+                        return i18n.t("User already exists");
+                    }
                     const usernameTemplate = _.times(countInt, index => getFromTemplate(value, index));
                     if (_.intersection(usernameTemplate, existingUsernames).length > 0) {
                         return i18n.t("Template will conflict with existing usernames");
-                    }
-                    if (existingUsernames.includes(value)) {
-                        return i18n.t("User already exists");
                     } else {
                         const validators = composeValidators(
                             string,
