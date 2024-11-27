@@ -6,13 +6,10 @@ import { ImportTable, Columns } from "../import-export/ImportTable";
 import { User, defaultUser } from "../../../domain/entities/User";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { generateUid } from "../../../utils/uid";
-import { D2Api } from "@eyeseetea/d2-api/2.36";
 
 interface ReplicateUserFromTableProps {
     userToReplicateId: Id;
     onRequestClose: () => void;
-    settings: any;
-    api: D2Api;
 }
 
 export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = props => {

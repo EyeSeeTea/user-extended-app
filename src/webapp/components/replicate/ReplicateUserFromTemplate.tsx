@@ -32,7 +32,7 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
 
     const [userToReplicate, setUserToReplicate] = React.useState<User>(defaultUser);
     const [existingUsernames, setExistingUsernames] = React.useState<string[]>([]);
-    const [replicateTitle, setReplicateTitle] = React.useState<string>("");
+    const [replicateTitle, setReplicateTitle] = React.useState<string>(i18n.t("Replicate User"));
     const [replicateCount, setReplicateCount] = React.useState<string>("1");
     const [usernameTemplate, setUsernameTemplate] = React.useState<string>("");
     const [passwordTemplate, setPasswordTemplate] = React.useState<string>(`${UserLogic.DEFAULT_PASSWORD}_$index`);
@@ -41,7 +41,8 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
         username: false,
         password: false,
     });
-    const [isLoading, setIsLoading] = React.useState(true);
+    const [isUserLoaded, setIsUserLoaded] = React.useState(true);
+    const [isMounted, setIsMounted] = React.useState(false);
     const [infoDialog, setInfoDialog] = React.useState<{ response: string }>();
 
     const loading = useLoading();
@@ -54,7 +55,7 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
         };
 
         loading.show(true);
-        setIsLoading(true);
+        setIsUserLoaded(true);
 
         compositionRoot.users.get([userToReplicateId]).run(
             ([user]) => {
@@ -78,20 +79,21 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
             }
         );
 
-        setIsLoading(false);
-        loading.reset();
+        setIsUserLoaded(false);
     }, [compositionRoot, loading, onRequestClose, snackbar, userToReplicateId]);
 
     useEffect(() => {
-        if (!isLoading) {
+        if (!isUserLoaded && userToReplicate.username) {
             setReplicateTitle(
                 i18n.t("Replicate {{user}}", {
                     user: `${userToReplicate.name} (${userToReplicate.username})`,
                 })
             );
             setUsernameTemplate(`${userToReplicate.username}_$index`);
+            setIsMounted(true);
+            loading.reset();
         }
-    }, [isLoading, userToReplicate]);
+    }, [isUserLoaded, loading, userToReplicate]);
 
     const replicateUsers = useCallback(async () => {
         loading.show(true, i18n.t("Replicating users"));
@@ -110,8 +112,13 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
                     );
                 },
                 error => {
+                    const errorMessage = i18n.t("Error replicating user {{user}}: {{message}}", {
+                        user: userToReplicate.username,
+                        message: error,
+                        nsSeparator: false,
+                    });
                     loading.hide();
-                    snackbar.error(error);
+                    snackbar.error(errorMessage);
                 }
             );
     }, [
@@ -124,7 +131,6 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
         passwordTemplate,
         usernameTemplate,
     ]);
-
 
     const CheckFormError = useCallback(
         (label: string, error: boolean) => {
@@ -153,7 +159,7 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
                 />
             )}
 
-            {!isLoading && (
+            {isMounted && (
                 <DialogContent>
                     <RenderInputField
                         label={"Number of users to create"}
@@ -163,14 +169,14 @@ export const ReplicateUserFromTemplateFC: React.FC<ReplicateUserFromTemplateProp
                         setValidationError={CheckFormError}
                     />
                     <RenderInputField
-                        label={"username"}
+                        label={"Username template"}
                         value={usernameTemplate}
                         setValue={setUsernameTemplate}
                         validator={getValidators("username", existingUsernames).validation}
                         setValidationError={CheckFormError}
                     />
                     <RenderInputField
-                        label={"password"}
+                        label={"Password template"}
                         value={passwordTemplate}
                         setValue={setPasswordTemplate}
                         validator={getValidators("password").validation}
