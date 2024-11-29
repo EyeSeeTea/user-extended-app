@@ -29,7 +29,6 @@ export interface User {
     disabled: boolean;
     access: AccessPermissions;
     twoFA: boolean;
-    // twoFactorEnabled: Maybe<boolean>;
     openId: Maybe<string>;
     ldapId: Maybe<string>;
     externalAuth: boolean;
@@ -75,7 +74,6 @@ export const defaultUser: User = {
     disabled: false,
     access: { read: true, update: true, externalize: true, delete: true, write: true, manage: true },
     twoFA: false,
-    // twoFactorEnabled: false,
     openId: "",
     ldapId: "",
     externalAuth: false,

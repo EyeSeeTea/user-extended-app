@@ -5,13 +5,10 @@ import PropTypes from "prop-types";
 import React from "react";
 import { UserListTable } from "../../webapp/components/user-list-table/UserListTable";
 import ReplicateUserFromTable from "../../webapp/components/replicate/ReplicateUserFromTable";
-// import ReplicateUserFromTemplate from "../components/ReplicateUserFromTemplate.component";
+import ReplicateUserFromTemplate from "../../webapp/components/replicate/ReplicateUserFromTemplate";
 import Settings from "../models/settings";
 import snackActions from "../Snackbar/snack.actions";
 import Filters from "./Filters.component";
-
-import ReplicateUserFromTemplateFC from "../../webapp/components/replicate/ReplicateUserFromTemplate";
-import ReplicateUserFromTemplateFCFF from "../../webapp/components/replicate/ReplicateUserFromTemplateFF";
 
 const initialSorting = ["name", "asc"];
 
@@ -143,13 +140,10 @@ export class ListHybrid extends React.Component {
         });
     };
 
-    // TODO: Revert after testing
     getReplicateDialog = info => {
         const componentsByType = {
+            replicate_template: ReplicateUserFromTemplate,
             replicate_table: ReplicateUserFromTable,
-            replicate_template_old: ReplicateUserFromTemplate,
-            replicate_template: ReplicateUserFromTemplateFC,
-            replicate_template_FF: ReplicateUserFromTemplateFCFF,
         };
         const ReplicateComponent = componentsByType[info.action];
 
@@ -197,14 +191,8 @@ export class ListHybrid extends React.Component {
         this.setState({ filters, canManage }, this.filterList);
     };
 
-    // TODO: Revert after testing
     _onAction = async (ids, action) => {
-        if (
-            action === "replicate_table" ||
-            action === "replicate_template_old" ||
-            action === "replicate_template" ||
-            action === "replicate_template_FF"
-        ) {
+        if (action === "replicate_table" || action === "replicate_template") {
             this.setAssignState("replicateUser", { user: ids[0], open: true, action });
         } else if (action === "copy_in_user") {
             this.setAssignState("copyUsers", { users: ids, open: true, action });
