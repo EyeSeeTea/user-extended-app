@@ -142,23 +142,7 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
                                 passwordTemplate: `${UserLogic.DEFAULT_PASSWORD}_$index`,
                             }}
                             validate={values => {
-                                const errors: {
-                                    replicateCount?: string;
-                                    usernameTemplate?: string;
-                                    passwordTemplate?: string;
-                                } = {};
-                                const replicateCountErrors = formValidator("usersToCreate").validation(
-                                    values.replicateCount
-                                );
-                                const usernameErrors = formValidator(
-                                    "username",
-                                    existingUsernames,
-                                    values.replicateCount
-                                ).validation(values.usernameTemplate);
-                                const passwordErrors = formValidator("password").validation(values.passwordTemplate);
-                                if (replicateCountErrors) errors.replicateCount = replicateCountErrors;
-                                if (usernameErrors) errors.usernameTemplate = usernameErrors;
-                                if (passwordErrors) errors.passwordTemplate = passwordErrors;
+                                const errors = formValidator(values, existingUsernames);
                                 return errors;
                             }}
                             autocomplete="off"
@@ -196,79 +180,54 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
     );
 };
 
-const formValidator = (
-    field: FieldTypes,
-    existingUsernames: string[] = [],
-    count = "0"
-): { validation: (...args: any[]) => string | undefined } => {
-    switch (field) {
-        case "usersToCreate": {
-            return {
-                validation: (value: string) => {
-                    const numericValue = parseInt(value, 10);
-                    if (numericValue < 1 || numericValue > 100) {
-                        return i18n.t("Value must be between 1 and 100");
-                    }
-                    const validators = composeValidators(
-                        number,
-                        hasValue,
-                        createMinCharacterLength(1),
-                        createMaxCharacterLength(3)
-                    );
-                    return validators(value);
-                },
-            };
-        }
-        case "username": {
-            return {
-                validation: (value: string) => {
-                    if (!value) return i18n.t("Please provide a username");
-                    const countInt = parseInt(count);
-                    if (countInt > 1 && !value.includes("$index")) {
-                        return i18n.t("Username must contain $index");
-                    }
-                    if (existingUsernames.includes(value)) {
-                        return i18n.t("User already exists");
-                    }
-                    const usernameTemplate = _.times(countInt, index => getFromTemplate(value, index));
-                    if (_.intersection(usernameTemplate, existingUsernames).length > 0) {
-                        return i18n.t("Template will conflict with existing usernames");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(2),
-                            createMaxCharacterLength(140)
-                        );
-                        return validators(value);
-                    }
-                },
-            };
-        }
-        case "password": {
-            return {
-                validation: (value: string) => {
-                    if (!value) {
-                        return i18n.t("Please provide a password");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(8),
-                            createMaxCharacterLength(255),
-                            createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
-                            createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
-                            createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
-                            createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
-                        );
-                        return validators(value);
-                    }
-                },
-            };
-        }
-        default: {
-            return { validation: hasValue };
-        }
+function validateReplicateCount(value: string): string | undefined {
+    const numericValue = parseInt(value, 10);
+    if (numericValue < 1 || numericValue > 100) {
+        return i18n.t("Value must be between 1 and 100");
     }
-};
+    const validators = composeValidators(number, hasValue, createMinCharacterLength(1), createMaxCharacterLength(3));
+    return validators(value);
+}
+
+function validateUsernameTemplate(value: string, existingUsernames: string[], count: string): string | undefined {
+    if (!value) return i18n.t("Please provide a username");
+    const countInt = parseInt(count);
+    if (countInt > 1 && !value.includes("$index")) {
+        return i18n.t("Username must contain $index");
+    }
+    if (existingUsernames.includes(value)) {
+        return i18n.t("User already exists");
+    }
+    const usernameTemplate = _.times(countInt, index => getFromTemplate(value, index));
+    if (_.intersection(usernameTemplate, existingUsernames).length > 0) {
+        return i18n.t("Template will conflict with existing usernames");
+    } else {
+        const validators = composeValidators(string, createMinCharacterLength(2), createMaxCharacterLength(140));
+        return validators(value);
+    }
+}
+
+function validatePasswordTemplate(value: string): string | undefined {
+    if (!value) return i18n.t("Please provide a password");
+    const validators = composeValidators(
+        string,
+        createMinCharacterLength(8),
+        createMaxCharacterLength(255),
+        createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
+        createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
+        createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
+        createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
+    );
+    return validators(value);
+}
+
+function formValidator(values: FormValues, existingUsernames: string[] = []): FormErrors {
+    return {
+        replicateCount: validateReplicateCount(values.replicateCount),
+        usernameTemplate: validateUsernameTemplate(values.usernameTemplate, existingUsernames, values.replicateCount),
+        passwordTemplate: validatePasswordTemplate(values.passwordTemplate),
+    };
+}
 
 const RenderFormField: React.FC<FormFieldProps> = ({ name, label }) => {
     const helpText = label === "Password template" ? i18n.t("Remember to store the password") : "";
@@ -306,8 +265,8 @@ const RenderInputField: React.FC<InputFieldProps> = ({ label, value, setValue, e
 };
 
 type FormFieldLabels = "Number of users to create" | "Username template" | "Password template";
-type FieldTypes = "usersToCreate" | "username" | "password";
 type FormValues = { replicateCount: string; usernameTemplate: string; passwordTemplate: string };
+type FormErrors = { replicateCount?: string; usernameTemplate?: string; passwordTemplate?: string };
 
 interface FormFieldProps {
     name: string;
