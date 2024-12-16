@@ -426,13 +426,20 @@ export class UserD2ApiRepository implements UserRepository {
         const allUsersGroups = this.buildUsersByGroupId(users);
         const allExistingUsersGroups = this.buildUsersByGroupId(existing);
 
+        const existingKeys = _(allExistingUsersGroups).keys().value();
+
         const groupsIdsToAdd = users.flatMap(user => {
-            return user.userGroups.map(userGroup => ({ id: userGroup.id }));
+            const groupsRef = user.userGroups.map(userGroup => ({ id: userGroup.id }));
+            return groupsRef.filter(({ id }) => !existingKeys.includes(id));
         });
 
         const groupsIdsToDelete = users.flatMap(user => {
             const existingUser = existing.find(({ id }) => id === user.id);
-            const difference = _.differenceWith(existingUser?.userGroups, user.userGroups, _.isEqual);
+            const difference = _.differenceWith(
+                existingUser?.userGroups,
+                user.userGroups,
+                (user1, user2) => user1.id === user2.id
+            );
             return difference.map(userGroup => ({ id: userGroup.id }));
         });
 
