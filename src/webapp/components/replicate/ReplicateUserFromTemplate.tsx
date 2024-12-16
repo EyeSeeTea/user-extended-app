@@ -163,8 +163,20 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
                                     <form id="replicate-form" onSubmit={handleSubmit}>
                                         <DialogContent>
                                             <RenderFormField name="replicateCount" label="Number of users to create" />
-                                            <RenderFormField name="usernameTemplate" label="Username template" />
-                                            <RenderFormField name="passwordTemplate" label="Password template" />
+                                            <RenderFormField
+                                                name="usernameTemplate"
+                                                label="Username template"
+                                                helpText={i18n.t(
+                                                    "Using $index is optional if only one replica is created. Multiple $index placeholders can be used anywhere in the fields."
+                                                )}
+                                            />
+                                            <RenderFormField
+                                                name="passwordTemplate"
+                                                label="Password template"
+                                                helpText={i18n.t(
+                                                    "Please ensure to copy the password and adhere to security guidelines"
+                                                )}
+                                            />
                                         </DialogContent>
                                     </form>
                                 </>
@@ -233,8 +245,7 @@ function formValidator(values: FormValues, existingUsernames: string[] = []): Fo
     };
 }
 
-const RenderFormField: React.FC<FormFieldProps> = ({ name, label }) => {
-    const helpText = label === "Password template" ? i18n.t("Remember to store the password") : "";
+const RenderFormField: React.FC<FormFieldProps> = ({ name, label, helpText }) => {
     return (
         <Field name={name}>
             {({ input, meta }) => (
@@ -275,6 +286,7 @@ type FormErrors = { replicateCount?: string; usernameTemplate?: string; password
 interface FormFieldProps {
     name: string;
     label: FormFieldLabels;
+    helpText?: string;
 }
 
 interface InputFieldProps {
