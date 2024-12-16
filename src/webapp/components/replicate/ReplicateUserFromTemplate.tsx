@@ -8,7 +8,6 @@ import {
     composeValidators,
     createMaxCharacterLength,
     createMinCharacterLength,
-    createPattern,
     hasValue,
     string,
     number,
@@ -205,43 +204,112 @@ function validateReplicateCount(value: string): string | undefined {
     return validators(value);
 }
 
-function validateUsernameTemplate(value: string, existingUsernames: string[], count: string): string | undefined {
+function validateIndex(value: string, count: number, label: "Username" | "Password"): string | undefined {
+    if (count > 1 && !value.includes("$index")) {
+        return i18n.t(`${label} must contain $index when replicating multiple users`);
+    }
+}
+
+function validateUsernameSeparator(value: string, count: number): string | undefined {
+    const placeholder = getFromTemplate(value, count);
+    if (/^[._@-]|[._@-]$/.test(placeholder)) {
+        return i18n.t("Username cannot start or end with a separator");
+    }
+    if (/([._@-]){2,}/.test(placeholder)) {
+        return i18n.t("Username cannot have two separators in a row");
+    }
+    if (!/^[a-zA-Z0-9._@-]+$/.test(placeholder)) {
+        return i18n.t("Username can only include . _ - or @ as separators");
+    }
+}
+
+function validatePassword(value: string, count: number): string | undefined {
+    const placeholder = getFromTemplate(value, count);
+    if (!/.*[a-z]/.test(placeholder)) {
+        return i18n.t("Password should contain at least one lowercase letter");
+    }
+    if (!/.*[A-Z]/.test(placeholder)) {
+        return i18n.t("Password should contain at least one UPPERCASE letter");
+    }
+    if (!/.*[0-9]/.test(placeholder)) {
+        return i18n.t("Password should contain at least one number");
+    }
+    if (!/[^A-Za-z0-9]/.test(placeholder)) {
+        return i18n.t("Password should have at least one special character");
+    }
+}
+
+function validateMinLength(value: string, count: number, min: number): string | undefined {
+    const placeholder = getFromTemplate(value, count);
+    if (placeholder.length < min) {
+        return i18n.t(`Please enter at least ${min} characters`);
+    }
+}
+
+function validateMaxLength(value: string, count: number): string | undefined {
+    const placeholder = getFromTemplate(value, count);
+    if (placeholder.length > 255) {
+        return i18n.t("Please enter a maximum of 255 characters");
+    }
+}
+
+function validateUsernameTemplate(value: string, existingUsernames: string[], count: number): string | undefined {
     if (!value) return i18n.t("Please provide a username");
-    const countInt = parseInt(count);
-    if (countInt > 1 && !value.includes("$index")) {
-        return i18n.t("Username must contain $index");
+    const validIndex = validateIndex(value, count, "Username");
+    if (validIndex) {
+        return validIndex;
     }
     if (existingUsernames.includes(value)) {
         return i18n.t("User already exists");
     }
-    const usernameTemplate = _.times(countInt, index => getFromTemplate(value, index));
+    const validSeparator = validateUsernameSeparator(value, count);
+    if (validSeparator) {
+        return validSeparator;
+    }
+
+    const validMaxLength = validateMaxLength(value, count);
+    if (validMaxLength) {
+        return validMaxLength;
+    }
+
+    const usernameTemplate = _.times(count, index => getFromTemplate(value, index));
     if (_.intersection(usernameTemplate, existingUsernames).length > 0) {
         return i18n.t("Template will conflict with existing usernames");
     } else {
-        const validators = composeValidators(string, createMinCharacterLength(2), createMaxCharacterLength(140));
+        const validators = composeValidators(string, createMinCharacterLength(2));
         return validators(value);
     }
 }
 
-function validatePasswordTemplate(value: string): string | undefined {
+function validatePasswordTemplate(value: string, count: number): string | undefined {
     if (!value) return i18n.t("Please provide a password");
-    const validators = composeValidators(
-        string,
-        createMinCharacterLength(8),
-        createMaxCharacterLength(255),
-        createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
-        createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
-        createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
-        createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
-    );
-    return validators(value);
+
+    const validPassword = validatePassword(value, count);
+    if (validPassword) {
+        return validPassword;
+    }
+    const validMinLength = validateMinLength(value, count, 8);
+    if (validMinLength) {
+        return validMinLength;
+    }
+    const validMaxLength = validateMaxLength(value, count);
+    if (validMaxLength) {
+        return validMaxLength;
+    } else {
+        const validators = composeValidators(string, createMinCharacterLength(8));
+        return validators(value);
+    }
 }
 
 function formValidator(values: FormValues, existingUsernames: string[] = []): FormErrors {
     return {
         replicateCount: validateReplicateCount(values.replicateCount),
-        usernameTemplate: validateUsernameTemplate(values.usernameTemplate, existingUsernames, values.replicateCount),
-        passwordTemplate: validatePasswordTemplate(values.passwordTemplate),
+        usernameTemplate: validateUsernameTemplate(
+            values.usernameTemplate,
+            existingUsernames,
+            parseInt(values.replicateCount)
+        ),
+        passwordTemplate: validatePasswordTemplate(values.passwordTemplate, parseInt(values.replicateCount)),
     };
 }
 

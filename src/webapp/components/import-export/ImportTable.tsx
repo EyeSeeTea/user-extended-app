@@ -630,6 +630,15 @@ const useValidations = (
             return {
                 validation: (value: string) => {
                     if (!value) return i18n.t("Please provide a username");
+                    if (/^[._@-]|[._@-]$/.test(value)) {
+                        return i18n.t("Username cannot start or end with a separator");
+                    }
+                    if (/([._@-]){2,}/.test(value)) {
+                        return i18n.t("Username cannot have two separators in a row");
+                    }
+                    if (!/^[a-zA-Z0-9._@-]+$/.test(value)) {
+                        return i18n.t("Username can only include . _ - or @ as separators");
+                    }
                     if (allowOverwrite && isExistingUser) return "";
                     if (isExistingUser) {
                         return i18n.t("User already exists");
@@ -637,7 +646,7 @@ const useValidations = (
                         const validators = composeValidators(
                             string,
                             createMinCharacterLength(2),
-                            createMaxCharacterLength(140)
+                            createMaxCharacterLength(255)
                         );
                         return validators(value);
                     }
