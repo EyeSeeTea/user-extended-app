@@ -40,6 +40,10 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
     const [isUserLoaded, setIsUserLoaded] = React.useState(true);
     const [isMounted, setIsMounted] = React.useState(false);
 
+    const randomPasswordBase = React.useMemo(() => {
+        return UserLogic.generateRandomPassword();
+    }, []);
+
     const loading = useLoading();
     const snackbar = useSnackbar();
 
@@ -139,7 +143,7 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
                             initialValues={{
                                 replicateCount: "1",
                                 usernameTemplate: `${userToReplicate.username}_$index`,
-                                passwordTemplate: `${UserLogic.DEFAULT_PASSWORD}_$index`,
+                                passwordTemplate: `${randomPasswordBase}_$index`,
                             }}
                             validate={values => {
                                 const errors = formValidator(values, existingUsernames);

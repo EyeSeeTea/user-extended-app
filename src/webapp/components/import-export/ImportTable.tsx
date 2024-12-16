@@ -123,6 +123,11 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const [errorsCount, setErrorsCount] = React.useState(0);
     const [areUsersValid, setAreUsersValid] = React.useState(false);
+
+    const randomPassword = React.useMemo(() => {
+        return UserLogic.generateRandomPassword();
+    }, []);
+
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
 
@@ -241,17 +246,20 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const onSubmit = customOnSubmit || defaultOnSubmit;
 
-    const defaultAddRow = useCallback((currentUsers: User[]) => {
-        const newUser: User = {
-            ...defaultUser,
-            id: generateUid(),
-            username: "",
-            password: UserLogic.DEFAULT_PASSWORD,
-            userRoles: [],
-            userGroups: [],
-        };
-        setUsers(currentUsers.concat(newUser));
-    }, []);
+    const defaultAddRow = useCallback(
+        (currentUsers: User[]) => {
+            const newUser: User = {
+                ...defaultUser,
+                id: generateUid(),
+                username: "",
+                password: randomPassword,
+                userRoles: [],
+                userGroups: [],
+            };
+            setUsers(currentUsers.concat(newUser));
+        },
+        [randomPassword]
+    );
 
     const replicateAddRow = useCallback(
         (currentUsers: User[]) => {
@@ -262,13 +270,13 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                 const newUser = {
                     ...templateUser,
                     username: makeUsername(index),
-                    password: UserLogic.DEFAULT_PASSWORD,
+                    password: randomPassword,
                     id: generateUid(),
                 };
                 setUsers(currentUsers.concat(newUser));
             }
         },
-        [existingUsersNames, templateUser]
+        [existingUsersNames, randomPassword, templateUser]
     );
 
     const addRow = templateUser ? replicateAddRow : defaultAddRow;
