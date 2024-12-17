@@ -15,6 +15,10 @@ import {
 let userRepositoryMock: UserD2ApiRepository;
 let exportUsersUseCase: ExportUsersUseCase;
 
+// NOTE: Needed to avoid the timing mismatch between the usecase execution and expectedFilename generation.
+jest.useFakeTimers();
+jest.setSystemTime(new Date("2024-01-01T12:00:00Z"));
+
 describe("ExportUsersUseCase", () => {
     beforeEach(() => {
         userRepositoryMock = mock(UserD2ApiRepository);
