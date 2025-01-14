@@ -15,7 +15,9 @@ import { Router } from "../Router";
 import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
-import { Feedback } from "@eyeseetea/feedback-component";
+import { Feedback, FeedbackOptions } from "@eyeseetea/feedback-component";
+import { AppSettings } from "../../../domain/entities/AppSettings";
+import { useAppSettings } from "../../hooks/useAppSettings";
 
 export interface AppProps {
     api: D2Api;
@@ -38,7 +40,7 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
             const isShareButtonVisible = _(appConfig).get("appearance.showShareButton") || false;
 
             // TODO: Remove d2
-            setAppContext({ d2, api, currentUser, compositionRoot });
+            setAppContext({ d2, api, currentUser, compositionRoot, appSettings: AppSettings.emptySettings() });
             setUsername(currentUser.username);
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
@@ -53,16 +55,16 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
             <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
                 <SnackbarProvider>
                     <LoadingProvider>
-                        <HeaderBar appName="User Extended App" />
+                        <AppContext.Provider value={appContext}>
+                            <HeaderBar appName="User Extended App" />
 
-                        <div id="app" className="content">
-                            <AppContext.Provider value={appContext}>
+                            <div id="app" className="content">
                                 <Router />
-                            </AppContext.Provider>
-                        </div>
+                            </div>
 
-                        <Share visible={showShareButton} />
-                        <Feedback options={appConfig.feedback} username={username} />
+                            <Share visible={showShareButton} />
+                            <FeedbackWrapper options={appConfig.feedback} username={username} />
+                        </AppContext.Provider>
                     </LoadingProvider>
                 </SnackbarProvider>
             </OldMuiThemeProvider>
@@ -71,3 +73,14 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
 });
 
 type D2 = object;
+
+interface FeedbackProps {
+    options: FeedbackOptions;
+    username: string;
+}
+
+const FeedbackWrapper: React.FC<FeedbackProps> = ({ options, username }) => {
+    const { appSettings } = useAppSettings();
+    if (!appSettings.showFeedback) return null;
+    return <Feedback options={options} username={username} />;
+};
