@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-21T20:07:31.924Z\n"
-"PO-Revision-Date: 2024-10-21T20:07:31.924Z\n"
+"POT-Creation-Date: 2025-01-14T14:59:18.578Z\n"
+"PO-Revision-Date: 2025-01-14T14:59:18.578Z\n"
 
 msgid "ID"
 msgstr ""
@@ -111,6 +111,15 @@ msgid "Columns to show in table"
 msgstr ""
 
 msgid "Column"
+msgstr ""
+
+msgid "Visible"
+msgstr ""
+
+msgid "Optional"
+msgstr ""
+
+msgid "Disable"
 msgstr ""
 
 msgid "Copy in user: {{user}}"
@@ -278,10 +287,22 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
+msgid "Show only active users"
+msgstr ""
+
+msgid "Saving..."
+msgstr ""
+
 msgid "Settings"
 msgstr ""
 
 msgid "Logger"
+msgstr ""
+
+msgid "Columns"
+msgstr ""
+
+msgid "Permissions"
 msgstr ""
 
 msgid "Error saving user"
@@ -386,9 +407,6 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Disable"
-msgstr ""
-
 msgid "Remove"
 msgstr ""
 
@@ -446,9 +464,6 @@ msgid ""
 msgstr ""
 
 msgid "Confirm"
-msgstr ""
-
-msgid "Saving..."
 msgstr ""
 
 msgid "Table exported: {{filename}}"
