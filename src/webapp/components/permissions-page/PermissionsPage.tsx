@@ -1,21 +1,24 @@
 import React from "react";
-import styled from "styled-components";
-import { Button, DialogActions, FormControlLabel, Switch } from "@material-ui/core";
+import { Box, Button, DialogActions, FormControlLabel, Switch, useTheme } from "@material-ui/core";
 
 import { AppSettings } from "../../../domain/entities/AppSettings";
-import { Maybe } from "../../../types/utils";
 import i18n from "../../../locales";
 
-type PermissionsPageProps = { appSettings: Maybe<AppSettings>; onSave: (appSettings: AppSettings) => void };
+type PermissionsPageProps = { appSettings: AppSettings; onSave: (appSettings: AppSettings) => void };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
     const { appSettings, onSave } = props;
-    const [formState, setForm] = React.useState<FormType>({ activeUsers: appSettings?.showOnlyActiveUsers ?? false });
 
-    const updateActiveUsers = (value: boolean, field: keyof FormType) => {
-        setForm(prev => {
-            return { ...prev, [field]: value };
-        });
+    const theme = useTheme();
+
+    const [formState, setForm] = React.useState<FormType>({
+        activeUsers: appSettings.showOnlyActiveUsers,
+        usersOrgUnits: appSettings.showOnlyUsersOrgUnits,
+        feedbackButton: appSettings.showFeedback,
+    });
+
+    const updateFormState = (value: boolean, field: keyof FormType) => {
+        setForm(prev => ({ ...prev, [field]: value }));
     };
 
     const onSaveSettings = React.useCallback(() => {
@@ -24,35 +27,51 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
             AppSettings.create({
                 ...appSettings,
                 showOnlyActiveUsers: formState.activeUsers,
+                showOnlyUsersOrgUnits: formState.usersOrgUnits,
+                showFeedback: formState.feedbackButton,
             })
         );
     }, [formState, appSettings, onSave]);
 
-    if (!appSettings) return null;
-
     return (
-        <PermissionsContainer>
-            <FormControlLabel
-                control={
-                    <Switch
-                        checked={formState.activeUsers}
-                        onChange={event => updateActiveUsers(event.target.checked, "activeUsers")}
-                    />
-                }
-                label={i18n.t("Show only active users")}
-            />
+        <Box component="section" padding={theme.spacing(0.25)}>
+            <Box display="flex" flexDirection="column" flexWrap="wrap" paddingX={theme.spacing(0.25)}>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.feedbackButton}
+                            onChange={event => updateFormState(event.target.checked, "feedbackButton")}
+                        />
+                    }
+                    label={i18n.t("Show feedback button")}
+                />
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.usersOrgUnits}
+                            onChange={event => updateFormState(event.target.checked, "usersOrgUnits")}
+                        />
+                    }
+                    label={i18n.t("Show only users assigned to users' organisation units")}
+                />
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.activeUsers}
+                            onChange={event => updateFormState(event.target.checked, "activeUsers")}
+                        />
+                    }
+                    label={i18n.t("Show only active users")}
+                />
+            </Box>
 
             <DialogActions>
                 <Button onClick={onSaveSettings} color="primary" variant="contained">
                     {i18n.t("Save")}
                 </Button>
             </DialogActions>
-        </PermissionsContainer>
+        </Box>
     );
 });
 
-type FormType = { activeUsers: boolean };
-
-const PermissionsContainer = styled.section`
-    padding: 1em;
-`;
+type FormType = { activeUsers: boolean; usersOrgUnits: boolean; feedbackButton: boolean };

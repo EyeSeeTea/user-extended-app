@@ -4,7 +4,6 @@ import { TableColumn, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { User } from "../../domain/entities/User";
 import { AppSettings, SettingsUserColumn } from "../../domain/entities/AppSettings";
 import { useAppContext } from "../contexts/app-context";
-import { Maybe } from "../../types/utils";
 import { useUserColumns } from "../components/user-list-table/UserListTable";
 
 function getColumnsOrDefault(defaultColumns: TableColumn<User>[], appSettings: AppSettings): SettingsUserColumn[] {
@@ -17,7 +16,7 @@ function getColumnsOrDefault(defaultColumns: TableColumn<User>[], appSettings: A
 
 export function useAppSettings() {
     const { compositionRoot } = useAppContext();
-    const [appSettings, setAppSettings] = React.useState<Maybe<AppSettings>>();
+    const [appSettings, setAppSettings] = React.useState<AppSettings>(AppSettings.emptySettings());
     const userColumns = useUserColumns();
     const snackbar = useSnackbar();
 
@@ -25,7 +24,7 @@ export function useAppSettings() {
         return compositionRoot.settings.get.execute().run(
             result => {
                 const columns = getColumnsOrDefault(userColumns, result);
-                setAppSettings(result?.updateColumns(columns));
+                setAppSettings(result.updateColumns(columns));
             },
             err => {
                 snackbar.error(err);
