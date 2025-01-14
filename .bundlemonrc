@@ -1,0 +1,41 @@
+{
+    "baseDir": "./build",
+    "files": [
+        {
+            "path": "./*.zip",
+            "friendlyName": "Build ZIP",
+            "compression": "none",
+            "maxSize": "5 MB",
+            "maxPercentIncrease": 25
+        },
+        {
+            "path": "./static/js/main.<hash>.chunk.js",
+            "friendlyName": "Index",
+            "compression": "gzip"
+        },
+        {
+            "path": "./**/*.{css,eot,html,ico,js,json,png,po,pot,properties,svg,ttf,txt,webapp,woff,woff2}",
+            "friendlyName": "Build Folder Files",
+            "compression": "gzip"
+        }
+    ],
+    "groups": [
+        {
+            "path": "./**/*.{css,eot,html,ico,js,json,png,po,pot,properties,svg,ttf,txt,webapp,woff,woff2}",
+            "friendlyName": "Build Folder",
+            "compression": "gzip",
+            "maxSize": "5 MB",
+            "maxPercentIncrease": 25
+        }
+    ],
+    "reportOutput": [
+        [
+            "github",
+            {
+                "checkRun": true,
+                "commitStatus": true,
+                "prComment": true
+            }
+        ]
+    ]
+}
