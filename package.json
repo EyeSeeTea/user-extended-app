@@ -80,6 +80,7 @@
         "@typescript-eslint/eslint-plugin": "5.4.0",
         "@typescript-eslint/parser": "5.4.0",
         "@welldone-software/why-did-you-render": "6.2.3",
+        "bundlemon": "2.1.0",
         "cmd-ts": "0.7.0",
         "craco": "0.0.3",
         "cypress-xpath": "1.6.2",
