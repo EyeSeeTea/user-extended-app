@@ -2,21 +2,11 @@
     "baseDir": "./build",
     "files": [
         {
-            "path": "./*.zip",
+            "path": "./user-extended-app.zip",
             "friendlyName": "Build ZIP",
             "compression": "none",
-            "maxSize": "3 MB",
-            "maxPercentIncrease": 25
-        },
-        {
-            "path": "./static/js/main.<hash>.chunk.js",
-            "friendlyName": "Index",
-            "compression": "gzip"
-        },
-        {
-            "path": "./**/*.{css,eot,html,ico,js,json,png,po,pot,properties,svg,ttf,txt,webapp,woff,woff2}",
-            "friendlyName": "Build Folder Files",
-            "compression": "gzip"
+            "maxSize": "2 MB",
+            "maxPercentIncrease": "20"
         }
     ],
     "groups": [
@@ -24,8 +14,8 @@
             "path": "./**/*.{css,eot,html,ico,js,json,png,po,pot,properties,svg,ttf,txt,webapp,woff,woff2}",
             "friendlyName": "Build Folder",
             "compression": "gzip",
-            "maxSize": "3 MB",
-            "maxPercentIncrease": 25
+            "maxSize": "2 MB",
+            "maxPercentIncrease": "20"
         }
     ],
     "reportOutput": [

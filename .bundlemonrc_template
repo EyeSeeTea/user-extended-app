@@ -2,21 +2,11 @@
     "baseDir": "./build",
     "files": [
         {
-            "path": "./*.zip",
+            "path": "./$npm_package_name.zip",
             "friendlyName": "Build ZIP",
             "compression": "none",
-            "maxSize": "3 MB",
-            "maxPercentIncrease": 25
-        },
-        {
-            "path": "./static/js/main.<hash>.chunk.js",
-            "friendlyName": "Index",
-            "compression": "gzip"
-        },
-        {
-            "path": "./**/*.{$build_file_types}",
-            "friendlyName": "Build Folder Files",
-            "compression": "gzip"
+            "maxSize": "$size_limit",
+            "maxPercentIncrease": "$percent_limit"
         }
     ],
     "groups": [
@@ -24,8 +14,8 @@
             "path": "./**/*.{$build_file_types}",
             "friendlyName": "Build Folder",
             "compression": "gzip",
-            "maxSize": "3 MB",
-            "maxPercentIncrease": 25
+            "maxSize": "$size_limit",
+            "maxPercentIncrease": "$percent_limit"
         }
     ],
     "reportOutput": [
