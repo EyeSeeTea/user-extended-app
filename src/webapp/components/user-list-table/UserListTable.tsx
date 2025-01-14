@@ -13,7 +13,7 @@ import { Icon, Tooltip } from "@material-ui/core";
 import { Check, Tune } from "@material-ui/icons";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import _ from "lodash";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { hasReplicateAuthority, User } from "../../../domain/entities/User";
@@ -23,7 +23,13 @@ import i18n from "../../../locales";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
-import { useCopyInUser, useGetAllUsers, useGetUsersByIds, useSaveUsersOrgUnits } from "../../hooks/userHooks";
+import {
+    useCopyInUser,
+    useGetAllUsers,
+    useGetUsersByIds,
+    useSaveUsersOrgUnits,
+    useVisibleColumns,
+} from "../../hooks/userHooks";
 import { MultiSelectorDialog, MultiSelectorDialogProps } from "../multi-selector-dialog/MultiSelectorDialog";
 import { OrgUnitDialogSelector } from "../orgunit-dialog-selector/OrgUnitDialogSelector";
 import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
@@ -38,6 +44,8 @@ import Settings from "../../../legacy/models/settings";
 import { FilterOption, ImportExport, ImportResult } from "../import-export/ImportExport";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
+import { AppSettings } from "../../../domain/entities/AppSettings";
+import { useAppSettings } from "../../hooks/useAppSettings";
 
 function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -105,7 +113,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [reloadKey, reload] = useReload();
 
     const [multiSelectorDialogProps, openMultiSelectorDialog] = useState<MultiSelectorDialogProps>();
-    const [visibleColumns, setVisibleColumns] = useState<Array<keyof User>>();
+    // const [visibleColumns, setVisibleColumns] = useState<Array<keyof User>>();
     const [mappingColumns, setMappingColumns] = useState<ColumnMappingKeys[]>();
     const [selectedUserIds, setSelectedUserIds] = useState<Id[]>([]);
     const [actionType, setActionType] = useState<ActionType>();
@@ -121,6 +129,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
     const { users: allUsers } = useGetAllUsers();
+    const { appSettings, setAppSettings } = useAppSettings();
+    const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
@@ -171,7 +181,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const baseConfig = useMemo((): TableConfig<User> => {
         return {
-            columns: userColumns,
+            columns: generateColumnsFromSettings({ appSettings, columns: userColumns }),
             details: [
                 { name: "name", text: i18n.t("Name") },
                 { name: "username", text: i18n.t("Username") },
@@ -357,7 +367,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // onActionButtonClick: () => navigate("/new"),
             onReorderColumns,
         };
-    }, [enableReplicate, editUsers, onReorderColumns, reload, onAction, userColumns]);
+    }, [appSettings, enableReplicate, editUsers, onReorderColumns, reload, onAction, userColumns]);
 
     const refreshRows = useCallback(
         async (
@@ -428,18 +438,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             .value();
     }, [tableProps.columns, visibleColumns]);
 
-    useEffect(
-        () =>
-            compositionRoot.users.getColumns().run(
-                columns => {
-                    setVisibleColumns(columns);
-                    onChangeVisibleColumns(columns);
-                },
-                error => snackbar.error(error)
-            ),
-        [compositionRoot, snackbar, onChangeVisibleColumns]
-    );
-
     const onSuccessUsersRemove = () => {
         onCleanSelectedUsers();
         reload();
@@ -507,6 +505,14 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         setShowImportModal(true);
     }, []);
 
+    const updateAppSettings = React.useCallback(
+        (appSettings: AppSettings) => {
+            setShowSettings(false);
+            setAppSettings(appSettings);
+        },
+        [setAppSettings]
+    );
+
     const selectedUsers = users && users.length > 0;
 
     return (
@@ -544,7 +550,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 />
             )}
 
-            {showSettings && <SettingsDialogModal onClose={onSettingsClose} />}
+            {showSettings && <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />}
 
             <ObjectsList<User> {...tableProps} columns={columnsToShow}>
                 {children}
@@ -575,7 +581,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     );
 };
 
-function useUserColumns() {
+export function useUserColumns() {
     const columns = React.useMemo((): TableColumn<User>[] => {
         return [
             { name: "id", sortable: false, text: i18n.t("User ID"), hidden: true },
@@ -647,6 +653,25 @@ function useUserColumns() {
         ];
     }, []);
     return columns;
+}
+
+function generateColumnsFromSettings(options: {
+    appSettings: Maybe<AppSettings>;
+    columns: TableColumn<User>[];
+}): TableColumn<User>[] {
+    const { appSettings, columns } = options;
+    return _(columns)
+        .map(column => {
+            const currentColumn = appSettings?.columns.find(c => c.field === column.name);
+            if (currentColumn?.value === "disabled") return undefined;
+
+            return {
+                ...column,
+                hidden: currentColumn?.value !== "visible",
+            };
+        })
+        .compact()
+        .value();
 }
 
 function checkAccess(requiredKeys: string[]) {

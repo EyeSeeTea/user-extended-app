@@ -27,6 +27,9 @@ import { getD2APiFromInstance } from "./utils/d2-api";
 import { LoggerSettingsD2Repository } from "./data/repositories/LoggerSettingsD2Repository";
 import { GetLoggerSettingsUseCase } from "./domain/usecases/GetLoggerSettingsUseCase";
 import { SaveLoggerSettingsUseCase } from "./domain/usecases/SaveLoggerSettingsUseCase";
+import { GetAppSettingsUseCase } from "./domain/usecases/GetAppSettingsUseCase";
+import { AppSettingsD2Repository } from "./data/repositories/AppSettingsD2Repository";
+import { SaveAppSettingsUseCase } from "./domain/usecases/SaveAppSettingsUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const api = getD2APiFromInstance(instance);
@@ -35,6 +38,7 @@ export function getCompositionRoot(instance: Instance) {
     const metadataRepository = new MetadataD2ApiRepository(instance);
     const programRepository = new ProgramD2Repository(api);
     const loggerSettingsRepository = new LoggerSettingsD2Repository(instance);
+    const appSettingsRepository = new AppSettingsD2Repository(api);
 
     return {
         logger: {
@@ -67,6 +71,10 @@ export function getCompositionRoot(instance: Instance) {
             list: new ListMetadataUseCase(metadataRepository),
             getOrgUnitPaths: new GetOrgUnitPathsUseCase(metadataRepository),
         }),
+        settings: {
+            get: new GetAppSettingsUseCase(appSettingsRepository),
+            save: new SaveAppSettingsUseCase(appSettingsRepository),
+        },
     };
 }
 

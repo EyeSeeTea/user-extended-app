@@ -1,7 +1,8 @@
+import _ from "lodash";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Id } from "../../domain/entities/Ref";
-import { User } from "../../domain/entities/User";
+import { User, UserColumns } from "../../domain/entities/User";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
 import { useAppContext } from "../contexts/app-context";
@@ -9,6 +10,8 @@ import i18n from "../../locales";
 import { AllowedExportFormat, ColumnMappingKeys } from "../../domain/usecases/ExportUsersUseCase";
 import FileSaver from "file-saver";
 import { OrgUnitKey } from "../../domain/entities/OrgUnit";
+import { AppSettings } from "../../domain/entities/AppSettings";
+import { Maybe } from "../../types/utils";
 
 type UseSaveUsersOrgUnitsProps = { onSuccess: () => void };
 type UseExportUsersProps = {
@@ -19,6 +22,11 @@ type UseExportUsersProps = {
 };
 
 type UseCopyInUserProps = { onSuccess: () => void };
+
+type UseVisibleColumnsProps = {
+    appSettings: Maybe<AppSettings>;
+    onChangeVisibleColumns: (columns: UserColumns[]) => void;
+};
 
 export function useGetUsersByIds(ids: Id[]) {
     const { compositionRoot } = useAppContext();
@@ -173,4 +181,39 @@ export const useExportUsers = (props: UseExportUsersProps) => {
         exportUsersToJSON: React.useCallback(() => exportUsers("users", "json", false), [exportUsers]),
         exportEmptyTemplate: React.useCallback(() => exportUsers("empty-user-template", "csv", true), [exportUsers]),
     };
+};
+
+export const useVisibleColumns = (props: UseVisibleColumnsProps) => {
+    const { appSettings, onChangeVisibleColumns } = props;
+
+    const [visibleColumns, setVisibleColumns] = React.useState<UserColumns[]>();
+
+    const { compositionRoot } = useAppContext();
+    const snackbar = useSnackbar();
+
+    React.useEffect(
+        () =>
+            compositionRoot.users.getColumns().run(
+                columns => {
+                    const disableColumns = appSettings?.columns
+                        .filter(column => column.value === "disabled")
+                        .map(column => column.field);
+
+                    const visibleColumns = _(appSettings?.columns)
+                        .filter(column => column.value === "visible")
+                        .map(column => column.field)
+                        .value();
+
+                    const columnsWithoutDisabled = columns.filter(column => !disableColumns?.includes(column));
+                    const visibleColumnsToShow =
+                        columnsWithoutDisabled.length === 0 ? visibleColumns : columnsWithoutDisabled;
+                    setVisibleColumns(visibleColumnsToShow);
+                    onChangeVisibleColumns(visibleColumnsToShow);
+                },
+                error => snackbar.error(error)
+            ),
+        [appSettings?.columns, compositionRoot, snackbar, onChangeVisibleColumns]
+    );
+
+    return { visibleColumns };
 };

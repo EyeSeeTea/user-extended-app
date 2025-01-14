@@ -101,3 +101,5 @@ export const hasReplicateAuthority = (user: User): boolean => {
 };
 
 export type LocaleCode = string;
+
+export type UserColumns = keyof User;
