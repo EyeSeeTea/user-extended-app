@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { CompositionRoot } from "../../CompositionRoot";
 import { User } from "../../domain/entities/User";
 import { D2Api } from "../../types/d2-api";
-import { AppSettings } from "../../domain/entities/AppSettings";
 import i18n from "./../../locales";
 
 export interface AppContextState {
@@ -10,7 +9,6 @@ export interface AppContextState {
     d2: any;
     currentUser: User;
     compositionRoot: CompositionRoot;
-    appSettings: AppSettings;
 }
 
 export const AppContext = React.createContext<AppContextState | null>(null);

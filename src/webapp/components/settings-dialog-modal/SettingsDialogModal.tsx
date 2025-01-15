@@ -9,8 +9,8 @@ import { Maybe } from "../../../types/utils";
 import { ColumnsSettingsPage } from "../columns-settings/ColumnsSettingsPage";
 import { AppSettings, SettingsUserColumn } from "../../../domain/entities/AppSettings";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
-import { useAppSettings } from "../../hooks/useAppSettings";
 import { PermissionsPage } from "../permissions-page/PermissionsPage";
+import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 
 type SettingsOption = "import" | "logger" | "columns" | "permissions";
 
@@ -36,7 +36,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     const { onClose, onCloseAppSettings } = props;
     const [selectedTab, setSelectedTab] = React.useState<SettingsOption>("import");
     const { importSettings } = useImportSettings();
-    const { appSettings, save, setAppSettings } = useAppSettings();
+    const { appSettings, save, setAppSettings } = useAppSettingsContext();
 
     const loading = useLoading();
     const snackbar = useSnackbar();

@@ -45,7 +45,7 @@ import { FilterOption, ImportExport, ImportResult } from "../import-export/Impor
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
 import { AppSettings } from "../../../domain/entities/AppSettings";
-import { useAppSettings } from "../../hooks/useAppSettings";
+import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 
 function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -129,7 +129,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
     const { users: allUsers } = useGetAllUsers();
-    const { appSettings, setAppSettings } = useAppSettings();
+    const { appSettings, setAppSettings } = useAppSettingsContext();
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
     const onCleanSelectedUsers = React.useCallback(() => {

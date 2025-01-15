@@ -16,8 +16,7 @@ import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
 import { Feedback, FeedbackOptions } from "@eyeseetea/feedback-component";
-import { AppSettings } from "../../../domain/entities/AppSettings";
-import { useAppSettings } from "../../hooks/useAppSettings";
+import { AppSettingsProvider, useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 
 export interface AppProps {
     api: D2Api;
@@ -40,7 +39,7 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
             const isShareButtonVisible = _(appConfig).get("appearance.showShareButton") || false;
 
             // TODO: Remove d2
-            setAppContext({ d2, api, currentUser, compositionRoot, appSettings: AppSettings.emptySettings() });
+            setAppContext({ d2, api, currentUser, compositionRoot });
             setUsername(currentUser.username);
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
@@ -56,14 +55,16 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
                 <SnackbarProvider>
                     <LoadingProvider>
                         <AppContext.Provider value={appContext}>
-                            <HeaderBar appName="User Extended App" />
+                            <AppSettingsProvider>
+                                <HeaderBar appName="User Extended App" />
 
-                            <div id="app" className="content">
-                                <Router />
-                            </div>
+                                <div id="app" className="content">
+                                    <Router />
+                                </div>
 
-                            <Share visible={showShareButton} />
-                            <FeedbackWrapper options={appConfig.feedback} username={username} />
+                                <Share visible={showShareButton} />
+                                <FeedbackWrapper options={appConfig.feedback} username={username} />
+                            </AppSettingsProvider>
                         </AppContext.Provider>
                     </LoadingProvider>
                 </SnackbarProvider>
@@ -80,7 +81,7 @@ interface FeedbackProps {
 }
 
 const FeedbackWrapper: React.FC<FeedbackProps> = ({ options, username }) => {
-    const { appSettings } = useAppSettings();
+    const { appSettings } = useAppSettingsContext();
     if (!appSettings.showFeedback) return null;
     return <Feedback options={options} username={username} />;
 };
