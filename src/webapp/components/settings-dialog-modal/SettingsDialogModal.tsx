@@ -46,8 +46,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     }
 
     const onSaveData = React.useCallback(
-        (data: Maybe<AppSettings>) => {
-            if (!data) return;
+        (data: AppSettings) => {
             loading.show(true, i18n.t("Saving..."));
             save(
                 data,
@@ -109,7 +108,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     };
 
     return (
-        <Dialog open maxWidth="lg" fullWidth title={i18n.t("Settings")}>
+        <Dialog open maxWidth="lg" fullWidth title={i18n.t("Settings")} onClose={closeDialog}>
             <Tabs value={selectedTab} onChange={(_event, value) => onChangeTab(value)}>
                 <Tab label={i18n.t("Import")} value="import" />
                 <Tab label={i18n.t("Logger")} value="logger" />
