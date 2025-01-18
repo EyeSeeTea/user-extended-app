@@ -13,10 +13,10 @@ function getColumnsOrDefault(defaultColumns: TableColumn<User>[], appSettings: A
               return { field: column.name, value: "optional" };
           });
 }
-
 export function useAppSettings() {
     const { compositionRoot } = useAppContext();
     const [appSettings, setAppSettings] = React.useState<AppSettings>(AppSettings.emptySettings());
+    const [hasLoaded, setHasLoaded] = React.useState(false);
     const userColumns = useUserColumns();
     const snackbar = useSnackbar();
 
@@ -25,9 +25,11 @@ export function useAppSettings() {
             result => {
                 const columns = getColumnsOrDefault(userColumns, result);
                 setAppSettings(result.updateColumns(columns));
+                setHasLoaded(true);
             },
             err => {
                 snackbar.error(err);
+                setHasLoaded(true);
             }
         );
     }, [compositionRoot.settings.get, snackbar, userColumns]);
@@ -47,5 +49,5 @@ export function useAppSettings() {
         [compositionRoot.settings.save]
     );
 
-    return { appSettings, save, setAppSettings };
+    return { appSettings, save, setAppSettings, hasLoaded };
 }

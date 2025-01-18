@@ -13,6 +13,8 @@ const AppSettingsContext = createContext<AppSettingsContextState | null>(null);
 export const AppSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const appSettingsWrapper = useAppSettings();
 
+    if (appSettingsWrapper.hasLoaded === false) return null;
+
     return <AppSettingsContext.Provider value={appSettingsWrapper}>{children}</AppSettingsContext.Provider>;
 };
 

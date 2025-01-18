@@ -22,7 +22,6 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
     };
 
     const onSaveSettings = React.useCallback(() => {
-        if (!appSettings) return;
         onSave(
             AppSettings.create({
                 ...appSettings,
