@@ -329,7 +329,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         setSelectedUserIds(users);
                         setActionType("reset_password");
                     },
-                    isActive: checkAccess(["update"]),
+                    isActive: checkHasEmail(),
                 },
                 {
                     name: "remove",
@@ -712,6 +712,12 @@ function checkAccess(requiredKeys: string[]) {
             const permissions = _(user.access).pickBy().keys().value();
             return _(requiredKeys).difference(permissions).isEmpty();
         });
+}
+
+function checkHasEmail() {
+    const currentUserHasUpdateAccessOn = checkAccess(["update"]);
+
+    return (users: User[]) => currentUserHasUpdateAccessOn(users) && _(users).some(user => Boolean(user.email));
 }
 
 function isStateActionVisible(action: string) {

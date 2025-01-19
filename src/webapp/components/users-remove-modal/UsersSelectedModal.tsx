@@ -100,9 +100,9 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
             }, onErrorAction);
         } else if (actionType === "reset_password") {
             onSuccessAction();
-            // compositionRoot.users.resetPassword(users).run(() => {
-            //     onSuccessAction();
-            // }, onErrorAction);
+            compositionRoot.users.resetPasswords(users).run(() => {
+                onSuccessAction();
+            }, onErrorAction);
         }
     };
 

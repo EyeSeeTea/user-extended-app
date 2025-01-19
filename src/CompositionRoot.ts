@@ -30,6 +30,7 @@ import { SaveLoggerSettingsUseCase } from "./domain/usecases/SaveLoggerSettingsU
 import { GetAppSettingsUseCase } from "./domain/usecases/GetAppSettingsUseCase";
 import { AppSettingsD2Repository } from "./data/repositories/AppSettingsD2Repository";
 import { SaveAppSettingsUseCase } from "./domain/usecases/SaveAppSettingsUseCase";
+import { ResetUsersPasswordsUseCase } from "./domain/usecases/ResetUsersPasswordsUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const api = getD2APiFromInstance(instance);
@@ -66,6 +67,7 @@ export function getCompositionRoot(instance: Instance) {
             export: new ExportUsersUseCase(userRepository),
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
+            resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
         }),
         metadata: getExecute({
             list: new ListMetadataUseCase(metadataRepository),

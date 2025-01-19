@@ -94,6 +94,12 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
+    resetPasswords(users: User[]): FutureData<Stats> {
+        const $requests = users.map(user => apiToFuture(this.api.post(`/users/${user.id}/reset`)));
+
+        return Future.parallel($requests, { maxConcurrency: 5 }).map(() => Stats.empty()); // There is no response body from the API
+    }
+
     @cache()
     public getCurrent(): FutureData<User> {
         return apiToFuture(
