@@ -112,6 +112,7 @@ export class UserD2ApiRepository implements UserRepository {
             canManage,
             rootJunction,
             filters,
+            usersOrgUnits,
         } = options;
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
         const areFiltersEnabled = _(otherFilters).values().some();
@@ -131,6 +132,7 @@ export class UserD2ApiRepository implements UserRepository {
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
                 rootJunction: areFiltersEnabled ? rootJunction : undefined,
+                userOrgUnits: usersOrgUnits === true ? "true" : undefined,
                 order: `${sortingField}:${sorting.order}`,
             })
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));

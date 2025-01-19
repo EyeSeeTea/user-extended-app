@@ -104,6 +104,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     filters,
     canManage,
     rootJunction,
+    usersOrgUnits = false,
     children,
     reloadTableKey,
     onAction,
@@ -387,6 +388,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         filters,
                         canManage,
                         rootJunction,
+                        usersOrgUnits,
                     })
                     .toPromise();
 
@@ -394,6 +396,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters["id"] = ["in", userIdList];
                 }
             }
+
+            console.log(usersOrgUnits);
 
             return compositionRoot.users
                 .list({
@@ -404,10 +408,20 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters,
                     canManage,
                     rootJunction,
+                    usersOrgUnits,
                 })
                 .toPromise();
         },
-        [compositionRoot, filters, canManage, rootJunction, reloadKey, onChangeSearch, reloadTableKey]
+        [
+            reloadKey,
+            reloadTableKey,
+            onChangeSearch,
+            canManage,
+            compositionRoot.users,
+            filters,
+            rootJunction,
+            usersOrgUnits,
+        ]
     );
 
     const refreshAllIds = useCallback(
@@ -418,10 +432,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     sorting,
                     filters,
                     canManage,
+                    usersOrgUnits,
                 })
                 .toPromise();
         },
-        [compositionRoot, filters, canManage]
+        [compositionRoot.users, filters, canManage, usersOrgUnits]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
@@ -708,6 +723,7 @@ export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loadi
     reloadTableKey: number;
     onAction: (ids: string[], action: UserActionName) => void;
     filterOption: FilterOption;
+    usersOrgUnits: boolean;
 }
 
 function buildEllipsizedList(items: NamedRef[], limit = 3) {

@@ -27,6 +27,7 @@ export interface ListOptions {
     filters?: ListFilters;
     canManage?: string;
     rootJunction?: "AND" | "OR";
+    usersOrgUnits?: boolean;
 }
 
 export type ListFilterType = "in" | "eq";

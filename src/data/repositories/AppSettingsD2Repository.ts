@@ -23,6 +23,8 @@ export class AppSettingsD2Repository implements AppSettingsRepository {
                 ...(existingSettings || {}),
                 columns: appSettings.columns,
                 showOnlyActiveUsers: appSettings.showOnlyActiveUsers,
+                showFeedback: appSettings.showFeedback,
+                showOnlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
             });
 
             return this.dataStorage.saveObject(this.settingsKey, updatedSettings).map(() => updatedSettings);

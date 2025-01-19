@@ -1,8 +1,10 @@
-import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
 import _ from "lodash";
+import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
+import { SegmentedControl } from "@dhis2/ui";
+import { Switch, Box, Grid, Typography } from "@material-ui/core";
 import Checkbox from "material-ui/Checkbox/Checkbox";
 import IconButton from "material-ui/IconButton";
-import { Switch, Grid } from "@material-ui/core";
+import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import FilterListIcon from "material-ui/svg-icons/content/filter-list";
 import memoize from "memoize-weak";
 import PropTypes from "prop-types";
@@ -20,6 +22,8 @@ export default class Filters extends React.Component {
 
     static propTypes = {
         onChange: PropTypes.func.isRequired,
+        onlyActiveUsers: PropTypes.bool,
+        areFiltersOverrided: PropTypes.bool,
     };
 
     styles = {
@@ -49,6 +53,11 @@ export default class Filters extends React.Component {
             marginRight: 25,
             marginLeft: "auto",
         },
+        filterBehavior: {
+            display: "flex",
+            alignItems: "center",
+            columnGap: 6,
+        },
     };
 
     constructor(props, context) {
@@ -69,11 +78,20 @@ export default class Filters extends React.Component {
             orgUnits: [],
             orgUnitsOutput: [],
             searchOrgUnits: [],
-            userDisabled: null,
+            userDisabled: this.props.onlyActiveUsers ? false : null,
             userRolesAll: [],
             userGroupsAll: [],
-            rootJunction: "OR",
+            rootJunction: this.props.areFiltersOverrided ? "AND" : "OR",
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.onlyActiveUsers !== this.props.onlyActiveUsers) {
+            this.setState({ userDisabled: this.props.onlyActiveUsers ? false : null }, this.notifyParent);
+        }
+        if (prevProps.areFiltersOverrided !== this.props.areFiltersOverrided) {
+            this.setState({ rootJunction: this.props.areFiltersOverrided ? "AND" : "OR" }, this.notifyParent);
+        }
     }
 
     componentWillMount = () => {
@@ -157,10 +175,11 @@ export default class Filters extends React.Component {
                 searchStringClear: new Date(),
                 userGroups: [],
                 userRoles: [],
-                userDisabled: null,
+                userDisabled: this.props.onlyActiveUsers ? false : null,
                 orgUnits: [],
                 orgUnitsOutput: [],
                 searchOrgUnits: [],
+                rootJunction: this.props.areFiltersOverrided ? "AND" : "OR",
             },
             this.notifyParent
         );
@@ -194,6 +213,8 @@ export default class Filters extends React.Component {
             rootJunction,
         } = this.state;
 
+        const { onlyActiveUsers, areFiltersOverrided } = this.props;
+
         const { styles } = this;
 
         const isExtendedFiltering =
@@ -208,6 +229,8 @@ export default class Filters extends React.Component {
             { value: false, text: this.getTranslation("active") },
             { value: true, text: this.getTranslation("inactive") },
         ];
+
+        const forcedFilterOptions = [{ value: false, text: this.getTranslation("filter_active_modified") }];
 
         return (
             <div className="user-management-controls" style={styles.wrapper}>
@@ -243,30 +266,67 @@ export default class Filters extends React.Component {
                                 />
                             </Grid>
                             <Grid item xs={4} className="control-row switch">
-                                <span>{this.getTranslation("Filtering_behavior")}</span>
+                                <span style={styles.filterBehavior}>
+                                    {this.getTranslation("Filtering_behavior")}
+                                    <InfoOutlinedIcon
+                                        fontSize="small"
+                                        titleAccess={this.getTranslation("Active_in_advanced_only")}
+                                    />
+                                </span>
+                                {/* From UX perspective, this should be a Segmented Control instead of a Switch.
+                                    Already fought that fight 3 years ago MultiSelectorDialog.tsx:L76.
+                                    I'm adding here the ready code snippet to swap it with after the PM gives the ok.
+                                    Of course I would change more many styles but let's just push forward in that direction x) */}
+                                {/* <Box paddingY={1.5}>
+                                    <SegmentedControl
+                                        options={[
+                                            {
+                                                label: this.getTranslation("OR"),
+                                                value: "OR",
+                                                disabled: areFiltersOverrided,
+                                            },
+                                            {
+                                                label: this.getTranslation("AND"),
+                                                value: "AND",
+                                            },
+                                        ]}
+                                        selected={rootJunction}
+                                        onChange={({ value }) => {
+                                            if (areFiltersOverrided) return;
+                                            this.setState({ rootJunction: value ?? "OR" }, this.notifyParent);
+                                        }}
+                                    />
+                                </Box> */}
                                 <div className="control-switch">
                                     <span>{this.getTranslation("OR")}</span>
                                     <Switch
                                         className="control-switch"
                                         onChange={() => {
+                                            if (areFiltersOverrided) return;
                                             const newRootJunction = rootJunction === "AND" ? "OR" : "AND";
                                             this.setState({ rootJunction: newRootJunction }, this.notifyParent);
                                         }}
                                         checked={rootJunction === "AND"}
+                                        disabled={areFiltersOverrided}
                                     />
                                     <span>{this.getTranslation("AND")}</span>
                                 </div>
-                                <span>{this.getTranslation("Active_in_advanced_only")}</span>
+                                {areFiltersOverrided && (
+                                    <Typography component="span" variant="body1" color="textSecondary">
+                                        {this.getTranslation("filter_modified_on_settings")}
+                                    </Typography>
+                                )}
                             </Grid>
                         </Grid>
                         <div className="control-row">
                             <div className="user-management-control select-active-or-inactive">
                                 <Dropdown
                                     labelText={this.getTranslation("filter_active_inactive_users")}
-                                    options={dropdownOptions}
+                                    options={onlyActiveUsers ? forcedFilterOptions : dropdownOptions}
                                     value={this.state.userDisabled}
                                     onChange={this.setFilter("userDisabled", this.dropdownHandler)}
                                     style={styles.dropdownStyles}
+                                    disabled={onlyActiveUsers}
                                 />
                             </div>
 
