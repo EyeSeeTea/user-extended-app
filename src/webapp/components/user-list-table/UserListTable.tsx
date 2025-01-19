@@ -55,10 +55,13 @@ function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions[
             return "output";
         case "assign_to_org_units_search":
             return "search";
-        case "copy_in_user":
-        case "disable":
-        case "enable":
-        case "remove":
+        // Note for reviewer: Commented these lines just to keep track of them and because linter was complaining about return statement
+        // If you give me the ok, I would restrict the ActionType to OrgUnitActionType
+        // case "copy_in_user":
+        // case "disable":
+        // case "enable":
+        // case "remove":
+        default:
             throw new Error(`Invalid action: ${action}`);
     }
 }
@@ -71,8 +74,13 @@ function isActionTypeOrgUnit(actionType: Maybe<ActionType>): boolean {
     );
 }
 
-function isActionTypeEnableOrRemove(actionType: Maybe<ActionType>): boolean {
-    return actionType === "disable" || actionType === "enable" || actionType === "remove";
+function isActionTypeRisky(actionType: Maybe<ActionType>): boolean {
+    return (
+        actionType === "disable" ||
+        actionType === "enable" ||
+        actionType === "remove" ||
+        actionType === "reset_password"
+    );
 }
 
 function isActionTypeCopyInUser(actionType: Maybe<ActionType>): boolean {
@@ -313,6 +321,17 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     isActive: isStateActionVisible("disable"),
                 },
                 {
+                    name: "reset_password",
+                    text: i18n.t("Reset password"),
+                    icon: <Icon>lock</Icon>,
+                    multiple: true,
+                    onClick: users => {
+                        setSelectedUserIds(users);
+                        setActionType("reset_password");
+                    },
+                    isActive: checkAccess(["update"]),
+                },
+                {
                     name: "remove",
                     text: i18n.t("Remove"),
                     icon: <Icon>delete</Icon>,
@@ -396,8 +415,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters["id"] = ["in", userIdList];
                 }
             }
-
-            console.log(usersOrgUnits);
 
             return compositionRoot.users
                 .list({
@@ -534,7 +551,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         <React.Fragment>
             {multiSelectorDialogProps && <MultiSelectorDialog {...multiSelectorDialogProps} />}
 
-            {actionType && isActionTypeEnableOrRemove(actionType) && selectedUsers && (
+            {actionType && isActionTypeRisky(actionType) && selectedUsers && (
                 <UsersSelectedModal
                     users={users}
                     isOpen={users.length > 0}

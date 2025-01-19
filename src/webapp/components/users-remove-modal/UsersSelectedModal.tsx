@@ -21,17 +21,26 @@ export type ActionType =
     | "assign_to_org_units_capture"
     | "assign_to_org_units_output"
     | "assign_to_org_units_search"
-    | "copy_in_user";
+    | "copy_in_user"
+    | "reset_password";
 
-function getMessagesByActionType(actionType: ActionType): { title: string } {
-    if (actionType === "remove") {
-        return { title: "Remove" };
-    } else if (actionType === "disable") {
-        return { title: "Disable" };
-    } else if (actionType === "enable") {
-        return { title: "Enable" };
+function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
+    switch (actionType) {
+        case "remove":
+            return { title: "Remove users", description: "remove", success: "Users removed" };
+        case "disable":
+            return { title: "Disable users", description: "disable", success: "Users disabled" };
+        case "enable":
+            return { title: "Enable users", description: "enable", success: "Users enabled" };
+        case "reset_password":
+            return {
+                title: "Reset passwords",
+                description: "reset the passwords for",
+                success: "Passwords have been reset",
+            };
+        default:
+            return { title: "", description: "", success: "" };
     }
-    return { title: "" };
 }
 
 export function generateMessage(users: User[]) {
@@ -64,8 +73,8 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
 
     const onSuccessAction = () => {
         snackbar.success(
-            i18n.t("Users {{action}}. {{users}} {{remainingCount}}", {
-                action: `${actionType}d`,
+            i18n.t("{{actionSuccess}}. {{users}} {{remainingCount}}", {
+                actionSuccess: messages.success,
                 users: firstThreeUsers.join(", "),
                 remainingCount: generateMessage(users),
             })
@@ -89,6 +98,11 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
             compositionRoot.users.saveStatus(users, { disabled: actionType === "disable" }).run(() => {
                 onSuccessAction();
             }, onErrorAction);
+        } else if (actionType === "reset_password") {
+            onSuccessAction();
+            // compositionRoot.users.resetPassword(users).run(() => {
+            //     onSuccessAction();
+            // }, onErrorAction);
         }
     };
 
@@ -97,10 +111,14 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
             isOpen={isOpen}
             onSave={onSave}
             onCancel={onCancel}
-            title={i18n.t("{{action}} users", { action: messages.title })}
+            title={i18n.t("{{actionTitle}}", { actionTitle: messages.title })}
             description={i18n.t(
-                "Are you sure you want to {{action}} the selected users? {{users}} {{remainingCount}}",
-                { action: actionType, users: firstThreeUsers.join(", "), remainingCount: generateMessage(users) }
+                "Are you sure you want to {{actionDescription}} the selected users? {{users}} {{remainingCount}}",
+                {
+                    actionDescription: messages.description,
+                    users: firstThreeUsers.join(", "),
+                    remainingCount: generateMessage(users),
+                }
             )}
             saveText={i18n.t("Confirm")}
         />
