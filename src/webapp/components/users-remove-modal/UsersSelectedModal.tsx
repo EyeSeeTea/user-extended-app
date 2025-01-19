@@ -24,6 +24,7 @@ export type ActionType =
     | "copy_in_user"
     | "reset_password";
 
+// TODO: Add into i18n translation files (as will not be recognized by i18n-scanner)
 function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
     switch (actionType) {
         case "remove":
