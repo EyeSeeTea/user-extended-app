@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-14T14:59:18.578Z\n"
-"PO-Revision-Date: 2025-01-14T14:59:18.578Z\n"
+"POT-Creation-Date: 2025-01-19T03:46:49.854Z\n"
+"PO-Revision-Date: 2025-01-19T03:46:49.854Z\n"
 
 msgid "ID"
 msgstr ""
@@ -287,6 +287,12 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
+msgid "Show feedback button"
+msgstr ""
+
+msgid "Show only users assigned to users' organisation units"
+msgstr ""
+
 msgid "Show only active users"
 msgstr ""
 
@@ -407,6 +413,9 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
+msgid "Reset password"
+msgstr ""
+
 msgid "Remove"
 msgstr ""
 
@@ -452,15 +461,15 @@ msgstr ""
 msgid "And {{overflow}} more..."
 msgstr ""
 
-msgid "Users {{action}}. {{users}} {{remainingCount}}"
+msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr ""
 
-msgid "{{action}} users"
+msgid "{{actionTitle}}"
 msgstr ""
 
 msgid ""
-"Are you sure you want to {{action}} the selected users? {{users}} "
-"{{remainingCount}}"
+"Are you sure you want to {{actionDescription}} the selected users? "
+"{{users}} {{remainingCount}}"
 msgstr ""
 
 msgid "Confirm"
