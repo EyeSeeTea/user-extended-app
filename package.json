@@ -106,7 +106,7 @@
         "craco-start": "craco start",
         "prebuild": "yarn localize && yarn test",
         "build-folder": "rm -rf build/ && d2-manifest package.json manifest.webapp && react-scripts build && yarn run manifest && cp -r i18n icon.png build",
-        "build": "REACT_APP_DHIS2_BASE_URL='' REACT_APP_DHIS2_AUTH='' yarn build-folder && rm -f $npm_package_name.zip && cd build && zip --quiet -r ../$npm_package_name.zip * && cp ../$npm_package_name.zip ./$npm_package_name.zip",
+        "build": "REACT_APP_DHIS2_BASE_URL='' REACT_APP_DHIS2_AUTH='' yarn build-folder && rm -f $npm_package_name.zip && cd build && zip --quiet -r ../$npm_package_name.zip *",
         "test": "jest --passWithNoTests",
         "lint": "eslint src cypress --ext .js,.jsx,.ts,.tsx",
         "eject": "react-scripts eject",
@@ -119,8 +119,7 @@
         "cy:e2e:open": "NODE_ENV=test CYPRESS_E2E=true cypress open",
         "cy:e2e:run": "NODE_ENV=test CYPRESS_E2E=true cypress run --browser chrome",
         "prepare": "husky install",
-        "script-example": "npx ts-node src/scripts/example.ts",
-        "make-bundlemonrc": "build_file_types=$(find ./build -type f ! -name '*.zip' | sed -n 's/.*\\.//p' | sort -u | paste -sd,) && build_file_types=$build_file_types envsubst < .bundlemonrc_template > .bundlemonrc"
+        "script-example": "npx ts-node src/scripts/example.ts"
     },
     "manifest.webapp": {
         "name": "User Extended App",
