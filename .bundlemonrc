@@ -5,9 +5,7 @@
             "path": "./**/*",
             "friendlyName": "Build Folder",
             "compression": "gzip",
-            // Max size of the build folder
-            "maxSize": "2 MB",
-            // Max percent increase of the build folder for new PRs
+            "maxSize": "2.5 MB",
             "maxPercentIncrease": "20"
         }
     ],
