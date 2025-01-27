@@ -46,6 +46,8 @@ import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
+import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
+import styled from "styled-components";
 
 function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -140,6 +142,10 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const { users: allUsers } = useGetAllUsers();
     const { appSettings, setAppSettings } = useAppSettingsContext();
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
+
+    /* Pagination DHIS2 Bug */
+    const needsPatch =
+        usersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
@@ -427,6 +433,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     rootJunction,
                     usersOrgUnits,
                 })
+                .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
         },
         [
@@ -438,6 +445,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             filters,
             rootJunction,
             usersOrgUnits,
+            needsPatch,
         ]
     );
 
@@ -584,19 +592,24 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
             {showSettings && <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />}
 
-            <ObjectsList<User> {...tableProps} columns={columnsToShow}>
-                {children}
-                <div className="user-management-control pagination" style={{ order: 11 }}>
-                    {importSettings && mappingColumns && (
-                        <ImportExport
-                            columns={mappingColumns}
-                            filterOptions={filterOption}
-                            onImport={showImportDialog}
-                            settings={importSettings}
-                        />
-                    )}
-                </div>
-            </ObjectsList>
+            <PatchPaginationTableWrapper
+                className={needsPatch ? "patched" : undefined}
+                pagination={tableProps.pagination}
+            >
+                <ObjectsList<User> {...tableProps} columns={columnsToShow}>
+                    {children}
+                    <div className="user-management-control pagination" style={{ order: 11 }}>
+                        {importSettings && mappingColumns && (
+                            <ImportExport
+                                columns={mappingColumns}
+                                filterOptions={filterOption}
+                                onImport={showImportDialog}
+                                settings={importSettings}
+                            />
+                        )}
+                    </div>
+                </ObjectsList>
+            </PatchPaginationTableWrapper>
 
             {showImportModal && importResult && (
                 <ImportTable
@@ -766,3 +779,53 @@ function buildEllipsizedList(items: NamedRef[], limit = 3) {
         </Tooltip>
     );
 }
+
+/**
+ * Prevent pointless "next" requests when DHIS2 Pagination Bug. Solution: Clamp pagination on the last meaningful page.
+ * Subsequent pages return only the "admin" user, so the last meaningful page should have fewer items than the page size.
+ * This workaround calculates the total count based on the items returned on the last meaningful page.
+
+ * Note: If the "last page" has the same number of items as the page size, we will not clamp. However, on the next page,
+ * since only the "admin" user will be returned, the condition will be met.
+ */
+function patchPaginatedReponseIfNeeded(needsPatch: boolean, paginatedReponse: PaginatedResponse<User>) {
+    const { objects, pager } = paginatedReponse;
+
+    const isLastPage = objects.length < pager.pageSize;
+    const clampedPager = { ...pager, total: pager.pageSize * (pager.page - 1) + objects.length };
+
+    return needsPatch && isLastPage ? { objects, pager: clampedPager } : { objects, pager };
+}
+
+/**
+ * Workaround for DHIS2 Bug: When usersOrgUnits and filters are present, the total count for pagination is not calculated correctly.
+ * To address this, we set the total count to Infinity to ensure pagination works correctly, and use CSS to mask the incorrect total count.
+ * This approach avoids modifying the ObjectsList component on d2-ui-components, which also relies on TablePagination from material-ui, making this workaround a less invasive solution.
+ */
+const PatchPaginationTableWrapper = styled.div<{ pagination: Partial<TablePagination> }>`
+    ${({ pagination }) => {
+        if (!pagination.total || !pagination.pageSize || !pagination.page) return "";
+        if (pagination.total < pagination.pageSize * pagination.page) return ""; // Patched after request
+        const start = (pagination.page - 1) * pagination.pageSize + 1;
+        const end = pagination.pageSize * pagination.page;
+        const chars = `${start}-${end}`.length;
+
+        return `
+            &.patched
+                .MuiTablePagination-root
+                p.MuiTypography-root.MuiTablePagination-caption.MuiTypography-body2.MuiTypography-colorInherit:nth-of-type(2):before {
+                content: "${start}-${end} of ??";
+                display: inline;
+                visibility: visible;
+            }
+
+            &.patched
+                .MuiTablePagination-root
+                p.MuiTypography-root.MuiTablePagination-caption.MuiTypography-body2.MuiTypography-colorInherit:nth-of-type(2) {
+                visibility: hidden;
+                width: calc(${chars + 1 + 4 /* Extra char margin + "of ??" zero char width */} * 1ch);
+                height: calc(1em * 1.43); /* 1.43 is the line-height */
+                overflow: hidden;
+            }`;
+    }}
+`;
