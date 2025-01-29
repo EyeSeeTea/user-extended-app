@@ -7,7 +7,7 @@ import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { LocaleCode, User } from "../../domain/entities/User";
 import { UserLogic } from "../../domain/entities/UserLogic";
-import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
+import { ListFilters, ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
 import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
@@ -118,9 +118,10 @@ export class UserD2ApiRepository implements UserRepository {
             canManage,
             rootJunction,
             filters,
-            usersOrgUnits,
+            onlyActiveUsers,
+            onlyUsersOrgUnits,
         } = options;
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
         const areFiltersEnabled = _(otherFilters).values().some();
 
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
@@ -138,15 +139,32 @@ export class UserD2ApiRepository implements UserRepository {
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
                 rootJunction: areFiltersEnabled ? rootJunction : undefined,
-                userOrgUnits: usersOrgUnits === true ? "true" : undefined,
+                userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
                 order: `${sortingField}:${sorting.order}`,
             })
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    public listAllIds(options: ListOptions): FutureData<string[]> {
-        const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
+    private buildFilters(filters: ListFilters | undefined, override: { onlyActiveUsers: boolean }) {
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+        return {
+            ...otherFilters,
+            "userCredentials.disabled": override.onlyActiveUsers
+                ? { eq: ["false"] }
+                : otherFilters["userCredentials.disabled"],
+        };
+    }
+
+    public listAllIds(options: ListOptions): FutureData<string[]> {
+        const {
+            search,
+            sorting = { field: "firstName", order: "asc" },
+            filters,
+            canManage,
+            onlyActiveUsers,
+            onlyUsersOrgUnits,
+        } = options;
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
 
         return apiToFuture(
             this.api.models.users.get({
@@ -155,6 +173,7 @@ export class UserD2ApiRepository implements UserRepository {
                 query: search !== "" ? search : undefined,
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
+                userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
                 order: `${sorting.field}:${sorting.order}`,
             })
         ).map(({ objects }) => objects.map(user => user.id));
@@ -234,7 +253,8 @@ export class UserD2ApiRepository implements UserRepository {
 
     private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
         const { page, pageSize, search, sorting = { field: "firstName", order: "asc" }, filters } = options;
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers: false });
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
@@ -295,7 +315,11 @@ export class UserD2ApiRepository implements UserRepository {
         const userIds = users.map(user => user.id);
 
         return this.getLogger().flatMap(logger => {
-            return this.getFullUsers({ filters: { id: ["in", userIds] } }).flatMap(existingUsers => {
+            return this.getFullUsers({
+                filters: { id: ["in", userIds] },
+                onlyUsersOrgUnits: false,
+                onlyActiveUsers: false,
+            }).flatMap(existingUsers => {
                 const usersToSend = _(userIds)
                     .map(userId => {
                         const existingUser = existingUsers.find(user => user.id === userId);

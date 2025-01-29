@@ -15,6 +15,7 @@ import Settings from "../../../legacy/models/settings";
 import { User } from "../../../domain/entities/User";
 import { Columns } from "./ImportTable";
 import { ImportUser } from "../../../domain/entities/ImportUser";
+import { ListOptions } from "../../../domain/repositories/UserRepository";
 
 export const ImportExport: React.FC<ImportExportProps> = props => {
     const { d2 } = useAppContext();
@@ -103,11 +104,9 @@ export const ImportExport: React.FC<ImportExportProps> = props => {
     );
 };
 
-export type FilterOption = { search: string; sorting: { field: string; order: "asc" | "desc" } };
-
 export type ImportExportProps = {
     columns: ColumnMappingKeys[];
-    filterOptions: FilterOption;
+    filterOptions: ListOptions;
     onImport: (result: ImportResult) => void;
     settings: Settings;
 };

@@ -16,13 +16,7 @@ const initialSorting = ["name", "asc"];
 const ListHybridWrapper = props => {
     const { appSettings } = useAppSettingsContext();
 
-    return (
-        <ListHybrid
-            {...props}
-            onlyActiveUsers={appSettings.showOnlyActiveUsers}
-            usersOrgUnits={appSettings.showOnlyUsersOrgUnits}
-        />
-    );
+    return <ListHybrid {...props} onlyActiveUsers={appSettings.showOnlyActiveUsers} />;
 };
 
 export { ListHybridWrapper as ListHybrid };
@@ -67,7 +61,6 @@ class ListHybrid extends React.Component {
             reloadTableKey: 1,
             listFilterOptions: {},
             filters: getFilters({}, props),
-            usersOrgUnits: props.usersOrgUnits,
             pager: {
                 total: 0,
             },
@@ -112,10 +105,6 @@ class ListHybrid extends React.Component {
                 }),
                 this.filterList
             );
-        }
-
-        if (prevProps.usersOrgUnits !== this.props.usersOrgUnits) {
-            this.setState({ usersOrgUnits: this.props.usersOrgUnits }, this.filterList);
         }
     }
 
@@ -232,9 +221,9 @@ class ListHybrid extends React.Component {
 
     render() {
         const { replicateUser, listFilterOptions } = this.state;
-        const { onlyActiveUsers, usersOrgUnits } = this.props;
+        const { onlyActiveUsers } = this.props;
 
-        const areFiltersOverrided = onlyActiveUsers || usersOrgUnits;
+        const areFiltersOverrided = onlyActiveUsers;
 
         return (
             <div>
@@ -246,7 +235,6 @@ class ListHybrid extends React.Component {
                             filters={this.state.filters?.filters}
                             canManage={this.state?.canManage}
                             rootJunction={areFiltersOverrided ? "AND" : this.state.filters?.rootJunction}
-                            usersOrgUnits={usersOrgUnits}
                             onChangeVisibleColumns={this._updateVisibleColumns}
                             onChangeSearch={this._updateQuery}
                             reloadTableKey={this.state.reloadTableKey}
@@ -271,7 +259,7 @@ class ListHybrid extends React.Component {
 }
 
 function getFilters(filters, props, prevProps) {
-    const areFiltersOverrided = props.onlyActiveUsers || props.usersOrgUnits;
+    const areFiltersOverrided = props.onlyActiveUsers;
     const onlyActiveUsersChanged = prevProps?.onlyActiveUsers !== props.onlyActiveUsers;
     const userCredentialsDisabled = onlyActiveUsersChanged
         ? props.onlyActiveUsers

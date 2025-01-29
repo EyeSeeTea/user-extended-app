@@ -28,7 +28,8 @@ export interface ListOptions {
     filters?: ListFilters;
     canManage?: string;
     rootJunction?: "AND" | "OR";
-    usersOrgUnits?: boolean;
+    onlyUsersOrgUnits: boolean;
+    onlyActiveUsers: boolean;
 }
 
 export type ListFilterType = "in" | "eq";

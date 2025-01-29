@@ -17,7 +17,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { hasReplicateAuthority, User } from "../../../domain/entities/User";
-import { ListFilters, UpdateStrategy, AccessElements } from "../../../domain/repositories/UserRepository";
+import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../locales";
 import { Maybe } from "../../../types/utils";
@@ -41,7 +41,7 @@ import {
 } from "../users-remove-modal/UsersSelectedModal";
 import { SettingsDialogModal, useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
 import Settings from "../../../legacy/models/settings";
-import { FilterOption, ImportExport, ImportResult } from "../import-export/ImportExport";
+import { ImportExport, ImportResult } from "../import-export/ImportExport";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
 import { AppSettings } from "../../../domain/entities/AppSettings";
@@ -114,7 +114,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     filters,
     canManage,
     rootJunction,
-    usersOrgUnits = false,
     children,
     reloadTableKey,
     onAction,
@@ -141,11 +140,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
     const { users: allUsers } = useGetAllUsers();
     const { appSettings, setAppSettings } = useAppSettingsContext();
+    const { showOnlyUsersOrgUnits: onlyUsersOrgUnits, showOnlyActiveUsers: onlyActiveUsers } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
     /* Pagination DHIS2 Bug */
     const needsPatch =
-        usersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
+        onlyUsersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
@@ -413,7 +413,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         filters,
                         canManage,
                         rootJunction,
-                        usersOrgUnits,
+                        onlyUsersOrgUnits: onlyUsersOrgUnits,
+                        onlyActiveUsers: onlyActiveUsers,
                     })
                     .toPromise();
 
@@ -431,7 +432,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters,
                     canManage,
                     rootJunction,
-                    usersOrgUnits,
+                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyActiveUsers: onlyActiveUsers,
                 })
                 .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
@@ -444,7 +446,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             compositionRoot.users,
             filters,
             rootJunction,
-            usersOrgUnits,
+            onlyUsersOrgUnits,
+            onlyActiveUsers,
             needsPatch,
         ]
     );
@@ -457,11 +460,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     sorting,
                     filters,
                     canManage,
-                    usersOrgUnits,
+                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyActiveUsers: onlyActiveUsers,
                 })
                 .toPromise();
         },
-        [compositionRoot.users, filters, canManage, usersOrgUnits]
+        [compositionRoot.users, filters, canManage, onlyUsersOrgUnits, onlyActiveUsers]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
@@ -602,7 +606,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         {importSettings && mappingColumns && (
                             <ImportExport
                                 columns={mappingColumns}
-                                filterOptions={filterOption}
+                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers }}
                                 onImport={showImportDialog}
                                 settings={importSettings}
                             />
@@ -758,7 +762,7 @@ export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loadi
     onChangeSearch: (search: string) => void;
     reloadTableKey: number;
     onAction: (ids: string[], action: UserActionName) => void;
-    filterOption: FilterOption;
+    filterOption: ListOptions;
     usersOrgUnits: boolean;
 }
 
@@ -814,7 +818,7 @@ const PatchPaginationTableWrapper = styled.div<{ pagination: Partial<TablePagina
             &.patched
                 .MuiTablePagination-root
                 p.MuiTypography-root.MuiTablePagination-caption.MuiTypography-body2.MuiTypography-colorInherit:nth-of-type(2):before {
-                content: "${start}-${end} of ??";
+                content: "${start}-${end}";
                 display: inline;
                 visibility: visible;
             }
@@ -823,7 +827,8 @@ const PatchPaginationTableWrapper = styled.div<{ pagination: Partial<TablePagina
                 .MuiTablePagination-root
                 p.MuiTypography-root.MuiTablePagination-caption.MuiTypography-body2.MuiTypography-colorInherit:nth-of-type(2) {
                 visibility: hidden;
-                width: calc(${chars + 1 + 4 /* Extra char margin + "of ??" zero char width */} * 1ch);
+                white-space: nowrap;
+                width: calc(${chars} * 1ch); /* In this case, I checked that Roboto has same width for all numbers (and ch is '0' char width) */
                 height: calc(1em * 1.43); /* 1.43 is the line-height */
                 overflow: hidden;
             }`;

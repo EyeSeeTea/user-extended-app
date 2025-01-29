@@ -97,16 +97,20 @@ export function useGetAllUsers() {
     const snackbar = useSnackbar();
 
     React.useMemo(() => {
-        // TODO: also active users
-        compositionRoot.users.listAll({ usersOrgUnits: appSettings.showOnlyUsersOrgUnits }).run(
-            allUsers => {
-                setUsers(allUsers);
-            },
-            error => {
-                snackbar.error(error);
-            }
-        );
-    }, [appSettings.showOnlyUsersOrgUnits, compositionRoot.users, snackbar]);
+        compositionRoot.users
+            .listAll({
+                onlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
+                onlyActiveUsers: appSettings.showOnlyActiveUsers,
+            })
+            .run(
+                allUsers => {
+                    setUsers(allUsers);
+                },
+                error => {
+                    snackbar.error(error);
+                }
+            );
+    }, [appSettings.showOnlyActiveUsers, appSettings.showOnlyUsersOrgUnits, compositionRoot.users, snackbar]);
 
     return { users };
 }

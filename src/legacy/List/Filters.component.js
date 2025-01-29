@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
 import { SegmentedControl } from "@dhis2/ui";
-import { Switch, Box, Grid, Typography } from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import Checkbox from "material-ui/Checkbox/Checkbox";
 import IconButton from "material-ui/IconButton";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
@@ -273,11 +273,7 @@ export default class Filters extends React.Component {
                                         titleAccess={this.getTranslation("Active_in_advanced_only")}
                                     />
                                 </span>
-                                {/* From UX perspective, this should be a Segmented Control instead of a Switch.
-                                    Already fought that fight 3 years ago MultiSelectorDialog.tsx:L76.
-                                    I'm adding here the ready code snippet to swap it with after the PM gives the ok.
-                                    Of course I would change more many styles but let's just push forward in that direction x) */}
-                                {/* <Box paddingY={1.5}>
+                                <Box paddingY={1.5}>
                                     <SegmentedControl
                                         options={[
                                             {
@@ -296,21 +292,7 @@ export default class Filters extends React.Component {
                                             this.setState({ rootJunction: value ?? "OR" }, this.notifyParent);
                                         }}
                                     />
-                                </Box> */}
-                                <div className="control-switch">
-                                    <span>{this.getTranslation("OR")}</span>
-                                    <Switch
-                                        className="control-switch"
-                                        onChange={() => {
-                                            if (areFiltersOverrided) return;
-                                            const newRootJunction = rootJunction === "AND" ? "OR" : "AND";
-                                            this.setState({ rootJunction: newRootJunction }, this.notifyParent);
-                                        }}
-                                        checked={rootJunction === "AND"}
-                                        disabled={areFiltersOverrided}
-                                    />
-                                    <span>{this.getTranslation("AND")}</span>
-                                </div>
+                                </Box>
                                 {areFiltersOverrided && (
                                     <Typography component="span" variant="body1" color="textSecondary">
                                         {this.getTranslation("filter_modified_on_settings")}

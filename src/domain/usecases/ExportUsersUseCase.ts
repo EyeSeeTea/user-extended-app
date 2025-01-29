@@ -39,7 +39,7 @@ export class ExportUsersUseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute({
-        filterOptions = {},
+        filterOptions,
         isEmptyTemplate = false,
         ...options
     }: ExportUsersUseCaseOptions): FutureData<{ blob: Blob; filename: string }> {
