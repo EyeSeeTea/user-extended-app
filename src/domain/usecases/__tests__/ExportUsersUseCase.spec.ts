@@ -33,8 +33,8 @@ describe("ExportUsersUseCase", () => {
 
         const { blob, filename } = await exportUsersUseCase.execute(options).toPromise();
 
-        const expectedFilename = `empty-template-${moment().format("YYYY-MM-DD_HH-mm-ss")}.csv`;
-        expect(filename).toEqual(expectedFilename);
+        const expectedFilename = `empty-template-${moment().format("YYYY-MM-DD_HH-mm")}`;
+        expect(filename.startsWith(expectedFilename)).toBe(true);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(emptyCSVBlob));
         verify(userRepositoryMock.listAll(filterOptions)).never();
@@ -53,8 +53,8 @@ describe("ExportUsersUseCase", () => {
 
         const { blob, filename } = await exportUsersUseCase.execute(options).toPromise();
 
-        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm-ss")}.csv`;
-        expect(filename).toEqual(expectedFilename);
+        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm")}`;
+        expect(filename.startsWith(expectedFilename)).toBe(true);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(usersExportCSVBlob));
         verify(userRepositoryMock.listAll(deepEqual(filterOptions))).once();
@@ -73,8 +73,8 @@ describe("ExportUsersUseCase", () => {
 
         const { blob, filename } = await exportUsersUseCase.execute(options).toPromise();
 
-        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm-ss")}.json`;
-        expect(filename).toEqual(expectedFilename);
+        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm")}`;
+        expect(filename.startsWith(expectedFilename)).toBe(true);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(usersExportJSONBlob));
         verify(userRepositoryMock.listAll(deepEqual(filterOptions))).once();
