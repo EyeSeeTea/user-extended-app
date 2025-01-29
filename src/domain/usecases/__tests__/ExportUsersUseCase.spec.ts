@@ -28,10 +28,7 @@ describe("ExportUsersUseCase", () => {
             format: "csv",
             orgUnitsField: "code",
             isEmptyTemplate: true,
-            filterOptions: {
-                onlyActiveUsers: false,
-                onlyUsersOrgUnits: false,
-            },
+            filterOptions: filterOptions,
         };
 
         const { blob, filename } = await exportUsersUseCase.execute(options).toPromise();
@@ -40,12 +37,7 @@ describe("ExportUsersUseCase", () => {
         expect(filename).toEqual(expectedFilename);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(emptyCSVBlob));
-        verify(
-            userRepositoryMock.listAll({
-                onlyActiveUsers: false,
-                onlyUsersOrgUnits: false,
-            })
-        ).never();
+        verify(userRepositoryMock.listAll(filterOptions)).never();
     });
 
     it("should return a blob and filename when exporting users with CSV format", async () => {
@@ -55,10 +47,7 @@ describe("ExportUsersUseCase", () => {
             columns: columnsAvailableToExport,
             format: "csv",
             orgUnitsField: "code",
-            filterOptions: {
-                onlyActiveUsers: false,
-                onlyUsersOrgUnits: false,
-            },
+            filterOptions: filterOptions,
             isEmptyTemplate: false,
         };
 
@@ -68,14 +57,7 @@ describe("ExportUsersUseCase", () => {
         expect(filename).toEqual(expectedFilename);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(usersExportCSVBlob));
-        verify(
-            userRepositoryMock.listAll(
-                deepEqual({
-                    onlyActiveUsers: false,
-                    onlyUsersOrgUnits: false,
-                })
-            )
-        ).once();
+        verify(userRepositoryMock.listAll(deepEqual(filterOptions))).once();
     });
 
     it("should return a blob and filename when exporting users with JSON format", async () => {
@@ -85,10 +67,7 @@ describe("ExportUsersUseCase", () => {
             columns: columnsAvailableToExport,
             format: "json",
             orgUnitsField: "code",
-            filterOptions: {
-                onlyActiveUsers: false,
-                onlyUsersOrgUnits: false,
-            },
+            filterOptions: filterOptions,
             isEmptyTemplate: false,
         };
 
@@ -98,16 +77,14 @@ describe("ExportUsersUseCase", () => {
         expect(filename).toEqual(expectedFilename);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(usersExportJSONBlob));
-        verify(
-            userRepositoryMock.listAll(
-                deepEqual({
-                    onlyActiveUsers: false,
-                    onlyUsersOrgUnits: false,
-                })
-            )
-        ).once();
+        verify(userRepositoryMock.listAll(deepEqual(filterOptions))).once();
     });
 });
+
+const filterOptions = {
+    onlyActiveUsers: false,
+    onlyUsersOrgUnits: false,
+};
 
 function givenUsersToExport(): void {
     const users = [userToExport as User];
