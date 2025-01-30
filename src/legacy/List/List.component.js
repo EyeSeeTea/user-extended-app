@@ -16,7 +16,13 @@ const initialSorting = ["name", "asc"];
 const ListHybridWrapper = props => {
     const { appSettings } = useAppSettingsContext();
 
-    return <ListHybrid {...props} onlyActiveUsers={appSettings.showOnlyActiveUsers} />;
+    return (
+        <ListHybrid
+            {...props}
+            onlyActiveUsers={appSettings.showOnlyActiveUsers}
+            usersOrgUnits={appSettings.showOnlyUsersOrgUnits}
+        />
+    );
 };
 
 export { ListHybridWrapper as ListHybrid };
@@ -61,6 +67,7 @@ class ListHybrid extends React.Component {
             reloadTableKey: 1,
             listFilterOptions: {},
             filters: getFilters({}, props),
+            usersOrgUnits: props.usersOrgUnits,
             pager: {
                 total: 0,
             },
@@ -105,6 +112,10 @@ class ListHybrid extends React.Component {
                 }),
                 this.filterList
             );
+        }
+
+        if (prevProps.usersOrgUnits !== this.props.usersOrgUnits) {
+            this.setState({ usersOrgUnits: this.props.usersOrgUnits }, this.filterList);
         }
     }
 
@@ -221,9 +232,10 @@ class ListHybrid extends React.Component {
 
     render() {
         const { replicateUser, listFilterOptions } = this.state;
-        const { onlyActiveUsers } = this.props;
+        const { onlyActiveUsers, usersOrgUnits } = this.props;
 
         const areFiltersOverrided = onlyActiveUsers;
+        const hideUsersCanManageFilter = onlyActiveUsers && usersOrgUnits;
 
         return (
             <div>
@@ -247,6 +259,7 @@ class ListHybrid extends React.Component {
                                 api={this.props.api}
                                 onlyActiveUsers={onlyActiveUsers}
                                 areFiltersOverrided={areFiltersOverrided}
+                                hideUsersCanManageFilter={hideUsersCanManageFilter}
                             />
                         </UserListTable>
                     </div>

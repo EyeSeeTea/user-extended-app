@@ -24,6 +24,7 @@ export default class Filters extends React.Component {
         onChange: PropTypes.func.isRequired,
         onlyActiveUsers: PropTypes.bool,
         areFiltersOverrided: PropTypes.bool,
+        hideUsersCanManageFilter: PropTypes.bool,
     };
 
     styles = {
@@ -37,11 +38,11 @@ export default class Filters extends React.Component {
         },
         filterStyles: {
             textField: {
-                width: "90%",
+                width: "100%",
             },
         },
         dropdownStyles: {
-            width: "90%",
+            width: "100%",
         },
         animationVisible: {
             width: 850,
@@ -213,7 +214,7 @@ export default class Filters extends React.Component {
             rootJunction,
         } = this.state;
 
-        const { onlyActiveUsers, areFiltersOverrided } = this.props;
+        const { onlyActiveUsers, areFiltersOverrided, hideUsersCanManageFilter } = this.props;
 
         const { styles } = this;
 
@@ -255,17 +256,19 @@ export default class Filters extends React.Component {
                     infoActionText={this.getTranslation("clear_filters")}
                     onInfoAction={isFiltering ? this.clearFilters : undefined}
                 >
-                    <div style={{ padding: 10, margin: 10 }}>
-                        <Grid container spacing={2} className="control-row">
-                            <Grid item xs={8} className="control-row checkboxes">
-                                <Checkbox
-                                    className="control-checkbox"
-                                    label={this.getTranslation("display_only_users_can_manage")}
-                                    onCheck={this.setFilter("showOnlyManagedUsers", this.checkboxHandler)}
-                                    checked={showOnlyManagedUsers}
-                                />
-                            </Grid>
-                            <Grid item xs={4} className="control-row switch">
+                    <div style={{ padding: "0.5em", margin: "0.5em" }}>
+                        <Box display="flex" alignItems="center" width="100%" marginBottom={1.5}>
+                            <Box display="flex" flexGrow={1}>
+                                {!hideUsersCanManageFilter && (
+                                    <Checkbox
+                                        className="control-checkbox"
+                                        label={this.getTranslation("display_only_users_can_manage")}
+                                        onCheck={this.setFilter("showOnlyManagedUsers", this.checkboxHandler)}
+                                        checked={showOnlyManagedUsers}
+                                    />
+                                )}
+                            </Box>
+                            <Box display="flex" gridColumnGap="1.5em">
                                 <span style={styles.filterBehavior}>
                                     {this.getTranslation("Filtering_behavior")}
                                     <InfoOutlinedIcon
@@ -273,7 +276,14 @@ export default class Filters extends React.Component {
                                         titleAccess={this.getTranslation("Active_in_advanced_only")}
                                     />
                                 </span>
-                                <Box paddingY={1.5}>
+                                <Box
+                                    display="inline"
+                                    title={
+                                        areFiltersOverrided
+                                            ? this.getTranslation("filter_modified_on_settings")
+                                            : undefined
+                                    }
+                                >
                                     <SegmentedControl
                                         options={[
                                             {
@@ -293,14 +303,9 @@ export default class Filters extends React.Component {
                                         }}
                                     />
                                 </Box>
-                                {areFiltersOverrided && (
-                                    <Typography component="span" variant="body1" color="textSecondary">
-                                        {this.getTranslation("filter_modified_on_settings")}
-                                    </Typography>
-                                )}
-                            </Grid>
-                        </Grid>
-                        <div className="control-row">
+                            </Box>
+                        </Box>
+                        <div>
                             <div className="user-management-control select-active-or-inactive">
                                 <Dropdown
                                     labelText={this.getTranslation("filter_active_inactive_users")}
@@ -333,7 +338,7 @@ export default class Filters extends React.Component {
                             </div>
                         </div>
 
-                        <div className="control-row">
+                        <div>
                             <div className="user-management-control select-organisation-unit">
                                 <OrgUnitsSelectorFilter
                                     api={this.props.api}
