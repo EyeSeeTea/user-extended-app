@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
 import { SegmentedControl } from "@dhis2/ui";
-import { Box, Grid, Typography } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import Checkbox from "material-ui/Checkbox/Checkbox";
 import IconButton from "material-ui/IconButton";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
