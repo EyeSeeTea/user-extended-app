@@ -140,6 +140,7 @@ export class UserD2ApiRepository implements UserRepository {
                 filter: otherFilters,
                 rootJunction: areFiltersEnabled ? rootJunction : undefined,
                 userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
+                includeChildren: onlyUsersOrgUnits === true ? "true" : undefined,
                 order: `${sortingField}:${sorting.order}`,
             })
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
@@ -174,6 +175,7 @@ export class UserD2ApiRepository implements UserRepository {
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
                 userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
+                includeChildren: onlyUsersOrgUnits === true ? "true" : undefined,
                 order: `${sorting.field}:${sorting.order}`,
             })
         ).map(({ objects }) => objects.map(user => user.id));
