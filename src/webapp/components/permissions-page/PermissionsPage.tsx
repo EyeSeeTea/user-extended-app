@@ -1,45 +1,20 @@
-import _ from "lodash";
 import React from "react";
 import { Box, Button, DialogActions, FormControlLabel, Switch, useTheme } from "@material-ui/core";
-import { MetaObject, SharedObject, ShareUpdate, Sharing, SharingRule } from "@eyeseetea/d2-ui-components";
+import { Sharing } from "@eyeseetea/d2-ui-components";
 import { AppSettings } from "../../../domain/entities/AppSettings";
-import { useAppContext } from "../../contexts/app-context";
-import { NamedRef } from "../../../domain/entities/Ref";
-import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
+import { useSharingSettings } from "./useSharingSettings";
+import { usePermissionsPage } from "./usePermissionsPage";
 import i18n from "../../../locales";
 
-type PermissionsPageProps = { appSettings: AppSettings; onSave: (appSettings: AppSettings) => void };
+type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
-    const { appSettings, onSave } = props;
+    const { onSave } = props;
+
+    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings();
+    const { formState, updateFormState, onSaveSettings, showSharingSettings } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
-    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings();
-
-    const showSharingSettings = !_.isEmpty(permission.users) || !_.isEmpty(permission.userGroups);
-
-    const [formState, setForm] = React.useState<FormType>({
-        activeUsers: appSettings.showOnlyActiveUsers,
-        usersOrgUnits: appSettings.showOnlyUsersOrgUnits,
-        feedbackButton: appSettings.showFeedback,
-        showSharingSettings: showSharingSettings,
-    });
-
-    const updateFormState = (value: boolean, field: keyof FormType) => {
-        setForm(prev => ({ ...prev, [field]: value }));
-    };
-
-    const onSaveSettings = React.useCallback(() => {
-        onSave(
-            AppSettings.create({
-                ...appSettings,
-                showOnlyActiveUsers: formState.activeUsers,
-                showOnlyUsersOrgUnits: formState.usersOrgUnits,
-                showFeedback: formState.feedbackButton,
-                settingsAccess: permission,
-            })
-        );
-    }, [onSave, appSettings, formState, permission]);
 
     return (
         <Box component="section" padding={theme.spacing(0.25)}>
@@ -107,56 +82,6 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         </Box>
     );
 });
-
-type FormType = { activeUsers: boolean; usersOrgUnits: boolean; feedbackButton: boolean; showSharingSettings: boolean };
-
-function useSharingSettings() {
-    const { compositionRoot } = useAppContext();
-    const { appSettings } = useAppSettingsContext();
-
-    const [permission, setPermission] = React.useState(appSettings.settingsAccess);
-
-    const sharedObject: SharedObject = React.useMemo(
-        () => ({
-            id: "",
-            userAccesses: mapSharingRule(permission.users),
-            userGroupAccesses: mapSharingRule(permission.userGroups),
-            publicAccess: permission.publicAccess,
-        }),
-        [permission.publicAccess, permission.userGroups, permission.users]
-    );
-
-    const metaObject: MetaObject = React.useMemo(() => ({ object: sharedObject }), [sharedObject]);
-
-    const search = React.useCallback(
-        (query: string) => compositionRoot.users.searchUsersAndGroups(query).toPromise(),
-        [compositionRoot]
-    );
-
-    const onUpdateSharingOptions = React.useCallback(
-        /* Marked async only because it is typed that way on the Sharing props */
-        async ({ userAccesses, userGroupAccesses }: ShareUpdate) => {
-            const isLimited = !_.isEmpty(userAccesses) || !_.isEmpty(userGroupAccesses);
-
-            setPermission(permissions => ({
-                users: userAccesses ? mapAccessPermission(userAccesses) : permissions.users,
-                userGroups: userGroupAccesses ? mapAccessPermission(userGroupAccesses) : permissions.userGroups,
-                publicAccess: isLimited ? "--------" : "rw------",
-            }));
-        },
-        [setPermission]
-    );
-
-    return { search, metaObject, onUpdateSharingOptions, permission };
-}
-
-const mapAccessPermission = (rules: SharingRule[]): NamedRef[] => {
-    return rules.map(item => ({ id: item.id, name: item.displayName }));
-};
-
-const mapSharingRule = (rules: NamedRef[]): SharingRule[] => {
-    return rules.map(item => ({ id: item.id, access: "rw------", displayName: item.name }));
-};
 
 const sharingOptions = {
     dataSharing: false,
