@@ -14,15 +14,14 @@ type UsersRemoveModalProps = {
     actionType: ActionType;
 };
 
-export type ActionType =
-    | "remove"
-    | "enable"
-    | "disable"
+export type OrgUnitActionType =
     | "assign_to_org_units_capture"
     | "assign_to_org_units_output"
-    | "assign_to_org_units_search"
-    | "copy_in_user"
-    | "reset_password";
+    | "assign_to_org_units_search";
+
+export type RiskyActionType = "remove" | "enable" | "disable" | "reset_password";
+
+export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user";
 
 // TODO: Add into i18n translation files (as will not be recognized by i18n-scanner)
 function getMessagesByActionType(
