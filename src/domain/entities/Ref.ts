@@ -7,3 +7,7 @@ export interface Ref {
 export interface NamedRef extends Ref {
     name: string;
 }
+
+export function getId(ref: Ref) {
+    return ref.id;
+}
