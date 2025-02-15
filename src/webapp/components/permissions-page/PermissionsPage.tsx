@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, DialogActions, FormControlLabel, Switch, useTheme } from "@material-ui/core";
+import { InfoOutlined as InfoOutlinedIcon } from "@material-ui/icons";
 import { Sharing } from "@eyeseetea/d2-ui-components";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useSharingSettings } from "./useSharingSettings";
@@ -59,7 +60,18 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                             disabled={showSharingSettings}
                         />
                     }
-                    label={i18n.t("Access to Settings Section")}
+                    label={
+                        <Box display="flex" alignItems="flex-start" gridColumnGap={theme.spacing(0.5)}>
+                            {i18n.t("Access to Settings Section")}
+                            <InfoOutlinedIcon
+                                fontSize="small"
+                                color="disabled"
+                                titleAccess={i18n.t(
+                                    "Changes on 'Who has access' to settings will be reflected after page reload"
+                                )}
+                            />
+                        </Box>
+                    }
                 />
             </Box>
 
