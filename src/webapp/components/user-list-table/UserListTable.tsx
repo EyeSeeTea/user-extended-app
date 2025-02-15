@@ -460,12 +460,13 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     sorting,
                     filters,
                     canManage,
+                    rootJunction,
                     onlyUsersOrgUnits: onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
                 })
                 .toPromise();
         },
-        [compositionRoot.users, filters, canManage, onlyUsersOrgUnits, onlyActiveUsers]
+        [compositionRoot.users, filters, canManage, rootJunction, onlyUsersOrgUnits, onlyActiveUsers]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);

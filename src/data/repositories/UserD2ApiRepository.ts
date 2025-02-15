@@ -139,8 +139,8 @@ export class UserD2ApiRepository implements UserRepository {
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
                 rootJunction: areFiltersEnabled ? rootJunction : undefined,
-                userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
-                includeChildren: onlyUsersOrgUnits === true ? "true" : undefined,
+                userOrgUnits: onlyUsersOrgUnits ? "true" : undefined,
+                includeChildren: onlyUsersOrgUnits ? "true" : undefined,
                 order: `${sortingField}:${sorting.order}`,
             })
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
@@ -162,10 +162,12 @@ export class UserD2ApiRepository implements UserRepository {
             sorting = { field: "firstName", order: "asc" },
             filters,
             canManage,
+            rootJunction,
             onlyActiveUsers,
             onlyUsersOrgUnits,
         } = options;
         const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        const areFiltersEnabled = _(otherFilters).values().some();
 
         return apiToFuture(
             this.api.models.users.get({
@@ -174,8 +176,9 @@ export class UserD2ApiRepository implements UserRepository {
                 query: search !== "" ? search : undefined,
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
-                userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
-                includeChildren: onlyUsersOrgUnits === true ? "true" : undefined,
+                rootJunction: areFiltersEnabled ? rootJunction : undefined,
+                userOrgUnits: onlyUsersOrgUnits ? "true" : undefined,
+                includeChildren: onlyUsersOrgUnits ? "true" : undefined,
                 order: `${sorting.field}:${sorting.order}`,
             })
         ).map(({ objects }) => objects.map(user => user.id));
