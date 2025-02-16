@@ -14,7 +14,10 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         usersOrgUnits: appSettings.showOnlyUsersOrgUnits,
         feedbackButton: appSettings.showFeedback,
         showSharingSettings: showSharingSettings,
+        actionsArePublic: appSettings.areAllActionsPublic(),
     });
+
+    const [actionsAccess, setActionsAccess] = React.useState(appSettings.actionsAccess);
 
     const updateFormState = (value: boolean, field: keyof FormType) => {
         setForm(prev => ({ ...prev, [field]: value }));
@@ -37,7 +40,15 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         updateFormState,
         onSaveSettings,
         showSharingSettings,
+        actionsAccess,
+        setActionsAccess,
     };
 };
 
-type FormType = { activeUsers: boolean; usersOrgUnits: boolean; feedbackButton: boolean; showSharingSettings: boolean };
+type FormType = {
+    activeUsers: boolean;
+    usersOrgUnits: boolean;
+    feedbackButton: boolean;
+    showSharingSettings: boolean;
+    actionsArePublic: boolean;
+};

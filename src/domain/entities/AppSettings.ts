@@ -1,6 +1,7 @@
 import { Struct } from "./generic/Struct";
 import { Permission } from "./Permission";
 import { UserColumns } from "./User";
+import { UserAction } from "./UserAction";
 
 type AppSettingsAttr = {
     columns: SettingsUserColumn[];
@@ -8,6 +9,7 @@ type AppSettingsAttr = {
     showOnlyUsersOrgUnits: boolean;
     showFeedback: boolean;
     settingsAccess: Permission;
+    actionsAccess: Record<UserAction, Permission>;
 };
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional";
@@ -21,7 +23,23 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyActiveUsers: false,
             showOnlyUsersOrgUnits: false,
             showFeedback: true,
-            settingsAccess: { publicAccess: "rw------", users: [], userGroups: [] },
+            settingsAccess: publicPermission,
+            actionsAccess: {
+                details: publicPermission,
+                edit: publicPermission,
+                copy_in_user: publicPermission,
+                assign_to_org_units_capture: publicPermission,
+                assign_to_org_units_output: publicPermission,
+                assign_to_org_units_search: publicPermission,
+                assign_roles: publicPermission,
+                assign_groups: publicPermission,
+                enable: publicPermission,
+                disable: publicPermission,
+                reset_password: publicPermission,
+                remove: publicPermission,
+                replicate_user_from_template: publicPermission,
+                replicate_user_from_table: publicPermission,
+            },
         });
     }
 
@@ -37,4 +55,14 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             return column;
         });
     }
+
+    areAllActionsPublic(): boolean {
+        return Object.values(this.actionsAccess).every(permission => permission.publicAccess.startsWith("rw"));
+    }
+
+    isActionPublic(action: UserAction): boolean {
+        return this.actionsAccess[action].publicAccess.startsWith("rw");
+    }
 }
+
+const publicPermission = { publicAccess: "rw------", users: [], userGroups: [] };
