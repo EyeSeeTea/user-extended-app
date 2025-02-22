@@ -49,7 +49,7 @@ import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
 import styled from "styled-components";
-import { assignValueToAllActions, getUserActionLabel, UserAction } from "../../../domain/entities/UserAction";
+import { getUserActionLabel, UserAction } from "../../../domain/entities/UserAction";
 
 function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
