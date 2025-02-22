@@ -5,7 +5,7 @@ import { Sharing } from "@eyeseetea/d2-ui-components";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useSharingSettings } from "./useSharingSettings";
 import { usePermissionsPage } from "./usePermissionsPage";
-import { ActionsPermissions } from "./ActionsPermissions";
+import { SharingActions } from "./SharingActions";
 import i18n from "../../../locales";
 
 type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void };
@@ -14,8 +14,14 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
     const { onSave } = props;
 
     const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings();
-    const { formState, updateFormState, onSaveSettings, showSharingSettings, actionsAccess, setActionsAccess } =
-        usePermissionsPage(onSave, permission);
+    const {
+        formState,
+        updateFormState,
+        onSaveSettings,
+        showSharingSettings,
+        actionsPermissions,
+        setActionsPermissions,
+    } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
 
@@ -63,7 +69,10 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                 />
 
                 {!formState.actionsArePublic && (
-                    <ActionsPermissions actionsAccess={actionsAccess} setActionsAccess={setActionsAccess} />
+                    <SharingActions
+                        actionsPermissions={actionsPermissions}
+                        setActionsPermissions={setActionsPermissions}
+                    />
                 )}
 
                 <FormControlLabel
