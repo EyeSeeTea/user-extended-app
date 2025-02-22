@@ -9,8 +9,10 @@ type AppSettingsAttr = {
     showOnlyUsersOrgUnits: boolean;
     showFeedback: boolean;
     settingsAccess: Permission;
-    actionsAccess: Record<UserAction, Permission>;
+    actionsAccess: ActionsPermissions;
 };
+
+export type ActionsPermissions = Record<UserAction, Permission>;
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional";
 

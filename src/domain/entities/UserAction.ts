@@ -17,36 +17,36 @@ export enum UserAction {
     REPLICATE_USER_FROM_TABLE = "replicate_user_from_table",
 }
 
-export function getUserActioni18nKeyLabel(action: UserAction): string {
+export function getUserActionLabel(action: UserAction): string {
     switch (action) {
         case UserAction.DETAILS:
-            return "Details";
+            return i18n.t("Details");
         case UserAction.EDIT:
-            return "Edit";
+            return i18n.t("Edit");
         case UserAction.COPY_IN_USER:
-            return "Copy in user";
+            return i18n.t("Copy in user");
         case UserAction.ASSIGN_TO_ORG_UNITS_CAPTURE:
-            return "Assign to data capture organisation units";
+            return i18n.t("Assign to data capture organisation units");
         case UserAction.ASSIGN_TO_ORG_UNITS_OUTPUT:
-            return "Assign to data view organisation units";
+            return i18n.t("Assign to data view organisation units");
         case UserAction.ASSIGN_TO_ORG_UNITS_SEARCH:
-            return "Assign to search organisation units";
+            return i18n.t("Assign to search organisation units");
         case UserAction.ASSIGN_ROLES:
-            return "Assign roles";
+            return i18n.t("Assign roles");
         case UserAction.ASSIGN_GROUPS:
-            return "Assign groups";
+            return i18n.t("Assign groups");
         case UserAction.ENABLE:
-            return "Enable";
+            return i18n.t("Enable");
         case UserAction.DISABLE:
-            return "Disable";
+            return i18n.t("Disable");
         case UserAction.RESET_PASSWORD:
-            return "Reset password";
+            return i18n.t("Reset password");
         case UserAction.REMOVE:
-            return "Remove";
+            return i18n.t("Remove");
         case UserAction.REPLICATE_USER_FROM_TEMPLATE:
-            return "Replicate user from template";
+            return i18n.t("Replicate user from template");
         case UserAction.REPLICATE_USER_FROM_TABLE:
-            return "Replicate user from table";
+            return i18n.t("Replicate user from table");
     }
 }
 
