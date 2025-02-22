@@ -36,6 +36,7 @@ import { UserSearchD2Repository } from "./data/repositories/UserSearchD2Reposito
 import { CheckCurrentUserCanAccessSettingsUseCase } from "./domain/usecases/CheckCurrentUserCanAccessSettingsUseCase";
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { GetAllUserGroupsUseCase } from "./domain/usecases/GetAllUserGroupsUseCase";
+import { CheckActionsAccessibleToCurrentUserUseCase } from "./domain/usecases/CheckActionsAccessibleToCurrentUserUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const api = getD2APiFromInstance(instance);
@@ -80,6 +81,7 @@ export function getCompositionRoot(instance: Instance) {
                 userRepository,
                 appSettingsRepository
             ),
+            checkActionsAccessibleToCurrentUser: new CheckActionsAccessibleToCurrentUserUseCase(),
         }),
         userGroups: getExecute({
             getAll: new GetAllUserGroupsUseCase(userGroupRepository),

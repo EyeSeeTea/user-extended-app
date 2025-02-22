@@ -1,7 +1,7 @@
 import { Struct } from "./generic/Struct";
 import { Permission } from "./Permission";
 import { UserColumns } from "./User";
-import { UserAction } from "./UserAction";
+import { assignValueToAllActions, UserAction } from "./UserAction";
 
 type AppSettingsAttr = {
     columns: SettingsUserColumn[];
@@ -26,22 +26,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyUsersOrgUnits: false,
             showFeedback: true,
             settingsAccess: publicPermission,
-            actionsAccess: {
-                details: publicPermission,
-                edit: publicPermission,
-                copy_in_user: publicPermission,
-                assign_to_org_units_capture: publicPermission,
-                assign_to_org_units_output: publicPermission,
-                assign_to_org_units_search: publicPermission,
-                assign_roles: publicPermission,
-                assign_groups: publicPermission,
-                enable: publicPermission,
-                disable: publicPermission,
-                reset_password: publicPermission,
-                remove: publicPermission,
-                replicate_user_from_template: publicPermission,
-                replicate_user_from_table: publicPermission,
-            },
+            actionsAccess: assignValueToAllActions(publicPermission),
         });
     }
 

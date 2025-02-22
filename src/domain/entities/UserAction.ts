@@ -51,3 +51,7 @@ export function getUserActionLabel(action: UserAction): string {
 }
 
 export const userActions = Object.values(UserAction);
+
+export function assignValueToAllActions<T>(value: T): Record<UserAction, T> {
+    return Object.assign({}, ...userActions.map(action => ({ [action]: value })));
+}
