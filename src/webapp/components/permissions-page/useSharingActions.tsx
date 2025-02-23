@@ -8,6 +8,7 @@ import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
 import { UserAction } from "../../../domain/entities/UserAction";
 import i18n from "../../../locales";
+import { PublicPermission } from "../../../domain/entities/Permission";
 
 export function useSharingActions(props: SharingActionsProps) {
     const { actionsPermissions, setActionsPermissions } = props;
@@ -37,11 +38,11 @@ export function useSharingActions(props: SharingActionsProps) {
 
                 setActionsPermissions(actionsPermissions => ({
                     ...actionsPermissions,
-                    [action]: {
-                        publicAccess: shouldForcePublic ? "rw----" : "------",
-                        users: [],
-                        userGroups: allUserGroups.filter(userGroup => removedPublic.includes(userGroup.id)),
-                    },
+                    [action]: shouldForcePublic
+                        ? PublicPermission.public()
+                        : actionsPermissions[action].updateUserGroups(
+                              allUserGroups.filter(userGroup => removedPublic.includes(userGroup.id))
+                          ),
                 }));
 
                 return {

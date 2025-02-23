@@ -11,7 +11,7 @@ export class CheckCurrentUserCanAccessSettingsUseCase {
             user: this.userRepository.getCurrent(),
             appSettings: this.appSettingsRepository.get(),
         }).map(({ user, appSettings }) =>
-            appSettings.settingsAccess.isPermissionAccessible({
+            appSettings.settingsAccess.isAccessible({
                 userId: getId(user),
                 userGroupIds: user.userGroups.map(getId),
             })

@@ -3,7 +3,7 @@ import { Struct } from "./generic/Struct";
 import { Id, NamedRef } from "./Ref";
 
 export class Permission extends Struct<{ users: NamedRef[]; userGroups: NamedRef[] }>() {
-    isPermissionAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
+    isAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
         const { userId, userGroupIds } = args;
 
         const userAccess = this.users.some(u => u.id === userId);
@@ -48,7 +48,7 @@ export class PublicPermission extends Struct<PublicPermissionAttrs>() {
         return this.publicAccess.read;
     }
 
-    isPermissionAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
+    isAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
         const { userId, userGroupIds } = args;
 
         if (this.isPublic) return true;

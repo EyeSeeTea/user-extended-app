@@ -40,10 +40,13 @@ export function useSharingSettings() {
     const onUpdateSharingOptions = React.useCallback(
         /* Marked async only because it is typed that way on the Sharing props */
         async ({ userAccesses, userGroupAccesses }: ShareUpdate) => {
-            setPermission(permissions => ({
-                users: userAccesses ? mapAccessPermission(userAccesses) : permissions.users,
-                userGroups: userGroupAccesses ? mapAccessPermission(userGroupAccesses) : permissions.userGroups,
-            }));
+            setPermission(
+                permissions =>
+                    new Permission({
+                        users: userAccesses ? mapAccessPermission(userAccesses) : permissions.users,
+                        userGroups: userGroupAccesses ? mapAccessPermission(userGroupAccesses) : permissions.userGroups,
+                    })
+            );
         },
         [setPermission]
     );
