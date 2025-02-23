@@ -6,7 +6,6 @@ import { SharingActionsProps } from "./SharingActions";
 import { UserGroup } from "../../../domain/entities/UserGroup";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
-import { isPermissionPublic } from "../../../domain/entities/Permission";
 import { UserAction } from "../../../domain/entities/UserAction";
 import i18n from "../../../locales";
 
@@ -85,7 +84,7 @@ function buildPublicAccessItem(): DropdownItem {
 
 function mapSelectedValues(actionsPermissions: ActionsPermissions): Record<UserAction, Value[]> {
     return _.mapValues(actionsPermissions, permission => {
-        return isPermissionPublic(permission) ? ["public-access"] : permission.userGroups.map(getId);
+        return permission.isPublic ? ["public-access"] : permission.userGroups.map(getId);
     });
 }
 

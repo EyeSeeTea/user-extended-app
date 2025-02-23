@@ -1,25 +1,74 @@
-import { Id } from "@eyeseetea/d2-api";
-import { NamedRef } from "./Ref";
+import _ from "lodash";
+import { Struct } from "./generic/Struct";
+import { Id, NamedRef } from "./Ref";
 
-export type Permission = {
-    publicAccess: string; // '------' | 'r-----'  | 'rw----'
-    users: NamedRef[];
-    userGroups: NamedRef[];
-};
+export class Permission extends Struct<{ users: NamedRef[]; userGroups: NamedRef[] }>() {
+    isPermissionAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
+        const { userId, userGroupIds } = args;
 
-export function isPermissionPublic(permission: Permission): boolean {
-    return permission.publicAccess.startsWith("r");
+        const userAccess = this.users.some(u => u.id === userId);
+        const groupAccess = this.userGroups.some(({ id: permissionUserGroupId }) =>
+            userGroupIds.includes(permissionUserGroupId)
+        );
+
+        return userAccess || groupAccess;
+    }
 }
 
-// REFACTOR: make permission a class
-export function isPermissionAccessible(args: { userId: Id; userGroupIds: Id[]; permission: Permission }): boolean {
-    const { userId, userGroupIds, permission } = args;
+type PublicPermissionAttrs = {
+    users: NamedRef[];
+    userGroups: NamedRef[];
+    publicAccess: AccessValue;
+};
 
-    const publicAccess = isPermissionPublic(permission);
-    const directAccess = permission.users.some(u => u.id === userId);
-    const groupAccess = permission.userGroups.some(({ id: permissionUserGroupId }) =>
-        userGroupIds.includes(permissionUserGroupId)
-    );
+export class PublicPermission extends Struct<PublicPermissionAttrs>() {
+    static public(): PublicPermission {
+        return new PublicPermission({
+            users: [],
+            userGroups: [],
+            publicAccess: AccessValue.public(),
+        });
+    }
 
-    return publicAccess || directAccess || groupAccess;
+    updateUsers(users: NamedRef[]): PublicPermission {
+        return this._update({
+            users,
+            publicAccess: _.isEmpty(users) && _.isEmpty(this.userGroups) ? AccessValue.public() : AccessValue.private(),
+        });
+    }
+
+    updateUserGroups(userGroups: NamedRef[]): PublicPermission {
+        return this._update({
+            userGroups,
+            publicAccess: _.isEmpty(this.users) && _.isEmpty(userGroups) ? AccessValue.public() : AccessValue.private(),
+        });
+    }
+
+    get isPublic(): boolean {
+        return this.publicAccess.read;
+    }
+
+    isPermissionAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
+        const { userId, userGroupIds } = args;
+
+        if (this.isPublic) return true;
+
+        const userAccess = this.users.some(u => u.id === userId);
+        const groupAccess = this.userGroups.some(({ id: permissionUserGroupId }) =>
+            userGroupIds.includes(permissionUserGroupId)
+        );
+
+        return userAccess || groupAccess;
+    }
+}
+
+// Posibility of adding write access if needed in future
+class AccessValue extends Struct<{ read: boolean }>() {
+    static public() {
+        return new AccessValue({ read: true });
+    }
+
+    static private() {
+        return new AccessValue({ read: false });
+    }
 }

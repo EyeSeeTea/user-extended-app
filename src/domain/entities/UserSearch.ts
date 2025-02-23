@@ -1,6 +1,6 @@
 type UserSearchItem = {
     id: string;
-    displayName: string;
+    name: string;
 };
 
 export type UserSearch = {
