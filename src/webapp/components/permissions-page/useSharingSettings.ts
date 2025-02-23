@@ -25,7 +25,17 @@ export function useSharingSettings() {
     const metaObject: MetaObject = React.useMemo(() => ({ object: sharedObject }), [sharedObject]);
 
     const search = React.useCallback(
-        (query: string) => compositionRoot.users.searchUsersAndGroups(query).toPromise(),
+        (query: string) =>
+            compositionRoot.users
+                .searchUsersAndGroups(query)
+                .map(userSearch => ({
+                    users: userSearch.users.map(user => ({ id: user.id, displayName: user.name })),
+                    userGroups: userSearch.userGroups.map(userGroup => ({
+                        id: userGroup.id,
+                        displayName: userGroup.name,
+                    })),
+                }))
+                .toPromise(),
         [compositionRoot]
     );
 

@@ -13,6 +13,9 @@ export class UserSearchD2Repository implements UserSearchRepository {
             filter: { displayName: { ilike: query } },
         };
 
-        return apiToFuture<UserSearch>(this.api.metadata.get({ users: options, userGroups: options }));
+        return apiToFuture(this.api.metadata.get({ users: options, userGroups: options })).map(userSearch => ({
+            users: userSearch.users.map(user => ({ id: user.id, name: user.displayName })),
+            userGroups: userSearch.userGroups.map(userGroup => ({ id: userGroup.id, name: userGroup.displayName })),
+        }));
     }
 }
