@@ -5,8 +5,50 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-02-19T06:14:32.147Z\n"
-"PO-Revision-Date: 2025-02-19T06:14:32.147Z\n"
+"POT-Creation-Date: 2025-02-22T16:56:09.479Z\n"
+"PO-Revision-Date: 2025-02-22T16:56:09.479Z\n"
+
+msgid "Details"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Copy in user"
+msgstr ""
+
+msgid "Assign to data capture organisation units"
+msgstr ""
+
+msgid "Assign to data view organisation units"
+msgstr ""
+
+msgid "Assign to search organisation units"
+msgstr ""
+
+msgid "Assign roles"
+msgstr ""
+
+msgid "Assign groups"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Reset password"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Replicate user from template"
+msgstr ""
+
+msgid "Replicate user from table"
+msgstr ""
 
 msgid "ID"
 msgstr ""
@@ -117,9 +159,6 @@ msgid "Visible"
 msgstr ""
 
 msgid "Optional"
-msgstr ""
-
-msgid "Disable"
 msgstr ""
 
 msgid "Copy in user: {{user}}"
@@ -287,9 +326,6 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-msgid "Select user groups"
-msgstr ""
-
 msgid "Show feedback button"
 msgstr ""
 
@@ -306,6 +342,12 @@ msgid "Access to Settings Section"
 msgstr ""
 
 msgid "Changes on 'Who has access' to settings will be reflected after page reload"
+msgstr ""
+
+msgid "Select user groups"
+msgstr ""
+
+msgid "Public access (Everyone)"
 msgstr ""
 
 msgid "Saving..."
@@ -396,45 +438,6 @@ msgid "OU Output"
 msgstr ""
 
 msgid "OU Search"
-msgstr ""
-
-msgid "Details"
-msgstr ""
-
-msgid "Edit"
-msgstr ""
-
-msgid "Copy in user"
-msgstr ""
-
-msgid "Assign to data capture organisation units"
-msgstr ""
-
-msgid "Assign to data view organisation units"
-msgstr ""
-
-msgid "Assign to search organisation units"
-msgstr ""
-
-msgid "Assign roles"
-msgstr ""
-
-msgid "Assign groups"
-msgstr ""
-
-msgid "Enable"
-msgstr ""
-
-msgid "Reset password"
-msgstr ""
-
-msgid "Remove"
-msgstr ""
-
-msgid "Replicate user from template"
-msgstr ""
-
-msgid "Replicate user from table"
 msgstr ""
 
 msgid "Search by name or username..."
