@@ -2,7 +2,7 @@ import { UserRepository } from "../repositories/UserRepository";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
 import { Future, FutureData } from "../entities/Future";
 import { AppSettings } from "../entities/AppSettings";
-import { User } from "../entities/User";
+import { isSuperAdmin, User } from "../entities/User";
 import { getId } from "../entities/Ref";
 
 export class CheckCurrentUserCanAccessSettingsUseCase {
@@ -16,6 +16,7 @@ export class CheckCurrentUserCanAccessSettingsUseCase {
     }
 
     private checkUserCanAccessSettings(user: User, appSettings: AppSettings): boolean {
+        if (isSuperAdmin(user)) return true;
         const permissions = appSettings.settingsAccess;
         const publicAccess = permissions.publicAccess.startsWith("r");
         const directAccess = permissions.users.some(u => u.id === user.id);
