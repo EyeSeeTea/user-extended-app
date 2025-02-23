@@ -18,12 +18,11 @@ export class CheckCurrentUserCanAccessSettingsUseCase {
     private checkUserCanAccessSettings(user: User, appSettings: AppSettings): boolean {
         if (isSuperAdmin(user)) return true;
         const permissions = appSettings.settingsAccess;
-        const publicAccess = permissions.publicAccess.startsWith("r");
-        const directAccess = permissions.users.some(u => u.id === user.id);
+        const userAccess = permissions.users.some(u => u.id === user.id);
         const groupAccess = permissions.userGroups.some(({ id: permissionUserGroupId }) =>
             user.userGroups.map(getId).includes(permissionUserGroupId)
         );
 
-        return publicAccess || directAccess || groupAccess;
+        return userAccess || groupAccess;
     }
 }

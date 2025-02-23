@@ -21,7 +21,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyActiveUsers: false,
             showOnlyUsersOrgUnits: false,
             showFeedback: true,
-            settingsAccess: { publicAccess: "rw------", users: [], userGroups: [] },
+            settingsAccess: { users: [], userGroups: [] },
         });
     }
 
