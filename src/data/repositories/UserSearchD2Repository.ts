@@ -7,10 +7,10 @@ import { apiToFuture } from "../../utils/futures";
 export class UserSearchD2Repository implements UserSearchRepository {
     constructor(private api: D2Api) {}
 
-    search(query: string): FutureData<UserSearch> {
+    search(name: string): FutureData<UserSearch> {
         const options = {
             fields: { id: true, displayName: true },
-            filter: { displayName: { ilike: query } },
+            filter: { displayName: { ilike: name } },
         };
 
         return apiToFuture(this.api.metadata.get({ users: options, userGroups: options })).map(userSearch => ({

@@ -6,7 +6,7 @@ import { UserSearchRepository } from "../repositories/UserSearchRepository";
 export class SearchUsersAndUserGroupsUseCase implements UseCase {
     constructor(private userSearchRepository: UserSearchRepository) {}
 
-    public execute(query: string): FutureData<UserSearch> {
-        return this.userSearchRepository.search(query);
+    public execute(name: string): FutureData<UserSearch> {
+        return this.userSearchRepository.search(name);
     }
 }
