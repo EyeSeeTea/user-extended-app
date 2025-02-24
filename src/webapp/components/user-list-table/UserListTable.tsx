@@ -36,9 +36,11 @@ import { OrgUnitDialogSelector } from "../orgunit-dialog-selector/OrgUnitDialogS
 import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
 import {
     ActionType,
+    OrgUnitActionType,
     generateMessage,
     getFirstThreeUserNames,
     UsersSelectedModal,
+    RiskyActionType,
 } from "../users-remove-modal/UsersSelectedModal";
 import { SettingsDialogModal, useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
 import Settings from "../../../legacy/models/settings";
@@ -51,7 +53,7 @@ import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
 import styled from "styled-components";
 import { getUserActionLabel, UserAction } from "../../../domain/entities/UserAction";
 
-function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions["orgUnitType"] {
+function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
         case "assign_to_org_units_capture":
             return "capture";
@@ -59,18 +61,10 @@ function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions[
             return "output";
         case "assign_to_org_units_search":
             return "search";
-        // Note for reviewer: Commented these lines just to keep track of them and because linter was complaining about return statement
-        // If you give me the ok, I would restrict the ActionType to OrgUnitActionType
-        // case "copy_in_user":
-        // case "disable":
-        // case "enable":
-        // case "remove":
-        default:
-            throw new Error(`Invalid action: ${action}`);
     }
 }
 
-function isActionTypeOrgUnit(actionType: Maybe<ActionType>): boolean {
+function isActionTypeOrgUnit(actionType: Maybe<ActionType>): actionType is OrgUnitActionType {
     return (
         actionType === "assign_to_org_units_capture" ||
         actionType === "assign_to_org_units_output" ||
@@ -78,7 +72,7 @@ function isActionTypeOrgUnit(actionType: Maybe<ActionType>): boolean {
     );
 }
 
-function isActionTypeRisky(actionType: Maybe<ActionType>): boolean {
+function isActionTypeRisky(actionType: Maybe<ActionType>): actionType is RiskyActionType {
     return (
         actionType === "disable" ||
         actionType === "enable" ||
@@ -475,12 +469,13 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     sorting,
                     filters,
                     canManage,
+                    rootJunction,
                     onlyUsersOrgUnits: onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
                 })
                 .toPromise();
         },
-        [compositionRoot.users, filters, canManage, onlyUsersOrgUnits, onlyActiveUsers]
+        [compositionRoot.users, filters, canManage, rootJunction, onlyUsersOrgUnits, onlyActiveUsers]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
@@ -508,7 +503,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const onSaveOrgUnits = React.useCallback(
         (orgUnitIds: Id[], updateStrategy: UpdateStrategy) => {
-            if (users && actionType) {
+            if (users && isActionTypeOrgUnit(actionType)) {
                 saveUsersOrgUnits(orgUnitIds, updateStrategy, users, convertActionToOrgUnitType(actionType));
             }
         },
