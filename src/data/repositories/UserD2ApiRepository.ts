@@ -7,7 +7,13 @@ import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { LocaleCode, User } from "../../domain/entities/User";
 import { UserLogic } from "../../domain/entities/UserLogic";
-import { ListFilters, ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
+import {
+    ListFilters,
+    ListFilterType,
+    ListOptions,
+    UpdateStrategy,
+    UserRepository,
+} from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
 import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
@@ -126,10 +132,19 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    private buildFilters(filters: ListFilters | undefined, override: { onlyActiveUsers: boolean }) {
+    private buildFilters(
+        filters: ListFilters | undefined,
+        override: { onlyActiveUsers: boolean; hideUsers: Id[] }
+    ): Record<string, Record<string, string[]> | undefined> {
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+
+        if (override.hideUsers.length > 480) {
+            throw new Error("Too many users to hide"); // 414 URI Too Long
+        }
+
         return {
             ...otherFilters,
+            id: !_.isEmpty(override.hideUsers) ? { "!in": override.hideUsers } : undefined,
             "userCredentials.disabled": override.onlyActiveUsers
                 ? { eq: ["false"] }
                 : otherFilters["userCredentials.disabled"],
@@ -155,9 +170,10 @@ export class UserD2ApiRepository implements UserRepository {
             rootJunction,
             onlyActiveUsers,
             onlyUsersOrgUnits,
+            hideUsers,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers, hideUsers });
         const areFiltersEnabled = _(otherFilters).values().some();
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
 
@@ -245,9 +261,17 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
-        const { page, pageSize, search, sorting = { field: "firstName", order: "asc" }, filters } = options;
+        const {
+            page,
+            pageSize,
+            search,
+            sorting = { field: "firstName", order: "asc" },
+            filters,
+            onlyActiveUsers,
+            hideUsers,
+        } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers: false });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers, hideUsers });
 
         const userData$ = apiToFuture(
             this.api.models.users.get({

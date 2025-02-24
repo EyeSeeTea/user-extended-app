@@ -6,6 +6,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { ListOptions } from "../../../domain/repositories/UserRepository";
 import { Future } from "../../../domain/entities/Future";
 import { HideEntitiesProps } from "./HideEntities";
+import i18n from "../../../locales";
 
 export function useHideEntities(props: HideEntitiesProps) {
     const { updateHideEntities } = props;
@@ -41,8 +42,11 @@ export function useHideEntities(props: HideEntitiesProps) {
     }, [compositionRoot, snackbar]);
 
     const updateUsers = React.useCallback(
-        (params: { selected: Id[] }) => updateHideEntities({ users: params.selected }),
-        [updateHideEntities]
+        (params: { selected: Id[] }) => {
+            if (params.selected.length > 480) snackbar.warning(i18n.t("You can't hide more than 480 users"));
+            else updateHideEntities({ users: params.selected });
+        },
+        [snackbar, updateHideEntities]
     );
 
     const updateUserRoles = React.useCallback(
