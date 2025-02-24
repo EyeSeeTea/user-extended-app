@@ -14,30 +14,32 @@ type UsersRemoveModalProps = {
     actionType: ActionType;
 };
 
-export type ActionType =
-    | "remove"
-    | "enable"
-    | "disable"
+export type OrgUnitActionType =
     | "assign_to_org_units_capture"
     | "assign_to_org_units_output"
-    | "assign_to_org_units_search"
-    | "copy_in_user"
-    | "reset_password";
+    | "assign_to_org_units_search";
+
+export type RiskyActionType = "remove" | "enable" | "disable" | "reset_password";
+
+export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user";
 
 // TODO: Add into i18n translation files (as will not be recognized by i18n-scanner)
-function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
+function getMessagesByActionType(
+    actionType: ActionType,
+    t: typeof i18n.t
+): { title: string; description: string; success: string } {
     switch (actionType) {
         case "remove":
-            return { title: "Remove users", description: "remove", success: "Users removed" };
+            return { title: t("Remove users"), description: "remove", success: t("Users removed") };
         case "disable":
-            return { title: "Disable users", description: "disable", success: "Users disabled" };
+            return { title: t("Disable users"), description: "disable", success: t("Users disabled") };
         case "enable":
-            return { title: "Enable users", description: "enable", success: "Users enabled" };
+            return { title: t("Enable users"), description: "enable", success: t("Users enabled") };
         case "reset_password":
             return {
-                title: "Reset passwords",
-                description: "reset the passwords for",
-                success: "Passwords have been reset",
+                title: t("Reset passwords"),
+                description: t("reset the passwords for"),
+                success: t("Passwords have been reset"),
             };
         default:
             return { title: "", description: "", success: "" };
@@ -68,7 +70,7 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
     const snackbar = useSnackbar();
     const loading = useLoading();
 
-    const messages = getMessagesByActionType(actionType);
+    const messages = getMessagesByActionType(actionType, i18n.t);
 
     const firstThreeUsers = getFirstThreeUserNames(users);
 

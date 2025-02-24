@@ -110,21 +110,7 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
-        const {
-            page,
-            pageSize,
-            search,
-            sorting = { field: "firstName", order: "asc" },
-            canManage,
-            rootJunction,
-            filters,
-            onlyActiveUsers,
-            onlyUsersOrgUnits,
-        } = options;
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
-        const areFiltersEnabled = _(otherFilters).values().some();
-
-        const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
+        const { page, pageSize } = options;
 
         return apiToFuture(
             this.api.models.users.get({
@@ -135,13 +121,7 @@ export class UserD2ApiRepository implements UserRepository {
                 },
                 page,
                 pageSize,
-                query: search !== "" ? search : undefined,
-                canManage: canManage === "true" ? "true" : undefined,
-                filter: otherFilters,
-                rootJunction: areFiltersEnabled ? rootJunction : undefined,
-                userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
-                includeChildren: onlyUsersOrgUnits === true ? "true" : undefined,
-                order: `${sortingField}:${sorting.order}`,
+                ...this.createCommonListQueryParams(options),
             })
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
@@ -157,28 +137,39 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public listAllIds(options: ListOptions): FutureData<string[]> {
+        return apiToFuture(
+            this.api.models.users.get({
+                fields: { id: true },
+                paging: false,
+                ...this.createCommonListQueryParams(options),
+            })
+        ).map(({ objects }) => objects.map(user => user.id));
+    }
+
+    private createCommonListQueryParams(options: ListOptions) {
         const {
             search,
             sorting = { field: "firstName", order: "asc" },
             filters,
             canManage,
+            rootJunction,
             onlyActiveUsers,
             onlyUsersOrgUnits,
         } = options;
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
 
-        return apiToFuture(
-            this.api.models.users.get({
-                fields: { id: true },
-                paging: false,
-                query: search !== "" ? search : undefined,
-                canManage: canManage === "true" ? "true" : undefined,
-                filter: otherFilters,
-                userOrgUnits: onlyUsersOrgUnits === true ? "true" : undefined,
-                includeChildren: onlyUsersOrgUnits === true ? "true" : undefined,
-                order: `${sorting.field}:${sorting.order}`,
-            })
-        ).map(({ objects }) => objects.map(user => user.id));
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        const areFiltersEnabled = _(otherFilters).values().some();
+        const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
+
+        return {
+            query: search !== "" ? search : undefined,
+            canManage: canManage === "true" ? "true" : undefined,
+            filter: otherFilters,
+            rootJunction: areFiltersEnabled ? rootJunction : undefined,
+            userOrgUnits: onlyUsersOrgUnits ? "true" : undefined,
+            includeChildren: onlyUsersOrgUnits ? "true" : undefined,
+            order: `${sortingField}:${sorting.order}`,
+        };
     }
 
     public getByIds(ids: string[]): FutureData<User[]> {
