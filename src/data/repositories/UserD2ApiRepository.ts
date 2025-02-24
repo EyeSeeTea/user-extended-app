@@ -312,6 +312,7 @@ export class UserD2ApiRepository implements UserRepository {
                 filters: { id: ["in", userIds] },
                 onlyUsersOrgUnits: false,
                 onlyActiveUsers: false,
+                hideUsers: [],
             }).flatMap(existingUsers => {
                 const usersToSend = _(userIds)
                     .map(userId => {

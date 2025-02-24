@@ -13,11 +13,11 @@ export class UserRoleD2Repository implements UserRoleRepository {
                 .get({
                     fields: {
                         id: true,
-                        name: true,
+                        displayName: true,
                     },
                     paging: false,
                 })
-                .map(res => res.data.objects)
+                .map(res => res.data.objects.map(({ id, displayName }) => ({ id, name: displayName })))
         );
     }
 }

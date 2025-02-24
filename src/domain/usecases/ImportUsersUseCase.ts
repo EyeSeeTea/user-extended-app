@@ -37,6 +37,7 @@ export class ImportUsersUseCase implements UseCase {
                 filters: { "userCredentials.username": ["in", usernameList] },
                 onlyActiveUsers: false,
                 onlyUsersOrgUnits: false,
+                hideUsers: [],
             }),
             this.userRepository.getCurrent()
         ).flatMap(([usersFromDB, currentUser]: [User[], User]) => {

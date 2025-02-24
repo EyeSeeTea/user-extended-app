@@ -3,6 +3,7 @@ import React from "react";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
+import { Id } from "../../../domain/entities/Ref";
 
 export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, permission: Permission) => {
     const { appSettings } = useAppSettingsContext();
@@ -24,6 +25,17 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
     const [userGroupsToHide, setUserGroupsToHide] = React.useState(appSettings.hide.userGroups);
     const [userRolesToHide, setUserRolesToHide] = React.useState(appSettings.hide.userRoles);
 
+    const updateHideOptions = React.useCallback(
+        (hideOptions: Partial<{ users: Id[]; userGroups: Id[]; userRoles: Id[] }>) => {
+            const { users, userGroups, userRoles } = hideOptions;
+
+            if (users) setUsersToHide(users);
+            if (userGroups) setUserGroupsToHide(userGroups);
+            if (userRoles) setUserRolesToHide(userRoles);
+        },
+        []
+    );
+
     const updateFormState = (value: boolean, field: keyof FormType) => {
         setForm(prev => ({ ...prev, [field]: value }));
     };
@@ -38,9 +50,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 settingsAccess: permission,
                 actionsAccess: actionsPermissions,
                 hide: {
-                    users: usersToHide,
-                    userGroups: userGroupsToHide,
-                    userRoles: userRolesToHide,
+                    users: formState.showHideOptions ? usersToHide : [],
+                    userGroups: formState.showHideOptions ? userGroupsToHide : [],
+                    userRoles: formState.showHideOptions ? userRolesToHide : [],
                 },
             })
         );
@@ -50,6 +62,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.activeUsers,
         formState.usersOrgUnits,
         formState.feedbackButton,
+        formState.showHideOptions,
         permission,
         actionsPermissions,
         usersToHide,
@@ -64,6 +77,12 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         showSharingSettings,
         actionsPermissions,
         setActionsPermissions,
+        hideOptions: {
+            users: usersToHide,
+            userGroups: userGroupsToHide,
+            userRoles: userRolesToHide,
+        },
+        updateHideOptions,
     };
 };
 

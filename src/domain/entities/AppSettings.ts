@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Permission, PublicPermission } from "./Permission";
-import { NamedRef } from "./Ref";
+import { Id } from "./Ref";
 import { UserColumns } from "./User";
 import { assignValueToAllActions, UserAction } from "./UserAction";
 
@@ -13,9 +13,9 @@ type AppSettingsAttr = {
     settingsAccess: Permission;
     actionsAccess: ActionsPermissions;
     hide: {
-        users: NamedRef[];
-        userGroups: NamedRef[];
-        userRoles: NamedRef[];
+        users: Id[];
+        userGroups: Id[];
+        userRoles: Id[];
     };
 };
 

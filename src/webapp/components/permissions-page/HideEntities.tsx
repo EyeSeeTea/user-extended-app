@@ -1,34 +1,22 @@
-import { Transfer, TransferOption } from "@dhis2/ui";
-import { Box, Typography, useTheme } from "@material-ui/core";
 import React from "react";
-import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { useAppContext } from "../../contexts/app-context";
-import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { Transfer, TransferProps } from "@dhis2/ui";
+import { Box, Typography, useTheme } from "@material-ui/core";
+import { Id } from "../../../domain/entities/Ref";
+import { useHideEntities } from "./useHideEntities";
 import i18n from "../../../locales";
 
-interface HideEntitiesProps {
+export type HideEntitiesProps = {
     selectedUsers: Id[];
     selectedUserGroups: Id[];
     selectedUserRoles: Id[];
-    onUpdateHideEntities: (users: string[], userGroups: string[], userRoles: string[]) => void;
-}
+    updateHideEntities: (hideOptions: Partial<{ users: Id[]; userGroups: Id[]; userRoles: Id[] }>) => void;
+};
 
 export const HideEntities: React.FC<HideEntitiesProps> = React.memo((props: HideEntitiesProps) => {
-    const { selectedUserGroups, selectedUserRoles, selectedUsers, onUpdateHideEntities } = props;
+    const { selectedUserGroups, selectedUserRoles, selectedUsers } = props;
+    const { transferOptions, updateUsers, updateUserRoles, updateUserGroups, isLoading } = useHideEntities(props);
 
-    const { compositionRoot } = useAppContext();
     const theme = useTheme();
-    const snackbar = useSnackbar();
-
-    const [users, setUsers] = React.useState<NamedRef[]>([]);
-    const [userRoles, setUserRoles] = React.useState<NamedRef[]>([]);
-    const [userGroups, setUserGroups] = React.useState<NamedRef[]>([]);
-
-    React.useEffect(() => {
-        // compositionRoot.users.get.then(users=>setUsers(users));
-        compositionRoot.userRoles.getAll().run(setUserRoles, snackbar.error);
-        compositionRoot.userGroups.getAll().run(setUserGroups, snackbar.error);
-    }, [compositionRoot, snackbar]);
 
     return (
         <Box display="flex" flexDirection="column" gridRowGap={theme.spacing(2)}>
@@ -37,18 +25,13 @@ export const HideEntities: React.FC<HideEntitiesProps> = React.memo((props: Hide
                     {i18n.t("Users")}
                 </Typography>
                 <Transfer
-                    options={buildTransferOptions(users)}
+                    {...commonProps}
+                    options={transferOptions.users}
                     selected={selectedUsers}
-                    onChange={({ selected }) => {
-                        console.log(selected);
-                    }}
-                    filterable={true}
-                    filterablePicked={true}
-                    filterPlaceholder={i18n.t("Search")}
-                    filterPlaceholderPicked={i18n.t("Search")}
-                    selectedWidth="100%"
-                    optionsWidth="100%"
-                    height="400px"
+                    onChange={updateUsers}
+                    filterPlaceholder={i18n.t("Search users")}
+                    filterPlaceholderPicked={i18n.t("Search users")}
+                    loading={isLoading}
                 />
             </Box>
             <Box>
@@ -56,18 +39,13 @@ export const HideEntities: React.FC<HideEntitiesProps> = React.memo((props: Hide
                     {i18n.t("User Roles")}
                 </Typography>
                 <Transfer
-                    options={buildTransferOptions(userRoles)}
+                    {...commonProps}
+                    options={transferOptions.userRoles}
                     selected={selectedUserRoles}
-                    onChange={({ selected }) => {
-                        console.log(selected);
-                    }}
-                    filterable={true}
-                    filterablePicked={true}
-                    filterPlaceholder={i18n.t("Search")}
-                    filterPlaceholderPicked={i18n.t("Search")}
-                    selectedWidth="100%"
-                    optionsWidth="100%"
-                    height="400px"
+                    onChange={updateUserRoles}
+                    filterPlaceholder={i18n.t("Search user roles")}
+                    filterPlaceholderPicked={i18n.t("Search user roles")}
+                    loading={isLoading}
                 />
             </Box>
             <Box>
@@ -75,24 +53,23 @@ export const HideEntities: React.FC<HideEntitiesProps> = React.memo((props: Hide
                     {i18n.t("User Groups")}
                 </Typography>
                 <Transfer
-                    options={buildTransferOptions(userGroups)}
+                    {...commonProps}
+                    options={transferOptions.userGroups}
                     selected={selectedUserGroups}
-                    onChange={({ selected }) => {
-                        console.log(selected);
-                    }}
-                    filterable={true}
-                    filterablePicked={true}
-                    filterPlaceholder={i18n.t("Search")}
-                    filterPlaceholderPicked={i18n.t("Search")}
-                    selectedWidth="100%"
-                    optionsWidth="100%"
-                    height="400px"
+                    onChange={updateUserGroups}
+                    filterPlaceholder={i18n.t("Search user groups")}
+                    filterPlaceholderPicked={i18n.t("Search user groups")}
+                    loading={isLoading}
                 />
             </Box>
         </Box>
     );
 });
 
-function buildTransferOptions(options: NamedRef[]): TransferOption[] {
-    return options.map(({ id, name }) => ({ value: id, label: name }));
-}
+const commonProps: Partial<TransferProps> = {
+    filterable: true,
+    filterablePicked: true,
+    selectedWidth: "100%",
+    optionsWidth: "100%",
+    height: "300px",
+};

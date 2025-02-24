@@ -22,6 +22,8 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         showSharingSettings,
         actionsPermissions,
         setActionsPermissions,
+        hideOptions,
+        updateHideOptions,
     } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
@@ -74,10 +76,10 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                 {formState.showHideOptions && (
                     <Box marginTop={1} marginBottom={3}>
                         <HideEntities
-                            selectedUsers={[]}
-                            selectedUserGroups={[]}
-                            selectedUserRoles={[]}
-                            onUpdateHideEntities={() => {}}
+                            selectedUsers={hideOptions.users}
+                            selectedUserGroups={hideOptions.userGroups}
+                            selectedUserRoles={hideOptions.userRoles}
+                            updateHideEntities={updateHideOptions}
                         />
                     </Box>
                 )}

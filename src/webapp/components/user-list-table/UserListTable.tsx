@@ -424,6 +424,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         rootJunction,
                         onlyUsersOrgUnits: onlyUsersOrgUnits,
                         onlyActiveUsers: onlyActiveUsers,
+                        hideUsers: appSettings.hide.users,
                     })
                     .toPromise();
 
@@ -443,6 +444,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     rootJunction,
                     onlyUsersOrgUnits: onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
+                    hideUsers: appSettings.hide.users,
                 })
                 .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
@@ -457,6 +459,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             rootJunction,
             onlyUsersOrgUnits,
             onlyActiveUsers,
+            appSettings.hide.users,
             needsPatch,
         ]
     );
@@ -472,10 +475,19 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     rootJunction,
                     onlyUsersOrgUnits: onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
+                    hideUsers: appSettings.hide.users,
                 })
                 .toPromise();
         },
-        [compositionRoot.users, filters, canManage, rootJunction, onlyUsersOrgUnits, onlyActiveUsers]
+        [
+            compositionRoot.users,
+            filters,
+            canManage,
+            rootJunction,
+            onlyUsersOrgUnits,
+            onlyActiveUsers,
+            appSettings.hide.users,
+        ]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);

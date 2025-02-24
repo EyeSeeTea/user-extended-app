@@ -108,7 +108,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     };
 
     return (
-        <Dialog open maxWidth="lg" fullWidth title={i18n.t("Settings")} onClose={closeDialog}>
+        <Dialog open maxWidth="lg" fullWidth onClose={closeDialog}>
             <Tabs value={selectedTab} onChange={(_event, value) => onChangeTab(value)}>
                 <Tab label={i18n.t("Import")} value="import" />
                 <Tab label={i18n.t("Logger")} value="logger" />
