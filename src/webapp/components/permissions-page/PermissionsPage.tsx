@@ -7,6 +7,7 @@ import { useSharingSettings } from "./useSharingSettings";
 import { usePermissionsPage } from "./usePermissionsPage";
 import { SharingActions } from "./SharingActions";
 import i18n from "../../../locales";
+import { HideEntities } from "./HideEntities";
 
 type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void };
 
@@ -24,6 +25,8 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
     } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
+
+    //FIXME: onChange events should be useCallback
 
     return (
         <Box component="section" padding={theme.spacing(0.25)}>
@@ -57,6 +60,27 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                     }
                     label={i18n.t("Show only active users")}
                 />
+
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.showHideOptions}
+                            onChange={event => updateFormState(event.target.checked, "showHideOptions")}
+                        />
+                    }
+                    label={i18n.t("Hide users, user roles and user groups")}
+                />
+
+                {formState.showHideOptions && (
+                    <Box marginTop={1} marginBottom={3}>
+                        <HideEntities
+                            selectedUsers={[]}
+                            selectedUserGroups={[]}
+                            selectedUserRoles={[]}
+                            onUpdateHideEntities={() => {}}
+                        />
+                    </Box>
+                )}
 
                 <FormControlLabel
                     control={

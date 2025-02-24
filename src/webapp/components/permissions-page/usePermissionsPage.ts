@@ -8,6 +8,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
     const { appSettings } = useAppSettingsContext();
 
     const showSharingSettings = !_.isEmpty(permission.users) || !_.isEmpty(permission.userGroups);
+    const showHideOptions = !appSettings.nothingToHide();
 
     const [formState, setForm] = React.useState<FormType>({
         activeUsers: appSettings.showOnlyActiveUsers,
@@ -15,9 +16,13 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         feedbackButton: appSettings.showFeedback,
         showSharingSettings: showSharingSettings,
         actionsArePublic: appSettings.areAllActionsPublic(),
+        showHideOptions: showHideOptions,
     });
 
     const [actionsPermissions, setActionsPermissions] = React.useState(appSettings.actionsAccess);
+    const [usersToHide, setUsersToHide] = React.useState(appSettings.hide.users);
+    const [userGroupsToHide, setUserGroupsToHide] = React.useState(appSettings.hide.userGroups);
+    const [userRolesToHide, setUserRolesToHide] = React.useState(appSettings.hide.userRoles);
 
     const updateFormState = (value: boolean, field: keyof FormType) => {
         setForm(prev => ({ ...prev, [field]: value }));
@@ -32,6 +37,11 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 showFeedback: formState.feedbackButton,
                 settingsAccess: permission,
                 actionsAccess: actionsPermissions,
+                hide: {
+                    users: usersToHide,
+                    userGroups: userGroupsToHide,
+                    userRoles: userRolesToHide,
+                },
             })
         );
     }, [
@@ -42,6 +52,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.feedbackButton,
         permission,
         actionsPermissions,
+        usersToHide,
+        userGroupsToHide,
+        userRolesToHide,
     ]);
 
     return {
@@ -60,4 +73,5 @@ type FormType = {
     feedbackButton: boolean;
     showSharingSettings: boolean;
     actionsArePublic: boolean;
+    showHideOptions: boolean;
 };
