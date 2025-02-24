@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { ActionsPermissions } from "../entities/AppSettings";
-import { User } from "../entities/User";
+import { isSuperAdmin, User } from "../entities/User";
 import { getId } from "../entities/Ref";
 import { UserAction } from "../entities/UserAction";
 
@@ -14,11 +14,14 @@ export class CheckActionsAccessibleToCurrentUserUseCase {
     private checkActionsAccessible(user: User, actionsAccess: ActionsPermissions): Record<UserAction, boolean> {
         const userGroupIds = user.userGroups.map(getId);
 
-        return _.mapValues(actionsAccess, permission =>
-            permission.isAccessible({
-                userId: user.id,
-                userGroupIds: userGroupIds,
-            })
+        return _.mapValues(
+            actionsAccess,
+            permission =>
+                isSuperAdmin(user) ||
+                permission.isAccessible({
+                    userId: user.id,
+                    userGroupIds: userGroupIds,
+                })
         );
     }
 }
