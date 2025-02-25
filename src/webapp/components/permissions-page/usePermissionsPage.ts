@@ -1,9 +1,10 @@
 import _ from "lodash";
 import React from "react";
-import { AppSettings } from "../../../domain/entities/AppSettings";
+import { AppSettings, publicPermission } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 import { Id } from "../../../domain/entities/Ref";
+import { assignValueToAllActions } from "../../../domain/entities/UserAction";
 
 export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, permission: Permission) => {
     const { appSettings } = useAppSettingsContext();
@@ -48,7 +49,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 showOnlyUsersOrgUnits: formState.usersOrgUnits,
                 showFeedback: formState.feedbackButton,
                 settingsAccess: permission,
-                actionsAccess: actionsPermissions,
+                actionsAccess: formState.actionsArePublic
+                    ? assignValueToAllActions(publicPermission)
+                    : actionsPermissions,
                 hide: {
                     users: formState.showHideOptions ? usersToHide : [],
                     userGroups: formState.showHideOptions ? userGroupsToHide : [],
@@ -63,6 +66,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.usersOrgUnits,
         formState.feedbackButton,
         formState.showHideOptions,
+        formState.actionsArePublic,
         permission,
         actionsPermissions,
         usersToHide,

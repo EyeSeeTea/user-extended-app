@@ -65,4 +65,4 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 }
 
 const emptyPermission: Permission = new Permission({ users: [], userGroups: [] });
-const publicPermission: PublicPermission = PublicPermission.public();
+export const publicPermission: PublicPermission = PublicPermission.public();
