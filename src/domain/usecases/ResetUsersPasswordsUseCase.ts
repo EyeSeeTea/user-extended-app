@@ -1,12 +1,19 @@
-import { FutureData } from "../entities/Future";
+import { Future, FutureData } from "../entities/Future";
 import { Stats } from "../entities/Stats";
-import { User } from "../entities/User";
+import { checkHasEmail, User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";
+import i18n from "../../locales";
 
 export class ResetUsersPasswordsUseCase {
     constructor(private userRepository: UserRepository) {}
 
     execute(users: User[]): FutureData<Stats> {
-        return this.userRepository.resetPasswords(users);
+        const allUsersCanBeUpdated = checkHasEmail(users);
+
+        if (allUsersCanBeUpdated) {
+            return this.userRepository.resetPasswords(users);
+        } else {
+            return Future.error(i18n.t("Not all users have emails"));
+        }
     }
 }
