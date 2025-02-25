@@ -17,7 +17,7 @@ import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { hasReplicateAuthority, User } from "../../../domain/entities/User";
+import { checkAccess, checkHasEmail, hasReplicateAuthority, User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../locales";
@@ -321,7 +321,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         setSelectedUserIds(users);
                         setActionType("reset_password");
                     },
-                    isActive: checkHasEmail(),
+                    isActive: (users: User[]) => checkHasEmail(users),
                 },
                 {
                     name: UserAction.REMOVE,
@@ -739,20 +739,6 @@ function generateColumnsFromSettings(options: {
         })
         .compact()
         .value();
-}
-
-function checkAccess(requiredKeys: string[]) {
-    return (users: User[]) =>
-        _(users).every(user => {
-            const permissions = _(user.access).pickBy().keys().value();
-            return _(requiredKeys).difference(permissions).isEmpty();
-        });
-}
-
-function checkHasEmail() {
-    const currentUserHasUpdateAccessOn = checkAccess(["update"]);
-
-    return (users: User[]) => currentUserHasUpdateAccessOn(users) && _(users).some(user => Boolean(user.email));
 }
 
 function isStateActionVisible(action: string) {
