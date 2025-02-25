@@ -7,13 +7,7 @@ import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { LocaleCode, User } from "../../domain/entities/User";
 import { UserLogic } from "../../domain/entities/UserLogic";
-import {
-    ListFilters,
-    ListFilterType,
-    ListOptions,
-    UpdateStrategy,
-    UserRepository,
-} from "../../domain/repositories/UserRepository";
+import { ListFilters, ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
 import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
