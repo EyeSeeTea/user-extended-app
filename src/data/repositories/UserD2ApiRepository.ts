@@ -142,9 +142,14 @@ export class UserD2ApiRepository implements UserRepository {
             throw new Error("Too many users to hide"); // 414 URI Too Long
         }
 
+        const overridedIdFilter = {
+            ...otherFilters.id,
+            "!in": (otherFilters.id?.["!in"] ?? []).concat(override.hideUsers),
+        };
+
         return {
             ...otherFilters,
-            id: !_.isEmpty(override.hideUsers) ? { "!in": override.hideUsers } : undefined,
+            id: _.isEmpty(override.hideUsers) ? otherFilters.id : overridedIdFilter,
             "userCredentials.disabled": override.onlyActiveUsers
                 ? { eq: ["false"] }
                 : otherFilters["userCredentials.disabled"],
