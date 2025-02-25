@@ -24,22 +24,19 @@ export type RiskyActionType = "remove" | "enable" | "disable" | "reset_password"
 export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user";
 
 // TODO: Add into i18n translation files (as will not be recognized by i18n-scanner)
-function getMessagesByActionType(
-    actionType: ActionType,
-    t: typeof i18n.t
-): { title: string; description: string; success: string } {
+function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
     switch (actionType) {
         case "remove":
-            return { title: t("Remove users"), description: "remove", success: t("Users removed") };
+            return { title: i18n.t("Remove users"), description: "remove", success: i18n.t("Users removed") };
         case "disable":
-            return { title: t("Disable users"), description: "disable", success: t("Users disabled") };
+            return { title: i18n.t("Disable users"), description: "disable", success: i18n.t("Users disabled") };
         case "enable":
-            return { title: t("Enable users"), description: "enable", success: t("Users enabled") };
+            return { title: i18n.t("Enable users"), description: "enable", success: i18n.t("Users enabled") };
         case "reset_password":
             return {
-                title: t("Reset passwords"),
-                description: t("reset the passwords for"),
-                success: t("Passwords have been reset"),
+                title: i18n.t("Reset passwords"),
+                description: i18n.t("reset the passwords for"),
+                success: i18n.t("Passwords have been reset"),
             };
         default:
             return { title: "", description: "", success: "" };
@@ -70,7 +67,7 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
     const snackbar = useSnackbar();
     const loading = useLoading();
 
-    const messages = getMessagesByActionType(actionType, i18n.t);
+    const messages = getMessagesByActionType(actionType);
 
     const firstThreeUsers = getFirstThreeUserNames(users);
 
