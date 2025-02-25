@@ -100,6 +100,20 @@ export const hasReplicateAuthority = (user: User): boolean => {
     return _.some(user.authorities, authorities => authorities.includes("F_REPLICATE_USER"));
 };
 
+export function checkAccess(requiredKeys: string[]) {
+    return (users: User[]) =>
+        _(users).every(user => {
+            const permissions = _(user.access).pickBy().keys().value();
+            return _(requiredKeys).difference(permissions).isEmpty();
+        });
+}
+
+export function checkHasEmail(users: User[]): boolean {
+    const currentUserHasUpdateAccessOn = checkAccess(["update"]);
+
+    return currentUserHasUpdateAccessOn(users) && _(users).every(user => Boolean(user.email));
+}
+
 export type LocaleCode = string;
 
 export type UserColumns = keyof User;
