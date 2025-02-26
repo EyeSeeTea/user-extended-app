@@ -16,8 +16,8 @@ import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { hasReplicateAuthority, User } from "../../../domain/entities/User";
-import { ListFilters, UpdateStrategy, AccessElements } from "../../../domain/repositories/UserRepository";
+import { checkAccess, checkHasEmail, hasReplicateAuthority, User } from "../../../domain/entities/User";
+import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../locales";
 import { Maybe } from "../../../types/utils";
@@ -35,19 +35,23 @@ import { OrgUnitDialogSelector } from "../orgunit-dialog-selector/OrgUnitDialogS
 import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
 import {
     ActionType,
+    OrgUnitActionType,
     generateMessage,
     getFirstThreeUserNames,
     UsersSelectedModal,
+    RiskyActionType,
 } from "../users-remove-modal/UsersSelectedModal";
 import { SettingsDialogModal, useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
 import Settings from "../../../legacy/models/settings";
-import { FilterOption, ImportExport, ImportResult } from "../import-export/ImportExport";
+import { ImportExport, ImportResult } from "../import-export/ImportExport";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
 import { AppSettings } from "../../../domain/entities/AppSettings";
-import { useAppSettings } from "../../hooks/useAppSettings";
+import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
+import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
+import styled from "styled-components";
 
-function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions["orgUnitType"] {
+function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
         case "assign_to_org_units_capture":
             return "capture";
@@ -55,15 +59,10 @@ function convertActionToOrgUnitType(action: ActionType): SaveUserOrgUnitOptions[
             return "output";
         case "assign_to_org_units_search":
             return "search";
-        case "copy_in_user":
-        case "disable":
-        case "enable":
-        case "remove":
-            throw new Error(`Invalid action: ${action}`);
     }
 }
 
-function isActionTypeOrgUnit(actionType: Maybe<ActionType>): boolean {
+function isActionTypeOrgUnit(actionType: Maybe<ActionType>): actionType is OrgUnitActionType {
     return (
         actionType === "assign_to_org_units_capture" ||
         actionType === "assign_to_org_units_output" ||
@@ -71,8 +70,13 @@ function isActionTypeOrgUnit(actionType: Maybe<ActionType>): boolean {
     );
 }
 
-function isActionTypeEnableOrRemove(actionType: Maybe<ActionType>): boolean {
-    return actionType === "disable" || actionType === "enable" || actionType === "remove";
+function isActionTypeRisky(actionType: Maybe<ActionType>): actionType is RiskyActionType {
+    return (
+        actionType === "disable" ||
+        actionType === "enable" ||
+        actionType === "remove" ||
+        actionType === "reset_password"
+    );
 }
 
 function isActionTypeCopyInUser(actionType: Maybe<ActionType>): boolean {
@@ -129,8 +133,13 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
     const { users: allUsers } = useGetAllUsers();
-    const { appSettings, setAppSettings } = useAppSettings();
+    const { appSettings, setAppSettings } = useAppSettingsContext();
+    const { showOnlyUsersOrgUnits: onlyUsersOrgUnits, showOnlyActiveUsers: onlyActiveUsers } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
+
+    /* Pagination DHIS2 Bug */
+    const needsPatch =
+        onlyUsersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
@@ -312,6 +321,17 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     isActive: isStateActionVisible("disable"),
                 },
                 {
+                    name: "reset_password",
+                    text: i18n.t("Reset password"),
+                    icon: <Icon>lock</Icon>,
+                    multiple: true,
+                    onClick: users => {
+                        setSelectedUserIds(users);
+                        setActionType("reset_password");
+                    },
+                    isActive: users => checkHasEmail(users),
+                },
+                {
                     name: "remove",
                     text: i18n.t("Remove"),
                     icon: <Icon>delete</Icon>,
@@ -387,6 +407,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         filters,
                         canManage,
                         rootJunction,
+                        onlyUsersOrgUnits: onlyUsersOrgUnits,
+                        onlyActiveUsers: onlyActiveUsers,
                     })
                     .toPromise();
 
@@ -404,10 +426,24 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters,
                     canManage,
                     rootJunction,
+                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyActiveUsers: onlyActiveUsers,
                 })
+                .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
         },
-        [compositionRoot, filters, canManage, rootJunction, reloadKey, onChangeSearch, reloadTableKey]
+        [
+            reloadKey,
+            reloadTableKey,
+            onChangeSearch,
+            canManage,
+            compositionRoot.users,
+            filters,
+            rootJunction,
+            onlyUsersOrgUnits,
+            onlyActiveUsers,
+            needsPatch,
+        ]
     );
 
     const refreshAllIds = useCallback(
@@ -418,10 +454,13 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     sorting,
                     filters,
                     canManage,
+                    rootJunction,
+                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyActiveUsers: onlyActiveUsers,
                 })
                 .toPromise();
         },
-        [compositionRoot, filters, canManage]
+        [compositionRoot.users, filters, canManage, rootJunction, onlyUsersOrgUnits, onlyActiveUsers]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
@@ -449,7 +488,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const onSaveOrgUnits = React.useCallback(
         (orgUnitIds: Id[], updateStrategy: UpdateStrategy) => {
-            if (users && actionType) {
+            if (users && isActionTypeOrgUnit(actionType)) {
                 saveUsersOrgUnits(orgUnitIds, updateStrategy, users, convertActionToOrgUnitType(actionType));
             }
         },
@@ -519,7 +558,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         <React.Fragment>
             {multiSelectorDialogProps && <MultiSelectorDialog {...multiSelectorDialogProps} />}
 
-            {actionType && isActionTypeEnableOrRemove(actionType) && selectedUsers && (
+            {actionType && isActionTypeRisky(actionType) && selectedUsers && (
                 <UsersSelectedModal
                     users={users}
                     isOpen={users.length > 0}
@@ -552,19 +591,24 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
             {showSettings && <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />}
 
-            <ObjectsList<User> {...tableProps} columns={columnsToShow}>
-                {children}
-                <div className="user-management-control pagination" style={{ order: 11 }}>
-                    {importSettings && mappingColumns && (
-                        <ImportExport
-                            columns={mappingColumns}
-                            filterOptions={filterOption}
-                            onImport={showImportDialog}
-                            settings={importSettings}
-                        />
-                    )}
-                </div>
-            </ObjectsList>
+            <PatchPaginationTableWrapper
+                className={needsPatch ? "patched" : undefined}
+                pagination={tableProps.pagination}
+            >
+                <ObjectsList<User> {...tableProps} columns={columnsToShow}>
+                    {children}
+                    <div className="user-management-control pagination" style={{ order: 11 }}>
+                        {importSettings && mappingColumns && (
+                            <ImportExport
+                                columns={mappingColumns}
+                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers }}
+                                onImport={showImportDialog}
+                                settings={importSettings}
+                            />
+                        )}
+                    </div>
+                </ObjectsList>
+            </PatchPaginationTableWrapper>
 
             {showImportModal && importResult && (
                 <ImportTable
@@ -674,14 +718,6 @@ function generateColumnsFromSettings(options: {
         .value();
 }
 
-function checkAccess(requiredKeys: string[]) {
-    return (users: User[]) =>
-        _(users).every(user => {
-            const permissions = _(user.access).pickBy().keys().value();
-            return _(requiredKeys).difference(permissions).isEmpty();
-        });
-}
-
 function isStateActionVisible(action: string) {
     const currentUserHasUpdateAccessOn = checkAccess(["update"]);
     const requiredDisabledValue = action === "enable";
@@ -707,7 +743,8 @@ export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loadi
     onChangeSearch: (search: string) => void;
     reloadTableKey: number;
     onAction: (ids: string[], action: UserActionName) => void;
-    filterOption: FilterOption;
+    filterOption: ListOptions;
+    usersOrgUnits: boolean;
 }
 
 function buildEllipsizedList(items: NamedRef[], limit = 3) {
@@ -727,3 +764,54 @@ function buildEllipsizedList(items: NamedRef[], limit = 3) {
         </Tooltip>
     );
 }
+
+/**
+ * Prevent pointless "next" requests when DHIS2 Pagination Bug. Solution: Clamp pagination on the last meaningful page.
+ * Subsequent pages return only the "admin" user, so the last meaningful page should have fewer items than the page size.
+ * This workaround calculates the total count based on the items returned on the last meaningful page.
+
+ * Note: If the "last page" has the same number of items as the page size, we will not clamp. However, on the next page,
+ * since only the "admin" user will be returned, the condition will be met.
+ */
+function patchPaginatedReponseIfNeeded(needsPatch: boolean, paginatedReponse: PaginatedResponse<User>) {
+    const { objects, pager } = paginatedReponse;
+
+    const isLastPage = objects.length < pager.pageSize;
+    const clampedPager = { ...pager, total: pager.pageSize * (pager.page - 1) + objects.length };
+
+    return needsPatch && isLastPage ? { objects, pager: clampedPager } : { objects, pager };
+}
+
+/**
+ * Workaround for DHIS2 Bug: When usersOrgUnits and filters are present, the total count for pagination is not calculated correctly.
+ * To address this, we set the total count to Infinity to ensure pagination works correctly, and use CSS to mask the incorrect total count.
+ * This approach avoids modifying the ObjectsList component on d2-ui-components, which also relies on TablePagination from material-ui, making this workaround a less invasive solution.
+ */
+const PatchPaginationTableWrapper = styled.div<{ pagination: Partial<TablePagination> }>`
+    ${({ pagination }) => {
+        if (!pagination.total || !pagination.pageSize || !pagination.page) return "";
+        if (pagination.total < pagination.pageSize * pagination.page) return ""; // Patched after request
+        const start = (pagination.page - 1) * pagination.pageSize + 1;
+        const end = pagination.pageSize * pagination.page;
+        const chars = `${start}-${end}`.length;
+
+        return `
+            &.patched
+                .MuiTablePagination-root
+                p.MuiTypography-root.MuiTablePagination-caption.MuiTypography-body2.MuiTypography-colorInherit:nth-of-type(2):before {
+                content: "${start}-${end}";
+                display: inline;
+                visibility: visible;
+            }
+
+            &.patched
+                .MuiTablePagination-root
+                p.MuiTypography-root.MuiTablePagination-caption.MuiTypography-body2.MuiTypography-colorInherit:nth-of-type(2) {
+                visibility: hidden;
+                white-space: nowrap;
+                width: calc(${chars} * 1ch); /* In this case, I checked that Roboto has same width for all numbers (and ch is '0' char width) */
+                height: calc(1em * 1.43); /* 1.43 is the line-height */
+                overflow: hidden;
+            }`;
+    }}
+`;

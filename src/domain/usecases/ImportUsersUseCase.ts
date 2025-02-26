@@ -33,7 +33,11 @@ export class ImportUsersUseCase implements UseCase {
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
         const usernameList = users.map(user => user.username);
         return Future.join2(
-            this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
+            this.userRepository.listAll({
+                filters: { "userCredentials.username": ["in", usernameList] },
+                onlyActiveUsers: false,
+                onlyUsersOrgUnits: false,
+            }),
             this.userRepository.getCurrent()
         ).flatMap(([usersFromDB, currentUser]: [User[], User]) => {
             const hasRequiredFields = UserLogic.validateHasRequiredFields(users);

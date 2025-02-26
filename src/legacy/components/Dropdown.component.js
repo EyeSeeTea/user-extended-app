@@ -84,7 +84,7 @@ class Dropdown extends React.Component {
     };
 
     render() {
-        const { labelText, limit, fullWidth, ...other } = this.props;
+        const { labelText, limit, fullWidth, disabled, ...other } = this.props;
 
         return this.state.options.length > limit ? (
             <div style={{ width: fullWidth ? "100%" : "inherit", position: "relative" }}>
@@ -120,13 +120,20 @@ class Dropdown extends React.Component {
                     {...other}
                     fullWidth={fullWidth}
                     value={this.getOptionText(this.state.value)}
-                    onClick={this.openDialog}
+                    onClick={disabled ? undefined : this.openDialog}
                     onChange={this.openDialog}
                     floatingLabelText={labelText}
-                    inputStyle={{ cursor: "pointer" }}
+                    inputStyle={{ cursor: disabled ? "not-allowed" : "pointer" }}
+                    disabled={disabled}
                 />
                 <div
-                    style={{ position: "absolute", top: 38, right: 4, color: "rgba(0,0,0,0.25)" }}
+                    style={{
+                        position: "absolute",
+                        top: 38,
+                        right: 4,
+                        color: "rgba(0,0,0,0.25)",
+                        cursor: disabled ? "not-allowed" : "pointer",
+                    }}
                     className="material-icons"
                 >
                     open_in_new
@@ -139,6 +146,7 @@ class Dropdown extends React.Component {
                 {...other}
                 onChange={this._onChange}
                 floatingLabelText={labelText}
+                disabled={disabled}
             >
                 {this.renderOptions()}
             </SelectField>

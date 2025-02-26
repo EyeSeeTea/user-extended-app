@@ -7,7 +7,7 @@ import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { LocaleCode, User } from "../../domain/entities/User";
 import { UserLogic } from "../../domain/entities/UserLogic";
-import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
+import { ListFilters, ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
 import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
@@ -94,6 +94,12 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
+    resetPasswords(users: User[]): FutureData<Stats> {
+        const $requests = users.map(user => apiToFuture(this.api.post(`/users/${user.id}/reset`)));
+
+        return Future.parallel($requests, { maxConcurrency: 5 }).map(() => Stats.empty()); // There is no response body from the API
+    }
+
     @cache()
     public getCurrent(): FutureData<User> {
         return apiToFuture(
@@ -104,19 +110,7 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
-        const {
-            page,
-            pageSize,
-            search,
-            sorting = { field: "firstName", order: "asc" },
-            canManage,
-            rootJunction,
-            filters,
-        } = options;
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
-        const areFiltersEnabled = _(otherFilters).values().some();
-
-        const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
+        const { page, pageSize } = options;
 
         return apiToFuture(
             this.api.models.users.get({
@@ -127,29 +121,55 @@ export class UserD2ApiRepository implements UserRepository {
                 },
                 page,
                 pageSize,
-                query: search !== "" ? search : undefined,
-                canManage: canManage === "true" ? "true" : undefined,
-                filter: otherFilters,
-                rootJunction: areFiltersEnabled ? rootJunction : undefined,
-                order: `${sortingField}:${sorting.order}`,
+                ...this.createCommonListQueryParams(options),
             })
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    public listAllIds(options: ListOptions): FutureData<string[]> {
-        const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
+    private buildFilters(filters: ListFilters | undefined, override: { onlyActiveUsers: boolean }) {
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+        return {
+            ...otherFilters,
+            "userCredentials.disabled": override.onlyActiveUsers
+                ? { eq: ["false"] }
+                : otherFilters["userCredentials.disabled"],
+        };
+    }
 
+    public listAllIds(options: ListOptions): FutureData<string[]> {
         return apiToFuture(
             this.api.models.users.get({
                 fields: { id: true },
                 paging: false,
-                query: search !== "" ? search : undefined,
-                canManage: canManage === "true" ? "true" : undefined,
-                filter: otherFilters,
-                order: `${sorting.field}:${sorting.order}`,
+                ...this.createCommonListQueryParams(options),
             })
         ).map(({ objects }) => objects.map(user => user.id));
+    }
+
+    private createCommonListQueryParams(options: ListOptions) {
+        const {
+            search,
+            sorting = { field: "firstName", order: "asc" },
+            filters,
+            canManage,
+            rootJunction,
+            onlyActiveUsers,
+            onlyUsersOrgUnits,
+        } = options;
+
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        const areFiltersEnabled = _(otherFilters).values().some();
+        const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
+
+        return {
+            query: search !== "" ? search : undefined,
+            canManage: canManage === "true" ? "true" : undefined,
+            filter: otherFilters,
+            rootJunction: areFiltersEnabled ? rootJunction : undefined,
+            userOrgUnits: onlyUsersOrgUnits ? "true" : undefined,
+            includeChildren: onlyUsersOrgUnits ? "true" : undefined,
+            order: `${sortingField}:${sorting.order}`,
+        };
     }
 
     public getByIds(ids: string[]): FutureData<User[]> {
@@ -226,7 +246,8 @@ export class UserD2ApiRepository implements UserRepository {
 
     private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
         const { page, pageSize, search, sorting = { field: "firstName", order: "asc" }, filters } = options;
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers: false });
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
@@ -287,7 +308,11 @@ export class UserD2ApiRepository implements UserRepository {
         const userIds = users.map(user => user.id);
 
         return this.getLogger().flatMap(logger => {
-            return this.getFullUsers({ filters: { id: ["in", userIds] } }).flatMap(existingUsers => {
+            return this.getFullUsers({
+                filters: { id: ["in", userIds] },
+                onlyUsersOrgUnits: false,
+                onlyActiveUsers: false,
+            }).flatMap(existingUsers => {
                 const usersToSend = _(userIds)
                     .map(userId => {
                         const existingUser = existingUsers.find(user => user.id === userId);

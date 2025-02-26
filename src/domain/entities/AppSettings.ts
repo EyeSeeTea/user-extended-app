@@ -1,14 +1,25 @@
 import { Struct } from "./generic/Struct";
 import { UserColumns } from "./User";
 
-type AppSettingsAttr = { columns: SettingsUserColumn[]; showOnlyActiveUsers: boolean };
+type AppSettingsAttr = {
+    columns: SettingsUserColumn[];
+    showOnlyActiveUsers: boolean;
+    showOnlyUsersOrgUnits: boolean;
+    showFeedback: boolean;
+};
+
 export type ColumnSettingValue = "visible" | "disabled" | "optional";
 
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
 
 export class AppSettings extends Struct<AppSettingsAttr>() {
     static emptySettings(): AppSettings {
-        return this.create({ columns: [], showOnlyActiveUsers: false });
+        return this.create({
+            columns: [],
+            showOnlyActiveUsers: false,
+            showOnlyUsersOrgUnits: false,
+            showFeedback: true,
+        });
     }
 
     updateColumns(columns: SettingsUserColumn[]): AppSettings {

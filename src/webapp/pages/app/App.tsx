@@ -15,7 +15,8 @@ import { Router } from "../Router";
 import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
-import { Feedback } from "@eyeseetea/feedback-component";
+import { Feedback, FeedbackOptions } from "@eyeseetea/feedback-component";
+import { AppSettingsProvider, useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 
 export interface AppProps {
     api: D2Api;
@@ -53,16 +54,18 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
             <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
                 <SnackbarProvider>
                     <LoadingProvider>
-                        <HeaderBar appName="User Extended App" />
+                        <AppContext.Provider value={appContext}>
+                            <AppSettingsProvider>
+                                <HeaderBar appName="User Extended App" />
 
-                        <div id="app" className="content">
-                            <AppContext.Provider value={appContext}>
-                                <Router />
-                            </AppContext.Provider>
-                        </div>
+                                <div id="app" className="content">
+                                    <Router />
+                                </div>
 
-                        <Share visible={showShareButton} />
-                        <Feedback options={appConfig.feedback} username={username} />
+                                <Share visible={showShareButton} />
+                                <FeedbackWrapper options={appConfig.feedback} username={username} />
+                            </AppSettingsProvider>
+                        </AppContext.Provider>
                     </LoadingProvider>
                 </SnackbarProvider>
             </OldMuiThemeProvider>
@@ -71,3 +74,14 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
 });
 
 type D2 = object;
+
+interface FeedbackProps {
+    options: FeedbackOptions;
+    username: string;
+}
+
+const FeedbackWrapper: React.FC<FeedbackProps> = ({ options, username }) => {
+    const { appSettings } = useAppSettingsContext();
+    if (!appSettings.showFeedback) return null;
+    return <Feedback options={options} username={username} />;
+};

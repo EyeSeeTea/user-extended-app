@@ -12,6 +12,7 @@ import FileSaver from "file-saver";
 import { OrgUnitKey } from "../../domain/entities/OrgUnit";
 import { AppSettings } from "../../domain/entities/AppSettings";
 import { Maybe } from "../../types/utils";
+import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
 
 type UseSaveUsersOrgUnitsProps = { onSuccess: () => void };
 type UseExportUsersProps = {
@@ -91,19 +92,25 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
 
 export function useGetAllUsers() {
     const { compositionRoot } = useAppContext();
+    const { appSettings } = useAppSettingsContext();
     const [users, setUsers] = React.useState<User[]>();
     const snackbar = useSnackbar();
 
     React.useMemo(() => {
-        compositionRoot.users.listAll({}).run(
-            allUsers => {
-                setUsers(allUsers);
-            },
-            error => {
-                snackbar.error(error);
-            }
-        );
-    }, [compositionRoot, snackbar]);
+        compositionRoot.users
+            .listAll({
+                onlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
+                onlyActiveUsers: appSettings.showOnlyActiveUsers,
+            })
+            .run(
+                allUsers => {
+                    setUsers(allUsers);
+                },
+                error => {
+                    snackbar.error(error);
+                }
+            );
+    }, [appSettings.showOnlyActiveUsers, appSettings.showOnlyUsersOrgUnits, compositionRoot.users, snackbar]);
 
     return { users };
 }

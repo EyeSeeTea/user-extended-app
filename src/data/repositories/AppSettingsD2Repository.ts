@@ -23,6 +23,8 @@ export class AppSettingsD2Repository implements AppSettingsRepository {
                 ...(existingSettings || {}),
                 columns: appSettings.columns,
                 showOnlyActiveUsers: appSettings.showOnlyActiveUsers,
+                showFeedback: appSettings.showFeedback,
+                showOnlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
             });
 
             return this.dataStorage.saveObject(this.settingsKey, updatedSettings).map(() => updatedSettings);
@@ -30,13 +32,15 @@ export class AppSettingsD2Repository implements AppSettingsRepository {
     }
 
     private getSettings() {
-        return this.dataStorage.getObject<AppSettings>(this.settingsKey).map(d2Response => {
-            return d2Response
+        return this.dataStorage.getObject<AppSettings>(this.settingsKey).map(d2Response =>
+            d2Response
                 ? AppSettings.create({
                       columns: d2Response.columns,
                       showOnlyActiveUsers: d2Response.showOnlyActiveUsers,
+                      showFeedback: d2Response.showFeedback,
+                      showOnlyUsersOrgUnits: d2Response.showOnlyUsersOrgUnits,
                   })
-                : AppSettings.emptySettings();
-        });
+                : AppSettings.emptySettings()
+        );
     }
 }

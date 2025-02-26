@@ -18,3 +18,9 @@ li {
 .org-unit-dialog-selector > .MuiPaper-root {
     width: 100% !important;
 }
+
+/* Styling legacy switch Filter OR/AND filter when state is disabled */
+.control-switch .MuiSwitch-switchBase.Mui-disabled,
+.control-switch .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track {
+    cursor: not-allowed;
+}
