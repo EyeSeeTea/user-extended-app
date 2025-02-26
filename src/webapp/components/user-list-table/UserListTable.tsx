@@ -124,6 +124,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [showSettings, setShowSettings] = React.useState(false);
     const [showImportModal, setShowImportModal] = React.useState(false);
     const [importResult, setImportResult] = React.useState<ImportResult>();
+    const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
+
     const { importSettings } = useImportSettings();
 
     const enableReplicate = hasReplicateAuthority(currentUser);
@@ -359,14 +361,14 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     isActive: () => enableReplicate,
                 },
             ],
-            globalActions: [
-                {
+            globalActions: _.compact([
+                currentUserHasAccessToSettings && {
                     name: "open-settings",
                     text: i18n.t("Settings"),
                     icon: <Tune />,
                     onClick: () => setShowSettings(true),
                 },
-            ],
+            ]),
             // TODO: Bug in ObjectsList
             initialSorting: {
                 field: "firstName",
@@ -387,7 +389,16 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // onActionButtonClick: () => navigate("/new"),
             onReorderColumns,
         };
-    }, [appSettings, enableReplicate, editUsers, onReorderColumns, reload, onAction, userColumns]);
+    }, [
+        appSettings,
+        userColumns,
+        editUsers,
+        onReorderColumns,
+        reload,
+        onAction,
+        enableReplicate,
+        currentUserHasAccessToSettings,
+    ]);
 
     const refreshRows = useCallback(
         async (
@@ -552,6 +563,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         [setAppSettings]
     );
 
+    React.useEffect(() => {
+        compositionRoot.users
+            .checkCurrentUserCanAccessSettings()
+            .run(setCurrentUserHasAccessToSettings, snackbar.error);
+    }, [compositionRoot.users, snackbar.error]);
+
     const selectedUsers = users && users.length > 0;
 
     return (
@@ -589,7 +606,9 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 />
             )}
 
-            {showSettings && <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />}
+            {showSettings && currentUserHasAccessToSettings && (
+                <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />
+            )}
 
             <PatchPaginationTableWrapper
                 className={needsPatch ? "patched" : undefined}

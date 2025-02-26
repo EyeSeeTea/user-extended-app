@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-01-19T03:46:49.854Z\n"
+"POT-Creation-Date: 2025-02-15T16:06:38.749Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -295,9 +295,17 @@ msgid "Show feedback button"
 msgstr "Mostrar botón de feedback"
 
 msgid "Show only users assigned to users' organisation units"
-msgstr "Mostrar solo los usuarios asignados a las unidades organizativas del usuario"
+msgstr ""
+"Mostrar solo los usuarios asignados a las unidades organizativas del usuario"
 
 msgid "Show only active users"
+msgstr ""
+
+msgid "Access to Settings Section"
+msgstr ""
+
+msgid ""
+"Changes on 'Who has access' to settings will be reflected after page reload"
 msgstr ""
 
 msgid "Saving..."

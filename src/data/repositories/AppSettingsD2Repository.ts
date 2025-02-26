@@ -18,29 +18,14 @@ export class AppSettingsD2Repository implements AppSettingsRepository {
     }
 
     save(appSettings: AppSettings): FutureData<AppSettings> {
-        return this.getSettings().flatMap(existingSettings => {
-            const updatedSettings = AppSettings.create({
-                ...(existingSettings || {}),
-                columns: appSettings.columns,
-                showOnlyActiveUsers: appSettings.showOnlyActiveUsers,
-                showFeedback: appSettings.showFeedback,
-                showOnlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
-            });
-
-            return this.dataStorage.saveObject(this.settingsKey, updatedSettings).map(() => updatedSettings);
-        });
+        return this.dataStorage.saveObject(this.settingsKey, appSettings).map(() => appSettings);
     }
 
     private getSettings() {
-        return this.dataStorage.getObject<AppSettings>(this.settingsKey).map(d2Response =>
-            d2Response
-                ? AppSettings.create({
-                      columns: d2Response.columns,
-                      showOnlyActiveUsers: d2Response.showOnlyActiveUsers,
-                      showFeedback: d2Response.showFeedback,
-                      showOnlyUsersOrgUnits: d2Response.showOnlyUsersOrgUnits,
-                  })
-                : AppSettings.emptySettings()
-        );
+        const emptySettings = AppSettings.emptySettings();
+
+        return this.dataStorage
+            .getObject<Partial<AppSettings>>(this.settingsKey)
+            .map(d2Response => (d2Response ? AppSettings.create({ ...emptySettings, ...d2Response }) : emptySettings));
     }
 }

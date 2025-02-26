@@ -1,4 +1,5 @@
 import { Struct } from "./generic/Struct";
+import { Permission } from "./Permission";
 import { UserColumns } from "./User";
 
 type AppSettingsAttr = {
@@ -6,6 +7,7 @@ type AppSettingsAttr = {
     showOnlyActiveUsers: boolean;
     showOnlyUsersOrgUnits: boolean;
     showFeedback: boolean;
+    settingsAccess: Permission;
 };
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional";
@@ -19,6 +21,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyActiveUsers: false,
             showOnlyUsersOrgUnits: false,
             showFeedback: true,
+            settingsAccess: { users: [], userGroups: [] },
         });
     }
 
