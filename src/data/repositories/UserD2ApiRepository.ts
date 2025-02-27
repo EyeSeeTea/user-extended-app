@@ -112,52 +112,70 @@ export class UserD2ApiRepository implements UserRepository {
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
         const { page, pageSize } = options;
 
-        return apiToFuture(
-            this.api.models.users.get({
-                fields: {
-                    ...fields,
-                    ...auditFields,
-                    userCredentials: { ...fields.userCredentials, ...auditFields },
-                },
-                page,
-                pageSize,
-                ...this.createCommonListQueryParams(options),
-            })
-        ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
+        return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToHide => {
+            return apiToFuture(
+                this.api.models.users.get({
+                    fields: {
+                        ...fields,
+                        ...auditFields,
+                        userCredentials: { ...fields.userCredentials, ...auditFields },
+                    },
+                    page,
+                    pageSize,
+                    ...this.createCommonListQueryParams(options),
+                })
+            ).map(({ objects, pager }) => {
+                const users = objects.map(user => this.toDomainUser(user));
+                const excludeHiddenUsers = usersIdsToHide
+                    ? users.filter(user => !usersIdsToHide.includes(user.id))
+                    : users;
+                return { pager, objects: excludeHiddenUsers };
+            });
+        });
     }
 
     private buildFilters(
         filters: ListFilters | undefined,
-        override: { onlyActiveUsers: boolean; hideUsers: Id[] }
+        override: { onlyActiveUsers: boolean }
     ): Record<string, Record<string, string[]> | undefined> {
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
 
-        if (override.hideUsers.length > 480) {
-            throw new Error("Too many users to hide"); // 414 URI Too Long
-        }
-
-        const overridedIdFilter = {
-            ...otherFilters.id,
-            "!in": (otherFilters.id?.["!in"] ?? []).concat(override.hideUsers),
-        };
-
         return {
             ...otherFilters,
-            id: _.isEmpty(override.hideUsers) ? otherFilters.id : overridedIdFilter,
             "userCredentials.disabled": override.onlyActiveUsers
                 ? { eq: ["false"] }
                 : otherFilters["userCredentials.disabled"],
         };
     }
 
+    private getUsersIdsInChunks(ids: Id[]): FutureData<Maybe<Id[]>> {
+        if (ids.length === 0) return Future.success(undefined);
+        return chunkRequest(ids, usersIds => {
+            return apiToFuture(
+                this.api.models.users.get({
+                    fields: { id: true },
+                    filter: { id: { in: usersIds } },
+                    paging: false,
+                })
+            ).map(d2Response => {
+                return d2Response.objects.map(d2User => d2User.id);
+            });
+        });
+    }
+
     public listAllIds(options: ListOptions): FutureData<string[]> {
-        return apiToFuture(
-            this.api.models.users.get({
-                fields: { id: true },
-                paging: false,
-                ...this.createCommonListQueryParams(options),
-            })
-        ).map(({ objects }) => objects.map(user => user.id));
+        return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
+            return apiToFuture(
+                this.api.models.users.get({
+                    fields: { id: true },
+                    paging: false,
+                    ...this.createCommonListQueryParams(options),
+                })
+            ).map(({ objects }) => {
+                const usersIds = objects.map(user => user.id);
+                return usersIdsToExclude ? usersIds.filter(id => !usersIdsToExclude.includes(id)) : usersIds;
+            });
+        });
     }
 
     private createCommonListQueryParams(options: ListOptions) {
@@ -169,10 +187,9 @@ export class UserD2ApiRepository implements UserRepository {
             rootJunction,
             onlyActiveUsers,
             onlyUsersOrgUnits,
-            hideUsers,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers, hideUsers });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
         const areFiltersEnabled = _(otherFilters).values().some();
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
 
@@ -267,10 +284,9 @@ export class UserD2ApiRepository implements UserRepository {
             sorting = { field: "firstName", order: "asc" },
             filters,
             onlyActiveUsers,
-            hideUsers,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers, hideUsers });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
