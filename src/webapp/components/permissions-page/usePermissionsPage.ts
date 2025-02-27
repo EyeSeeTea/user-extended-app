@@ -1,8 +1,9 @@
 import _ from "lodash";
 import React from "react";
-import { AppSettings } from "../../../domain/entities/AppSettings";
+import { AppSettings, publicPermission } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
+import { assignValueToAllActions } from "../../../domain/entities/UserAction";
 
 export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, permission: Permission) => {
     const { appSettings } = useAppSettingsContext();
@@ -14,7 +15,10 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         usersOrgUnits: appSettings.showOnlyUsersOrgUnits,
         feedbackButton: appSettings.showFeedback,
         showSharingSettings: showSharingSettings,
+        actionsArePublic: appSettings.areAllActionsPublic(),
     });
+
+    const [actionsPermissions, setActionsPermissions] = React.useState(appSettings.actionsAccess);
 
     const updateFormState = (value: boolean, field: keyof FormType) => {
         setForm(prev => ({ ...prev, [field]: value }));
@@ -28,16 +32,36 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 showOnlyUsersOrgUnits: formState.usersOrgUnits,
                 showFeedback: formState.feedbackButton,
                 settingsAccess: permission,
+                actionsAccess: formState.actionsArePublic
+                    ? assignValueToAllActions(publicPermission)
+                    : actionsPermissions,
             })
         );
-    }, [onSave, appSettings, formState, permission]);
+    }, [
+        onSave,
+        appSettings,
+        formState.activeUsers,
+        formState.usersOrgUnits,
+        formState.feedbackButton,
+        formState.actionsArePublic,
+        permission,
+        actionsPermissions,
+    ]);
 
     return {
         formState,
         updateFormState,
         onSaveSettings,
         showSharingSettings,
+        actionsPermissions,
+        setActionsPermissions,
     };
 };
 
-type FormType = { activeUsers: boolean; usersOrgUnits: boolean; feedbackButton: boolean; showSharingSettings: boolean };
+type FormType = {
+    activeUsers: boolean;
+    usersOrgUnits: boolean;
+    feedbackButton: boolean;
+    showSharingSettings: boolean;
+    actionsArePublic: boolean;
+};

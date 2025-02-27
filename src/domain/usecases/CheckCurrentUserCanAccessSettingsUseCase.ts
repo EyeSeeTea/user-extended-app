@@ -1,8 +1,7 @@
 import { UserRepository } from "../repositories/UserRepository";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
 import { Future, FutureData } from "../entities/Future";
-import { AppSettings } from "../entities/AppSettings";
-import { isSuperAdmin, User } from "../entities/User";
+import { isSuperAdmin } from "../entities/User";
 import { getId } from "../entities/Ref";
 
 export class CheckCurrentUserCanAccessSettingsUseCase {
@@ -12,17 +11,13 @@ export class CheckCurrentUserCanAccessSettingsUseCase {
         return Future.joinObj({
             user: this.userRepository.getCurrent(),
             appSettings: this.appSettingsRepository.get(),
-        }).map(({ user, appSettings }) => this.checkUserCanAccessSettings(user, appSettings));
-    }
-
-    private checkUserCanAccessSettings(user: User, appSettings: AppSettings): boolean {
-        if (isSuperAdmin(user)) return true;
-        const permissions = appSettings.settingsAccess;
-        const userAccess = permissions.users.some(u => u.id === user.id);
-        const groupAccess = permissions.userGroups.some(({ id: permissionUserGroupId }) =>
-            user.userGroups.map(getId).includes(permissionUserGroupId)
+        }).map(
+            ({ user, appSettings }) =>
+                isSuperAdmin(user) ||
+                appSettings.settingsAccess.isAccessible({
+                    userId: getId(user),
+                    userGroupIds: user.userGroups.map(getId),
+                })
         );
-
-        return userAccess || groupAccess;
     }
 }

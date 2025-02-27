@@ -1,12 +1,55 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-02-15T16:06:38.749Z\n"
+"POT-Creation-Date: 2025-02-22T16:56:09.479Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgid "Details"
+msgstr "Detalles"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Copy in user"
+msgstr "Copiar a usuario"
+
+#, fuzzy
+msgid "Assign to data capture organisation units"
+msgstr "Asignar a unidades organizativas de salida"
+
+msgid "Assign to data view organisation units"
+msgstr "Asignar a unidades organizativas de salida"
+
+msgid "Assign to search organisation units"
+msgstr "Asignar a unidades organizativas de búsqueda"
+
+msgid "Assign roles"
+msgstr "Asignar roles"
+
+msgid "Assign groups"
+msgstr "Asignar grupos"
+
+msgid "Enable"
+msgstr "Habilitar"
+
+msgid "Disable"
+msgstr "Deshabilitar"
+
+msgid "Reset password"
+msgstr "Restablecer contraseña"
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Replicate user from template"
+msgstr "Replicar usuario desde plantilla"
+
+msgid "Replicate user from table"
+msgstr "Replicar usuario desde tabla"
 
 msgid "ID"
 msgstr ""
@@ -119,9 +162,6 @@ msgstr ""
 
 msgid "Optional"
 msgstr ""
-
-msgid "Disable"
-msgstr "Deshabilitar"
 
 #, fuzzy
 msgid "Copy in user: {{user}}"
@@ -301,11 +341,20 @@ msgstr ""
 msgid "Show only active users"
 msgstr ""
 
+msgid "Actions available for all users"
+msgstr ""
+
 msgid "Access to Settings Section"
 msgstr ""
 
 msgid ""
 "Changes on 'Who has access' to settings will be reflected after page reload"
+msgstr ""
+
+msgid "Select user groups"
+msgstr ""
+
+msgid "Public access (Everyone)"
 msgstr ""
 
 msgid "Saving..."
@@ -400,46 +449,6 @@ msgstr ""
 
 msgid "OU Search"
 msgstr ""
-
-msgid "Details"
-msgstr "Detalles"
-
-msgid "Edit"
-msgstr "Editar"
-
-msgid "Copy in user"
-msgstr "Copiar a usuario"
-
-#, fuzzy
-msgid "Assign to data capture organisation units"
-msgstr "Asignar a unidades organizativas de salida"
-
-msgid "Assign to data view organisation units"
-msgstr "Asignar a unidades organizativas de salida"
-
-msgid "Assign to search organisation units"
-msgstr "Asignar a unidades organizativas de búsqueda"
-
-msgid "Assign roles"
-msgstr "Asignar roles"
-
-msgid "Assign groups"
-msgstr "Asignar grupos"
-
-msgid "Enable"
-msgstr "Habilitar"
-
-msgid "Reset password"
-msgstr "Restablecer contraseña"
-
-msgid "Remove"
-msgstr "Eliminar"
-
-msgid "Replicate user from template"
-msgstr "Replicar usuario desde plantilla"
-
-msgid "Replicate user from table"
-msgstr "Replicar usuario desde tabla"
 
 msgid "Search by name or username..."
 msgstr "Buscar por nombre y nombre de usuario"
