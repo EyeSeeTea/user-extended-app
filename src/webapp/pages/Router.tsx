@@ -8,6 +8,16 @@ import { UserBulkEditPage } from "./user-bulk-edit/UserBulkEditPage";
 import { UserEditPage } from "./user-edit/UserEditPage";
 import { About } from "../components/about/About";
 import { AboutPage } from "./about/AboutPage";
+import { DashboardTable } from "../components/dashboard/DashboardTable";
+import { UserRoleTable } from "../components/user-role/UserRoleTable";
+import { UserGroupTable } from "../components/user-group-table/UserGroupTable";
+import { TabsMenu } from "../components/tabs-menu/TabsMenu";
+
+const TabWrapper = ({ children }: { children: React.ReactNode }) => (
+    <LegacyAppWrapper>
+        <TabsMenu>{children}</TabsMenu>
+    </LegacyAppWrapper>
+);
 
 export const Router: React.FC = React.memo(() => {
     const { api } = useAppContext();
@@ -23,9 +33,36 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/"
                     element={
-                        <LegacyAppWrapper>
+                        <TabWrapper>
                             <ListHybrid api={api} params={{ modelType: "users" }} />
-                        </LegacyAppWrapper>
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/dashboards"
+                    element={
+                        <TabWrapper>
+                            <DashboardTable />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/user-roles"
+                    element={
+                        <TabWrapper>
+                            <UserRoleTable />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/user-groups"
+                    element={
+                        <TabWrapper>
+                            <UserGroupTable />
+                        </TabWrapper>
                     }
                 />
             </Routes>

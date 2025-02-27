@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-02-24T03:18:13.747Z\n"
+"POT-Creation-Date: 2025-02-27T18:31:08.227Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -118,6 +118,9 @@ msgstr "Creado por"
 msgid "Last modified by"
 msgstr ""
 
+msgid "Not all users have emails"
+msgstr ""
+
 msgid "Only admin user can edit logger settings"
 msgstr "Solo el administrador puede editar la configuración del logger"
 
@@ -197,6 +200,15 @@ msgstr ""
 
 msgid "OU Capture"
 msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
+msgid "Users"
+msgstr "Usuarios"
 
 #, fuzzy
 msgid "Import/Export"
@@ -298,9 +310,6 @@ msgstr "Resultados de la importación"
 msgid "Ok"
 msgstr ""
 
-msgid "Users"
-msgstr "Usuarios"
-
 msgid "Summary"
 msgstr "Resumen"
 
@@ -331,6 +340,16 @@ msgstr "Volver"
 msgid "Help"
 msgstr "Ayuda"
 
+#, fuzzy
+msgid "Search users"
+msgstr "Buscar"
+
+msgid "Search user roles"
+msgstr ""
+
+msgid "Search user groups"
+msgstr ""
+
 msgid "Show feedback button"
 msgstr "Mostrar botón de feedback"
 
@@ -357,14 +376,14 @@ msgstr ""
 msgid "Select user groups"
 msgstr ""
 
+msgid "You can't hide more than 480 users"
+msgstr ""
+
 msgid "Public access (Everyone)"
 msgstr ""
 
 msgid "Saving..."
 msgstr "Guardando..."
-
-msgid "Settings"
-msgstr "Configuración"
 
 msgid "Logger"
 msgstr ""
@@ -374,6 +393,9 @@ msgid "Columns"
 msgstr "Columna"
 
 msgid "Permissions"
+msgstr ""
+
+msgid "Dashboards"
 msgstr ""
 
 msgid "Error saving user"
@@ -453,6 +475,9 @@ msgstr ""
 msgid "OU Search"
 msgstr ""
 
+msgid "Settings"
+msgstr "Configuración"
+
 msgid "Search by name or username..."
 msgstr "Buscar por nombre y nombre de usuario"
 
@@ -489,6 +514,55 @@ msgstr "Última actualización hecha por"
 
 msgid "And {{overflow}} more..."
 msgstr "Y {{overflow}} más..."
+
+#, fuzzy
+msgid "Loading users..."
+msgstr "Guardando usuarios"
+
+msgid "Filter owners"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+#, fuzzy
+msgid "Select users"
+msgstr "Editar usuarios"
+
+#, fuzzy
+msgid "Remove users"
+msgstr "Eliminar usuario"
+
+#, fuzzy
+msgid "Users removed"
+msgstr "Eliminar"
+
+#, fuzzy
+msgid "Disable users"
+msgstr "Deshabilitar"
+
+#, fuzzy
+msgid "Users disabled"
+msgstr "Deshabilitado"
+
+#, fuzzy
+msgid "Enable users"
+msgstr "Habilitar"
+
+#, fuzzy
+msgid "Users enabled"
+msgstr "Usuario"
+
+#, fuzzy
+msgid "Reset passwords"
+msgstr "Restablecer contraseña"
+
+#, fuzzy
+msgid "reset the passwords for"
+msgstr "Restablecer contraseña"
+
+msgid "Passwords have been reset"
+msgstr ""
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "Usuarios {{action}}. {{users}} {{remainingCount}}"
@@ -609,8 +683,3 @@ msgstr ""
 #, fuzzy
 #~ msgid "close"
 #~ msgstr "Cerrar"
-
-#, fuzzy
-#~ msgctxt "user"
-#~ msgid "remove"
-#~ msgstr "Eliminar"

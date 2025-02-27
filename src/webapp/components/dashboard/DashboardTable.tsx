@@ -1,0 +1,85 @@
+import {
+    ObjectsList,
+    Pager,
+    TableConfig,
+    TablePagination,
+    TableSorting,
+    useObjectsTable,
+} from "@eyeseetea/d2-ui-components";
+import React from "react";
+import { Dashboard } from "../../../domain/entities/Dashboard";
+import { GetDashboardOptions } from "../../../domain/repositories/DashboardRepository";
+import i18n from "../../../locales";
+import { useAppContext } from "../../contexts/app-context";
+import { FilteredUser, UsersFilters } from "../users-filter/UsersFilters";
+
+type DashboardTableProps = {};
+
+function generateTableConfig(): TableConfig<Dashboard> {
+    return {
+        actions: [],
+        columns: [
+            {
+                name: "name",
+                text: i18n.t("Name"),
+                getValue: dashboard => dashboard.name,
+            },
+            {
+                name: "description",
+                text: i18n.t("Description"),
+            },
+            {
+                name: "owner",
+                text: i18n.t("Owner"),
+                sortable: false,
+            },
+            {
+                name: "users",
+                text: i18n.t("Users"),
+                sortable: false,
+            },
+        ],
+        initialSorting: { field: "name", order: "asc" },
+        paginationOptions: { pageSizeInitialValue: 10, pageSizeOptions: [10, 25, 50] },
+    };
+}
+
+export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
+    const { compositionRoot } = useAppContext();
+    const [filters, setFilters] = React.useState<GetDashboardOptions["filters"]>({ ownerUsersIds: undefined });
+
+    const config = React.useMemo(() => {
+        return generateTableConfig();
+    }, []);
+
+    const getRows = React.useCallback(
+        (
+            search: string,
+            { page, pageSize }: TablePagination,
+            sorting: TableSorting<Dashboard>
+        ): Promise<{ objects: Dashboard[]; pager: Pager }> => {
+            return compositionRoot.dashboards.get
+                .execute({
+                    page: page,
+                    pageSize: pageSize,
+                    search: search,
+                    filters: { ownerUsersIds: filters.ownerUsersIds },
+                    sorting: { field: sorting.field, order: sorting.order },
+                })
+                .toPromise();
+        },
+        [compositionRoot.dashboards.get, filters]
+    );
+
+    const tableProps = useObjectsTable(config, getRows);
+
+    const updateFilters = React.useCallback((filters: { users: FilteredUser[] }) => {
+        setFilters({ ownerUsersIds: filters.users.length ? filters.users.map(user => user.value) : undefined });
+    }, []);
+
+    return (
+        <ObjectsList {...tableProps}>
+            <UsersFilters onFilterChange={updateFilters} />
+        </ObjectsList>
+    );
+});

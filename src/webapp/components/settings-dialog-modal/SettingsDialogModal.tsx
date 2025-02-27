@@ -103,7 +103,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                     />
                 );
             case "permissions":
-                return <PermissionsPage onSave={onSavePermissions} />;
+                return <PermissionsPage onSave={onSavePermissions} onClose={closeDialog} />;
         }
     };
 

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-02-24T03:18:13.747Z\n"
-"PO-Revision-Date: 2025-02-24T03:18:13.747Z\n"
+"POT-Creation-Date: 2025-02-27T18:31:08.227Z\n"
+"PO-Revision-Date: 2025-02-27T18:31:08.227Z\n"
 
 msgid "Details"
 msgstr ""
@@ -116,6 +116,9 @@ msgstr ""
 msgid "Last modified by"
 msgstr ""
 
+msgid "Not all users have emails"
+msgstr ""
+
 msgid "Only admin user can edit logger settings"
 msgstr ""
 
@@ -192,6 +195,15 @@ msgid "User Roles"
 msgstr ""
 
 msgid "OU Capture"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
+msgid "Users"
 msgstr ""
 
 msgid "Import/Export"
@@ -293,9 +305,6 @@ msgstr ""
 msgid "Ok"
 msgstr ""
 
-msgid "Users"
-msgstr ""
-
 msgid "Summary"
 msgstr ""
 
@@ -326,6 +335,15 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
+msgid "Search users"
+msgstr ""
+
+msgid "Search user roles"
+msgstr ""
+
+msgid "Search user groups"
+msgstr ""
+
 msgid "Show feedback button"
 msgstr ""
 
@@ -350,13 +368,13 @@ msgstr ""
 msgid "Select user groups"
 msgstr ""
 
+msgid "You can't hide more than 480 users"
+msgstr ""
+
 msgid "Public access (Everyone)"
 msgstr ""
 
 msgid "Saving..."
-msgstr ""
-
-msgid "Settings"
 msgstr ""
 
 msgid "Logger"
@@ -366,6 +384,9 @@ msgid "Columns"
 msgstr ""
 
 msgid "Permissions"
+msgstr ""
+
+msgid "Dashboards"
 msgstr ""
 
 msgid "Error saving user"
@@ -443,6 +464,9 @@ msgstr ""
 msgid "OU Search"
 msgstr ""
 
+msgid "Settings"
+msgstr ""
+
 msgid "Search by name or username..."
 msgstr ""
 
@@ -477,6 +501,45 @@ msgid "Last Modified By"
 msgstr ""
 
 msgid "And {{overflow}} more..."
+msgstr ""
+
+msgid "Loading users..."
+msgstr ""
+
+msgid "Filter owners"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Select users"
+msgstr ""
+
+msgid "Remove users"
+msgstr ""
+
+msgid "Users removed"
+msgstr ""
+
+msgid "Disable users"
+msgstr ""
+
+msgid "Users disabled"
+msgstr ""
+
+msgid "Enable users"
+msgstr ""
+
+msgid "Users enabled"
+msgstr ""
+
+msgid "Reset passwords"
+msgstr ""
+
+msgid "reset the passwords for"
+msgstr ""
+
+msgid "Passwords have been reset"
 msgstr ""
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"

@@ -24,3 +24,14 @@ li {
 .control-switch .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track {
     cursor: not-allowed;
 }
+
+.tab-content {
+    padding: 1em;
+}
+
+.sticky-actions {
+    position: sticky;
+    right: 0;
+    top: 0;
+    z-index: 1;
+}

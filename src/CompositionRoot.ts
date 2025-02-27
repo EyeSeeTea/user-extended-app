@@ -39,6 +39,13 @@ import { GetAllUserGroupsUseCase } from "./domain/usecases/GetAllUserGroupsUseCa
 import { CheckActionsAccessibleToCurrentUserUseCase } from "./domain/usecases/CheckActionsAccessibleToCurrentUserUseCase";
 import { GetAllUserRolesUseCase } from "./domain/usecases/GetAllUserRolesUseCase";
 import { UserRoleD2Repository } from "./data/repositories/UserRoleD2Repository";
+import { GetDashboardsUseCase } from "./domain/usecases/GetDashboardsUseCase";
+import { DashboardD2Repository } from "./data/repositories/DashboardD2Repository";
+import { GetUserRolesUseCase } from "./domain/usecases/GetUserRolesUseCase";
+import { OrgUnitD2Repository } from "./data/repositories/OrgUnitD2Repository";
+import { GetUserGroupsUseCase } from "./domain/usecases/GetUserGroupsUseCase";
+import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
+import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
 
 export function getCompositionRoot(instance: Instance) {
     const api = getD2APiFromInstance(instance);
@@ -51,6 +58,9 @@ export function getCompositionRoot(instance: Instance) {
     const userAndUserGroupsSearchRepository = new UserSearchD2Repository(api);
     const userGroupRepository = new UserGroupD2Repository(api);
     const userRoleRepository = new UserRoleD2Repository(api);
+    const dashboardRepository = new DashboardD2Repository(api);
+    const orgUnitRepository = new OrgUnitD2Repository(api);
+    const userSimpleRepository = new UserSimpleD2Repository(api);
 
     return {
         logger: {
@@ -85,11 +95,14 @@ export function getCompositionRoot(instance: Instance) {
                 appSettingsRepository
             ),
             checkActionsAccessibleToCurrentUser: new CheckActionsAccessibleToCurrentUserUseCase(),
+            getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository),
         }),
         userGroups: getExecute({
             getAll: new GetAllUserGroupsUseCase(userGroupRepository),
+            get: new GetUserGroupsUseCase(userGroupRepository, orgUnitRepository),
         }),
         userRoles: getExecute({
+            get: new GetUserRolesUseCase(userRoleRepository, orgUnitRepository),
             getAll: new GetAllUserRolesUseCase(userRoleRepository),
         }),
         metadata: getExecute({
@@ -99,6 +112,9 @@ export function getCompositionRoot(instance: Instance) {
         settings: {
             get: new GetAppSettingsUseCase(appSettingsRepository),
             save: new SaveAppSettingsUseCase(appSettingsRepository),
+        },
+        dashboards: {
+            get: new GetDashboardsUseCase(dashboardRepository),
         },
     };
 }

@@ -798,7 +798,7 @@ export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loadi
     usersOrgUnits: boolean;
 }
 
-function buildEllipsizedList(items: NamedRef[], limit = 3) {
+export function buildEllipsizedList(items: NamedRef[], limit = 3) {
     const names = items.map(item => item.name);
     const overflow = items.length - limit;
     const hasOverflow = overflow > 0;

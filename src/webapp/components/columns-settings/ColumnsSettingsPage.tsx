@@ -24,14 +24,16 @@ export const ColumnsSettingsPage = React.memo((props: ColumnsSettingsPageProps) 
 
     return (
         <ColumnsSettingsContainer>
-            <DialogActions>
-                <Button variant="contained" color="primary" onClick={onSave}>
-                    {i18n.t("Save")}
-                </Button>
-                <Button color="secondary" onClick={onClose}>
-                    {i18n.t("Close")}
-                </Button>
-            </DialogActions>
+            <div className="sticky-actions">
+                <DialogActions>
+                    <Button variant="contained" color="primary" onClick={onSave}>
+                        {i18n.t("Save")}
+                    </Button>
+                    <Button color="secondary" onClick={onClose}>
+                        {i18n.t("Close")}
+                    </Button>
+                </DialogActions>
+            </div>
             {appSettings?.columns.map(column => {
                 return (
                     <ColumnSelector key={column.field} column={column} onClick={updateColumns} settings={appSettings} />
