@@ -126,10 +126,24 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    private buildFilters(filters: ListFilters | undefined, override: { onlyActiveUsers: boolean }) {
+    private buildFilters(
+        filters: ListFilters | undefined,
+        override: { onlyActiveUsers: boolean; hideUsers: Id[] }
+    ): Record<string, Record<string, string[]> | undefined> {
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+
+        if (override.hideUsers.length > 480) {
+            throw new Error("Too many users to hide"); // 414 URI Too Long
+        }
+
+        const overridedIdFilter = {
+            ...otherFilters.id,
+            "!in": (otherFilters.id?.["!in"] ?? []).concat(override.hideUsers),
+        };
+
         return {
             ...otherFilters,
+            id: _.isEmpty(override.hideUsers) ? otherFilters.id : overridedIdFilter,
             "userCredentials.disabled": override.onlyActiveUsers
                 ? { eq: ["false"] }
                 : otherFilters["userCredentials.disabled"],
@@ -155,9 +169,10 @@ export class UserD2ApiRepository implements UserRepository {
             rootJunction,
             onlyActiveUsers,
             onlyUsersOrgUnits,
+            hideUsers,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers, hideUsers });
         const areFiltersEnabled = _(otherFilters).values().some();
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
 
@@ -245,9 +260,17 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
-        const { page, pageSize, search, sorting = { field: "firstName", order: "asc" }, filters } = options;
+        const {
+            page,
+            pageSize,
+            search,
+            sorting = { field: "firstName", order: "asc" },
+            filters,
+            onlyActiveUsers,
+            hideUsers,
+        } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers: false });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers, hideUsers });
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
@@ -312,6 +335,7 @@ export class UserD2ApiRepository implements UserRepository {
                 filters: { id: ["in", userIds] },
                 onlyUsersOrgUnits: false,
                 onlyActiveUsers: false,
+                hideUsers: [],
             }).flatMap(existingUsers => {
                 const usersToSend = _(userIds)
                     .map(userId => {
