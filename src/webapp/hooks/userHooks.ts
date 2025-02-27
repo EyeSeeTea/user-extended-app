@@ -101,6 +101,7 @@ export function useGetAllUsers() {
             .listAll({
                 onlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
                 onlyActiveUsers: appSettings.showOnlyActiveUsers,
+                hideUsers: appSettings.hide.users,
             })
             .run(
                 allUsers => {
@@ -110,7 +111,13 @@ export function useGetAllUsers() {
                     snackbar.error(error);
                 }
             );
-    }, [appSettings.showOnlyActiveUsers, appSettings.showOnlyUsersOrgUnits, compositionRoot.users, snackbar]);
+    }, [
+        appSettings.hide.users,
+        appSettings.showOnlyActiveUsers,
+        appSettings.showOnlyUsersOrgUnits,
+        compositionRoot.users,
+        snackbar,
+    ]);
 
     return { users };
 }

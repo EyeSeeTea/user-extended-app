@@ -84,6 +84,7 @@ describe("ExportUsersUseCase", () => {
 const filterOptions = {
     onlyActiveUsers: false,
     onlyUsersOrgUnits: false,
+    hideUsers: [],
 };
 
 function givenUsersToExport(): void {
@@ -93,6 +94,7 @@ function givenUsersToExport(): void {
             deepEqual({
                 onlyActiveUsers: false,
                 onlyUsersOrgUnits: false,
+                hideUsers: [],
             })
         )
     ).thenReturn(Future.success(users));

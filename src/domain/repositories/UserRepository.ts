@@ -1,7 +1,7 @@
 import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
 import { FutureData } from "../entities/Future";
 import { PaginatedResponse } from "../entities/PaginatedResponse";
-import { NamedRef } from "../entities/Ref";
+import { Id, NamedRef } from "../entities/Ref";
 import { Stats } from "../entities/Stats";
 import { User } from "../entities/User";
 
@@ -30,6 +30,7 @@ export interface ListOptions {
     rootJunction?: "AND" | "OR";
     onlyUsersOrgUnits: boolean;
     onlyActiveUsers: boolean;
+    hideUsers: Id[];
 }
 
 export type ListFilterType = "in" | "eq";

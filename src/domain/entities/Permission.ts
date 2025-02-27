@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Id, NamedRef } from "./Ref";
 
+//FIXME: To remove name and just maintain id
 type PermissionAttrs = {
     users: NamedRef[];
     userGroups: NamedRef[];

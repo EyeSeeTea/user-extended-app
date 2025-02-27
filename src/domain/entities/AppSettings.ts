@@ -1,5 +1,7 @@
+import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Permission, PublicPermission } from "./Permission";
+import { Id } from "./Ref";
 import { UserColumns } from "./User";
 import { assignValueToAllActions, UserAction } from "./UserAction";
 
@@ -10,6 +12,11 @@ type AppSettingsAttr = {
     showFeedback: boolean;
     settingsAccess: Permission;
     actionsAccess: ActionsPermissions;
+    hide: {
+        users: Id[];
+        userGroups: Id[];
+        userRoles: Id[];
+    };
 };
 
 export type ActionsPermissions = Record<UserAction, PublicPermission>;
@@ -27,6 +34,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showFeedback: true,
             settingsAccess: emptyPermission,
             actionsAccess: assignValueToAllActions(publicPermission),
+            hide: { users: [], userGroups: [], userRoles: [] },
         });
     }
 
@@ -49,6 +57,10 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     isActionPublic(action: UserAction): boolean {
         return this.actionsAccess[action].isPublic;
+    }
+
+    nothingToHide(): boolean {
+        return _.isEmpty(this.hide.users) && _.isEmpty(this.hide.userGroups) && _.isEmpty(this.hide.userRoles);
     }
 }
 

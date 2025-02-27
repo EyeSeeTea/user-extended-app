@@ -424,6 +424,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         rootJunction,
                         onlyUsersOrgUnits: onlyUsersOrgUnits,
                         onlyActiveUsers: onlyActiveUsers,
+                        hideUsers: appSettings.hide.users,
                     })
                     .toPromise();
 
@@ -443,7 +444,14 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     rootJunction,
                     onlyUsersOrgUnits: onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
+                    hideUsers: appSettings.hide.users,
                 })
+                .map(({ objects, pager }) => ({
+                    pager,
+                    objects: objects.map(
+                        hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
+                    ),
+                }))
                 .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
         },
@@ -457,6 +465,9 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             rootJunction,
             onlyUsersOrgUnits,
             onlyActiveUsers,
+            appSettings.hide.users,
+            appSettings.hide.userRoles,
+            appSettings.hide.userGroups,
             needsPatch,
         ]
     );
@@ -472,10 +483,19 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     rootJunction,
                     onlyUsersOrgUnits: onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
+                    hideUsers: appSettings.hide.users,
                 })
                 .toPromise();
         },
-        [compositionRoot.users, filters, canManage, rootJunction, onlyUsersOrgUnits, onlyActiveUsers]
+        [
+            compositionRoot.users,
+            filters,
+            canManage,
+            rootJunction,
+            onlyUsersOrgUnits,
+            onlyActiveUsers,
+            appSettings.hide.users,
+        ]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
@@ -747,6 +767,14 @@ function isStateActionVisible(action: string) {
 
     return (users: User[]) =>
         currentUserHasUpdateAccessOn(users) && _(users).some(user => user.disabled === requiredDisabledValue);
+}
+
+function hideUserRolesAndUserGroups(userRolesToHide: Id[], userGroupsToHide: Id[]): (user: User) => User {
+    return (user: User) => ({
+        ...user,
+        userRoles: user.userRoles.filter(role => !userRolesToHide.includes(role.id)),
+        userGroups: user.userGroups.filter(group => !userGroupsToHide.includes(group.id)),
+    });
 }
 
 export type UserActionName =
