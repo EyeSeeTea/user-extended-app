@@ -31,6 +31,12 @@ import { GetAppSettingsUseCase } from "./domain/usecases/GetAppSettingsUseCase";
 import { AppSettingsD2Repository } from "./data/repositories/AppSettingsD2Repository";
 import { SaveAppSettingsUseCase } from "./domain/usecases/SaveAppSettingsUseCase";
 import { ResetUsersPasswordsUseCase } from "./domain/usecases/ResetUsersPasswordsUseCase";
+import { SearchUsersAndUserGroupsUseCase } from "./domain/usecases/SearchUsersAndUserGroupsUseCase";
+import { UserSearchD2Repository } from "./data/repositories/UserSearchD2Repository";
+import { CheckCurrentUserCanAccessSettingsUseCase } from "./domain/usecases/CheckCurrentUserCanAccessSettingsUseCase";
+import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
+import { GetAllUserGroupsUseCase } from "./domain/usecases/GetAllUserGroupsUseCase";
+import { CheckActionsAccessibleToCurrentUserUseCase } from "./domain/usecases/CheckActionsAccessibleToCurrentUserUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const api = getD2APiFromInstance(instance);
@@ -40,6 +46,8 @@ export function getCompositionRoot(instance: Instance) {
     const programRepository = new ProgramD2Repository(api);
     const loggerSettingsRepository = new LoggerSettingsD2Repository(instance);
     const appSettingsRepository = new AppSettingsD2Repository(api);
+    const userAndUserGroupsSearchRepository = new UserSearchD2Repository(api);
+    const userGroupRepository = new UserGroupD2Repository(api);
 
     return {
         logger: {
@@ -68,6 +76,15 @@ export function getCompositionRoot(instance: Instance) {
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
             resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
+            searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
+            checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
+                userRepository,
+                appSettingsRepository
+            ),
+            checkActionsAccessibleToCurrentUser: new CheckActionsAccessibleToCurrentUserUseCase(),
+        }),
+        userGroups: getExecute({
+            getAll: new GetAllUserGroupsUseCase(userGroupRepository),
         }),
         metadata: getExecute({
             list: new ListMetadataUseCase(metadataRepository),

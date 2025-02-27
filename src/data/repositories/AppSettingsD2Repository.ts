@@ -1,9 +1,11 @@
+import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { AppSettings } from "../../domain/entities/AppSettings";
 import { FutureData } from "../../domain/entities/Future";
 import { AppSettingsRepository } from "../../domain/repositories/AppSettingsRepository";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Instance } from "../entities/Instance";
+import { Permission, PublicPermission } from "../../domain/entities/Permission";
 
 export class AppSettingsD2Repository implements AppSettingsRepository {
     private dataStorage: DataStoreStorageClient;
@@ -18,29 +20,25 @@ export class AppSettingsD2Repository implements AppSettingsRepository {
     }
 
     save(appSettings: AppSettings): FutureData<AppSettings> {
-        return this.getSettings().flatMap(existingSettings => {
-            const updatedSettings = AppSettings.create({
-                ...(existingSettings || {}),
-                columns: appSettings.columns,
-                showOnlyActiveUsers: appSettings.showOnlyActiveUsers,
-                showFeedback: appSettings.showFeedback,
-                showOnlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
-            });
-
-            return this.dataStorage.saveObject(this.settingsKey, updatedSettings).map(() => updatedSettings);
-        });
+        return this.dataStorage.saveObject(this.settingsKey, appSettings).map(() => appSettings);
     }
 
     private getSettings() {
-        return this.dataStorage.getObject<AppSettings>(this.settingsKey).map(d2Response =>
+        const emptySettings = AppSettings.emptySettings();
+
+        return this.dataStorage.getObject<Partial<AppSettings>>(this.settingsKey).map(d2Response =>
             d2Response
                 ? AppSettings.create({
-                      columns: d2Response.columns,
-                      showOnlyActiveUsers: d2Response.showOnlyActiveUsers,
-                      showFeedback: d2Response.showFeedback,
-                      showOnlyUsersOrgUnits: d2Response.showOnlyUsersOrgUnits,
+                      ...emptySettings,
+                      ...d2Response,
+                      settingsAccess: d2Response.settingsAccess
+                          ? new Permission(d2Response.settingsAccess)
+                          : emptySettings.settingsAccess,
+                      actionsAccess: d2Response.actionsAccess
+                          ? _.mapValues(d2Response.actionsAccess, p => new PublicPermission(p))
+                          : emptySettings.actionsAccess,
                   })
-                : AppSettings.emptySettings()
+                : emptySettings
         );
     }
 }

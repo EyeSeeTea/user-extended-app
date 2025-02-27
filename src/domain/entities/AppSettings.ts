@@ -1,12 +1,18 @@
 import { Struct } from "./generic/Struct";
+import { Permission, PublicPermission } from "./Permission";
 import { UserColumns } from "./User";
+import { assignValueToAllActions, UserAction } from "./UserAction";
 
 type AppSettingsAttr = {
     columns: SettingsUserColumn[];
     showOnlyActiveUsers: boolean;
     showOnlyUsersOrgUnits: boolean;
     showFeedback: boolean;
+    settingsAccess: Permission;
+    actionsAccess: ActionsPermissions;
 };
+
+export type ActionsPermissions = Record<UserAction, PublicPermission>;
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional";
 
@@ -19,6 +25,8 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyActiveUsers: false,
             showOnlyUsersOrgUnits: false,
             showFeedback: true,
+            settingsAccess: emptyPermission,
+            actionsAccess: assignValueToAllActions(publicPermission),
         });
     }
 
@@ -34,4 +42,15 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             return column;
         });
     }
+
+    areAllActionsPublic(): boolean {
+        return Object.values(this.actionsAccess).every(permission => permission.isPublic);
+    }
+
+    isActionPublic(action: UserAction): boolean {
+        return this.actionsAccess[action].isPublic;
+    }
 }
+
+const emptyPermission: Permission = new Permission({ users: [], userGroups: [] });
+export const publicPermission: PublicPermission = PublicPermission.public();

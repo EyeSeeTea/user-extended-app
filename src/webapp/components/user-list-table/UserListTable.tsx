@@ -2,6 +2,7 @@ import {
     ObjectsList,
     ObjectsTableProps,
     Pager,
+    TableAction,
     TableColumn,
     TableConfig,
     TablePagination,
@@ -50,6 +51,7 @@ import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
 import styled from "styled-components";
+import { getUserActionLabel, UserAction } from "../../../domain/entities/UserAction";
 
 function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -124,6 +126,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [showSettings, setShowSettings] = React.useState(false);
     const [showImportModal, setShowImportModal] = React.useState(false);
     const [importResult, setImportResult] = React.useState<ImportResult>();
+    const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
+
     const { importSettings } = useImportSettings();
 
     const enableReplicate = hasReplicateAuthority(currentUser);
@@ -136,6 +140,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const { appSettings, setAppSettings } = useAppSettingsContext();
     const { showOnlyUsersOrgUnits: onlyUsersOrgUnits, showOnlyActiveUsers: onlyActiveUsers } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
+
+    const currentUserAccessibleActions = useMemo(
+        () => compositionRoot.users.checkActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess),
+        [compositionRoot.users, currentUser, appSettings.actionsAccess]
+    );
 
     /* Pagination DHIS2 Bug */
     const needsPatch =
@@ -188,6 +197,163 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         [compositionRoot, visibleColumns, onChangeVisibleColumns, snackbar]
     );
 
+    const actions: TableAction<User>[] = useMemo(
+        () =>
+            [
+                {
+                    name: UserAction.DETAILS,
+                    text: getUserActionLabel(UserAction.DETAILS),
+                    multiple: false,
+                    primary: true,
+                },
+                {
+                    name: UserAction.EDIT,
+                    text: getUserActionLabel(UserAction.EDIT),
+                    icon: <Icon>edit</Icon>,
+                    multiple: true,
+                    onClick: editUsers,
+                    isActive: checkAccess(["update"]),
+                },
+                {
+                    name: UserAction.COPY_IN_USER,
+                    text: getUserActionLabel(UserAction.COPY_IN_USER),
+                    icon: <Icon>content_copy</Icon>,
+                    multiple: false,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("copy_in_user");
+                    },
+                    isActive: checkAccess(["update"]),
+                },
+                {
+                    name: UserAction.ASSIGN_TO_ORG_UNITS_CAPTURE,
+                    text: getUserActionLabel(UserAction.ASSIGN_TO_ORG_UNITS_CAPTURE),
+                    multiple: true,
+                    icon: <Icon>business</Icon>,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("assign_to_org_units_capture");
+                    },
+                    isActive: checkAccess(["update"]),
+                },
+                {
+                    name: UserAction.ASSIGN_TO_ORG_UNITS_OUTPUT,
+                    text: getUserActionLabel(UserAction.ASSIGN_TO_ORG_UNITS_OUTPUT),
+                    multiple: true,
+                    icon: <Icon>business</Icon>,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("assign_to_org_units_output");
+                    },
+                    isActive: checkAccess(["update"]),
+                },
+                {
+                    name: UserAction.ASSIGN_TO_ORG_UNITS_SEARCH,
+                    text: getUserActionLabel(UserAction.ASSIGN_TO_ORG_UNITS_SEARCH),
+                    multiple: true,
+                    icon: <Icon>business</Icon>,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("assign_to_org_units_search");
+                    },
+                    isActive: checkAccess(["update"]),
+                },
+                {
+                    name: UserAction.ASSIGN_ROLES,
+                    text: getUserActionLabel(UserAction.ASSIGN_ROLES),
+                    multiple: true,
+                    icon: <Icon>assignment</Icon>,
+                    onClick: (users: string[]) =>
+                        openMultiSelectorDialog({
+                            type: "userRoles",
+                            ids: users,
+                            onClose: () => {
+                                openMultiSelectorDialog(undefined);
+                                reload();
+                            },
+                        }),
+                    isActive: checkAccess(["update"]),
+                },
+                {
+                    name: UserAction.ASSIGN_GROUPS,
+                    text: getUserActionLabel(UserAction.ASSIGN_GROUPS),
+                    icon: <Icon>group_add</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) =>
+                        openMultiSelectorDialog({
+                            type: "userGroups",
+                            ids: users,
+                            onClose: () => {
+                                openMultiSelectorDialog(undefined);
+                                reload();
+                            },
+                        }),
+                    isActive: checkAccess(["update"]),
+                },
+                {
+                    name: UserAction.ENABLE,
+                    text: getUserActionLabel(UserAction.ENABLE),
+                    icon: <Icon>playlist_add_check</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("enable");
+                    },
+                    isActive: isStateActionVisible("enable"),
+                },
+                {
+                    name: UserAction.DISABLE,
+                    text: getUserActionLabel(UserAction.DISABLE),
+                    icon: <Icon>block</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("disable");
+                    },
+                    isActive: isStateActionVisible("disable"),
+                },
+                {
+                    name: UserAction.RESET_PASSWORD,
+                    text: getUserActionLabel(UserAction.RESET_PASSWORD),
+                    icon: <Icon>lock</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("reset_password");
+                    },
+                    isActive: (users: User[]) => checkHasEmail(users),
+                },
+                {
+                    name: UserAction.REMOVE,
+                    text: getUserActionLabel(UserAction.REMOVE),
+                    icon: <Icon>delete</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("remove");
+                    },
+                    isActive: checkAccess(["delete"]),
+                },
+                {
+                    name: UserAction.REPLICATE_USER_FROM_TEMPLATE,
+                    text: getUserActionLabel(UserAction.REPLICATE_USER_FROM_TEMPLATE),
+                    icon: <FileCopyIcon />,
+                    multiple: false,
+                    onClick: (users: string[]) => onAction(users, "replicate_template"),
+                    isActive: () => enableReplicate,
+                },
+                {
+                    name: UserAction.REPLICATE_USER_FROM_TABLE,
+                    text: getUserActionLabel(UserAction.REPLICATE_USER_FROM_TABLE),
+                    icon: <Icon>toc</Icon>,
+                    multiple: false,
+                    onClick: (users: string[]) => onAction(users, "replicate_table"),
+                    isActive: () => enableReplicate,
+                },
+            ].filter(action => currentUserAccessibleActions[action.name]),
+        [currentUserAccessibleActions, editUsers, enableReplicate, onAction, reload]
+    );
+
     const baseConfig = useMemo((): TableConfig<User> => {
         return {
             columns: generateColumnsFromSettings({ appSettings, columns: userColumns }),
@@ -207,166 +373,15 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 { name: "dataViewOrganisationUnits", text: i18n.t("OU Output") },
                 { name: "searchOrganisationsUnits", text: i18n.t("OU Search") },
             ],
-            actions: [
-                {
-                    name: "details",
-                    text: i18n.t("Details"),
-                    multiple: false,
-                    primary: true,
-                },
-                {
-                    name: "edit",
-                    text: i18n.t("Edit"),
-                    icon: <Icon>edit</Icon>,
-                    multiple: true,
-                    onClick: editUsers,
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "copy_in_user",
-                    text: i18n.t("Copy in user"),
-                    icon: <Icon>content_copy</Icon>,
-                    multiple: false,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("copy_in_user");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_to_org_units_capture",
-                    text: i18n.t("Assign to data capture organisation units"),
-                    multiple: true,
-                    icon: <Icon>business</Icon>,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("assign_to_org_units_capture");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_to_org_units_output",
-                    text: i18n.t("Assign to data view organisation units"),
-                    multiple: true,
-                    icon: <Icon>business</Icon>,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("assign_to_org_units_output");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_to_org_units_search",
-                    text: i18n.t("Assign to search organisation units"),
-                    multiple: true,
-                    icon: <Icon>business</Icon>,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("assign_to_org_units_search");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_roles",
-                    text: i18n.t("Assign roles"),
-                    multiple: true,
-                    icon: <Icon>assignment</Icon>,
-                    onClick: ids =>
-                        openMultiSelectorDialog({
-                            type: "userRoles",
-                            ids,
-                            onClose: () => {
-                                openMultiSelectorDialog(undefined);
-                                reload();
-                            },
-                        }),
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_groups",
-                    text: i18n.t("Assign groups"),
-                    icon: <Icon>group_add</Icon>,
-                    multiple: true,
-                    onClick: ids =>
-                        openMultiSelectorDialog({
-                            type: "userGroups",
-                            ids,
-                            onClose: () => {
-                                openMultiSelectorDialog(undefined);
-                                reload();
-                            },
-                        }),
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "enable",
-                    text: i18n.t("Enable"),
-                    icon: <Icon>playlist_add_check</Icon>,
-                    multiple: true,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("enable");
-                    },
-                    isActive: isStateActionVisible("enable"),
-                },
-                {
-                    name: "disable",
-                    text: i18n.t("Disable"),
-                    icon: <Icon>block</Icon>,
-                    multiple: true,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("disable");
-                    },
-                    isActive: isStateActionVisible("disable"),
-                },
-                {
-                    name: "reset_password",
-                    text: i18n.t("Reset password"),
-                    icon: <Icon>lock</Icon>,
-                    multiple: true,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("reset_password");
-                    },
-                    isActive: users => checkHasEmail(users),
-                },
-                {
-                    name: "remove",
-                    text: i18n.t("Remove"),
-                    icon: <Icon>delete</Icon>,
-                    multiple: true,
-                    onClick: userIds => {
-                        setSelectedUserIds(userIds);
-                        setActionType("remove");
-                    },
-                    isActive: checkAccess(["delete"]),
-                },
-                {
-                    name: "replicate_user_from_template",
-                    text: i18n.t("Replicate user from template"),
-                    icon: <FileCopyIcon />,
-                    multiple: false,
-                    onClick: users => onAction(users, "replicate_template"),
-                    isActive: () => enableReplicate,
-                },
-                {
-                    name: "replicate_user_from_table",
-                    text: i18n.t("Replicate user from table"),
-                    icon: <Icon>toc</Icon>,
-                    multiple: false,
-                    onClick: users => onAction(users, "replicate_table"),
-                    isActive: () => enableReplicate,
-                },
-            ],
-            globalActions: [
-                {
+            actions: actions,
+            globalActions: _.compact([
+                currentUserHasAccessToSettings && {
                     name: "open-settings",
                     text: i18n.t("Settings"),
                     icon: <Tune />,
                     onClick: () => setShowSettings(true),
                 },
-            ],
+            ]),
             // TODO: Bug in ObjectsList
             initialSorting: {
                 field: "firstName",
@@ -387,7 +402,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // onActionButtonClick: () => navigate("/new"),
             onReorderColumns,
         };
-    }, [appSettings, enableReplicate, editUsers, onReorderColumns, reload, onAction, userColumns]);
+    }, [appSettings, userColumns, actions, currentUserHasAccessToSettings, onReorderColumns]);
 
     const refreshRows = useCallback(
         async (
@@ -552,6 +567,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         [setAppSettings]
     );
 
+    React.useEffect(() => {
+        compositionRoot.users
+            .checkCurrentUserCanAccessSettings()
+            .run(setCurrentUserHasAccessToSettings, snackbar.error);
+    }, [compositionRoot.users, snackbar.error]);
+
     const selectedUsers = users && users.length > 0;
 
     return (
@@ -589,7 +610,9 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 />
             )}
 
-            {showSettings && <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />}
+            {showSettings && currentUserHasAccessToSettings && (
+                <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />
+            )}
 
             <PatchPaginationTableWrapper
                 className={needsPatch ? "patched" : undefined}

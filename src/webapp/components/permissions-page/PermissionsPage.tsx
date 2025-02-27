@@ -1,36 +1,29 @@
 import React from "react";
 import { Box, Button, DialogActions, FormControlLabel, Switch, useTheme } from "@material-ui/core";
-
+import { InfoOutlined as InfoOutlinedIcon } from "@material-ui/icons";
+import { Sharing } from "@eyeseetea/d2-ui-components";
 import { AppSettings } from "../../../domain/entities/AppSettings";
+import { useSharingSettings } from "./useSharingSettings";
+import { usePermissionsPage } from "./usePermissionsPage";
+import { SharingActions } from "./SharingActions";
 import i18n from "../../../locales";
 
-type PermissionsPageProps = { appSettings: AppSettings; onSave: (appSettings: AppSettings) => void };
+type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
-    const { appSettings, onSave } = props;
+    const { onSave } = props;
+
+    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings();
+    const {
+        formState,
+        updateFormState,
+        onSaveSettings,
+        showSharingSettings,
+        actionsPermissions,
+        setActionsPermissions,
+    } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
-
-    const [formState, setForm] = React.useState<FormType>({
-        activeUsers: appSettings.showOnlyActiveUsers,
-        usersOrgUnits: appSettings.showOnlyUsersOrgUnits,
-        feedbackButton: appSettings.showFeedback,
-    });
-
-    const updateFormState = (value: boolean, field: keyof FormType) => {
-        setForm(prev => ({ ...prev, [field]: value }));
-    };
-
-    const onSaveSettings = React.useCallback(() => {
-        onSave(
-            AppSettings.create({
-                ...appSettings,
-                showOnlyActiveUsers: formState.activeUsers,
-                showOnlyUsersOrgUnits: formState.usersOrgUnits,
-                showFeedback: formState.feedbackButton,
-            })
-        );
-    }, [formState, appSettings, onSave]);
 
     return (
         <Box component="section" padding={theme.spacing(0.25)}>
@@ -44,6 +37,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                     }
                     label={i18n.t("Show feedback button")}
                 />
+
                 <FormControlLabel
                     control={
                         <Switch
@@ -53,6 +47,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                     }
                     label={i18n.t("Show only users assigned to users' organisation units")}
                 />
+
                 <FormControlLabel
                     control={
                         <Switch
@@ -62,7 +57,59 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                     }
                     label={i18n.t("Show only active users")}
                 />
+
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.actionsArePublic}
+                            onChange={event => updateFormState(event.target.checked, "actionsArePublic")}
+                        />
+                    }
+                    label={i18n.t("Actions available for all users")}
+                />
+
+                {!formState.actionsArePublic && (
+                    <SharingActions
+                        actionsPermissions={actionsPermissions}
+                        setActionsPermissions={setActionsPermissions}
+                    />
+                )}
+
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.showSharingSettings}
+                            onChange={event =>
+                                !showSharingSettings && updateFormState(event.target.checked, "showSharingSettings")
+                            }
+                            disabled={showSharingSettings}
+                        />
+                    }
+                    label={
+                        <Box display="flex" alignItems="flex-start" gridColumnGap={theme.spacing(0.5)}>
+                            {i18n.t("Access to Settings Section")}
+                            <InfoOutlinedIcon
+                                fontSize="small"
+                                color="disabled"
+                                titleAccess={i18n.t(
+                                    "Changes on 'Who has access' to settings will be reflected after page reload"
+                                )}
+                            />
+                        </Box>
+                    }
+                />
             </Box>
+
+            {formState.showSharingSettings && (
+                <Box paddingX={theme.spacing(0.25)} marginBottom={2}>
+                    <Sharing
+                        meta={metaObject}
+                        showOptions={sharingOptions}
+                        onSearch={search}
+                        onChange={onUpdateSharingOptions}
+                    />
+                </Box>
+            )}
 
             <DialogActions>
                 <Button onClick={onSaveSettings} color="primary" variant="contained">
@@ -73,4 +120,9 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
     );
 });
 
-type FormType = { activeUsers: boolean; usersOrgUnits: boolean; feedbackButton: boolean };
+const sharingOptions = {
+    dataSharing: false,
+    publicSharing: false,
+    externalSharing: false,
+    permissionPicker: false,
+};
