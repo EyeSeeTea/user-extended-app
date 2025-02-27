@@ -5,6 +5,8 @@ import { Id } from "./Ref";
 import { UserColumns } from "./User";
 import { assignValueToAllActions, UserAction } from "./UserAction";
 
+export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
+
 type AppSettingsAttr = {
     columns: SettingsUserColumn[];
     showOnlyActiveUsers: boolean;

@@ -6,7 +6,7 @@ import _ from "lodash";
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import React, { useEffect, useState } from "react";
 import { appConfig } from "../../../app-config";
-import { getCompositionRoot } from "../../../CompositionRoot";
+import { getCompositionRoot, SettingsStorageType } from "../../../CompositionRoot";
 import { Instance } from "../../../data/entities/Instance";
 import { D2Api } from "../../../types/d2-api";
 import Share from "../../components/share/Share";
@@ -17,6 +17,7 @@ import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
 import { Feedback, FeedbackOptions } from "@eyeseetea/feedback-component";
 import { AppSettingsProvider, useAppSettingsContext } from "../../contexts/AppSettingsProvider";
+import { Maybe } from "../../../types/utils";
 
 export interface AppProps {
     api: D2Api;
@@ -32,7 +33,8 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
 
     useEffect(() => {
         async function setup() {
-            const compositionRoot = getCompositionRoot(instance);
+            const storageName = (process.env.REACT_APP_STORAGE as Maybe<SettingsStorageType>) || "dataStore";
+            const compositionRoot = getCompositionRoot(instance, storageName);
             const { data: currentUser } = await compositionRoot.users.getCurrent().runAsync();
             if (!currentUser) throw new Error("User not logged in");
 

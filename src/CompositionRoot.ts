@@ -46,15 +46,19 @@ import { OrgUnitD2Repository } from "./data/repositories/OrgUnitD2Repository";
 import { GetUserGroupsUseCase } from "./domain/usecases/GetUserGroupsUseCase";
 import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
 import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
+import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettingsD2ConstantRepository";
 
-export function getCompositionRoot(instance: Instance) {
+export type SettingsStorageType = "dataStore" | "constants";
+
+export function getCompositionRoot(instance: Instance, storageType: SettingsStorageType) {
     const api = getD2APiFromInstance(instance);
     const instanceRepository = new InstanceD2ApiRepository(instance);
     const userRepository = new UserD2ApiRepository(instance);
     const metadataRepository = new MetadataD2ApiRepository(instance);
     const programRepository = new ProgramD2Repository(api);
     const loggerSettingsRepository = new LoggerSettingsD2Repository(instance);
-    const appSettingsRepository = new AppSettingsD2Repository(api);
+    const appSettingsRepository =
+        storageType === "dataStore" ? new AppSettingsD2Repository(api) : new AppSettingsD2ConstantRepository(api);
     const userAndUserGroupsSearchRepository = new UserSearchD2Repository(api);
     const userGroupRepository = new UserGroupD2Repository(api);
     const userRoleRepository = new UserRoleD2Repository(api);
