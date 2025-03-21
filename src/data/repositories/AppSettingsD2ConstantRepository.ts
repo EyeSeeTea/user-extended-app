@@ -36,7 +36,7 @@ export class AppSettingsD2ConstantRepository implements AppSettingsRepository {
                 description: JSON.stringify(appSettings, null, 2),
                 value: 1,
             };
-            return apiToFuture(this.api.models.constants.post(constantToSave)).map(() => appSettings);
+            return apiToFuture(this.api.metadata.post({ constants: [constantToSave] })).map(() => appSettings);
         });
     }
 

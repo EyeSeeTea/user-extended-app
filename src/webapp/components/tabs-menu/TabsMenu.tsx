@@ -23,7 +23,6 @@ const tabsValues = [
     },
 ] as const;
 
-// const tabsTypes = ["/", "/user-groups", "/user-roles", "/dashboards"] as const;
 type TabType = typeof tabsValues[number]["value"];
 
 function convertToTabType(value: Maybe<string>): TabType {
