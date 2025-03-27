@@ -5,6 +5,7 @@ import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
 import { UserLogic } from "../entities/UserLogic";
+import i18n from "../../locales";
 
 const columnNameFromPropertyMapping = {
     id: "ID",
@@ -32,10 +33,14 @@ export class ImportUsersUseCase implements UseCase {
 
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
         const usernameList = users.map(user => user.username);
-        return Future.join2(
-            this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
-            this.userRepository.getCurrent()
-        ).flatMap(([usersFromDB, currentUser]: [User[], User]) => {
+        return Future.joinObj({
+            usersFromDB: this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
+            currentUser: this.userRepository.getCurrent(),
+            allUsers: this.userRepository.listAll({}),
+        }).flatMap(({ usersFromDB, currentUser, allUsers }) => {
+            if (!UserLogic.validateUniqueOpenId(users, allUsers))
+                return Future.error(i18n.t("Open IDs must be unique"));
+
             const hasRequiredFields = UserLogic.validateHasRequiredFields(users);
             if (!hasRequiredFields)
                 return Future.error("All users must have at least one Organisation Unit, Role and Group");

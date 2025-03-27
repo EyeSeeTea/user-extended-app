@@ -14,4 +14,10 @@ export class UserLogic extends Struct<User>() {
             user => user.organisationUnits.length > 0 && user.userRoles.length > 0 && user.userGroups.length > 0
         );
     }
+
+    static validateUniqueOpenId(users: User[], allUsers: User[]): boolean {
+        const openIds = users.map(user => user.openId);
+        const allOpenIds = allUsers.map(user => user.openId);
+        return openIds.every(openId => !allOpenIds.includes(openId));
+    }
 }
