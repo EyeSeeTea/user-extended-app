@@ -6,7 +6,7 @@ import fp from "lodash/fp";
 import PropTypes from "prop-types";
 import React from "react";
 import Dropdown from "./Dropdown.component";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { Button } from "@material-ui/core";
 
 export default class SettingsDialog extends React.Component {

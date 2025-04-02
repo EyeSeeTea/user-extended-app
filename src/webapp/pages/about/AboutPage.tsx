@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
 import { PageHeader } from "../../components/page-header/PageHeader";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export const AboutPage: React.FC = React.memo(() => {
     const navigate = useNavigate();
