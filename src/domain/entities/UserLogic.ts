@@ -15,9 +15,8 @@ export class UserLogic extends Struct<User>() {
         );
     }
 
-    static validateUniqueOpenId(users: User[], allUsers: User[]): boolean {
-        const openIds = users.map(user => user.openId);
-        const allOpenIds = allUsers.map(user => user.openId);
-        return openIds.every(openId => !allOpenIds.includes(openId));
+    static validateUniqueOpenId(users: User[], usersWithOpenId: User[]): boolean {
+        const allOpenIdsSet = new Set(usersWithOpenId.map(userWithOpenId => userWithOpenId.openId));
+        return users.every(user => !allOpenIdsSet.has(user.openId));
     }
 }
