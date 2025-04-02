@@ -36,9 +36,9 @@ export class ImportUsersUseCase implements UseCase {
         return Future.joinObj({
             usersFromDB: this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
             currentUser: this.userRepository.getCurrent(),
-            allUsers: this.userRepository.listAll({}),
-        }).flatMap(({ usersFromDB, currentUser, allUsers }) => {
-            if (!UserLogic.validateUniqueOpenId(users, allUsers))
+            usersWithOpenId: this.userRepository.listAll({ filters: { openId: ["gt", ["0"]] } }),
+        }).flatMap(({ usersFromDB, currentUser, usersWithOpenId }) => {
+            if (!UserLogic.validateUniqueOpenId(users, usersWithOpenId))
                 return Future.error(i18n.t("Open IDs must be unique"));
 
             const hasRequiredFields = UserLogic.validateHasRequiredFields(users);
