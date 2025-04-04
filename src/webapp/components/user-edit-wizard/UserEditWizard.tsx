@@ -1,5 +1,5 @@
 import { Button, ButtonStrip, NoticeBox } from "@dhis2/ui";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Paper, Step, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowBack, ArrowForward } from "@material-ui/icons";
 import { FORM_ERROR } from "final-form";
