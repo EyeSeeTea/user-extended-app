@@ -31,21 +31,24 @@ export class ImportUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
-        const usernameList = users.map(user => user.username);
-        return Future.join2(
-            this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
-            this.userRepository.getCurrent()
-        ).flatMap(([usersFromDB, currentUser]: [User[], User]) => {
-            const hasRequiredFields = UserLogic.validateHasRequiredFields(users);
-            if (!hasRequiredFields)
-                return Future.error("All users must have at least one Organisation Unit, Role and Group");
+        return Future.futureMap(_.chunk(users, chunkSize), userChunk => {
+            const usernameList = userChunk.map(user => user.username);
 
-            const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
-            if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
+            return Future.join2(
+                this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
+                this.userRepository.getCurrent()
+            ).flatMap(([usersFromDB, currentUser]: [User[], User]) => {
+                const hasRequiredFields = UserLogic.validateHasRequiredFields(userChunk);
+                if (!hasRequiredFields)
+                    return Future.error("All users must have at least one Organisation Unit, Role and Group");
 
-            const mergedUsers = this.mergeUsers(users, usersFromDB, currentUser);
-            return this.saveUsers(mergedUsers);
-        });
+                const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
+                if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
+
+                const mergedUsers = this.mergeUsers(userChunk, usersFromDB, currentUser);
+                return this.saveUsers(mergedUsers);
+            });
+        }).map(() => undefined);
     }
 
     private mergeUsers(users: User[], usersFromDB: User[], { id, username }: User = defaultUser): User[] {
@@ -84,3 +87,5 @@ export class ImportUsersUseCase implements UseCase {
 }
 
 export type ImportUsersUseCaseOptions = { users: User[] };
+
+const chunkSize = 100;
