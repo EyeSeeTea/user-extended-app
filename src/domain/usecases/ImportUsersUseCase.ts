@@ -31,24 +31,32 @@ export class ImportUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
-        return Future.futureMap(_.chunk(users, chunkSize), userChunk => {
-            const usernameList = userChunk.map(user => user.username);
+        return this.userRepository
+            .getCurrent()
+            .flatMap(currentUser => {
+                return Future.sequential(
+                    _.chunk(users, chunkSize).map(userChunk => {
+                        const usernameList = userChunk.map(user => user.username);
 
-            return Future.join2(
-                this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
-                this.userRepository.getCurrent()
-            ).flatMap(([usersFromDB, currentUser]: [User[], User]) => {
-                const hasRequiredFields = UserLogic.validateHasRequiredFields(userChunk);
-                if (!hasRequiredFields)
-                    return Future.error("All users must have at least one Organisation Unit, Role and Group");
+                        return this.userRepository
+                            .listAll({ filters: { "userCredentials.username": ["in", usernameList] } })
+                            .flatMap(usersFromDB => {
+                                const hasRequiredFields = UserLogic.validateHasRequiredFields(userChunk);
+                                if (!hasRequiredFields)
+                                    return Future.error(
+                                        "All users must have at least one Organisation Unit, Role and Group"
+                                    );
 
-                const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
-                if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
+                                const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
+                                if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
 
-                const mergedUsers = this.mergeUsers(userChunk, usersFromDB, currentUser);
-                return this.saveUsers(mergedUsers);
-            });
-        }).map(() => undefined);
+                                const mergedUsers = this.mergeUsers(userChunk, usersFromDB, currentUser);
+                                return this.saveUsers(mergedUsers);
+                            });
+                    })
+                );
+            })
+            .toVoid();
     }
 
     private mergeUsers(users: User[], usersFromDB: User[], { id, username }: User = defaultUser): User[] {
