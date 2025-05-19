@@ -31,6 +31,7 @@ export interface User {
     openId: Maybe<string>;
     ldapId: Maybe<string>;
     externalAuth: boolean;
+    twoFA: boolean;
     password: string;
     accountExpiry: Maybe<string>;
     authorities: string[];

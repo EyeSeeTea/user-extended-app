@@ -521,6 +521,7 @@ export class UserD2ApiRepository implements UserRepository {
             openId: userCredentials.openId,
             ldapId: userCredentials.ldapId,
             externalAuth: userCredentials.externalAuth,
+            twoFA: userCredentials.twoFA,
             password: userCredentials.password,
             accountExpiry: userCredentials.accountExpiry,
             authorities,
@@ -641,6 +642,7 @@ const fields = {
         externalAuth: true,
         password: true,
         accountExpiry: true,
+        twoFa: true,
     },
 } as const;
 
