@@ -274,39 +274,33 @@ export default class Filters extends React.Component {
                         </Grid>
                         <div className="control-row">
                             <div className="user-management-control select-active-or-inactive">
-                                <div style={{ display: "flex", gap: "20px" }}>
-                                    <Dropdown
-                                        labelText={this.getTranslation("filter_active_inactive_users")}
-                                        options={activeInactiveOptions}
-                                        value={this.state.userDisabled}
-                                        onChange={this.setFilter("userDisabled", this.dropdownHandler)}
-                                        style={styles.dropdownStyles}
-                                    />
-                                </div>
+                                <Dropdown
+                                    labelText={this.getTranslation("filter_active_inactive_users")}
+                                    options={activeInactiveOptions}
+                                    value={this.state.userDisabled}
+                                    onChange={this.setFilter("userDisabled", this.dropdownHandler)}
+                                    style={styles.dropdownStyles}
+                                />
                             </div>
 
                             <div className="user-management-control select-active-or-inactive">
-                                <div style={{ display: "flex", gap: "20px" }}>
-                                    <Dropdown
-                                        labelText={this.getTranslation("filter_2fa_status")}
-                                        options={enabledDisabledOptions}
-                                        value={this.state.twoFactorEnabled}
-                                        onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
-                                        style={styles.dropdownStyles}
-                                    />
-                                </div>
+                                <Dropdown
+                                    labelText={this.getTranslation("filter_2fa_status")}
+                                    options={enabledDisabledOptions}
+                                    value={this.state.twoFactorEnabled}
+                                    onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
+                                    style={styles.dropdownStyles}
+                                />
                             </div>
 
                             <div className="user-management-control select-active-or-inactive">
-                                <div style={{ display: "flex", gap: "20px" }}>
-                                    <Dropdown
-                                        labelText={this.getTranslation("filter_externalAuth_status")}
-                                        options={enabledDisabledOptions}
-                                        value={this.state.externalAuth}
-                                        onChange={this.setFilter("externalAuth", this.dropdownHandler)}
-                                        style={styles.dropdownStyles}
-                                    />
-                                </div>
+                                <Dropdown
+                                    labelText={this.getTranslation("filter_externalAuth_status")}
+                                    options={enabledDisabledOptions}
+                                    value={this.state.externalAuth}
+                                    onChange={this.setFilter("externalAuth", this.dropdownHandler)}
+                                    style={styles.dropdownStyles}
+                                />
                             </div>
 
                             <div className="user-management-control select-role">
