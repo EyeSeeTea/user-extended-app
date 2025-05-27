@@ -146,7 +146,7 @@ export default class Filters extends React.Component {
             filters: {
                 "userCredentials.disabled": userDisabled !== null ? ["eq", userDisabled] : undefined,
                 "userCredentials.twoFA": twoFactorEnabled !== null ? ["eq", twoFactorEnabled] : undefined,
-                externalAuth: externalAuth !== null ? ["eq", externalAuth] : undefined,
+                "userCredentials.externalAuth": externalAuth !== null ? ["eq", externalAuth] : undefined,
                 "userCredentials.userRoles.id": inFilter(userRoles),
                 "userGroups.id": inFilter(userGroups),
                 "organisationUnits.id": inFilter(orgUnits.map(ou => ou.id)),
