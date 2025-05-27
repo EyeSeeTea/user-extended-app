@@ -521,7 +521,7 @@ export class UserD2ApiRepository implements UserRepository {
             openId: userCredentials.openId,
             ldapId: userCredentials.ldapId,
             externalAuth: userCredentials.externalAuth,
-            twoFA: userCredentials.twoFA,
+            twoFactorEnabled: userCredentials.twoFA,
             password: userCredentials.password,
             accountExpiry: userCredentials.accountExpiry,
             authorities,
@@ -571,6 +571,7 @@ export class UserD2ApiRepository implements UserRepository {
                 externalAuth: input.externalAuth ?? "",
                 password: input.password ?? "",
                 accountExpiry: input.accountExpiry ?? "",
+                twoFA: input.twoFactorEnabled ?? "",
                 ...this.getApiAuditFields(input),
             },
             ...this.getApiAuditFields(input),
@@ -642,7 +643,7 @@ const fields = {
         externalAuth: true,
         password: true,
         accountExpiry: true,
-        twoFa: true,
+        twoFA: true,
     },
 } as const;
 
