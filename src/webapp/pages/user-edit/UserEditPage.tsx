@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { defaultUser, User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { generateUid } from "../../../utils/uid";
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { UserEditWizard } from "../../components/user-edit-wizard/UserEditWizard";
