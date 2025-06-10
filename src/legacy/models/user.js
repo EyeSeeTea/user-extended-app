@@ -85,6 +85,9 @@ class User {
             "ldapId",
             "externalAuth",
             "twoFA",
+            "idToken",
+            "restoreToken",
+            "restoreExpiry",
         ];
         const userJson = {
             ...userJsonInit,
