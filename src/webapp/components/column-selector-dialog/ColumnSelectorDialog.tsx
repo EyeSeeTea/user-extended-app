@@ -5,7 +5,7 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export interface ColumnSelectorDialogProps {
     columns: string[];

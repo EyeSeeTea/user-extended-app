@@ -1,5 +1,5 @@
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { IconButton, Menu, MenuItem } from "material-ui";
 import { Popover } from "@material-ui/core";
 import ImportExportIcon from "@material-ui/icons/ImportExport";

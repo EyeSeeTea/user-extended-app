@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, SetStateAction, ComponentType 
 
 import InfoDialog from "../../../legacy/components/InfoDialog";
 import { generateUid } from "../../../utils/uid";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import UserLegacy from "../../../legacy/models/user";
 import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
 import {
@@ -195,7 +195,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                           .take(maxWarnings)
                           .map((line, idx) => `${idx + 1}. ${line}`)
                           .value(),
-                      hiddenWarnings > 0 ? i18n.t("and_n_more_warnings", { n: hiddenWarnings }) : null,
+                      hiddenWarnings > 0 ? i18n.t("[... and {{n}} more warning(s) ...]", { n: hiddenWarnings }) : null,
                   ])
                       .compact()
                       .join("\n");
