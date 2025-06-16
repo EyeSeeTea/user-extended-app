@@ -14,4 +14,9 @@ export class UserLogic extends Struct<User>() {
             user => user.organisationUnits.length > 0 && user.userRoles.length > 0 && user.userGroups.length > 0
         );
     }
+
+    static validateUniqueOpenId(users: User[]): boolean {
+        const allOpenIds = users.filter(user => Boolean(user.openId)).map(user => user.openId);
+        return new Set(allOpenIds).size === allOpenIds.length;
+    }
 }
