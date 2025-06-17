@@ -6,6 +6,7 @@ import { mapPromise, listWithInFilter } from "../utils/dhis2Helpers";
 import { UserD2ApiRepository } from "../../data/repositories/UserD2ApiRepository";
 import { buildUserWithoutPassword } from "../../data/utils";
 import { D2ApiLogger } from "../../data/D2ApiLogger";
+import { getD2APiFromInstance } from "../../utils/d2-api";
 
 // Delimiter to use in multiple-value fields (roles, groups, orgUnits)
 const fieldSplitChar = "||";
@@ -575,6 +576,18 @@ function getPayload(d2, parentUser, destUsers, fields, updateStrategy) {
     return saveCopyInUsers(d2, users, fields.userGroups);
 }
 
+async function addUserToUserGroup(d2, users, userGroups) {
+    const userGroupIds = userGroups.map(group => ({ id: group.id }));
+
+    const userEntities = users.map(user => ({
+        ...user,
+        userGroups: userGroupIds,
+    }));
+    const d2Api = getD2APiFromInstance(d2.Api.getApi());
+    const userRepository = new UserD2ApiRepository({ url: d2Api.baseUrl });
+    return userRepository.updateUserGroups(userEntities, []).runAsync();
+}
+
 export {
     importFromCsv,
     importFromJson,
@@ -584,4 +597,5 @@ export {
     getExistingUsers,
     getPayload,
     postMetadata,
+    addUserToUserGroup,
 };
