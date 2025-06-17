@@ -75,6 +75,9 @@ class User {
         if (userJson.userCredentials?.lastUpdatedBy !== undefined) delete userJson.userCredentials.lastUpdatedBy;
         if (userJson.userCredentials?.createdBy !== undefined) delete userJson.userCredentials.createdBy;
         if (userJson.userCredentials?.user !== undefined) delete userJson.userCredentials.user;
+        if (userJson.userCredentials?.openId !== undefined) delete userJson.userCredentials.openId;
+        if (userJson.userCredentials?.ldapId !== undefined) delete userJson.userCredentials.ldapId;
+        if (userJson.userCredentials?.externalAuth !== undefined) delete userJson.userCredentials.externalAuth;
 
         const newUsers = newUsersAttributes.map(newUserAttributes => merge(userJson, newUserAttributes));
         const userGroupIds = this.attributes.userGroups.map(userGroup => userGroup.id);
