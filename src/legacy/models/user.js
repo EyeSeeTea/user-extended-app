@@ -69,15 +69,36 @@ class User {
             .getOwnedPropertyNames()
             .filter(item => !unusedProperties.includes(item));
         if (!ownedProperties.includes("userCredentials")) ownedProperties.push("userCredentials");
-        const userJson = pick(ownedProperties, this.attributes);
+        const userJsonInit = pick(ownedProperties, this.attributes);
 
-        if (userJson.userCredentials?.lastLogin !== undefined) delete userJson.userCredentials.lastLogin;
-        if (userJson.userCredentials?.lastUpdatedBy !== undefined) delete userJson.userCredentials.lastUpdatedBy;
-        if (userJson.userCredentials?.createdBy !== undefined) delete userJson.userCredentials.createdBy;
-        if (userJson.userCredentials?.user !== undefined) delete userJson.userCredentials.user;
-        if (userJson.userCredentials?.openId !== undefined) delete userJson.userCredentials.openId;
-        if (userJson.userCredentials?.ldapId !== undefined) delete userJson.userCredentials.ldapId;
-        if (userJson.userCredentials?.externalAuth !== undefined) delete userJson.userCredentials.externalAuth;
+        /*
+        NOTE:
+        openId and ldapId makes replication fail because Id has to be unique.
+        externalAuth and twoFA should not be copied
+        */
+        const unusedCredentialsProperties = [
+            "lastLogin",
+            "lastUpdatedBy",
+            "createdBy",
+            "user",
+            "openId",
+            "ldapId",
+            "externalAuth",
+            "twoFA",
+            "idToken",
+            "restoreToken",
+            "restoreExpiry",
+        ];
+        const userJson = {
+            ...userJsonInit,
+            userCredentials: userJsonInit.userCredentials
+                ? Object.fromEntries(
+                      Object.entries(userJsonInit.userCredentials).filter(
+                          ([key]) => !unusedCredentialsProperties.includes(key)
+                      )
+                  )
+                : undefined,
+        };
 
         const newUsers = newUsersAttributes.map(newUserAttributes => merge(userJson, newUserAttributes));
         const userGroupIds = this.attributes.userGroups.map(userGroup => userGroup.id);
