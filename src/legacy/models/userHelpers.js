@@ -7,6 +7,7 @@ import { UserD2ApiRepository } from "../../data/repositories/UserD2ApiRepository
 import { buildUserWithoutPassword } from "../../data/utils";
 import { D2ApiLogger } from "../../data/D2ApiLogger";
 import { getD2APiFromInstance } from "../../utils/d2-api";
+import { Instance } from "../../data/entities/Instance";
 
 // Delimiter to use in multiple-value fields (roles, groups, orgUnits)
 const fieldSplitChar = "||";
@@ -583,8 +584,13 @@ async function addUserToUserGroup(d2, users, userGroups) {
         ...user,
         userGroups: userGroupIds,
     }));
-    const d2Api = getD2APiFromInstance(d2.Api.getApi());
-    const userRepository = new UserD2ApiRepository({ url: d2Api.baseUrl });
+    // d2.Api.getApi() returns a D2 API instance whose baseUrl property contains
+    // the URL with "/api" suffix. Convert it to our Instance format so the
+    // underlying D2Api uses the correct base url.
+    const d2BaseUrl = d2.Api.getApi().baseUrl;
+    const instance = new Instance({ url: d2BaseUrl });
+    const d2Api = getD2APiFromInstance(instance);
+    const userRepository = new UserD2ApiRepository(instance);
     return userRepository.updateUserGroups(userEntities, []).runAsync();
 }
 
