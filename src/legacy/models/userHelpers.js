@@ -583,9 +583,16 @@ async function addUserToUserGroup(d2, users, userGroups) {
         ...user,
         userGroups: userGroupIds,
     }));
-    const d2Api = getD2APiFromInstance(d2.Api.getApi());
-    const userRepository = new UserD2ApiRepository({ url: d2Api.baseUrl });
+
+    const baseUrl = getFormattedBaseUrl(d2);
+    const userRepository = new UserD2ApiRepository({ url: baseUrl });
+
     return userRepository.updateUserGroups(userEntities, []).runAsync();
+}
+
+function getFormattedBaseUrl(d2) {
+    const d2Api = d2.Api.getApi();
+    return d2Api.baseUrl.replace(/\/api\/?$/, "");
 }
 
 export {
