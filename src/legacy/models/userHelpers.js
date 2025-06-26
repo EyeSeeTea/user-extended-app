@@ -6,7 +6,6 @@ import { mapPromise, listWithInFilter } from "../utils/dhis2Helpers";
 import { UserD2ApiRepository } from "../../data/repositories/UserD2ApiRepository";
 import { buildUserWithoutPassword } from "../../data/utils";
 import { D2ApiLogger } from "../../data/D2ApiLogger";
-import { getD2APiFromInstance } from "../../utils/d2-api";
 
 // Delimiter to use in multiple-value fields (roles, groups, orgUnits)
 const fieldSplitChar = "||";
