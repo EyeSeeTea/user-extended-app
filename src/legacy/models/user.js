@@ -1,7 +1,7 @@
 import { pick, merge, unzip, times } from "lodash/fp";
 import { generateUid } from "d2/lib/uid";
 import { getFromTemplate } from "../utils/template";
-import { postMetadata } from "./userHelpers";
+import { postMetadata, addUserToUserGroup } from "./userHelpers";
 
 class User {
     constructor(d2, attributes) {
@@ -101,18 +101,12 @@ class User {
         };
 
         const newUsers = newUsersAttributes.map(newUserAttributes => merge(userJson, newUserAttributes));
-        const userGroupIds = this.attributes.userGroups.map(userGroup => userGroup.id);
-        const { userGroups } = await this.api.get("/userGroups", {
-            filter: "id:in:[" + userGroupIds.join(",") + "]",
-            fields: ":owner",
-            paging: false,
-        });
-        const userGroupsWithNewUsers = userGroups.map(userGroup => ({
-            ...userGroup,
-            users: userGroup.users.concat(newUsers.map(newUser => ({ id: newUser.id }))),
-        }));
-        const payload = { users: newUsers, userGroups: userGroupsWithNewUsers };
-        return postMetadata(this.api, payload);
+        const payload = { users: newUsers };
+
+        const response = await postMetadata(this.api, payload);
+        await addUserToUserGroup(this.d2, newUsers, this.attributes.userGroups);
+
+        return response;
     }
 
     static async getById(d2, userId) {
