@@ -2,7 +2,7 @@ import { Maybe } from "../../types/utils";
 import { Struct } from "./generic/Struct";
 import { UserProps } from "./UserProps";
 
-export class UserLogic extends Struct<UserProps>() {
+export class User extends Struct<UserProps>() {
     static DEFAULT_PASSWORD = "District123$";
 
     static setDefaultLanguage(language: Maybe<string>): string {

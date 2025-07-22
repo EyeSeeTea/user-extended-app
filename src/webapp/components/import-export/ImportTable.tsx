@@ -49,7 +49,7 @@ import { useGetAllUsers } from "../../hooks/userHooks";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportUser } from "../../../domain/entities/ImportUser";
-import { UserLogic } from "../../../domain/entities/UserLogic";
+import { User } from "../../../domain/entities/User";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
     id: "ID",
@@ -126,7 +126,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     const [areUsersValid, setAreUsersValid] = React.useState(false);
 
     const randomPassword = React.useMemo(() => {
-        return UserLogic.generateRandomPassword();
+        return User.generateRandomPassword();
     }, []);
 
     const { compositionRoot } = useAppContext();

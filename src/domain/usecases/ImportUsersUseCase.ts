@@ -4,7 +4,7 @@ import { UserProps, defaultUserProps } from "../entities/UserProps";
 import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
-import { UserLogic } from "../entities/UserLogic";
+import { User } from "../entities/User";
 import i18n from "../../locales";
 
 const columnNameFromPropertyMapping = {
@@ -37,9 +37,9 @@ export class ImportUsersUseCase implements UseCase {
             usersFromDB: this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
             currentUser: this.userRepository.getCurrent(),
         }).flatMap(({ usersFromDB, currentUser }) => {
-            if (!UserLogic.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
+            if (!User.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
 
-            const hasRequiredFields = UserLogic.validateHasRequiredFields(users);
+            const hasRequiredFields = User.validateHasRequiredFields(users);
             if (!hasRequiredFields)
                 return Future.error("All users must have at least one Organisation Unit, Role and Group");
 
@@ -51,7 +51,11 @@ export class ImportUsersUseCase implements UseCase {
         });
     }
 
-    private mergeUsers(users: UserProps[], usersFromDB: UserProps[], { id, username }: UserProps = defaultUserProps): UserProps[] {
+    private mergeUsers(
+        users: UserProps[],
+        usersFromDB: UserProps[],
+        { id, username }: UserProps = defaultUserProps
+    ): UserProps[] {
         const usersFromDBMap = _.keyBy(usersFromDB, key => key.username);
         // Merge properties from usersFromDB into users
         return users.map((userFromImport): UserProps => {
@@ -64,8 +68,8 @@ export class ImportUsersUseCase implements UseCase {
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
                     lastModifiedBy: { id, username },
-                    dbLocale: UserLogic.setDefaultLanguage(dbUser.dbLocale),
-                    uiLocale: UserLogic.setDefaultLanguage(dbUser.uiLocale),
+                    dbLocale: User.setDefaultLanguage(dbUser.dbLocale),
+                    uiLocale: User.setDefaultLanguage(dbUser.uiLocale),
                 };
             }
             return {
@@ -75,8 +79,8 @@ export class ImportUsersUseCase implements UseCase {
                 name: `${user.firstName} ${user.surname}`,
                 createdBy: { id, username },
                 lastModifiedBy: { id, username },
-                dbLocale: UserLogic.setDefaultLanguage(user.dbLocale),
-                uiLocale: UserLogic.setDefaultLanguage(user.uiLocale),
+                dbLocale: User.setDefaultLanguage(user.dbLocale),
+                uiLocale: User.setDefaultLanguage(user.uiLocale),
             };
         });
     }

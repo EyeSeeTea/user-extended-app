@@ -21,7 +21,7 @@ import { getFromTemplate } from "../../../utils/template";
 
 import { Id } from "../../../domain/entities/Ref";
 import { UserProps, defaultUserProps } from "../../../domain/entities/UserProps";
-import { UserLogic } from "../../../domain/entities/UserLogic";
+import { User } from "../../../domain/entities/User";
 
 interface ReplicateUserFromTemplateProps {
     userToReplicateId: Id;
@@ -40,7 +40,7 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
     const [isMounted, setIsMounted] = React.useState(false);
 
     const randomPasswordBase = React.useMemo(() => {
-        return UserLogic.generateRandomPassword();
+        return User.generateRandomPassword();
     }, []);
 
     const loading = useLoading();
