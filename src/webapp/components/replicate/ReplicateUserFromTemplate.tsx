@@ -68,8 +68,9 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
             }
         );
 
-        compositionRoot.users.listAllUsernames({}).run(
-            usernames => {
+        compositionRoot.users.listAll({}).run(
+            users => {
+                const usernames = users.map(user => user.username);
                 setExistingUsernames(usernames);
             },
             error => {

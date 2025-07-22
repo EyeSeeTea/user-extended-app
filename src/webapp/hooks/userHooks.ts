@@ -1,6 +1,7 @@
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Id } from "../../domain/entities/Ref";
+import { User } from "../../domain/entities/User";
 import { UserProps } from "../../domain/entities/UserProps";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
@@ -83,7 +84,7 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
 
 export function useGetAllUsers() {
     const { compositionRoot } = useAppContext();
-    const [users, setUsers] = React.useState<UserProps[]>();
+    const [users, setUsers] = React.useState<User[]>();
     const snackbar = useSnackbar();
 
     React.useMemo(() => {

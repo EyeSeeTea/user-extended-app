@@ -10,7 +10,6 @@ export interface UserRepository {
     list(options: ListOptions): FutureData<PaginatedResponse<UserProps>>;
     listAll(options: ListOptions): FutureData<UserProps[]>;
     listAllIds(options: ListOptions): FutureData<string[]>;
-    listAllUsernames(options: ListOptions): FutureData<string[]>;
     getByIds(ids: string[]): FutureData<UserProps[]>;
     save(users: UserProps[]): FutureData<MetadataResponse>;
     updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
