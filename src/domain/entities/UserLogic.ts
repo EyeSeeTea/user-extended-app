@@ -18,7 +18,8 @@ export class UserLogic extends Struct<User>() {
     static validateUniqueOpenId(users: User[]): boolean {
         const allOpenIds = users.filter(user => Boolean(user.openId)).map(user => user.openId);
         return new Set(allOpenIds).size === allOpenIds.length;
-    
+    }
+
     /**
      * Generates a random password with a specified length.
      *

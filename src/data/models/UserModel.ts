@@ -32,7 +32,6 @@ export const ApiUserModel: Codec<ApiUser> = Schema.object({
     teiSearchOrganisationUnits: Schema.array(OrgUnitModel),
     access: AccessPermissionsModel,
     userCredentials: Schema.object({
-        twoFA: Schema.boolean,
         id: Schema.string,
         username: Schema.string,
         userRoles: Schema.array(
