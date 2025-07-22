@@ -80,7 +80,7 @@ export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = pro
                     dataViewOrganisationUnits: tableUser.dataViewOrganisationUnits,
                     organisationUnits: tableUser.organisationUnits,
                     externalAuth: false,
-                    twoFA: false,
+                    twoFactorEnabled: false,
                     openId: "",
                     ldapId: "",
                 };

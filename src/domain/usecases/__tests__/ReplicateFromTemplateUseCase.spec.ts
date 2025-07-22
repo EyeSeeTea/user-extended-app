@@ -84,10 +84,10 @@ describe("ReplicateFromTemplateUseCase", () => {
         compareUsers(generatedUsers, expectedUsers);
     });
 
-    it("Should disble twoFA from replicated users", async () => {
+    it("Should disble twoFactorEnabled from replicated users", async () => {
         const tfaUser: UserProps = {
             ...sourceUser,
-            twoFA: true,
+            twoFactorEnabled: true,
         };
 
         const count = 1;
@@ -117,7 +117,7 @@ describe("ReplicateFromTemplateUseCase", () => {
                 username: getFromTemplate(usernameTemplate, index),
                 password: getFromTemplate(passwordTemplate, index),
                 externalAuth: false,
-                twoFA: false,
+                twoFactorEnabled: false,
                 openId: "",
                 ldapId: "",
             };

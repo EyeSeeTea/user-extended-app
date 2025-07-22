@@ -24,7 +24,7 @@ export class ReplicateFromTemplateUseCase implements UseCase {
                 username: getFromTemplate(usernameTemplate, index),
                 password: getFromTemplate(passwordTemplate, index),
                 externalAuth: false,
-                twoFA: false,
+                twoFactorEnabled: false,
                 openId: "",
                 ldapId: "",
             };
