@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { Maybe } from "../../types/utils";
 import { OrgUnit } from "./OrgUnit";
 import { Id, NamedRef } from "./Ref";
@@ -99,7 +98,7 @@ export const isSuperAdmin = (user: UserProps): boolean => {
 };
 
 export const hasReplicateAuthority = (user: UserProps): boolean => {
-    return _.some(user.authorities, authorities => authorities.includes("F_REPLICATE_USER"));
+    return isSuperAdmin(user) || user.authorities.includes("F_REPLICATE_USER");
 };
 
 export type LocaleCode = string;
