@@ -30,7 +30,7 @@ export interface ListOptions {
     rootJunction?: "AND" | "OR";
 }
 
-export type ListFilterType = "in" | "eq";
+export type ListFilterType = "in" | "eq" | "gt";
 export type ListFilters = Record<string, [ListFilterType, string[]]>;
 export type UpdateStrategy = "replace" | "merge";
 

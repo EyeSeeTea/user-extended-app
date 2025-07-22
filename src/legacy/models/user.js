@@ -1,7 +1,7 @@
 import { pick, merge, unzip, times } from "lodash/fp";
 import { generateUid } from "d2/lib/uid";
 import { getFromTemplate } from "../utils/template";
-import { postMetadata } from "./userHelpers";
+import { postMetadata, addUserToUserGroup } from "./userHelpers";
 
 class User {
     constructor(d2, attributes) {
@@ -69,26 +69,44 @@ class User {
             .getOwnedPropertyNames()
             .filter(item => !unusedProperties.includes(item));
         if (!ownedProperties.includes("userCredentials")) ownedProperties.push("userCredentials");
-        const userJson = pick(ownedProperties, this.attributes);
+        const userJsonInit = pick(ownedProperties, this.attributes);
 
-        if (userJson.userCredentials?.lastLogin !== undefined) delete userJson.userCredentials.lastLogin;
-        if (userJson.userCredentials?.lastUpdatedBy !== undefined) delete userJson.userCredentials.lastUpdatedBy;
-        if (userJson.userCredentials?.createdBy !== undefined) delete userJson.userCredentials.createdBy;
-        if (userJson.userCredentials?.user !== undefined) delete userJson.userCredentials.user;
+        /*
+        NOTE:
+        openId and ldapId makes replication fail because Id has to be unique.
+        externalAuth and twoFA should not be copied
+        */
+        const unusedCredentialsProperties = [
+            "lastLogin",
+            "lastUpdatedBy",
+            "createdBy",
+            "user",
+            "openId",
+            "ldapId",
+            "externalAuth",
+            "twoFA",
+            "idToken",
+            "restoreToken",
+            "restoreExpiry",
+        ];
+        const userJson = {
+            ...userJsonInit,
+            userCredentials: userJsonInit.userCredentials
+                ? Object.fromEntries(
+                      Object.entries(userJsonInit.userCredentials).filter(
+                          ([key]) => !unusedCredentialsProperties.includes(key)
+                      )
+                  )
+                : undefined,
+        };
 
         const newUsers = newUsersAttributes.map(newUserAttributes => merge(userJson, newUserAttributes));
-        const userGroupIds = this.attributes.userGroups.map(userGroup => userGroup.id);
-        const { userGroups } = await this.api.get("/userGroups", {
-            filter: "id:in:[" + userGroupIds.join(",") + "]",
-            fields: ":owner",
-            paging: false,
-        });
-        const userGroupsWithNewUsers = userGroups.map(userGroup => ({
-            ...userGroup,
-            users: userGroup.users.concat(newUsers.map(newUser => ({ id: newUser.id }))),
-        }));
-        const payload = { users: newUsers, userGroups: userGroupsWithNewUsers };
-        return postMetadata(this.api, payload);
+        const payload = { users: newUsers };
+
+        const response = await postMetadata(this.api, payload);
+        await addUserToUserGroup(this.d2, newUsers, this.attributes.userGroups);
+
+        return response;
     }
 
     static async getById(d2, userId) {

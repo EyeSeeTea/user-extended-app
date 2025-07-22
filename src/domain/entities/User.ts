@@ -32,6 +32,7 @@ export interface User {
     openId: Maybe<string>;
     ldapId: Maybe<string>;
     externalAuth: boolean;
+    twoFactorEnabled: boolean;
     password: string;
     accountExpiry: Maybe<string>;
     authorities: string[];
@@ -77,6 +78,7 @@ export const defaultUser: User = {
     openId: "",
     ldapId: "",
     externalAuth: false,
+    twoFactorEnabled: false,
     password: "",
     authorities: [""],
     createdBy: { id: "", username: "" },
