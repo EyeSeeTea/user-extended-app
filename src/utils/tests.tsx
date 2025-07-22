@@ -5,9 +5,9 @@ import { getCompositionRoot } from "../CompositionRoot";
 import { getMockApi } from "../types/d2-api";
 import { AppContext, AppContextState } from "../webapp/contexts/app-context";
 import { Instance } from "../data/entities/Instance";
-import { User } from "../domain/entities/User";
+import { UserProps } from "../domain/entities/UserProps";
 
-export function getTestUser(): User {
+export function getTestUser(): UserProps {
     // @ts-ignore TODO
     return {
         id: "xE7jOejl9FI",

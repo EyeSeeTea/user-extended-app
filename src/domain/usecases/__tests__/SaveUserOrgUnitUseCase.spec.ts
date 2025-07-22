@@ -1,5 +1,5 @@
 import { SaveUserOrgUnitUseCase, SaveUserOrgUnitOptions } from "../SaveUserOrgUnitUseCase";
-import { User } from "../../entities/User";
+import { UserProps } from "../../entities/UserProps";
 import { OrgUnit } from "../../entities/OrgUnit";
 import { Future } from "../../entities/Future";
 import { anything, deepEqual, instance, mock, when, verify } from "ts-mockito";
@@ -8,7 +8,7 @@ import { MetadataResponse } from "@eyeseetea/d2-api/api";
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 import { sourceUser, targetUser } from "./data/user";
 
-const selectedUsers: User[] = [sourceUser, targetUser];
+const selectedUsers: UserProps[] = [sourceUser, targetUser];
 const selectedOrgUnits: OrgUnit[] = [
     {
         code: "OU_525",
@@ -78,14 +78,14 @@ function givenOptionsToMerge(): SaveUserOrgUnitOptions {
     };
 }
 
-function givenExpectedUsersReplaced(): User[] {
+function givenExpectedUsersReplaced(): UserProps[] {
     return selectedUsers.map(user => ({
         ...user,
         organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
     }));
 }
 
-function givenExpectedUsersMerged(): User[] {
+function givenExpectedUsersMerged(): UserProps[] {
     return selectedUsers.map(user => ({
         ...user,
         organisationUnits: _(selectedOrgUnits)

@@ -1,8 +1,8 @@
 import { OrgUnit } from "../../../entities/OrgUnit";
-import { User } from "../../../entities/User";
+import { UserProps } from "../../../entities/UserProps";
 import { ColumnMappingKeys } from "../../ExportUsersUseCase";
 
-export const userToExport: Partial<User> = {
+export const userToExport: Partial<UserProps> = {
     id: "oXD88WWSQpR",
     username: "traore",
     firstName: "Alain",

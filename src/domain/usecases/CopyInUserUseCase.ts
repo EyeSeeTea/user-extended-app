@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import { Future, FutureData } from "../entities/Future";
-import { User } from "../entities/User";
+import { UserProps } from "../entities/UserProps";
 import { AccessElements, UpdateStrategy, AccessElementsKeys, UserRepository } from "../repositories/UserRepository";
 import { Id } from "../entities/Ref";
 
@@ -21,30 +21,30 @@ export class CopyInUserUseCase {
         });
     }
 
-    private applyCopyToUsers(usersToUpdate: User[], options: CopyInUserOptions): User[] {
+    private applyCopyToUsers(usersToUpdate: UserProps[], options: CopyInUserOptions): UserProps[] {
         return usersToUpdate.map(userToUpdate => this.updateUser(userToUpdate, options));
     }
 
-    private getUsersToUpdate(selectedUsersIds: Id[]): FutureData<User[]> {
+    private getUsersToUpdate(selectedUsersIds: Id[]): FutureData<UserProps[]> {
         return this.userRepository.getByIds(selectedUsersIds);
     }
 
-    private replaceAccessElementsKeys(targetUser: User, sourceUser: User, properties: AccessElementsKeys[]): User {
+    private replaceAccessElementsKeys(targetUser: UserProps, sourceUser: UserProps, properties: AccessElementsKeys[]): UserProps {
         return { ...targetUser, ..._.pick(sourceUser, properties) };
     }
 
-    private mergeAccessElementsKeys(targetUser: User, sourceUser: User, properties: AccessElementsKeys[]): User {
+    private mergeAccessElementsKeys(targetUser: UserProps, sourceUser: UserProps, properties: AccessElementsKeys[]): UserProps {
         const pickedSource = _.pick(sourceUser, properties);
 
         // Custom merge logic to handle arrays
-        const customizer = (objValue: User[AccessElementsKeys], srcValue: User[AccessElementsKeys]) =>
+        const customizer = (objValue: UserProps[AccessElementsKeys], srcValue: UserProps[AccessElementsKeys]) =>
             _.unionWith(objValue, srcValue, _.isEqual);
 
         // Merge the picked properties into the target user using the custom merge function
         return _.mergeWith(targetUser, pickedSource, customizer);
     }
 
-    private updateUser(targetUser: User, options: CopyInUserOptions): User {
+    private updateUser(targetUser: UserProps, options: CopyInUserOptions): UserProps {
         const sourceUser = options.user;
         // Filter and get keys names of selected user properties to update
         const propertiesToUpdate = _(options.accessElements)
@@ -60,13 +60,13 @@ export class CopyInUserUseCase {
         }
     }
 
-    private saveUsers(users: User[]): FutureData<void> {
+    private saveUsers(users: UserProps[]): FutureData<void> {
         return this.userRepository.save(users).toVoid();
     }
 }
 
 export type CopyInUserOptions = {
-    user: User;
+    user: UserProps;
     selectedUsersIds: Id[];
     updateStrategy: UpdateStrategy;
     accessElements: AccessElements;

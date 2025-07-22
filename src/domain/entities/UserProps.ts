@@ -3,7 +3,7 @@ import { Maybe } from "../../types/utils";
 import { OrgUnit } from "./OrgUnit";
 import { Id, NamedRef } from "./Ref";
 
-export interface User {
+export interface UserProps {
     id: string;
     name: string;
     username: string;
@@ -48,7 +48,7 @@ export interface UserAudit {
 
 const emptyOrgUnit: OrgUnit = { id: "", name: "", code: "", path: [] };
 
-export const defaultUser: User = {
+export const defaultUserProps: UserProps = {
     id: "",
     name: "",
     username: "",
@@ -94,11 +94,11 @@ export interface AccessPermissions {
     manage: boolean;
 }
 
-export const isSuperAdmin = (user: User): boolean => {
+export const isSuperAdmin = (user: UserProps): boolean => {
     return user.authorities.includes("ALL");
 };
 
-export const hasReplicateAuthority = (user: User): boolean => {
+export const hasReplicateAuthority = (user: UserProps): boolean => {
     return _.some(user.authorities, authorities => authorities.includes("F_REPLICATE_USER"));
 };
 

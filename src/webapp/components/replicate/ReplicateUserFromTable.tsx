@@ -3,7 +3,7 @@ import i18n from "../../../locales";
 import { Id } from "../../../domain/entities/Ref";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportTable, Columns } from "../import-export/ImportTable";
-import { User, defaultUser } from "../../../domain/entities/User";
+import { UserProps, defaultUserProps } from "../../../domain/entities/UserProps";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { generateUid } from "../../../utils/uid";
 
@@ -16,7 +16,7 @@ export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = pro
     const { compositionRoot } = useAppContext();
     const { userToReplicateId, onRequestClose } = props;
 
-    const [userToReplicate, setUserToReplicate] = React.useState<User>(defaultUser);
+    const [userToReplicate, setUserToReplicate] = React.useState<UserProps>(defaultUserProps);
     const [isMounted, setIsMounted] = React.useState(false);
 
     const loading = useLoading();
@@ -63,10 +63,10 @@ export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = pro
     ];
 
     const replicateUsers = useCallback(
-        async ({ users }: { users: User[] }) => {
+        async ({ users }: { users: UserProps[] }) => {
             loading.show(true, i18n.t("Replicating users"));
 
-            const newUsers: User[] = users.map(tableUser => {
+            const newUsers: UserProps[] = users.map(tableUser => {
                 return {
                     ...userToReplicate,
                     id: generateUid(),

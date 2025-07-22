@@ -1,7 +1,7 @@
-import { User, defaultUser } from "../../../entities/User";
+import { UserProps, defaultUserProps } from "../../../entities/UserProps";
 
-export const sourceUser: User = {
-    ...defaultUser,
+export const sourceUser: UserProps = {
+    ...defaultUserProps,
     id: "oXD88WWSQpR",
     name: "Alain Traore",
     username: "traore",
@@ -47,8 +47,8 @@ export const sourceUser: User = {
     ],
 };
 
-export const targetUser: User = {
-    ...defaultUser,
+export const targetUser: UserProps = {
+    ...defaultUserProps,
     id: "DXyJmlo9rge",
     name: "Android Barnes",
     username: "android",

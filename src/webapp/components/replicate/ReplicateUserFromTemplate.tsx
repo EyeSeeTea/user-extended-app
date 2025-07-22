@@ -20,7 +20,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { getFromTemplate } from "../../../utils/template";
 
 import { Id } from "../../../domain/entities/Ref";
-import { User, defaultUser } from "../../../domain/entities/User";
+import { UserProps, defaultUserProps } from "../../../domain/entities/UserProps";
 import { UserLogic } from "../../../domain/entities/UserLogic";
 
 interface ReplicateUserFromTemplateProps {
@@ -32,7 +32,7 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
     const { compositionRoot } = useAppContext();
     const { userToReplicateId, onRequestClose } = props;
 
-    const [userToReplicate, setUserToReplicate] = React.useState<User>(defaultUser);
+    const [userToReplicate, setUserToReplicate] = React.useState<UserProps>(defaultUserProps);
     const [existingUsernames, setExistingUsernames] = React.useState<string[]>([]);
     const [replicateTitle, setReplicateTitle] = React.useState<string>(i18n.t("Replicate User"));
     const [hasValidationErrors, setValidationError] = React.useState<boolean>(false);

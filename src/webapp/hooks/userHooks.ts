@@ -1,7 +1,7 @@
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Id } from "../../domain/entities/Ref";
-import { User } from "../../domain/entities/User";
+import { UserProps } from "../../domain/entities/UserProps";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
 import { useAppContext } from "../contexts/app-context";
@@ -24,7 +24,7 @@ export function useGetUsersByIds(ids: Id[]) {
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
     const loading = useLoading();
-    const [users, setUsers] = React.useState<User[]>();
+    const [users, setUsers] = React.useState<UserProps[]>();
 
     React.useEffect(() => {
         if (ids.length === 0) return;
@@ -53,7 +53,7 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
         (
             orgUnitIds: Id[],
             updateStrategy: UpdateStrategy,
-            users: User[],
+            users: UserProps[],
             orgUnitType: SaveUserOrgUnitOptions["orgUnitType"]
         ) => {
             loading.show(true, i18n.t("Saving..."));
@@ -83,7 +83,7 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
 
 export function useGetAllUsers() {
     const { compositionRoot } = useAppContext();
-    const [users, setUsers] = React.useState<User[]>();
+    const [users, setUsers] = React.useState<UserProps[]>();
     const snackbar = useSnackbar();
 
     React.useMemo(() => {
@@ -107,7 +107,7 @@ export function useCopyInUser(props: UseCopyInUserProps) {
     const loading = useLoading();
 
     const copyInUser = React.useCallback(
-        (user: User, selectedUsersIds: Id[], updateStrategy: UpdateStrategy, accessElements: AccessElements) => {
+        (user: UserProps, selectedUsersIds: Id[], updateStrategy: UpdateStrategy, accessElements: AccessElements) => {
             loading.show(true, i18n.t("Saving..."));
             return compositionRoot.users
                 .copyInUser({

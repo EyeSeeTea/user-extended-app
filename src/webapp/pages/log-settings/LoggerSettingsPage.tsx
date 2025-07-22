@@ -10,7 +10,7 @@ import { useGetLoggerSettings, usePrograms } from "./useLogger";
 import { Maybe } from "../../../types/utils";
 import { DataElementAttrs, ProgramStageAttrs } from "../../../domain/entities/Program";
 import { Id } from "../../../domain/entities/Ref";
-import { isSuperAdmin } from "../../../domain/entities/User";
+import { isSuperAdmin } from "../../../domain/entities/UserProps";
 
 function convertToDropdownItem<T extends { id: string; name: string }>(data: T[]): DropdownItem[] {
     return data.map(item => ({ value: item.id, text: item.name }));

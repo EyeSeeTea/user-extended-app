@@ -3,12 +3,12 @@ import _ from "lodash";
 import { ConfirmationDialog, useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 
 import { useAppContext } from "../../contexts/app-context";
-import { User } from "../../../domain/entities/User";
+import { UserProps } from "../../../domain/entities/UserProps";
 import i18n from "../../../utils/i18n";
 
 type UsersRemoveModalProps = {
     isOpen: boolean;
-    users: User[];
+    users: UserProps[];
     onSuccess: () => void;
     onCancel: () => void;
     actionType: ActionType;
@@ -34,13 +34,13 @@ function getMessagesByActionType(actionType: ActionType): { title: string } {
     return { title: "" };
 }
 
-export function generateMessage(users: User[]) {
+export function generateMessage(users: UserProps[]) {
     const firstThreeUsers = _(users).take(3).value();
     const remainingUsersCount = users.length - firstThreeUsers.length;
     return remainingUsersCount > 0 ? `and ${remainingUsersCount} more` : "";
 }
 
-export function getFirstThreeUserNames(users: User[]): string[] {
+export function getFirstThreeUserNames(users: UserProps[]): string[] {
     return _(users)
         .take(3)
         .map(user => user.username)

@@ -4,7 +4,7 @@ import Papa from "papaparse";
 import i18n from "../../utils/i18n";
 
 import { Future, FutureData } from "../entities/Future";
-import { User } from "../entities/User";
+import { UserProps } from "../entities/UserProps";
 import { ListOptions, UserRepository } from "../repositories/UserRepository";
 import { OrgUnitKey } from "../entities/OrgUnit";
 
@@ -57,7 +57,7 @@ export class ExportUsersUseCase {
     }
 
     private buildBlobAndFilename(
-        users: User[],
+        users: UserProps[],
         { name, columns, format, orgUnitsField }: Omit<ExportUsersUseCaseOptions, "filterOptions" | "isEmptyTemplate">
     ) {
         return {
@@ -69,7 +69,7 @@ export class ExportUsersUseCase {
     }
 
     private buildExportDataString(
-        users: User[],
+        users: UserProps[],
         { columns, format, orgUnitsField }: Pick<ExportUsersUseCaseOptions, "columns" | "format" | "orgUnitsField">
     ) {
         switch (format) {
@@ -98,7 +98,7 @@ export class ExportUsersUseCase {
     }
 
     private namesFromCollection(
-        collection: User[
+        collection: UserProps[
             | "userRoles"
             | "userGroups"
             | "organisationUnits"
@@ -115,7 +115,7 @@ export class ExportUsersUseCase {
     }
 
     private getPlainUser(
-        user: User,
+        user: UserProps,
         columns: ColumnMappingKeys[],
         orgUnitsField: OrgUnitKey,
         toString: boolean

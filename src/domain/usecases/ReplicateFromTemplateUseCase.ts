@@ -6,18 +6,18 @@ import { getFromTemplate } from "../../utils/template";
 
 import { UseCase } from "../../CompositionRoot";
 import { UserRepository } from "../repositories/UserRepository";
-import { User } from "../entities/User";
+import { UserProps } from "../entities/UserProps";
 import { FutureData } from "../entities/Future";
 
 export class ReplicateFromTemplateUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
     execute(
-        sourceUser: User,
+        sourceUser: UserProps,
         count: number,
         usernameTemplate: string,
         passwordTemplate: string
     ): FutureData<MetadataResponse> {
-        const newUsers: User[] = _.times(count, index => {
+        const newUsers: UserProps[] = _.times(count, index => {
             return {
                 ...sourceUser,
                 id: generateUid(),

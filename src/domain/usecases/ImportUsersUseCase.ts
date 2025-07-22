@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Future, FutureData } from "../entities/Future";
-import { User, defaultUser } from "../entities/User";
+import { UserProps, defaultUserProps } from "../entities/UserProps";
 import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
@@ -51,10 +51,10 @@ export class ImportUsersUseCase implements UseCase {
         });
     }
 
-    private mergeUsers(users: User[], usersFromDB: User[], { id, username }: User = defaultUser): User[] {
+    private mergeUsers(users: UserProps[], usersFromDB: UserProps[], { id, username }: UserProps = defaultUserProps): UserProps[] {
         const usersFromDBMap = _.keyBy(usersFromDB, key => key.username);
         // Merge properties from usersFromDB into users
-        return users.map((userFromImport): User => {
+        return users.map((userFromImport): UserProps => {
             const user = _.pick(userFromImport, Object.keys(columnNameFromPropertyMapping));
             const dbUser = _.find(usersFromDBMap, userFromDB => userFromDB.username === user.username);
             if (dbUser) {
@@ -69,7 +69,7 @@ export class ImportUsersUseCase implements UseCase {
                 };
             }
             return {
-                ...defaultUser,
+                ...defaultUserProps,
                 ...user,
                 id: generateUid(),
                 name: `${user.firstName} ${user.surname}`,
@@ -81,9 +81,9 @@ export class ImportUsersUseCase implements UseCase {
         });
     }
 
-    private saveUsers(users: User[]): FutureData<void> {
+    private saveUsers(users: UserProps[]): FutureData<void> {
         return this.userRepository.save(users).toVoid();
     }
 }
 
-export type ImportUsersUseCaseOptions = { users: User[] };
+export type ImportUsersUseCaseOptions = { users: UserProps[] };

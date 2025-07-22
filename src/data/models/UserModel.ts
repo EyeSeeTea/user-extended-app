@@ -1,4 +1,4 @@
-import { AccessPermissions } from "../../domain/entities/User";
+import { AccessPermissions } from "../../domain/entities/UserProps";
 import { Codec, Schema } from "../../utils/codec";
 import { ApiUser } from "../repositories/UserD2ApiRepository";
 import { NamedRefModel, OrgUnitModel } from "./DHIS2Model";

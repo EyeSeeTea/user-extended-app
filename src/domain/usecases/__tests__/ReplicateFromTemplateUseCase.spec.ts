@@ -5,14 +5,14 @@ import { sourceUser } from "./data/user";
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 
 import { ReplicateFromTemplateUseCase } from "../ReplicateFromTemplateUseCase";
-import { User } from "../../entities/User";
+import { UserProps } from "../../entities/UserProps";
 import { Future } from "../../entities/Future";
 import { MetadataResponse } from "@eyeseetea/d2-api/api";
 import { getFromTemplate } from "../../../utils/template";
 
 let userRepositoryMock: UserD2ApiRepository;
 let replicateFromTemplateUseCase: ReplicateFromTemplateUseCase;
-let generatedUsers: User[] = [];
+let generatedUsers: UserProps[] = [];
 
 describe("ReplicateFromTemplateUseCase", () => {
     beforeEach(() => {
@@ -25,7 +25,7 @@ describe("ReplicateFromTemplateUseCase", () => {
         const usernameTemplate = sourceUser.username + "_$index";
         const passwordTemplate = "District123_$index";
 
-        const expectedUsers: User[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
+        const expectedUsers: UserProps[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
 
         await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
 
@@ -38,7 +38,7 @@ describe("ReplicateFromTemplateUseCase", () => {
         const usernameTemplate = sourceUser.username + "_$index";
         const passwordTemplate = "District123_$index";
 
-        const expectedUsers: User[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
+        const expectedUsers: UserProps[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
 
         await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
 
@@ -47,7 +47,7 @@ describe("ReplicateFromTemplateUseCase", () => {
     });
 
     it("Should disble openID from replicated users", async () => {
-        const openIdUser: User = {
+        const openIdUser: UserProps = {
             ...sourceUser,
             externalAuth: true,
             openId: "openId",
@@ -57,7 +57,7 @@ describe("ReplicateFromTemplateUseCase", () => {
         const usernameTemplate = openIdUser.username + "_$index";
         const passwordTemplate = "District123_$index";
 
-        const expectedUsers: User[] = givenAnExpectedUsers(openIdUser, count, usernameTemplate, passwordTemplate);
+        const expectedUsers: UserProps[] = givenAnExpectedUsers(openIdUser, count, usernameTemplate, passwordTemplate);
 
         await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
 
@@ -66,7 +66,7 @@ describe("ReplicateFromTemplateUseCase", () => {
     });
 
     it("Should disble LDAP from replicated users", async () => {
-        const ldapUser: User = {
+        const ldapUser: UserProps = {
             ...sourceUser,
             externalAuth: true,
             ldapId: "ldapId",
@@ -76,7 +76,7 @@ describe("ReplicateFromTemplateUseCase", () => {
         const usernameTemplate = ldapUser.username + "_$index";
         const passwordTemplate = "District123_$index";
 
-        const expectedUsers: User[] = givenAnExpectedUsers(ldapUser, count, usernameTemplate, passwordTemplate);
+        const expectedUsers: UserProps[] = givenAnExpectedUsers(ldapUser, count, usernameTemplate, passwordTemplate);
 
         await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
 
@@ -85,7 +85,7 @@ describe("ReplicateFromTemplateUseCase", () => {
     });
 
     it("Should disble twoFA from replicated users", async () => {
-        const tfaUser: User = {
+        const tfaUser: UserProps = {
             ...sourceUser,
             twoFA: true,
         };
@@ -94,7 +94,7 @@ describe("ReplicateFromTemplateUseCase", () => {
         const usernameTemplate = tfaUser.username + "_$index";
         const passwordTemplate = "District123_$index";
 
-        const expectedUsers: User[] = givenAnExpectedUsers(tfaUser, count, usernameTemplate, passwordTemplate);
+        const expectedUsers: UserProps[] = givenAnExpectedUsers(tfaUser, count, usernameTemplate, passwordTemplate);
 
         await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
 
@@ -103,11 +103,11 @@ describe("ReplicateFromTemplateUseCase", () => {
     });
 
     function givenAnExpectedUsers(
-        user: User,
+        user: UserProps,
         count: number,
         usernameTemplate: string,
         passwordTemplate: string
-    ): User[] {
+    ): UserProps[] {
         when(userRepositoryMock.save(anything())).thenReturn(Future.success({ status: "OK" } as MetadataResponse));
 
         return _.times(count, index => {
@@ -124,7 +124,7 @@ describe("ReplicateFromTemplateUseCase", () => {
         });
     }
 
-    function compareUsers(generatedUsers: User[], expectedUsers: User[]) {
+    function compareUsers(generatedUsers: UserProps[], expectedUsers: UserProps[]) {
         expect(generatedUsers).toHaveLength(expectedUsers.length);
 
         generatedUsers.forEach((user, index) => {

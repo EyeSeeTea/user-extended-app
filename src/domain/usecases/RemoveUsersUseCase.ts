@@ -1,12 +1,12 @@
 import { FutureData } from "../entities/Future";
 import { Stats } from "../entities/Stats";
-import { User } from "../entities/User";
+import { UserProps } from "../entities/UserProps";
 import { UserRepository } from "../repositories/UserRepository";
 
 export class RemoveUsersUseCase {
     constructor(private userRepository: UserRepository) {}
 
-    execute(users: User[]): FutureData<Stats> {
+    execute(users: UserProps[]): FutureData<Stats> {
         return this.userRepository.remove(users);
     }
 }

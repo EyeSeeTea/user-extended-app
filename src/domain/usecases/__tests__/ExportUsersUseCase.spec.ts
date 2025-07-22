@@ -1,5 +1,5 @@
 import { instance, mock, when, verify, deepEqual } from "ts-mockito";
-import { User } from "../../entities/User";
+import { UserProps } from "../../entities/UserProps";
 import { ExportUsersUseCase, ExportUsersUseCaseOptions } from "../ExportUsersUseCase";
 import { Future } from "../../entities/Future";
 import moment from "moment";
@@ -86,7 +86,7 @@ describe("ExportUsersUseCase", () => {
 });
 
 function givenUsersToExport(): void {
-    const users = [userToExport as User];
+    const users = [userToExport as UserProps];
     when(userRepositoryMock.listAll(deepEqual({}))).thenReturn(Future.success(users));
 }
 

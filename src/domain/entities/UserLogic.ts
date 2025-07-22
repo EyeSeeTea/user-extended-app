@@ -1,21 +1,21 @@
 import { Maybe } from "../../types/utils";
 import { Struct } from "./generic/Struct";
-import { User } from "./User";
+import { UserProps } from "./UserProps";
 
-export class UserLogic extends Struct<User>() {
+export class UserLogic extends Struct<UserProps>() {
     static DEFAULT_PASSWORD = "District123$";
 
     static setDefaultLanguage(language: Maybe<string>): string {
         return language || "en";
     }
 
-    static validateHasRequiredFields(users: User[]): boolean {
+    static validateHasRequiredFields(users: UserProps[]): boolean {
         return users.every(
             user => user.organisationUnits.length > 0 && user.userRoles.length > 0 && user.userGroups.length > 0
         );
     }
 
-    static validateUniqueOpenId(users: User[]): boolean {
+    static validateUniqueOpenId(users: UserProps[]): boolean {
         const allOpenIds = users.filter(user => Boolean(user.openId)).map(user => user.openId);
         return new Set(allOpenIds).size === allOpenIds.length;
     }

@@ -37,7 +37,7 @@ import {
 import { IconButton, Chip } from "material-ui";
 import { Form, FormSpy, useForm, Field } from "react-final-form";
 import { FormState } from "final-form";
-import { defaultUser, User } from "../../../domain/entities/User";
+import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
 import { ColumnSelectorDialog } from "../column-selector-dialog/ColumnSelectorDialog";
 import { UserFormField, getUserFieldName, userFormFields } from "../user-form/utils";
 import { UserRoleGroupFF } from "../user-form/components/UserRoleGroupFF";
@@ -86,12 +86,12 @@ export type Columns =
 
 type ImportTableProps = {
     title: string;
-    usersFromFile: User[];
+    usersFromFile: UserProps[];
     columns: Columns[];
-    onSave?: (users: User[]) => void;
-    onSubmit?: (params: { users: User[] }) => void;
+    onSave?: (users: UserProps[]) => void;
+    onSubmit?: (params: { users: UserProps[] }) => void;
     onRequestClose: () => void;
-    templateUser?: User;
+    templateUser?: UserProps;
     actionText: string;
     warnings: string[];
 };
@@ -108,8 +108,8 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         warnings = [],
         onSubmit: customOnSubmit,
     } = props;
-    const [users, setUsers] = useState<User[]>(usersFromFile);
-    const [existingUsers, setExistingUsers] = React.useState<Record<string, User>>({});
+    const [users, setUsers] = useState<UserProps[]>(usersFromFile);
+    const [existingUsers, setExistingUsers] = React.useState<Record<string, UserProps>>({});
     const [existingUsersNames, setExistingUsersNames] = React.useState<string[]>([]);
 
     const [infoDialog, setInfoDialog] = React.useState<{ response: string }>();
@@ -136,7 +136,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const { users: allUsers } = useGetAllUsers();
     useEffect(() => {
-        const getUsername = (user: User | ApiUser): string => {
+        const getUsername = (user: UserProps | ApiUser): string => {
             if ("userCredentials" in user) {
                 return user.userCredentials.username;
             } else {
@@ -150,9 +150,9 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
             if (!allUsers) {
                 return;
             }
-            const existingUsersMapped = _.keyBy(allUsers, getUsername) as Record<string, User>;
-            setExistingUsers(existingUsersMapped as unknown as SetStateAction<Record<string, User>>);
-            setExistingUsersNames(allUsers.map((user: User) => getUsername(user)));
+            const existingUsersMapped = _.keyBy(allUsers, getUsername) as Record<string, UserProps>;
+            setExistingUsers(existingUsersMapped as unknown as SetStateAction<Record<string, UserProps>>);
+            setExistingUsersNames(allUsers.map((user: UserProps) => getUsername(user)));
             setIsLoading(false);
             loading.reset();
         };
@@ -161,7 +161,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     }, [allUsers, loading]);
 
     const existingUserInTable = useCallback(
-        (newUsers: User[]) => {
+        (newUsers: UserProps[]) => {
             if (!existingUsersNames) {
                 return false;
             }
@@ -225,7 +225,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     };
 
     const defaultOnSubmit = useCallback(
-        ({ users }: { users: User[] }) => {
+        ({ users }: { users: UserProps[] }) => {
             loading.show(true, i18n.t("Importing users"));
             return compositionRoot.users.import({ users }).run(
                 () => {
@@ -248,9 +248,9 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     const onSubmit = customOnSubmit || defaultOnSubmit;
 
     const defaultAddRow = useCallback(
-        (currentUsers: User[]) => {
-            const newUser: User = {
-                ...defaultUser,
+        (currentUsers: UserProps[]) => {
+            const newUser: UserProps = {
+                ...defaultUserProps,
                 id: generateUid(),
                 username: "",
                 password: randomPassword,
@@ -263,7 +263,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     );
 
     const replicateAddRow = useCallback(
-        (currentUsers: User[]) => {
+        (currentUsers: UserProps[]) => {
             if (templateUser) {
                 const existingNames = existingUsersNames.concat(currentUsers.map(user => user.username));
                 const makeUsername = (i = 0) => `${templateUser.username}_${i}`;
@@ -283,7 +283,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     const addRow = templateUser ? replicateAddRow : defaultAddRow;
 
     const renderTableRow = useCallback(
-        (user: User, rowIndex: number, users: User[]) => {
+        (user: UserProps, rowIndex: number, users: UserProps[]) => {
             const currentUsername = users[rowIndex]?.username || user.username;
             const existingUser = existingUsers[currentUsername];
             const chipTitle = existingUser
@@ -317,7 +317,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         [columns, existingUsers, existingUsersNames, allowOverwrite]
     );
 
-    const updateFormState = ({ values: { users: updatedUsers }, errors }: FormState<{ users: User[] }>) => {
+    const updateFormState = ({ values: { users: updatedUsers }, errors }: FormState<{ users: UserProps[] }>) => {
         setErrorsCount(errors?.users?.length || 0);
         setAreUsersValid(_.isEmpty(errors?.users));
         setShowOverwriteToggle(existingUserInTable(updatedUsers));
@@ -339,7 +339,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                             />
                         )}
                         <TableContainer>
-                            <Form<{ users: User[] }>
+                            <Form<{ users: UserProps[] }>
                                 autocomplete="off"
                                 onSubmit={onSubmit}
                                 initialValues={{ users }}
@@ -348,7 +348,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                     return (
                                         <>
                                             <FormSpy
-                                                onChange={(state: FormState<{ users: User[] }>) => {
+                                                onChange={(state: FormState<{ users: UserProps[] }>) => {
                                                     requestAnimationFrame(() => {
                                                         updateFormState(state);
                                                     });
@@ -369,7 +369,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {_.map(users, (user: User, rowIndex: string) =>
+                                                        {_.map(users, (user: UserProps, rowIndex: string) =>
                                                             renderTableRow(user, Number(rowIndex), values.users)
                                                         )}
                                                     </TableBody>
@@ -429,12 +429,12 @@ type RowItemProps = {
     data: { columns: string[]; duplicateUsernames?: DuplicateInfo; existingUsersNames: string[] };
     columnIndex: number;
     rowIndex: number;
-    onDelete: (users: User[]) => void;
+    onDelete: (users: UserProps[]) => void;
     allowOverwrite: boolean;
 };
 
 const RowItem: React.FC<RowItemProps> = ({ data, columnIndex, rowIndex, onDelete, allowOverwrite }) => {
-    const form = useForm<{ users: User[] }>();
+    const form = useForm<{ users: UserProps[] }>();
     const deleteRow = columnIndex === data.columns.length - 1;
     const field = data.columns[columnIndex];
     const username = form.getState().values.users[rowIndex]?.username;
@@ -764,7 +764,7 @@ interface DuplicateInfo {
     duplicateValue: string;
 }
 
-function findDuplicatesInUsernames(users: User[]): DuplicateInfo | undefined {
+function findDuplicatesInUsernames(users: UserProps[]): DuplicateInfo | undefined {
     const groupedUsers = _(users)
         .groupBy(user => user.username)
         .pickBy(group => group.length > 1)

@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import { FutureData } from "../entities/Future";
-import { User } from "../entities/User";
+import { UserProps } from "../entities/UserProps";
 import { UpdateStrategy, UserRepository } from "../repositories/UserRepository";
 import { Id } from "../entities/Ref";
 import { OrgUnit } from "../entities/OrgUnit";
@@ -14,7 +14,7 @@ export class SaveUserOrgUnitUseCase {
         return this.saveUsers(usersToSave);
     }
 
-    private applyOrgUnitsToUsers(options: SaveUserOrgUnitOptions): User[] {
+    private applyOrgUnitsToUsers(options: SaveUserOrgUnitOptions): UserProps[] {
         return options.users.map(user => {
             const orgUnits = this.getOrgUnits(options, this.getOrgUnitFromType(user, options));
             const userOrgUnits = this.buildUserWithOrgUnits(options.orgUnitType, orgUnits);
@@ -25,7 +25,7 @@ export class SaveUserOrgUnitUseCase {
     private buildUserWithOrgUnits(
         orgUnitType: SaveUserOrgUnitOptions["orgUnitType"],
         orgUnits: OrgUnit[]
-    ): Partial<User> {
+    ): Partial<UserProps> {
         switch (orgUnitType) {
             case "capture":
                 return { organisationUnits: orgUnits };
@@ -36,7 +36,7 @@ export class SaveUserOrgUnitUseCase {
         }
     }
 
-    private getOrgUnitFromType(user: User, options: SaveUserOrgUnitOptions): OrgUnit[] {
+    private getOrgUnitFromType(user: UserProps, options: SaveUserOrgUnitOptions): OrgUnit[] {
         switch (options.orgUnitType) {
             case "capture":
                 return user.organisationUnits;
@@ -60,7 +60,7 @@ export class SaveUserOrgUnitUseCase {
         }
     }
 
-    private saveUsers(users: User[]): FutureData<void> {
+    private saveUsers(users: UserProps[]): FutureData<void> {
         return this.userRepository.save(users).toVoid();
     }
 
@@ -72,6 +72,6 @@ export class SaveUserOrgUnitUseCase {
 export type SaveUserOrgUnitOptions = {
     orgUnitsIds: Id[];
     updateStrategy: UpdateStrategy;
-    users: User[];
+    users: UserProps[];
     orgUnitType: "capture" | "output" | "search";
 };

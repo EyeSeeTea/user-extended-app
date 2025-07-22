@@ -5,7 +5,7 @@ import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
-import { LocaleCode, User } from "../../domain/entities/User";
+import { LocaleCode, UserProps } from "../../domain/entities/UserProps";
 import { UserLogic } from "../../domain/entities/UserLogic";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
@@ -30,15 +30,15 @@ export class UserD2ApiRepository implements UserRepository {
         this.userStorage = new DataStoreStorageClient("user", instance);
     }
 
-    private getLocales(users: User[]): FutureData<User[]> {
-        const $requests = users.map((user): FutureData<User> => {
+    private getLocales(users: UserProps[]): FutureData<UserProps[]> {
+        const $requests = users.map((user): FutureData<UserProps> => {
             return apiToFuture(
                 this.api.request<D2UserSettings>({
                     method: "get",
                     url: "/userSettings.json",
                     params: { user: user.username },
                 })
-            ).map((response): User => {
+            ).map((response): UserProps => {
                 return { ...user, uiLocale: response.keyUiLocale, dbLocale: response.keyDbLocale };
             });
         });
@@ -46,14 +46,14 @@ export class UserD2ApiRepository implements UserRepository {
         return Future.parallel($requests, { maxConcurrency: 5 }).map(users => users);
     }
 
-    private saveLocales(users: User[]): FutureData<void> {
+    private saveLocales(users: UserProps[]): FutureData<void> {
         const $requests = users.flatMap(user => {
             return [this.saveLocaleRequest(user, "keyDbLocale"), this.saveLocaleRequest(user, "keyUiLocale")];
         });
         return Future.parallel($requests, { maxConcurrency: 2 }).map(() => undefined);
     }
 
-    private saveLocaleRequest(user: User, keyLocale: KeyLocale): FutureData<void> {
+    private saveLocaleRequest(user: UserProps, keyLocale: KeyLocale): FutureData<void> {
         return apiToFuture(
             this.api.request({
                 method: "post",
@@ -63,7 +63,7 @@ export class UserD2ApiRepository implements UserRepository {
         );
     }
 
-    private getLocaleValueByType(user: User, keyLocale: KeyLocale): string {
+    private getLocaleValueByType(user: UserProps, keyLocale: KeyLocale): string {
         switch (keyLocale) {
             case DB_LOCALE_KEY:
                 return UserLogic.setDefaultLanguage(user.dbLocale);
@@ -72,7 +72,7 @@ export class UserD2ApiRepository implements UserRepository {
         }
     }
 
-    remove(users: User[]): FutureData<Stats> {
+    remove(users: UserProps[]): FutureData<Stats> {
         const ids = users.map(user => user.id);
         return chunkRequest(ids, userIds => {
             return apiToFuture<Dhis2Response>(
@@ -95,7 +95,7 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     @cache()
-    public getCurrent(): FutureData<User> {
+    public getCurrent(): FutureData<UserProps> {
         return apiToFuture(
             this.api.currentUser.get({
                 fields: { ...fields, organisationUnits: { ...fields.organisationUnits, level: true } },
@@ -103,7 +103,7 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(user => this.toDomainUser(user));
     }
 
-    public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
+    public list(options: ListOptions): FutureData<PaginatedResponse<UserProps>> {
         const {
             page,
             pageSize,
@@ -168,12 +168,12 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects }) => objects.map(user => user.userCredentials.username));
     }
 
-    public getByIds(ids: string[]): FutureData<User[]> {
+    public getByIds(ids: string[]): FutureData<UserProps[]> {
         if (ids.length === 0) return Future.success([]);
         return this.getUsersByIds(ids);
     }
 
-    private getUsersByIds(ids: Id[]): FutureData<User[]> {
+    private getUsersByIds(ids: Id[]): FutureData<UserProps[]> {
         const $requests = chunkRequest(
             ids,
             usersIds => {
@@ -202,8 +202,8 @@ export class UserD2ApiRepository implements UserRepository {
         return $requests.map(_.flatten);
     }
 
-    private addGroupsToUsers(users: User[], d2UsersWithGroups: D2UserGroupByKey): User[] {
-        return users.map((user): User => {
+    private addGroupsToUsers(users: UserProps[], d2UsersWithGroups: D2UserGroupByKey): UserProps[] {
+        return users.map((user): UserProps => {
             const userGroups = d2UsersWithGroups[user.id] || [];
             return { ...user, userGroups: userGroups };
         });
@@ -275,8 +275,8 @@ export class UserD2ApiRepository implements UserRepository {
 
     public listAll(
         options: ListOptions,
-        state: { initialPage: number; users: User[] } = { initialPage: 1, users: [] }
-    ): FutureData<User[]> {
+        state: { initialPage: number; users: UserProps[] } = { initialPage: 1, users: [] }
+    ): FutureData<UserProps[]> {
         const { initialPage, users } = state;
         return this.list({ ...options, pageSize: 100, page: initialPage }).flatMap(({ pager, objects }) => {
             const newUsers = [...users, ...objects];
@@ -291,7 +291,7 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    public save(usersToSave: User[]): FutureData<MetadataResponse> {
+    public save(usersToSave: UserProps[]): FutureData<MetadataResponse> {
         const validations = usersToSave.map(user => ApiUserModel.decode(this.toApiUser(user)));
         const users = _.compact(validations.map(either => either.toMaybe().extract()));
         const errors = _.compact(validations.map(either => either.leftOrDefault("")));
@@ -407,8 +407,8 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    public getColumns(): FutureData<Array<keyof User>> {
-        const $request = this.userStorage.getOrCreateObject<Array<keyof User>>(
+    public getColumns(): FutureData<Array<keyof UserProps>> {
+        const $request = this.userStorage.getOrCreateObject<Array<keyof UserProps>>(
             Namespaces.VISIBLE_COLUMNS,
             defaultColumns
         );
@@ -418,8 +418,8 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    public saveColumns(columns: Array<keyof User>): FutureData<void> {
-        return this.userStorage.saveObject<Array<keyof User>>(Namespaces.VISIBLE_COLUMNS, columns);
+    public saveColumns(columns: Array<keyof UserProps>): FutureData<void> {
+        return this.userStorage.saveObject<Array<keyof UserProps>>(Namespaces.VISIBLE_COLUMNS, columns);
     }
 
     updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<Stats> {
@@ -503,7 +503,7 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    private toDomainUser(input: ApiUserWithAudit): User {
+    private toDomainUser(input: ApiUserWithAudit): UserProps {
         const { userCredentials, ...user } = input;
         const authorities = _(userCredentials.userRoles)
             .map(userRole => userRole.authorities)
@@ -549,7 +549,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {
+    private getUserAuditFields(user: ApiUserWithAudit): Pick<UserProps, "createdBy" | "lastModifiedBy"> {
         const createdBy = user.userCredentials.createdBy || user.createdBy;
         const lastUpdatedBy = user.userCredentials.lastUpdatedBy || user.lastUpdatedBy;
         return {
@@ -558,7 +558,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    private toApiUser(input: User): ApiUserWithAudit {
+    private toApiUser(input: UserProps): ApiUserWithAudit {
         return {
             id: input.id,
             name: input.name,
@@ -596,7 +596,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    private getApiAuditFields(user: User): D2UserAudit {
+    private getApiAuditFields(user: UserProps): D2UserAudit {
         return {
             createdBy: user.createdBy ? { id: user.createdBy.id, displayName: user.createdBy.username } : undefined,
             lastUpdatedBy: user.lastModifiedBy
@@ -668,7 +668,7 @@ const fields = {
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
 export type ApiUserWithAudit = ApiUser & { userCredentials: ApiUser["userCredentials"] & D2UserAudit } & D2UserAudit;
 
-const defaultColumns: Array<keyof User> = [
+const defaultColumns: Array<keyof UserProps> = [
     "username",
     "firstName",
     "surname",
