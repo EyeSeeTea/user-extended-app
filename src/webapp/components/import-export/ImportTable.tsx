@@ -6,16 +6,7 @@ import React, { useState, useEffect, useCallback, SetStateAction, ComponentType 
 import InfoDialog from "../../../legacy/components/InfoDialog";
 import { generateUid } from "../../../utils/uid";
 import i18n from "../../../utils/i18n";
-import UserLegacy from "../../../legacy/models/user";
 import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
-import {
-    composeValidators,
-    createMaxCharacterLength,
-    createMinCharacterLength,
-    createPattern,
-    hasValue,
-    string,
-} from "@dhis2/ui";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import {
     TableRow,
@@ -611,16 +602,6 @@ const FormTextField = (props: FormTextFieldProps) => {
     );
 };
 
-const userRequiredFields = [
-    "username",
-    "firstName",
-    "surname",
-    "password",
-    "userRoles",
-    "userGroups",
-    "organisationUnits",
-];
-
 const useValidations = (
     field: UserFormField,
     allowOverwrite = false,
@@ -630,60 +611,47 @@ const useValidations = (
         case "username": {
             return {
                 validation: (value: string) => {
-                    if (!value) return i18n.t("Please provide a username");
-                    if (/^[._@-]|[._@-]$/.test(value)) {
-                        return i18n.t("Username cannot start or end with a separator");
-                    }
-                    if (/([._@-]){2,}/.test(value)) {
-                        return i18n.t("Username cannot have two separators in a row");
-                    }
-                    if (!/^[a-zA-Z0-9._@-]+$/.test(value)) {
-                        return i18n.t("Username can only include . _ - or @ as separators");
-                    }
                     if (allowOverwrite && isExistingUser) return "";
                     if (isExistingUser) {
                         return i18n.t("User already exists");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(2),
-                            createMaxCharacterLength(255)
-                        );
-                        return validators(value);
                     }
+                    const usernameValidationError = User.validateUsername(value);
+                    if (usernameValidationError) {
+                        return i18n.t(usernameValidationError);
+                    }
+                    return undefined;
                 },
             };
         }
         case "email":
             return {
-                validation: createPattern(
-                    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-                    i18n.t("Please provide a valid email")
-                ),
+                validation: (value: string) => {
+                    const emailValidationError = User.validateEmail(value);
+                    if (emailValidationError) {
+                        return i18n.t(emailValidationError);
+                    }
+                    return undefined;
+                },
             };
         case "password":
             return {
                 validation: (value: string) => {
-                    if (isExistingUser && !value) return "";
-                    if (!value) {
-                        return i18n.t("Please provide a password");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(8),
-                            createMaxCharacterLength(255),
-                            createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
-                            createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
-                            createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
-                            createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
-                        );
-                        return validators(value);
+                    const passwordValidationError = User.validatePassword(value, isExistingUser && !value);
+                    if (passwordValidationError) {
+                        return i18n.t(passwordValidationError);
                     }
+                    return undefined;
                 },
             };
         case "phoneNumber":
             return {
-                validation: createPattern(/^\+?[0-9 \-()]+$/, i18n.t("Please provide a valid phone number")),
+                validation: (value: string) => {
+                    const phoneValidationError = User.validatePhoneNumber(value);
+                    if (phoneValidationError) {
+                        return i18n.t(phoneValidationError);
+                    }
+                    return undefined;
+                },
             };
         case "userRoles":
         case "userGroups":
@@ -691,14 +659,28 @@ const useValidations = (
             // NOTE: userGroups is not a mandatory field but its required by src/domain/usecases/ImportUsersUseCase.ts
             return {
                 validation: (value: string[]) => {
-                    const errorMessage = "Please select at least one item";
-                    if (!value) return i18n.t(errorMessage);
-                    return value.length > 0 ? undefined : i18n.t(errorMessage);
+                    // Make the field name singular for the error message
+                    const fieldName = field.slice(0, -1);
+                    const arrayFieldValidationResult = User.validateRequiredArrayField(value, fieldName);
+                    if (arrayFieldValidationResult) {
+                        return i18n.t(arrayFieldValidationResult);
+                    }
+                    return undefined;
+                },
+            };
+        case "firstName":
+        case "surname":
+            return {
+                validation: (value: string) => {
+                    const fieldValidationError = User.validateRequiredStringField(value, field);
+                    if (fieldValidationError) {
+                        return i18n.t(fieldValidationError);
+                    }
+                    return undefined;
                 },
             };
         default: {
-            const required = userRequiredFields.includes(field);
-            return { validation: required ? hasValue : undefined };
+            return { validation: undefined };
         }
     }
 };

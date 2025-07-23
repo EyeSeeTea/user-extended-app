@@ -74,4 +74,96 @@ export class User extends Struct<UserProps>() {
 
         return shuffledPassword;
     }
+
+    static validateUsername(username: string): string | undefined {
+        if (!username) {
+            return "Please provide a username";
+        }
+        if (/^[._@-]|[._@-]$/.test(username)) {
+            return "Username cannot start or end with a separator";
+        }
+        if (/([._@-]){2,}/.test(username)) {
+            return "Username cannot have two separators in a row";
+        }
+        if (!/^[a-zA-Z0-9._@-]+$/.test(username)) {
+            return "Username can only include . _ - or @ as separators";
+        }
+        if (username.length < 2) {
+            return "Username should be at least 2 characters long";
+        }
+        if (username.length > 255) {
+            return "Username may not exceed 255 characters";
+        }
+
+        return undefined;
+    }
+
+    static validatePassword(password: string, isExistingUser = false): string | undefined {
+        if (isExistingUser && !password) {
+            return undefined;
+        }
+        if (!password) {
+            return "Please provide a password";
+        }
+        if (password.length < 8) {
+            return "Password should be at least 8 characters long";
+        }
+        if (password.length > 255) {
+            return "Password should be no longer than 255 characters";
+        }
+        if (!/.*[a-z]/.test(password)) {
+            return "Password should contain at least one lowercase letter";
+        }
+        if (!/.*[A-Z]/.test(password)) {
+            return "Password should contain at least one UPPERCASE letter";
+        }
+        if (!/.*[0-9]/.test(password)) {
+            return "Password should contain at least one number";
+        }
+        if (!/[^A-Za-z0-9]/.test(password)) {
+            return "Password should have at least one special character";
+        }
+
+        return undefined;
+    }
+
+    static validateEmail(email: string): string | undefined {
+        if (!email) {
+            return undefined;
+        }
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+        if (!emailRegex.test(email)) {
+            return "Please provide a valid email";
+        }
+
+        return undefined;
+    }
+
+    static validatePhoneNumber(phoneNumber: string): string | undefined {
+        if (!phoneNumber) {
+            return undefined;
+        }
+        const phoneRegex = /^\+?[0-9 \-()]+$/;
+        if (!phoneRegex.test(phoneNumber)) {
+            return "Please provide a valid phone number";
+        }
+
+        return undefined;
+    }
+
+    static validateRequiredArrayField(field: any[], fieldName: string): string | undefined {
+        if (!field || field.length === 0) {
+            return `Please select at least one ${fieldName}`;
+        }
+
+        return undefined;
+    }
+
+    static validateRequiredStringField(field: string, fieldName: string): string | undefined {
+        if (!field || field.trim().length === 0) {
+            return `${fieldName} is required`;
+        }
+
+        return undefined;
+    }
 }
