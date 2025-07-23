@@ -2,7 +2,7 @@ import _ from "lodash";
 import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
 
 import { generateUid } from "../../utils/uid";
-import { getFromTemplate } from "../../utils/template";
+import { ReplicateTemplate } from "../entities/ReplicateTemplate";
 
 import { UseCase } from "../../CompositionRoot";
 import { UserRepository } from "../repositories/UserRepository";
@@ -18,11 +18,12 @@ export class ReplicateFromTemplateUseCase implements UseCase {
         passwordTemplate: string
     ): FutureData<MetadataResponse> {
         const newUsers: UserProps[] = _.times(count, index => {
+            const adjustedIndex = index + 1;
             return {
                 ...sourceUser,
                 id: generateUid(),
-                username: getFromTemplate(usernameTemplate, index),
-                password: getFromTemplate(passwordTemplate, index),
+                username: ReplicateTemplate.getFromTemplate(usernameTemplate, adjustedIndex),
+                password: ReplicateTemplate.getFromTemplate(passwordTemplate, adjustedIndex),
                 externalAuth: false,
                 twoFactorEnabled: false,
                 openId: "",

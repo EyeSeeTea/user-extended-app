@@ -8,7 +8,7 @@ import { ReplicateFromTemplateUseCase } from "../ReplicateFromTemplateUseCase";
 import { UserProps } from "../../entities/UserProps";
 import { Future } from "../../entities/Future";
 import { MetadataResponse } from "@eyeseetea/d2-api/api";
-import { getFromTemplate } from "../../../utils/template";
+import { ReplicateTemplate } from "../../entities/ReplicateTemplate";
 
 let userRepositoryMock: UserD2ApiRepository;
 let replicateFromTemplateUseCase: ReplicateFromTemplateUseCase;
@@ -114,8 +114,8 @@ describe("ReplicateFromTemplateUseCase", () => {
             return {
                 ...user,
                 id: "",
-                username: getFromTemplate(usernameTemplate, index),
-                password: getFromTemplate(passwordTemplate, index),
+                username: ReplicateTemplate.getFromTemplate(usernameTemplate, index + 1),
+                password: ReplicateTemplate.getFromTemplate(passwordTemplate, index + 1),
                 externalAuth: false,
                 twoFactorEnabled: false,
                 openId: "",

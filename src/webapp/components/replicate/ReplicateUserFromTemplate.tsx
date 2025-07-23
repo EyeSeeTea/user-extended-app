@@ -3,25 +3,17 @@ import _ from "lodash";
 
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { Dialog, DialogTitle, DialogActions, DialogContent, Button } from "@material-ui/core";
-import {
-    InputField,
-    composeValidators,
-    createMaxCharacterLength,
-    createMinCharacterLength,
-    hasValue,
-    string,
-    number,
-} from "@dhis2/ui";
+import { InputField } from "@dhis2/ui";
 import { Form, FormSpy, Field } from "react-final-form";
 import { FormState } from "final-form";
 
 import i18n from "../../../locales";
 import { useAppContext } from "../../contexts/app-context";
-import { getFromTemplate } from "../../../utils/template";
 
 import { Id } from "../../../domain/entities/Ref";
 import { UserProps, defaultUserProps } from "../../../domain/entities/UserProps";
 import { User } from "../../../domain/entities/User";
+import { ReplicateTemplate, ReplicateTemplateProps } from "../../../domain/entities/ReplicateTemplate";
 
 interface ReplicateUserFromTemplateProps {
     userToReplicateId: Id;
@@ -146,7 +138,7 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
                                 passwordTemplate: `${randomPasswordBase}_$index`,
                             }}
                             validate={values => {
-                                const errors = formValidator(values, existingUsernames);
+                                const errors = ReplicateTemplate.validateReplicateTemplate(values, existingUsernames);
                                 return errors;
                             }}
                             autocomplete="off"
@@ -174,7 +166,7 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
                                                 name="passwordTemplate"
                                                 label="Password template"
                                                 helpText={i18n.t(
-                                                    "Please ensure to copy the password and adhere to security guidelines"
+                                                    "Please ensure to copy the password and adhere to security guidelines. Using $index is optional."
                                                 )}
                                             />
                                         </DialogContent>
@@ -195,124 +187,6 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
         </>
     );
 };
-
-function validateReplicateCount(value: string): string | undefined {
-    const numericValue = parseInt(value, 10);
-    if (numericValue < 1 || numericValue > 100) {
-        return i18n.t("Value must be between 1 and 100");
-    }
-    const validators = composeValidators(number, hasValue, createMinCharacterLength(1), createMaxCharacterLength(3));
-    return validators(value);
-}
-
-function validateIndex(value: string, count: number, label: "Username" | "Password"): string | undefined {
-    if (count > 1 && !value.includes("$index")) {
-        return i18n.t(`${label} must contain $index when replicating multiple users`);
-    }
-}
-
-function validateUsernameSeparator(value: string, count: number): string | undefined {
-    const placeholder = getFromTemplate(value, count);
-    if (/^[._@-]|[._@-]$/.test(placeholder)) {
-        return i18n.t("Username cannot start or end with a separator");
-    }
-    if (/([._@-]){2,}/.test(placeholder)) {
-        return i18n.t("Username cannot have two separators in a row");
-    }
-    if (!/^[a-zA-Z0-9._@-]+$/.test(placeholder)) {
-        return i18n.t("Username can only include . _ - or @ as separators");
-    }
-}
-
-function validatePassword(value: string, count: number): string | undefined {
-    const placeholder = getFromTemplate(value, count);
-    if (!/.*[a-z]/.test(placeholder)) {
-        return i18n.t("Password should contain at least one lowercase letter");
-    }
-    if (!/.*[A-Z]/.test(placeholder)) {
-        return i18n.t("Password should contain at least one UPPERCASE letter");
-    }
-    if (!/.*[0-9]/.test(placeholder)) {
-        return i18n.t("Password should contain at least one number");
-    }
-    if (!/[^A-Za-z0-9]/.test(placeholder)) {
-        return i18n.t("Password should have at least one special character");
-    }
-}
-
-function validateMinLength(value: string, count: number, min: number): string | undefined {
-    const placeholder = getFromTemplate(value, count);
-    if (placeholder.length < min) {
-        return i18n.t(`Please enter at least ${min} characters`);
-    }
-}
-
-function validateMaxLength(value: string, count: number): string | undefined {
-    const placeholder = getFromTemplate(value, count);
-    if (placeholder.length > 255) {
-        return i18n.t("Please enter a maximum of 255 characters");
-    }
-}
-
-function validateUsernameTemplate(value: string, existingUsernames: string[], count: number): string | undefined {
-    if (!value) return i18n.t("Please provide a username");
-    const validIndex = validateIndex(value, count, "Username");
-    if (validIndex) {
-        return validIndex;
-    }
-    if (existingUsernames.includes(value)) {
-        return i18n.t("User already exists");
-    }
-    const validSeparator = validateUsernameSeparator(value, count);
-    if (validSeparator) {
-        return validSeparator;
-    }
-
-    const validMaxLength = validateMaxLength(value, count);
-    if (validMaxLength) {
-        return validMaxLength;
-    }
-
-    const usernameTemplate = _.times(count, index => getFromTemplate(value, index));
-    if (_.intersection(usernameTemplate, existingUsernames).length > 0) {
-        return i18n.t("Template will conflict with existing usernames");
-    } else {
-        const validators = composeValidators(string, createMinCharacterLength(2));
-        return validators(value);
-    }
-}
-
-function validatePasswordTemplate(value: string, count: number): string | undefined {
-    if (!value) return i18n.t("Please provide a password");
-
-    const validPassword = validatePassword(value, count);
-    if (validPassword) {
-        return validPassword;
-    }
-    const validMinLength = validateMinLength(value, count, 8);
-    if (validMinLength) {
-        return validMinLength;
-    }
-    const validMaxLength = validateMaxLength(value, count);
-    if (validMaxLength) {
-        return validMaxLength;
-    } else {
-        const validators = composeValidators(string, createMinCharacterLength(8));
-        return validators(value);
-    }
-}
-
-function formValidator(values: FormValues, existingUsernames: string[] = []): FormErrors {
-    return {
-        replicateCount: validateReplicateCount(values.replicateCount),
-        usernameTemplate: validateUsernameTemplate(
-            values.usernameTemplate,
-            existingUsernames,
-            parseInt(values.replicateCount)
-        ),
-        passwordTemplate: validatePasswordTemplate(values.passwordTemplate, parseInt(values.replicateCount)),
-    };
-}
 
 const RenderFormField: React.FC<FormFieldProps> = ({ name, label, helpText }) => {
     return (
@@ -349,8 +223,7 @@ const RenderInputField: React.FC<InputFieldProps> = ({ label, value, setValue, e
 };
 
 type FormFieldLabels = "Number of users to create" | "Username template" | "Password template";
-type FormValues = { replicateCount: string; usernameTemplate: string; passwordTemplate: string };
-type FormErrors = { replicateCount?: string; usernameTemplate?: string; passwordTemplate?: string };
+type FormValues = ReplicateTemplateProps;
 
 interface FormFieldProps {
     name: string;
