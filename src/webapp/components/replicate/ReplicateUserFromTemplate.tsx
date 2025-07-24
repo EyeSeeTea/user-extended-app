@@ -1,19 +1,12 @@
-import React, { useCallback, useEffect } from "react";
-import _ from "lodash";
-
-import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
+import React from "react";
 import { Dialog, DialogTitle, DialogActions, DialogContent, Button } from "@material-ui/core";
 import { InputField } from "@dhis2/ui";
 import { Form, FormSpy, Field } from "react-final-form";
-import { FormState } from "final-form";
-
 import i18n from "../../../locales";
-import { useAppContext } from "../../contexts/app-context";
 
 import { Id } from "../../../domain/entities/Ref";
-import { UserProps, defaultUserProps } from "../../../domain/entities/UserProps";
-import { User } from "../../../domain/entities/User";
-import { ReplicateTemplate, ReplicateTemplateProps } from "../../../domain/entities/ReplicateTemplate";
+import { ReplicateTemplateProps } from "../../../domain/entities/ReplicateTemplate";
+import { useReplicateUserFromTemplate } from "../../hooks/useReplicateUserFromTemplate";
 
 interface ReplicateUserFromTemplateProps {
     userToReplicateId: Id;
@@ -21,108 +14,16 @@ interface ReplicateUserFromTemplateProps {
 }
 
 export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps> = props => {
-    const { compositionRoot } = useAppContext();
     const { userToReplicateId, onRequestClose } = props;
-
-    const [userToReplicate, setUserToReplicate] = React.useState<UserProps>(defaultUserProps);
-    const [existingUsernames, setExistingUsernames] = React.useState<string[]>([]);
-    const [replicateTitle, setReplicateTitle] = React.useState<string>(i18n.t("Replicate User"));
-    const [hasValidationErrors, setValidationError] = React.useState<boolean>(false);
-    const [isUserLoaded, setIsUserLoaded] = React.useState(true);
-    const [isMounted, setIsMounted] = React.useState(false);
-
-    const randomPasswordBase = React.useMemo(() => {
-        return User.generateRandomPassword();
-    }, []);
-
-    const loading = useLoading();
-    const snackbar = useSnackbar();
-
-    useEffect(() => {
-        const handleUsersError = (message: string) => {
-            snackbar.error(i18n.t(message));
-            onRequestClose();
-        };
-
-        loading.show(true);
-        setIsUserLoaded(false);
-
-        compositionRoot.users.get([userToReplicateId]).run(
-            ([user]) => {
-                if (!user) {
-                    handleUsersError(`Unable to load user: ${userToReplicateId}`);
-                } else {
-                    setUserToReplicate(user);
-                }
-            },
-            error => {
-                handleUsersError(`Error loading user (${userToReplicateId}): ${error}`);
-            }
-        );
-
-        compositionRoot.users.listAll({}).run(
-            users => {
-                const usernames = users.map(user => user.username);
-                setExistingUsernames(usernames);
-            },
-            error => {
-                handleUsersError(`Error loading user (${userToReplicateId}): ${error}`);
-            }
-        );
-        setIsUserLoaded(true);
-    }, [compositionRoot, loading, onRequestClose, snackbar, userToReplicateId]);
-
-    useEffect(() => {
-        if (isUserLoaded && userToReplicate.username) {
-            setReplicateTitle(
-                i18n.t("Replicate {{user}}", {
-                    user: `${userToReplicate.name} (${userToReplicate.username})`,
-                })
-            );
-            setIsMounted(true);
-            loading.reset();
-        }
-    }, [isUserLoaded, loading, userToReplicate]);
-
-    const replicateUsers = useCallback(
-        async ({
-            replicateCount,
-            usernameTemplate,
-            passwordTemplate,
-        }: {
-            replicateCount: string;
-            usernameTemplate: string;
-            passwordTemplate: string;
-        }) => {
-            loading.show(true, i18n.t("Replicating users"));
-
-            return compositionRoot.users
-                .replicateFromTemplate(userToReplicate, parseInt(replicateCount), usernameTemplate, passwordTemplate)
-                .run(
-                    () => {
-                        loading.hide();
-                        onRequestClose();
-                        snackbar.success(
-                            i18n.t("User {{user}} replicated successfully {{n}} times", {
-                                user: userToReplicate.username,
-                                n: replicateCount,
-                            })
-                        );
-                    },
-                    error => {
-                        loading.hide();
-                        snackbar.error(
-                            i18n.t("Error replicating user {{user}}: {{message}}", {
-                                user: userToReplicate.username,
-                                message: error,
-                                nsSeparator: false,
-                            })
-                        );
-                    }
-                );
-        },
-        [compositionRoot.users, loading, snackbar, onRequestClose, userToReplicate]
-    );
+    const {
+        replicateTitle,
+        hasValidationErrors,
+        isMounted,
+        initialValues,
+        validateTemplate,
+        replicateUsers,
+        handleFormStateChange,
+    } = useReplicateUserFromTemplate(userToReplicateId, onRequestClose);
 
     return (
         <>
@@ -132,25 +33,12 @@ export const ReplicateUserFromTemplate: React.FC<ReplicateUserFromTemplateProps>
                     <DialogContent>
                         <Form<FormValues>
                             onSubmit={replicateUsers}
-                            initialValues={{
-                                replicateCount: "1",
-                                usernameTemplate: `${userToReplicate.username}_$index`,
-                                passwordTemplate: `${randomPasswordBase}_$index`,
-                            }}
-                            validate={values => {
-                                const errors = ReplicateTemplate.validateReplicateTemplate(values, existingUsernames);
-                                return errors;
-                            }}
+                            initialValues={initialValues}
+                            validate={validateTemplate}
                             autocomplete="off"
                             render={({ handleSubmit }) => (
                                 <>
-                                    <FormSpy
-                                        onChange={(state: FormState<FormValues>) => {
-                                            requestAnimationFrame(() => {
-                                                setValidationError(!_.isEmpty(state.errors));
-                                            });
-                                        }}
-                                    />
+                                    <FormSpy onChange={handleFormStateChange} />
 
                                     <form id="replicate-form" onSubmit={handleSubmit}>
                                         <DialogContent>
