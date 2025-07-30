@@ -1,5 +1,4 @@
 import { Provider } from "@dhis2/app-runtime";
-import i18n from "@dhis2/d2-i18n";
 import axios from "axios";
 //@ts-ignore
 import { init } from "d2/lib/d2";
@@ -9,6 +8,7 @@ import { Instance } from "./data/entities/Instance";
 import { D2Api } from "./types/d2-api";
 import { getD2APiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
+import i18n from "./locales";
 import "./webapp/utils/wdyr";
 
 declare global {
