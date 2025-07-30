@@ -9,13 +9,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgid "Details"
-msgstr "Détails"
+msgstr "Voir les détails"
 
 msgid "Edit"
-msgstr "Modifier"
+msgstr "Modifiez"
 
 msgid "Copy in user"
-msgstr "Copier dans l'utilisateur"
+msgstr "Copier vers l'utilisateur"
 
 msgid "Assign to data capture organisation units"
 msgstr "Assigner aux unités d'organisation de saisie de données"
@@ -33,10 +33,10 @@ msgid "Assign groups"
 msgstr "Assigner des groupes"
 
 msgid "Enable"
-msgstr "Activer"
+msgstr "Activez"
 
 msgid "Disable"
-msgstr "Désactiver"
+msgstr "Désactivez"
 
 msgid "Reset password"
 msgstr "Réinitialiser le mot de passe"
