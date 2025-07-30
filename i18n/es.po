@@ -9,13 +9,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgid "Details"
-msgstr "Detalles"
+msgstr "Ver detalles"
 
 msgid "Edit"
 msgstr "Editar"
 
 msgid "Copy in user"
-msgstr "Copiar a usuario"
+msgstr "Copiar en el usuario"
 
 #, fuzzy
 msgid "Assign to data capture organisation units"
