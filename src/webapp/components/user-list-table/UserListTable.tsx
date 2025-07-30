@@ -138,7 +138,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
     const { users: allUsers } = useGetAllUsers();
     const { appSettings, setAppSettings } = useAppSettingsContext();
-    const { showOnlyUsersOrgUnits: onlyUsersOrgUnits, showOnlyActiveUsers: onlyActiveUsers } = appSettings;
+    const {
+        showOnlyUsersOrgUnits: onlyUsersOrgUnits,
+        showOnlyActiveUsers: onlyActiveUsers,
+        hide: { users: hideUsers },
+    } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
     const currentUserAccessibleActions = useMemo(
@@ -644,7 +648,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         {importSettings && mappingColumns && (
                             <ImportExport
                                 columns={mappingColumns}
-                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers }}
+                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers, hideUsers }}
                                 onImport={showImportDialog}
                                 settings={importSettings}
                             />
