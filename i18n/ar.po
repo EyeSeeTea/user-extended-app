@@ -12,13 +12,13 @@ msgid "Details"
 msgstr "تفاصيل"
 
 msgid "Edit"
-msgstr "تعديل"
+msgstr "حرّر"
 
 msgid "Copy in user"
-msgstr "نسخ في المستخدم"
+msgstr "نسخ إلى المستخدم"
 
 msgid "Assign to data capture organisation units"
-msgstr "تعيين إلى وحدات تنظيم جمع البيانات"
+msgstr "تعيين إلى وحدات التنظيم لجمع البيانات"
 
 msgid "Assign to data view organisation units"
 msgstr "تعيين إلى وحدات تنظيم عرض البيانات"
