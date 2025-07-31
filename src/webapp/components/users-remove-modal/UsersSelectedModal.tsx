@@ -23,7 +23,6 @@ export type RiskyActionType = "remove" | "enable" | "disable" | "reset_password"
 
 export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user";
 
-// TODO: Add into i18n translation files (as will not be recognized by i18n-scanner)
 function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
     switch (actionType) {
         case "remove":
