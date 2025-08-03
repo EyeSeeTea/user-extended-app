@@ -14,6 +14,7 @@ export interface AppContextState {
 export const AppContext = React.createContext<AppContextState | null>(null);
 
 export function useAppContext() {
+    //FIXME: Unsure about this.
     i18n.setDefaultNamespace("user-extended-app");
     const context = useContext(AppContext);
     if (context) {

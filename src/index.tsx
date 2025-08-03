@@ -38,6 +38,7 @@ const isLangRTL = (code: string) => {
 const configI18n = ({ keyUiLocale }: { keyUiLocale: string }) => {
     i18n.changeLanguage(keyUiLocale);
     document.documentElement.setAttribute("dir", isLangRTL(keyUiLocale) ? "rtl" : "ltr");
+    console.log(i18n);
 };
 
 /**  @deprecated

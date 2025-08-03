@@ -253,7 +253,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
             const currentUsername = users[rowIndex]?.username || user.username;
             const existingUser = existingUsers[currentUsername];
             const chipTitle = existingUser
-                ? i18n.t("User already exists: {{id}}", { id: existingUser.id, nsSeparator: false })
+                ? i18n.t("User already exists: {{id}}", { id: existingUser.id, nsSeparator: undefined })
                 : "";
             const chipText = (rowIndex + 1).toString() + (existingUser ? "-E" : "");
             const duplicateUsernames = findDuplicatesInUsernames(users);
@@ -545,7 +545,7 @@ function getDuplicateUsernameError(options: { duplicate: DuplicateInfo; rowIndex
     if (options.rowIndex === undefined) return "";
     const { duplicate, rowIndex } = options;
     return duplicate.indexes.includes(rowIndex)
-        ? i18n.t("Duplicated username: {{username}}", { nsSeparator: false, username: duplicate.duplicateValue })
+        ? i18n.t("Duplicated username: {{username}}", { nsSeparator: undefined, username: duplicate.duplicateValue })
         : "";
 }
 

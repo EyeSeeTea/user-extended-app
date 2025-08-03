@@ -15,7 +15,8 @@ import { Router } from "../Router";
 import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
-import { Feedback, FeedbackOptions } from "@eyeseetea/feedback-component";
+//FIXME: Feedback component is messing up translations as per new i18n
+// import { Feedback, FeedbackOptions } from "@eyeseetea/feedback-component";
 import { AppSettingsProvider, useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Maybe } from "../../../types/utils";
 
@@ -65,7 +66,7 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
                                 </div>
 
                                 <Share visible={showShareButton} />
-                                <FeedbackWrapper options={appConfig.feedback} username={username} />
+                                {/* <FeedbackWrapper options={appConfig.feedback} username={username} /> */}
                             </AppSettingsProvider>
                         </AppContext.Provider>
                     </LoadingProvider>
@@ -77,13 +78,13 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
 
 type D2 = object;
 
-interface FeedbackProps {
-    options: FeedbackOptions;
-    username: string;
-}
+// interface FeedbackProps {
+//     options: FeedbackOptions;
+//     username: string;
+// }
 
-const FeedbackWrapper: React.FC<FeedbackProps> = ({ options, username }) => {
-    const { appSettings } = useAppSettingsContext();
-    if (!appSettings.showFeedback) return null;
-    return <Feedback options={options} username={username} />;
-};
+// const FeedbackWrapper: React.FC<FeedbackProps> = ({ options, username }) => {
+//     const { appSettings } = useAppSettingsContext();
+//     if (!appSettings.showFeedback) return null;
+//     return <Feedback options={options} username={username} />;
+// };

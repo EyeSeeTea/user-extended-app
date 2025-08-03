@@ -71,7 +71,7 @@ export const MultiSelectorDialog: React.FC<MultiSelectorDialogProps> = ({ type, 
             onSave={handleSave}
         >
             <Container>
-                <Label>{i18n.t("Update strategy: ", { nsSeparator: false })}</Label>
+                <Label>{i18n.t("Update strategy: ", { nsSeparator: undefined })}</Label>
 
                 <SegmentedControl
                     options={[

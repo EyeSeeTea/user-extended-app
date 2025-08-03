@@ -15,11 +15,11 @@ export const AboutPage: React.FC = React.memo(() => {
         ),
         i18n.t(
             "This application has been funded by the the Norwegian Refugee Council (NRC), the WHO Global Malaria Programme, Samaritan’s Purse and Medecins Sans Frontières (MSF) to support countries in strengthening the collection and use of health data by using DHIS2. The application has been developed by [EyeSeeTea SL](http://eyeseetea.com). Source code, documentation and release notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea.github.io/user-extended-app-blessed/)",
-            { nsSeparator: false }
+            { nsSeparator: undefined }
         ),
         i18n.t(
             "If you wish to contribute to the development of User Extended App with new features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com).",
-            { nsSeparator: false }
+            { nsSeparator: undefined }
         ),
     ].join("\n\n");
 
