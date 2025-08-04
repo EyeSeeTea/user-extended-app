@@ -1,6 +1,7 @@
+// import d2UiComponentsI18n from "@eyeseetea/d2-ui-components/locales";
+// import d2I18n from "@dhis2/d2-i18n";
 import { Provider } from "@dhis2/app-runtime";
 import axios from "axios";
-//@ts-ignore
 import { init } from "d2/lib/d2";
 import _ from "lodash";
 import ReactDOM from "react-dom";
@@ -8,7 +9,8 @@ import { Instance } from "./data/entities/Instance";
 import { D2Api } from "./types/d2-api";
 import { getD2APiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
-import i18n from "./locales";
+import userExtendedI18n from "./locales";
+import { D2OldI18n } from "./types/d2-old-i18n";
 import "./webapp/utils/wdyr";
 
 declare global {
@@ -36,23 +38,34 @@ const isLangRTL = (code: string) => {
 };
 
 const configI18n = ({ keyUiLocale }: { keyUiLocale: string }) => {
-    i18n.changeLanguage(keyUiLocale);
+    // d2UiComponentsI18n.changeLanguage(keyUiLocale);
+    userExtendedI18n.changeLanguage(keyUiLocale);
+    // d2I18n.changeLanguage(keyUiLocale);
     document.documentElement.setAttribute("dir", isLangRTL(keyUiLocale) ? "rtl" : "ltr");
-    console.log(i18n);
+    // console.log("d2UiComponentsI18n languages:", d2UiComponentsI18n.languages);
+    // console.log("d2UiComponentsI18n translations:", d2UiComponentsI18n.options);
+
+    console.log("userExtendedI18n languages:", userExtendedI18n.languages);
+    console.log("userExtendedI18n translations:", userExtendedI18n.options);
+
+    // console.log("d2I18n languages:", d2I18n.languages);
+    // console.log("d2I18n translations:", d2I18n.options);
 };
 
 /**  @deprecated
  *
  */
-const initDeprecatedI18n = (d2: any, { keyUiLocale }: { keyUiLocale: string }) => {
+const initDeprecatedI18n = (oldD2I18n: D2OldI18n, { keyUiLocale }: { keyUiLocale: string }) => {
     if (keyUiLocale && keyUiLocale !== "en") {
         // Add the language sources for the preferred locale
-        d2.i18n.addSource(`old-i18n/i18n_module_${keyUiLocale}.properties`);
+        oldD2I18n.addSource(`old-i18n/i18n_module_${keyUiLocale}.properties`);
     }
 
     // Add english as locale for all cases (either as primary or fallback)
-    d2.i18n.addSource("old-i18n/i18n_module_en.properties");
-    d2.i18n.load();
+    oldD2I18n.addSource("old-i18n/i18n_module_en.properties");
+    oldD2I18n.load();
+
+    console.log(oldD2I18n.translations);
 };
 
 async function main() {
@@ -73,7 +86,7 @@ async function main() {
 
         const userSettings = await api.get<{ keyUiLocale: string }>("/userSettings").getData();
         configI18n(userSettings);
-        initDeprecatedI18n(d2, userSettings);
+        initDeprecatedI18n(d2.i18n, userSettings);
 
         ReactDOM.render(
             <Provider config={{ baseUrl, apiVersion: 30 }}>
