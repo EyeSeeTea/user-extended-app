@@ -10,7 +10,7 @@ import { D2Api } from "./types/d2-api";
 import { getD2APiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
 import userExtendedI18n from "./locales";
-import { D2OldI18n } from "./types/d2-old-i18n";
+import { LegacyD2I18n } from "./types/d2-legacy-i18n";
 import "./webapp/utils/wdyr";
 
 declare global {
@@ -55,17 +55,17 @@ const configI18n = ({ keyUiLocale }: { keyUiLocale: string }) => {
 /**  @deprecated
  *
  */
-const initDeprecatedI18n = (oldD2I18n: D2OldI18n, { keyUiLocale }: { keyUiLocale: string }) => {
+const initDeprecatedI18n = (legacyI18n: LegacyD2I18n, { keyUiLocale }: { keyUiLocale: string }) => {
     if (keyUiLocale && keyUiLocale !== "en") {
         // Add the language sources for the preferred locale
-        oldD2I18n.addSource(`old-i18n/i18n_module_${keyUiLocale}.properties`);
+        legacyI18n.addSource(`old-i18n/i18n_module_${keyUiLocale}.properties`);
     }
 
     // Add english as locale for all cases (either as primary or fallback)
-    oldD2I18n.addSource("old-i18n/i18n_module_en.properties");
-    oldD2I18n.load();
+    legacyI18n.addSource("old-i18n/i18n_module_en.properties");
+    legacyI18n.load();
 
-    console.log(oldD2I18n.translations);
+    console.log(legacyI18n.translations);
 };
 
 async function main() {
