@@ -1,7 +1,7 @@
 /**
  * I18n class for handling internationalization and localization
  */
-declare type D2OldI18n = {
+declare type LegacyD2I18n = {
     /**
      * Array of source paths to load translations from
      */
@@ -90,7 +90,7 @@ declare type D2OldI18n = {
      *
      * @returns New I18n instance
      */
-    static getI18n(): I18n;
+    static getI18n(): LegacyD2I18n;
 };
 
-export type { D2OldI18n };
+export type { LegacyD2I18n };
