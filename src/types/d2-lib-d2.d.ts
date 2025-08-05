@@ -1,8 +1,8 @@
 declare module "d2/lib/d2" {
-    import { D2OldI18n } from "./d2-old-i18n";
+    import { LegacyD2I18n } from "./d2-legacy-i18n";
 
     interface D2 {
-        i18n: D2OldI18n;
+        i18n: LegacyD2I18n;
         [key: string]: any;
     }
 
@@ -18,5 +18,5 @@ declare module "d2/lib/d2" {
     export function getInstance(): Promise<D2>;
     export function init(config: D2InitConfig): Promise<D2>;
     export function generateUid(): string;
-    export const i18n: D2OldI18n;
+    export const i18n: LegacyD2I18n;
 }

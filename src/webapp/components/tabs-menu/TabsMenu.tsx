@@ -2,7 +2,7 @@ import React from "react";
 import { Paper, Tab, Tabs } from "@material-ui/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Maybe } from "../../../types/utils";
-import i18n from "./../../../locales";
+import i18n from "./../../../utils/i18n";
 
 function getTabsValues() {
     return [

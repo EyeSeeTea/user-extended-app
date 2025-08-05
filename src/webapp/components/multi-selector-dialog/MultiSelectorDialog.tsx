@@ -7,7 +7,7 @@ import { Future } from "../../../domain/entities/Future";
 import { NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
 import { UpdateStrategy } from "../../../domain/repositories/UserRepository";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import { ellipsizedList } from "../../utils/list";
 

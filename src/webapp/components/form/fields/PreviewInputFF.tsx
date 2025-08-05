@@ -1,6 +1,6 @@
 import { InputField } from "@dhis2/ui";
 import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
-import i18n from "../../../../locales";
+import i18n from "../../../../utils/i18n";
 import _ from "lodash";
 import { TextField } from "@material-ui/core";
 import React, { FunctionComponent, useState } from "react";

@@ -17,7 +17,7 @@ import _ from "lodash";
 import { useCallback } from "react";
 import ReactJson from "react-json-view";
 import { MetadataResponse, MetadataResponseStats } from "../../../domain/entities/Metadata";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 const useStyles = makeStyles(theme => ({
     accordionHeading1: {

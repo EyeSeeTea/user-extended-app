@@ -9,7 +9,7 @@ import { D2Api } from "./types/d2-api";
 import { getD2APiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
 import { LegacyD2I18n } from "./types/d2-legacy-i18n";
-import i18n from "./locales";
+import i18n from "./utils/i18n";
 import "./webapp/utils/wdyr";
 
 declare global {

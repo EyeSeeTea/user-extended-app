@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, SetStateAction, ComponentType 
 
 import InfoDialog from "../../../legacy/components/InfoDialog";
 import { generateUid } from "../../../utils/uid";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import UserLegacy from "../../../legacy/models/user";
 import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
 import {

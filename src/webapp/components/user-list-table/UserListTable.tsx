@@ -20,7 +20,7 @@ import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { checkAccess, checkHasEmail, hasReplicateAuthority, User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
