@@ -17,7 +17,6 @@ msgstr "Editar"
 msgid "Copy in user"
 msgstr "Copiar en el usuario"
 
-#, fuzzy
 msgid "Assign to data capture organisation units"
 msgstr "Asignar a unidades organizativas de captura"
 
@@ -111,7 +110,6 @@ msgstr "Estado"
 msgid "Open ID"
 msgstr "ID abierto"
 
-#, fuzzy
 msgid "Created by"
 msgstr "Creado por"
 
@@ -166,7 +164,6 @@ msgstr "Visible"
 msgid "Optional"
 msgstr "Opcional"
 
-#, fuzzy
 msgid "Copy in user: {{user}}"
 msgstr "Copiar a usuario: {{user}}"
 
@@ -176,7 +173,6 @@ msgstr "Selecciona una opción"
 msgid "Select at least one user"
 msgstr "Selecciona al menos un usuario"
 
-#, fuzzy
 msgid "Bulk update strategy: "
 msgstr "Estrategia de actualización masiva: "
 
@@ -210,7 +206,6 @@ msgstr "Propietario"
 msgid "Users"
 msgstr "Usuarios"
 
-#, fuzzy
 msgid "Import/Export"
 msgstr "Importar/Exportar"
 
@@ -340,7 +335,6 @@ msgstr "Volver"
 msgid "Help"
 msgstr "Ayuda"
 
-#, fuzzy
 msgid "Search users"
 msgstr "Buscar usuarios"
 
@@ -388,7 +382,6 @@ msgstr "Guardando..."
 msgid "Logger"
 msgstr "Logger"
 
-#, fuzzy
 msgid "Columns"
 msgstr "Columnas"
 
@@ -494,7 +487,6 @@ msgstr "{{action}}: {{users}} {{remainingCount}}"
 msgid "User ID"
 msgstr "ID de usuario"
 
-#, fuzzy
 msgid "Data capture organisation units"
 msgstr "Unidades organizativas de captura"
 
@@ -513,7 +505,6 @@ msgstr "Última modificación hecha por"
 msgid "And {{overflow}} more..."
 msgstr "Y {{overflow}} más..."
 
-#, fuzzy
 msgid "Loading users..."
 msgstr "Cargando usuarios..."
 
@@ -523,39 +514,30 @@ msgstr "Filtrar propietarios"
 msgid "Clear"
 msgstr "Limpiar"
 
-#, fuzzy
 msgid "Select users"
 msgstr "Seleccionar usuarios"
 
-#, fuzzy
 msgid "Remove users"
 msgstr "Eliminar usuarios"
 
-#, fuzzy
 msgid "Users removed"
 msgstr "Usuarios eliminados"
 
-#, fuzzy
 msgid "Disable users"
 msgstr "Deshabilitar usuarios"
 
-#, fuzzy
 msgid "Users disabled"
 msgstr "Usuarios deshabilitados"
 
-#, fuzzy
 msgid "Enable users"
 msgstr "Habilitar usuarios"
 
-#, fuzzy
 msgid "Users enabled"
 msgstr "Usuarios habilitados"
 
-#, fuzzy
 msgid "Reset passwords"
 msgstr "Restablecer contraseñas"
 
-#, fuzzy
 msgid "reset the passwords for"
 msgstr "restablecer las contraseñas de"
 
@@ -680,6 +662,5 @@ msgctxt "warnings"
 msgid "and_n_more"
 msgstr "y {{n}} más"
 
-#, fuzzy
 #~ msgid "close"
 #~ msgstr "Cerrar"
