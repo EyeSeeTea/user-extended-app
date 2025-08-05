@@ -1,4 +1,5 @@
 import { createTheme } from "@material-ui/core/styles";
+import { Localization } from "@material-ui/core/locale";
 
 // Color palette from https://projects.invisionapp.com/share/A7LT4TJYETS#/screens/302550228_Color
 export const colors = {
@@ -74,18 +75,22 @@ export const palette = {
     shadow: colors.grey,
 };
 
-export const muiTheme = createTheme({
-    // colors,
-    palette,
-    typography: {
-        fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-        // useNextVariants: true,
-    },
-    overrides: {
-        MuiDivider: {
-            light: {
-                backgroundColor: palette.divider, // No light dividers for now
+export const muiTheme = (localization: Localization) =>
+    createTheme(
+        {
+            // colors,
+            palette,
+            typography: {
+                fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+                // useNextVariants: true,
+            },
+            overrides: {
+                MuiDivider: {
+                    light: {
+                        backgroundColor: palette.divider, // No light dividers for now
+                    },
+                },
             },
         },
-    },
-});
+        localization
+    );

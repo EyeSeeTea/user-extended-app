@@ -1,16 +1,15 @@
-// import d2UiComponentsI18n from "@eyeseetea/d2-ui-components/locales";
-// import d2I18n from "@dhis2/d2-i18n";
-import { Provider } from "@dhis2/app-runtime";
-import axios from "axios";
-import { init } from "d2/lib/d2";
 import _ from "lodash";
+import axios from "axios";
 import ReactDOM from "react-dom";
+import { Provider } from "@dhis2/app-runtime";
+import { init } from "d2/lib/d2";
+
 import { Instance } from "./data/entities/Instance";
 import { D2Api } from "./types/d2-api";
 import { getD2APiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
-import userExtendedI18n from "./locales";
 import { LegacyD2I18n } from "./types/d2-legacy-i18n";
+import i18n from "./locales";
 import "./webapp/utils/wdyr";
 
 declare global {
@@ -38,18 +37,9 @@ const isLangRTL = (code: string) => {
 };
 
 const configI18n = ({ keyUiLocale }: { keyUiLocale: string }) => {
-    // d2UiComponentsI18n.changeLanguage(keyUiLocale);
-    userExtendedI18n.changeLanguage(keyUiLocale);
-    // d2I18n.changeLanguage(keyUiLocale);
+    i18n.changeLanguage(keyUiLocale);
+    console.debug(`i18n language set to ${i18n.language}`);
     document.documentElement.setAttribute("dir", isLangRTL(keyUiLocale) ? "rtl" : "ltr");
-    // console.log("d2UiComponentsI18n languages:", d2UiComponentsI18n.languages);
-    // console.log("d2UiComponentsI18n translations:", d2UiComponentsI18n.options);
-
-    console.log("userExtendedI18n languages:", userExtendedI18n.languages);
-    console.log("userExtendedI18n translations:", userExtendedI18n.options);
-
-    // console.log("d2I18n languages:", d2I18n.languages);
-    // console.log("d2I18n translations:", d2I18n.options);
 };
 
 /**  @deprecated
@@ -64,8 +54,6 @@ const initDeprecatedI18n = (legacyI18n: LegacyD2I18n, { keyUiLocale }: { keyUiLo
     // Add english as locale for all cases (either as primary or fallback)
     legacyI18n.addSource("old-i18n/i18n_module_en.properties");
     legacyI18n.load();
-
-    console.log(legacyI18n.translations);
 };
 
 async function main() {
@@ -90,7 +78,7 @@ async function main() {
 
         ReactDOM.render(
             <Provider config={{ baseUrl, apiVersion: 30 }}>
-                <App api={api} d2={d2} instance={instance} />
+                <App api={api} d2={d2} instance={instance} keyUiLocale={userSettings.keyUiLocale} />
             </Provider>,
             document.getElementById("root")
         );
