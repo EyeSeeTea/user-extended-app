@@ -540,7 +540,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             action: buildOrgUnitTitleByAction(actionType, ouCaptureI18n, ouOutputI18n, ouSearchI18n),
             users: getFirstThreeUserNames(users).join(", "),
             remainingCount: generateMessage(users),
-            nsSeparator: undefined,
+            nsSeparator: "$noop$",
         });
     }, [actionType, users, ouCaptureI18n, ouOutputI18n, ouSearchI18n]);
 
