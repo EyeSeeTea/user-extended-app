@@ -47,7 +47,7 @@ const muiLocalizations = muiLocalesCSV.map(str => {
     const [name, bcp47, importName] = str.split(";");
     const localeParts = (bcp47 ?? "").split("-");
     const locale = localeParts[0];
-    const country = localeParts[1];
+    const country = localeParts[1] ?? localeParts[0]?.toUpperCase();
 
     if (!isValidImportName(importName)) {
         throw new Error(`Invalid locale importName: ${importName}`);
