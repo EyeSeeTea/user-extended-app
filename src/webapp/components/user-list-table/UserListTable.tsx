@@ -114,6 +114,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     reloadTableKey,
     onAction,
     filterOption,
+    onlyUsersOrgUnits,
 }) => {
     const { compositionRoot, currentUser } = useAppContext();
     const [reloadKey, reload] = useReload();
@@ -136,9 +137,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const userColumns = useUserColumns();
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
-    const { users: allUsers } = useGetAllUsers();
+    const { users: allUsers } = useGetAllUsers(onlyUsersOrgUnits);
     const { appSettings, setAppSettings } = useAppSettingsContext();
-    const { showOnlyUsersOrgUnits: onlyUsersOrgUnits, showOnlyActiveUsers: onlyActiveUsers } = appSettings;
+    const {
+        showOnlyActiveUsers: onlyActiveUsers,
+        hide: { users: _hideUsers },
+    } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
     const currentUserAccessibleActions = useMemo(
@@ -422,7 +426,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         filters,
                         canManage,
                         rootJunction,
-                        onlyUsersOrgUnits: onlyUsersOrgUnits,
+                        onlyUsersOrgUnits,
                         onlyActiveUsers: onlyActiveUsers,
                         hideUsers: appSettings.hide.users,
                     })
@@ -442,7 +446,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters,
                     canManage,
                     rootJunction,
-                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
                     hideUsers: appSettings.hide.users,
                 })
@@ -481,7 +485,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters,
                     canManage,
                     rootJunction,
-                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
                     hideUsers: appSettings.hide.users,
                 })
@@ -662,6 +666,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     usersFromFile={importResult.users}
                     columns={importResult.columns}
                     warnings={importResult.warnings}
+                    onlyUsersOrgUnits={onlyUsersOrgUnits}
                 />
             )}
         </React.Fragment>
@@ -795,7 +800,7 @@ export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loadi
     reloadTableKey: number;
     onAction: (ids: string[], action: UserActionName) => void;
     filterOption: ListOptions;
-    usersOrgUnits: boolean;
+    onlyUsersOrgUnits: boolean;
 }
 
 export function buildEllipsizedList(items: NamedRef[], limit = 3) {

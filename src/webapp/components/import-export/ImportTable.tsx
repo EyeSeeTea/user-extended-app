@@ -93,6 +93,7 @@ type ImportTableProps = {
     templateUser?: UserLegacy;
     actionText: string;
     warnings: string[];
+    onlyUsersOrgUnits: boolean;
 };
 
 export const ImportTable: React.FC<ImportTableProps> = props => {
@@ -105,6 +106,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         templateUser = null,
         actionText,
         warnings = [],
+        onlyUsersOrgUnits,
     } = props;
     const [users, setUsers] = useState<User[]>(usersFromFile);
     const [existingUsers, setExistingUsers] = React.useState<Record<string, User>>({});
@@ -127,7 +129,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const loading = useLoading();
 
-    const { users: allUsers } = useGetAllUsers();
+    const { users: allUsers } = useGetAllUsers(onlyUsersOrgUnits);
     useEffect(() => {
         const getUsername = (user: User | ApiUser): string => {
             if ("userCredentials" in user) {
