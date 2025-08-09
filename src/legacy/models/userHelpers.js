@@ -575,6 +575,25 @@ function getPayload(d2, parentUser, destUsers, fields, updateStrategy) {
     return saveCopyInUsers(d2, users, fields.userGroups);
 }
 
+async function addUserToUserGroup(d2, users, userGroups) {
+    const userGroupIds = userGroups.map(group => ({ id: group.id }));
+
+    const userEntities = users.map(user => ({
+        ...user,
+        userGroups: userGroupIds,
+    }));
+
+    const baseUrl = getFormattedBaseUrl(d2);
+    const userRepository = new UserD2ApiRepository({ url: baseUrl });
+
+    return userRepository.updateUserGroups(userEntities, []).runAsync();
+}
+
+function getFormattedBaseUrl(d2) {
+    const d2Api = d2.Api.getApi();
+    return d2Api.baseUrl.replace(/\/api\/?$/, "");
+}
+
 export {
     importFromCsv,
     importFromJson,
@@ -584,4 +603,5 @@ export {
     getExistingUsers,
     getPayload,
     postMetadata,
+    addUserToUserGroup,
 };

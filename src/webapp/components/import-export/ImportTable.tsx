@@ -195,7 +195,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                           .take(maxWarnings)
                           .map((line, idx) => `${idx + 1}. ${line}`)
                           .value(),
-                      hiddenWarnings > 0 ? i18n.t("and_n_more_warnings", { n: hiddenWarnings }) : null,
+                      hiddenWarnings > 0 ? i18n.t("[... and {{n}} more warning(s) ...]", { n: hiddenWarnings }) : null,
                   ])
                       .compact()
                       .join("\n");

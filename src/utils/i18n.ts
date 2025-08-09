@@ -1,6 +1,3 @@
-import i18n from "../locales";
+import { getModuleForNamespace } from "./i18n-typed";
 
-const clone = i18n.cloneInstance();
-clone.setDefaultNamespace("user-extended-app");
-
-export default clone;
+export default getModuleForNamespace("user-extended-app");

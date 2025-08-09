@@ -741,6 +741,18 @@ export function useUserColumns() {
                 text: i18n.t("Last Modified By"),
                 getValue: row => row.lastModifiedBy?.username || "",
             },
+            {
+                name: "twoFactorEnabled",
+                sortable: false,
+                text: i18n.t("2FA"),
+                getValue: row => (row.twoFactorEnabled ? <Check /> : undefined),
+            },
+            {
+                name: "externalAuth",
+                sortable: false,
+                text: i18n.t("External Auth"),
+                getValue: row => (row.externalAuth ? <Check /> : undefined),
+            },
         ];
     }, []);
     return columns;
