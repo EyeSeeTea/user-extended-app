@@ -10,7 +10,6 @@ export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
 type AppSettingsAttr = {
     columns: SettingsUserColumn[];
     showOnlyActiveUsers: boolean;
-    showOnlyUsersOrgUnits: boolean;
     showFeedback: boolean;
     settingsAccess: Permission;
     actionsAccess: ActionsPermissions;
@@ -32,7 +31,6 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
         return this.create({
             columns: [],
             showOnlyActiveUsers: false,
-            showOnlyUsersOrgUnits: false,
             showFeedback: true,
             settingsAccess: emptyPermission,
             actionsAccess: assignValueToAllActions(publicPermission),

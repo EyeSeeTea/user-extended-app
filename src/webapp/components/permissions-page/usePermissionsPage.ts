@@ -14,7 +14,6 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
 
     const [formState, setForm] = React.useState<FormType>({
         activeUsers: appSettings.showOnlyActiveUsers,
-        usersOrgUnits: appSettings.showOnlyUsersOrgUnits,
         feedbackButton: appSettings.showFeedback,
         showSharingSettings: showSharingSettings,
         actionsArePublic: appSettings.areAllActionsPublic(),
@@ -46,7 +45,6 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
             AppSettings.create({
                 ...appSettings,
                 showOnlyActiveUsers: formState.activeUsers,
-                showOnlyUsersOrgUnits: formState.usersOrgUnits,
                 showFeedback: formState.feedbackButton,
                 settingsAccess: permission,
                 actionsAccess: formState.actionsArePublic
@@ -63,7 +61,6 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         onSave,
         appSettings,
         formState.activeUsers,
-        formState.usersOrgUnits,
         formState.feedbackButton,
         formState.showHideOptions,
         formState.actionsArePublic,
@@ -92,7 +89,6 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
 
 type FormType = {
     activeUsers: boolean;
-    usersOrgUnits: boolean;
     feedbackButton: boolean;
     showSharingSettings: boolean;
     actionsArePublic: boolean;

@@ -56,16 +56,6 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={formState.usersOrgUnits}
-                            onChange={event => updateFormState(event.target.checked, "usersOrgUnits")}
-                        />
-                    }
-                    label={i18n.t("Show only users assigned to users' organisation units")}
-                />
-
-                <FormControlLabel
-                    control={
-                        <Switch
                             checked={formState.activeUsers}
                             onChange={event => updateFormState(event.target.checked, "activeUsers")}
                         />
