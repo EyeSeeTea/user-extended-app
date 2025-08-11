@@ -178,7 +178,7 @@ export const useExportUsers = (props: UseExportUsersProps) => {
                 ({ blob, filename }) => {
                     FileSaver.saveAs(blob, filename);
                     onSuccess();
-                    snackbar.success(i18n.t("Table exported: {{filename}}", { filename, nsSeparator: "$noop$" }));
+                    snackbar.success(i18n.t("Table exported: {{filename}}", { filename, nsSeparator: ":ns:" }));
                     loading.hide();
                 },
                 error => {

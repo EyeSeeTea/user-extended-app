@@ -26,7 +26,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
 
     const copyInUserTitle = i18n.t("Copy in user: {{user}}", {
         user: user.username,
-        nsSeparator: "$noop$",
+        nsSeparator: ":ns:",
     });
 
     const getOptions = (): Array<{ value: Id; label: string }> => {
@@ -64,7 +64,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
             onSave={onDialogSave}
         >
             <Container>
-                <Label>{i18n.t("Bulk update strategy: ", { nsSeparator: "$noop$" })}</Label>
+                <Label>{i18n.t("Bulk update strategy: ", { nsSeparator: ":ns:" })}</Label>
 
                 <SegmentedControl
                     options={[

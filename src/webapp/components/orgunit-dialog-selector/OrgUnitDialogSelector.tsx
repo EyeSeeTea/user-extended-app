@@ -76,7 +76,7 @@ export const OrgUnitDialogSelector: React.FC<OrgUnitDialogSelectorProps> = props
                 <ToggleStyle
                     label={i18n.t("Bulk update strategy: {{strategy}}", {
                         strategy: strategyLabel,
-                        nsSeparator: "$noop$",
+                        nsSeparator: ":ns:",
                     })}
                     toggled={isReplaceStrategy}
                     onToggle={onToggle}

@@ -136,7 +136,7 @@ class ReplicateUserFromTemplate extends React.Component {
             const errorMessage = i18n.t("Error replicating user {{user}}: {{message}}", {
                 user: userToReplicate.displayName,
                 message: response.error,
-                nsSeparator: "$noop$",
+                nsSeparator: ":ns:",
             });
             snackActions.show({ message: errorMessage });
             onRequestClose();
@@ -157,7 +157,7 @@ class ReplicateUserFromTemplate extends React.Component {
             this.getTextField("username", "string", username, {
                 validators: [this.validators.isValidUsername],
                 label: i18n.t("Username. Example for two users: admin.$index -> admin.1, admin.2", {
-                    nsSeparator: "$noop$",
+                    nsSeparator: ":ns:",
                 }),
             }),
             this.getTextField("password", "string", password, {
