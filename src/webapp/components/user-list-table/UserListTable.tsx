@@ -1,3 +1,4 @@
+import styled from "styled-components";
 import {
     ObjectsList,
     ObjectsTableProps,
@@ -41,7 +42,7 @@ import {
     getFirstThreeUserNames,
     UsersSelectedModal,
     RiskyActionType,
-} from "../users-remove-modal/UsersSelectedModal";
+} from "../users-selected-modal/UsersSelectedModal";
 import { SettingsDialogModal, useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
 import Settings from "../../../legacy/models/settings";
 import { ImportExport, ImportResult } from "../import-export/ImportExport";
@@ -50,8 +51,8 @@ import { ImportTable } from "../import-export/ImportTable";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
-import styled from "styled-components";
 import { getUserActionLabel, UserAction } from "../../../domain/entities/UserAction";
+import { UsersSetPasswordModal } from "../users-selected-modal/UsersSetPasswordModal";
 
 function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -328,6 +329,17 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     isActive: (users: User[]) => checkHasEmail(users),
                 },
                 {
+                    name: UserAction.SET_PASSWORD,
+                    text: getUserActionLabel(UserAction.SET_PASSWORD),
+                    icon: <Icon>lock</Icon>,
+                    multiple: false,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("set_password");
+                    },
+                    isActive: checkAccess(["update"]),
+                },
+                {
                     name: UserAction.REMOVE,
                     text: getUserActionLabel(UserAction.REMOVE),
                     icon: <Icon>delete</Icon>,
@@ -516,7 +528,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             .value();
     }, [tableProps.columns, visibleColumns]);
 
-    const onSuccessUsersRemove = () => {
+    const onSuccessUsersAction = () => {
         onCleanSelectedUsers();
         reload();
     };
@@ -603,11 +615,21 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         <React.Fragment>
             {multiSelectorDialogProps && <MultiSelectorDialog {...multiSelectorDialogProps} />}
 
+            {actionType && actionType === "set_password" && selectedUsers && (
+                <UsersSetPasswordModal
+                    actionType={actionType}
+                    users={users}
+                    isOpen={users.length === 1}
+                    onSuccess={onSuccessUsersAction}
+                    onCancel={onCleanSelectedUsers}
+                />
+            )}
+
             {actionType && isActionTypeRisky(actionType) && selectedUsers && (
                 <UsersSelectedModal
                     users={users}
                     isOpen={users.length > 0}
-                    onSuccess={onSuccessUsersRemove}
+                    onSuccess={onSuccessUsersAction}
                     onCancel={onCleanSelectedUsers}
                     actionType={actionType}
                 />

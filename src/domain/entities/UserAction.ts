@@ -12,6 +12,7 @@ export enum UserAction {
     ENABLE = "enable",
     DISABLE = "disable",
     RESET_PASSWORD = "reset_password",
+    SET_PASSWORD = "set_password",
     REMOVE = "remove",
     REPLICATE_USER_FROM_TEMPLATE = "replicate_user_from_template",
     REPLICATE_USER_FROM_TABLE = "replicate_user_from_table",
@@ -41,6 +42,8 @@ export function getUserActionLabel(action: UserAction): string {
             return i18n.t("Disable");
         case UserAction.RESET_PASSWORD:
             return i18n.t("Reset password");
+        case UserAction.SET_PASSWORD:
+            return i18n.t("Set password");
         case UserAction.REMOVE:
             return i18n.t("Remove");
         case UserAction.REPLICATE_USER_FROM_TEMPLATE:

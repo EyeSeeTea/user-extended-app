@@ -17,6 +17,7 @@ type AppSettingsAttr = {
         users: Id[];
         userGroups: Id[];
         userRoles: Id[];
+        orgUnits: Id[];
     };
 };
 
@@ -34,7 +35,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showFeedback: true,
             settingsAccess: emptyPermission,
             actionsAccess: assignValueToAllActions(publicPermission),
-            hide: { users: [], userGroups: [], userRoles: [] },
+            hide: { users: [], userGroups: [], userRoles: [], orgUnits: [] },
         });
     }
 
@@ -59,7 +60,11 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
         return this.actionsAccess[action].isPublic;
     }
 
-    nothingToHide(): boolean {
+    isHideOrgUnitsEmpty(): boolean {
+        return _.isEmpty(this.hide.orgUnits);
+    }
+
+    isHideUserRelatedConfigurationEmpty(): boolean {
         return _.isEmpty(this.hide.users) && _.isEmpty(this.hide.userGroups) && _.isEmpty(this.hide.userRoles);
     }
 }

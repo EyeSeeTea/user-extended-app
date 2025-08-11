@@ -66,6 +66,22 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                 <FormControlLabel
                     control={
                         <Switch
+                            checked={formState.showHideOrgUnits}
+                            onChange={event => updateFormState(event.target.checked, "showHideOrgUnits")}
+                        />
+                    }
+                    label={i18n.t("Hide org units for all users (except superuser)")}
+                />
+
+                {formState.showHideOrgUnits && (
+                    <Box marginTop={1} marginBottom={3}>
+                        Placeholder for org units tree
+                    </Box>
+                )}
+
+                <FormControlLabel
+                    control={
+                        <Switch
                             checked={formState.showHideOptions}
                             onChange={event => updateFormState(event.target.checked, "showHideOptions")}
                         />
