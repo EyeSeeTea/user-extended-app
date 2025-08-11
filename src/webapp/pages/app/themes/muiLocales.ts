@@ -56,7 +56,7 @@ const muiLocalizations = muiLocales.map(localeObj => {
 
 export function getMuiLocalization(language: string, country: Maybe<string>): Localization {
     const locale = muiLocalizations.find(l => l.locale === language && l.country === country);
-    // Edge case: vi-VI will not be found
+    // Edge case: only locale codes listed in muiLocalesCSV (e.g., 'vi-VN' for Vietnamese) are supported; others (e.g., 'vi-VI') will not be found
     const locale2nd = muiLocalizations.find(l => l.locale === language);
 
     if (!locale && !locale2nd) {
