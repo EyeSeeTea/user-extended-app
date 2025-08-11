@@ -1,5 +1,5 @@
 import { ConfirmationDialog, useSnackbar } from "@eyeseetea/d2-ui-components";
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { UsersSelectedModalProps } from "./UsersSelectedModal";
 import { PasswordsFields, PasswordValidationErrors } from "./PasswordsFields";
 import { useAppContext } from "../../contexts/app-context";
@@ -10,29 +10,27 @@ export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.me
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
 
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [isValid, setIsValid] = useState(false);
-    const [validationErrors, setValidationErrors] = useState<PasswordValidationErrors>({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [password, setPassword] = React.useState("");
+    const [confirmPassword, setConfirmPassword] = React.useState("");
+    const [isValid, setIsValid] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const user = React.useMemo(() => {
         if (!users[0]) throw new Error("One user must be selected to set a password.");
         return users[0];
     }, [users]);
 
-    const handlePasswordChange = useCallback((newPassword: string, newConfirmPassword: string) => {
+    const handlePasswordChange = React.useCallback((newPassword: string, newConfirmPassword: string) => {
         setPassword(newPassword);
         setConfirmPassword(newConfirmPassword);
     }, []);
 
-    const handleValidationChange = useCallback((valid: boolean, errors: PasswordValidationErrors) => {
+    const handleValidationChange = React.useCallback((valid: boolean) => {
         setIsValid(valid);
-        setValidationErrors(errors);
     }, []);
 
-    const onSave = useCallback(async () => {
-        if (!isValid || !password || password !== confirmPassword) {
+    const onSave = React.useCallback(async () => {
+        if (!isValid) {
             snackbar.error(i18n.t("Please ensure all password requirements are met and passwords match"));
             return;
         }
@@ -62,12 +60,10 @@ export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.me
         }
     }, [isValid, password, confirmPassword, user.username, onSuccess, snackbar]);
 
-    const handleCancel = useCallback(() => {
-        // Reset form state when canceling
+    const resetForm = React.useCallback(() => {
         setPassword("");
         setConfirmPassword("");
         setIsValid(false);
-        setValidationErrors({});
         onCancel();
     }, [onCancel]);
 
@@ -77,7 +73,6 @@ export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.me
             setPassword("");
             setConfirmPassword("");
             setIsValid(false);
-            setValidationErrors({});
         }
     }, [isOpen]);
 
@@ -85,7 +80,7 @@ export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.me
         <ConfirmationDialog
             isOpen={isOpen}
             onSave={onSave}
-            onCancel={handleCancel}
+            onCancel={resetForm}
             title={i18n.t("Set password for {{username}}", { username: user.username })}
             description={
                 <PasswordsFields onPasswordChange={handlePasswordChange} onValidationChange={handleValidationChange} />

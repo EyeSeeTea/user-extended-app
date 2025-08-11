@@ -1,6 +1,5 @@
-import { validatePasswordRules } from "../PasswordsFields";
+import { validatePasswordRules } from "../passwordValidation";
 
-// Mock i18n to return predictable test messages
 jest.mock("../../../../locales", () => ({
     t: (key: string) => key,
 }));
