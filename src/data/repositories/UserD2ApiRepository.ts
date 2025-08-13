@@ -20,6 +20,7 @@ import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
+import { PatchOperation } from "@eyeseetea/d2-api/api/patch";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
@@ -406,7 +407,7 @@ export class UserD2ApiRepository implements UserRepository {
         return this.userStorage.saveObject<Array<keyof User>>(Namespaces.VISIBLE_COLUMNS, columns);
     }
 
-    updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<Stats> {
+    updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<void> {
         const allUsersGroups = this.buildUsersByGroupId(users);
         const allExistingUsersGroups = this.buildUsersByGroupId(existing);
 
@@ -432,9 +433,9 @@ export class UserD2ApiRepository implements UserRepository {
         const $requestsToAdd = this.buildRequestsGroups(groupsIdsToAdd, allUsersGroups, "add");
         const $requestsToDelete = this.buildRequestsGroups(groupsIdsToDelete, allExistingUsersGroups, "delete");
 
-        return Future.sequential([...$requestsToAdd, ...$requestsToDelete]).map(stats => {
+        return Future.sequential([$requestsToAdd, $requestsToDelete]).flatMap(() => {
             logger?.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
-            return Stats.combine(stats);
+            return Future.success(undefined);
         });
     }
 
@@ -442,16 +443,17 @@ export class UserD2ApiRepository implements UserRepository {
         groups: Array<{ id: Id }>,
         allUsersGroups: D2UserGroupByKey,
         action: D2ActionGroup
-    ): FutureData<Stats>[] {
-        return _(groups)
-            .map(group => {
-                const users = allUsersGroups[group.id] || [];
-                if (users.length === 0) return undefined;
-                const userGroup = { id: group.id, users: users.map(({ id }) => ({ id })) };
-                return this.buildGroupsToSave(userGroup, action);
-            })
-            .compact()
-            .value();
+    ): FutureData<void> {
+        const uniqueGroupsIds = _.uniqBy(groups, group => group.id);
+
+        const $requests = uniqueGroupsIds.map((group): FutureData<void> => {
+            const users = allUsersGroups[group.id] || [];
+            if (users.length === 0) return Future.success(undefined);
+            const userGroup = { id: group.id, users: users.map(({ id }) => ({ id })) };
+            return this.buildGroupsToSave(userGroup, action);
+        });
+
+        return Future.parallel($requests, { maxConcurrency: 5 }).map(() => undefined);
     }
 
     private buildUsersByGroupId(users: ApiUser[]): D2UserGroupByKey {
@@ -470,20 +472,29 @@ export class UserD2ApiRepository implements UserRepository {
     private buildGroupsToSave(
         userGroup: { id: Id; users: Array<{ id: Id }> },
         action: D2ActionGroup
-    ): FutureData<Stats> {
+    ): FutureData<void> {
         const isAdding = action === "add";
         const usersIds = userGroup.users.map(({ id }) => ({ id: id }));
-        return apiToFuture(
-            this.api.request<Dhis2Response>({
-                method: "post",
-                url: `/userGroups/${userGroup.id}/users`,
-                data: isAdding ? { additions: usersIds } : { deletions: usersIds },
-            })
-        ).flatMap(d2Response => {
-            const response = d2Response.response ? d2Response.response : d2Response;
-            const errorMessage = getErrorFromResponse(response.typeReports);
-            if (response.status === "ERROR") return Future.error(errorMessage);
-            return Future.success(new Stats({ ...response.stats, errorMessage: errorMessage }));
+
+        const patchOperations: PatchOperation[] = usersIds.map(userId =>
+            isAdding
+                ? {
+                      op: "add",
+                      path: "/users/-",
+                      value: userId,
+                  }
+                : {
+                      op: "remove-by-id",
+                      path: "/users",
+                      id: userId.id,
+                  }
+        );
+        return apiToFuture(this.api.models.userGroups.patch(userGroup.id, patchOperations)).flatMap(d2Response => {
+            const messages = d2Response.errorReports?.map(e => e.message).filter(Boolean) ?? [];
+            const errorMessage = Array.from(new Set(messages)).join("\n");
+            if (d2Response.errorReports?.length !== 0) return Future.error(errorMessage);
+
+            return Future.success(undefined);
         });
     }
 

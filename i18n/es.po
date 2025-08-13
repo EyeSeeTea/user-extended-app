@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-10-21T20:05:12.594Z\n"
+"POT-Creation-Date: 2025-08-13T11:22:44.712Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -73,6 +73,9 @@ msgid "Created by"
 msgstr "Creado por"
 
 msgid "Last modified by"
+msgstr ""
+
+msgid "Open IDs must be unique"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"
@@ -169,6 +172,9 @@ msgid "{{n}} invalid users found, check in-line errors in table"
 msgstr ""
 
 msgid "{{n}} warning(s) while importing file"
+msgstr ""
+
+msgid "[... and {{n}} more warning(s) ...]"
 msgstr ""
 
 msgid "Importing users"
@@ -439,6 +445,12 @@ msgstr "Creado por"
 msgid "Last Modified By"
 msgstr "Última actualización hecha por"
 
+msgid "2FA"
+msgstr ""
+
+msgid "External Auth"
+msgstr ""
+
 msgid "And {{overflow}} more..."
 msgstr "Y {{overflow}} más..."
 
@@ -556,10 +568,6 @@ msgstr "Abrir en Administración de usuarios"
 
 msgid " and {{overflow}} more..."
 msgstr " y {{overflow}} más..."
-
-msgctxt "warnings"
-msgid "and_n_more"
-msgstr ""
 
 #, fuzzy
 #~ msgid "close"

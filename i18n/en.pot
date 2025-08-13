@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-03-25T14:06:40.319Z\n"
-"PO-Revision-Date: 2025-03-25T14:06:40.319Z\n"
+"POT-Creation-Date: 2025-08-13T11:22:44.712Z\n"
+"PO-Revision-Date: 2025-08-13T11:22:44.712Z\n"
 
 msgid "ID"
 msgstr ""
@@ -72,6 +72,9 @@ msgid "Created by"
 msgstr ""
 
 msgid "Last modified by"
+msgstr ""
+
+msgid "Open IDs must be unique"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"
@@ -165,6 +168,9 @@ msgid "{{n}} invalid users found, check in-line errors in table"
 msgstr ""
 
 msgid "{{n}} warning(s) while importing file"
+msgstr ""
+
+msgid "[... and {{n}} more warning(s) ...]"
 msgstr ""
 
 msgid "Importing users"
@@ -431,6 +437,12 @@ msgstr ""
 msgid "Last Modified By"
 msgstr ""
 
+msgid "2FA"
+msgstr ""
+
+msgid "External Auth"
+msgstr ""
+
 msgid "And {{overflow}} more..."
 msgstr ""
 
@@ -545,8 +557,4 @@ msgid "Open in user management"
 msgstr ""
 
 msgid " and {{overflow}} more..."
-msgstr ""
-
-msgctxt "warnings"
-msgid "and_n_more"
 msgstr ""
