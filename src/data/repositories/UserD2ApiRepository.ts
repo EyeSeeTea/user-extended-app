@@ -21,6 +21,7 @@ import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
 import { PatchOperation } from "@eyeseetea/d2-api/api/patch";
+import { ErrorReport } from "@eyeseetea/d2-api/api/common";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
@@ -490,11 +491,14 @@ export class UserD2ApiRepository implements UserRepository {
                   }
         );
         return apiToFuture(this.api.models.userGroups.patch(userGroup.id, patchOperations)).flatMap(d2Response => {
-            const messages = d2Response.errorReports?.map(e => e.message).filter(Boolean) ?? [];
-            const errorMessage = Array.from(new Set(messages)).join("\n");
-            if (d2Response.errorReports?.length !== 0) return Future.error(errorMessage);
-
-            return Future.success(undefined);
+            if (d2Response.errorReports?.length !== 0) {
+                const messages =
+                    d2Response.errorReports?.map((e: ErrorReport): string => e.message).filter(Boolean) ?? [];
+                const errorMessage = Array.from(new Set(messages)).join("\n");
+                return Future.error(errorMessage);
+            } else {
+                return Future.success(undefined);
+            }
         });
     }
 
