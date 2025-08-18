@@ -68,7 +68,6 @@ msgstr "Estado"
 msgid "Open ID"
 msgstr ""
 
-#, fuzzy
 msgid "Created by"
 msgstr "Creado por"
 
@@ -117,7 +116,6 @@ msgstr "Columnas a mostrar en tabla"
 msgid "Column"
 msgstr "Columna"
 
-#, fuzzy
 msgid "Copy in user: {{user}}"
 msgstr "Copiar a usuario"
 
@@ -127,7 +125,6 @@ msgstr ""
 msgid "Select at least one user"
 msgstr ""
 
-#, fuzzy
 msgid "Bulk update strategy: "
 msgstr "Estrategia de actualización: "
 
@@ -152,7 +149,6 @@ msgstr ""
 msgid "OU Capture"
 msgstr ""
 
-#, fuzzy
 msgid "Import/Export"
 msgstr "Importar"
 
@@ -380,7 +376,6 @@ msgstr "Editar"
 msgid "Copy in user"
 msgstr "Copiar a usuario"
 
-#, fuzzy
 msgid "Assign to data capture organisation units"
 msgstr "Asignar a unidades organizativas de salida"
 
@@ -429,7 +424,6 @@ msgstr ""
 msgid "User ID"
 msgstr "ID"
 
-#, fuzzy
 msgid "Data capture organisation units"
 msgstr "Unidades organizativas de salida"
 
@@ -569,11 +563,9 @@ msgstr "Abrir en Administración de usuarios"
 msgid " and {{overflow}} more..."
 msgstr " y {{overflow}} más..."
 
-#, fuzzy
 #~ msgid "close"
 #~ msgstr "Cerrar"
 
-#, fuzzy
 #~ msgctxt "user"
 #~ msgid "remove"
 #~ msgstr "Eliminar"

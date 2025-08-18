@@ -44,6 +44,6 @@ export function getDiffUserIdsByGroup(
 
         const diffUserIds = sourceUserGroup.filter(user => !userIdsInRefGroup.includes(user.id)).map(({ id }) => id);
 
-        return { id: groupId, usersIds: [...new Set(diffUserIds)] };
+        return { id: groupId, usersIds: _.uniq(diffUserIds) };
     });
 }
