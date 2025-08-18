@@ -2,7 +2,7 @@ import { MetadataResponse } from "@eyeseetea/d2-api/api";
 import _ from "lodash";
 import { Future, FutureData } from "../domain/entities/Future";
 import { Id } from "../domain/entities/Ref";
-import { ApiUser } from "./repositories/UserD2ApiRepository";
+import { ApiUser, D2UserGroupByKey } from "./repositories/UserD2ApiRepository";
 
 export function chunkRequest<Res>(
     ids: Id[],
@@ -32,4 +32,18 @@ export function buildUserWithoutPassword(users: ApiUser[]) {
             return { ...user, userCredentials: { ...user.userCredentials, password: "****" }, password: "****" };
         })
         .value();
+}
+
+export function getDiffUserIdsByGroup(
+    sourceGroups: D2UserGroupByKey,
+    referenceGroups: D2UserGroupByKey
+): Array<{ id: Id; usersIds: Id[] }> {
+    return Object.keys(sourceGroups).map(groupId => {
+        const sourceUserGroup = sourceGroups[groupId] || [];
+        const userIdsInRefGroup = referenceGroups[groupId]?.map(({ id }) => id) || [];
+
+        const diffUserIds = sourceUserGroup.filter(user => !userIdsInRefGroup.includes(user.id)).map(({ id }) => id);
+
+        return { id: groupId, usersIds: [...new Set(diffUserIds)] };
+    });
 }

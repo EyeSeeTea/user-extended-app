@@ -19,7 +19,7 @@ import { D2ApiLogger, D2LoggerMessage } from "../D2ApiLogger";
 import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
-import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
+import { buildUserWithoutPassword, chunkRequest, getDiffUserIdsByGroup, getErrorFromResponse } from "../utils";
 import { PatchOperation } from "@eyeseetea/d2-api/api/patch";
 import { ErrorReport } from "@eyeseetea/d2-api/api/common";
 
@@ -409,30 +409,17 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<void> {
-        const allUsersGroups = this.buildUsersByGroupId(users);
+        const allUsersGroupsToUpdate = this.buildUsersByGroupId(users);
         const allExistingUsersGroups = this.buildUsersByGroupId(existing);
 
-        const existingKeys = _(allExistingUsersGroups).keys().value();
+        const userGroupsWithUsersToAdd = getDiffUserIdsByGroup(allUsersGroupsToUpdate, allExistingUsersGroups);
+        const userGroupsWithUsersToRemove = getDiffUserIdsByGroup(allExistingUsersGroups, allUsersGroupsToUpdate);
 
-        const groupsIdsToAddRef = users.flatMap(user => {
-            const groupsRef = user.userGroups.map(userGroup => ({ id: userGroup.id }));
-            return groupsRef.filter(({ id }) => !existingKeys.includes(id));
-        });
+        const $requestsToAdd = this.buildRequestsGroups(userGroupsWithUsersToAdd, "add");
+        const $requestsToDelete = this.buildRequestsGroups(userGroupsWithUsersToRemove, "delete");
 
-        const groupsIdsToAdd = _.uniqBy(groupsIdsToAddRef, ({ id }) => id);
-
-        const groupsIdsToDelete = users.flatMap(user => {
-            const existingUser = existing.find(({ id }) => id === user.id);
-            const difference = _.differenceWith(
-                existingUser?.userGroups,
-                user.userGroups,
-                (user1, user2) => user1.id === user2.id
-            );
-            return difference.map(userGroup => ({ id: userGroup.id }));
-        });
-
-        const $requestsToAdd = this.buildRequestsGroups(groupsIdsToAdd, allUsersGroups, "add");
-        const $requestsToDelete = this.buildRequestsGroups(groupsIdsToDelete, allExistingUsersGroups, "delete");
+        const groupsIdsToAdd = userGroupsWithUsersToAdd.map(group => group.id);
+        const groupsIdsToDelete = userGroupsWithUsersToRemove.map(group => group.id);
 
         return Future.sequential([$requestsToAdd, $requestsToDelete]).flatMap(() => {
             logger?.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
@@ -441,16 +428,11 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private buildRequestsGroups(
-        groups: Array<{ id: Id }>,
-        allUsersGroups: D2UserGroupByKey,
+        userGroups: Array<{ id: Id; usersIds: Id[] }>,
         action: D2ActionGroup
     ): FutureData<void> {
-        const uniqueGroupsIds = _.uniqBy(groups, group => group.id);
-
-        const $requests = uniqueGroupsIds.map((group): FutureData<void> => {
-            const users = allUsersGroups[group.id] || [];
-            if (users.length === 0) return Future.success(undefined);
-            const userGroup = { id: group.id, users: users.map(({ id }) => ({ id })) };
+        const $requests = userGroups.map((userGroup): FutureData<void> => {
+            if (userGroup.usersIds.length === 0) return Future.success(undefined);
             return this.buildGroupsToSave(userGroup, action);
         });
 
@@ -470,24 +452,21 @@ export class UserD2ApiRepository implements UserRepository {
             .value();
     }
 
-    private buildGroupsToSave(
-        userGroup: { id: Id; users: Array<{ id: Id }> },
-        action: D2ActionGroup
-    ): FutureData<void> {
+    private buildGroupsToSave(userGroup: { id: Id; usersIds: Id[] }, action: D2ActionGroup): FutureData<void> {
         const isAdding = action === "add";
-        const usersIds = userGroup.users.map(({ id }) => ({ id: id }));
+        const usersIdRefs = userGroup.usersIds.map(id => ({ id: id }));
 
-        const patchOperations: PatchOperation[] = usersIds.map(userId =>
+        const patchOperations: PatchOperation[] = usersIdRefs.map(userIdRef =>
             isAdding
                 ? {
                       op: "add",
                       path: "/users/-",
-                      value: userId,
+                      value: userIdRef,
                   }
                 : {
                       op: "remove-by-id",
                       path: "/users",
-                      id: userId.id,
+                      id: userIdRef.id,
                   }
         );
         return apiToFuture(this.api.models.userGroups.patch(userGroup.id, patchOperations)).flatMap(d2Response => {
@@ -695,5 +674,5 @@ type D2UserSettings = { keyDbLocale: LocaleCode; keyUiLocale: LocaleCode };
 type KeyLocale = "keyUiLocale" | "keyDbLocale";
 const UI_LOCALE_KEY = "keyUiLocale";
 const DB_LOCALE_KEY = "keyDbLocale";
-type D2UserGroupByKey = Record<Id, NamedRef[]>;
+export type D2UserGroupByKey = Record<Id, NamedRef[]>;
 type D2ActionGroup = "add" | "delete";
