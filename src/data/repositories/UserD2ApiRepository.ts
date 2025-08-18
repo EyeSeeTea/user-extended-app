@@ -418,11 +418,16 @@ export class UserD2ApiRepository implements UserRepository {
         const $requestsToAdd = this.buildRequestsGroups(userGroupsWithUsersToAdd, "add");
         const $requestsToDelete = this.buildRequestsGroups(userGroupsWithUsersToRemove, "delete");
 
-        const groupsIdsToAdd = userGroupsWithUsersToAdd.map(group => group.id);
-        const groupsIdsToDelete = userGroupsWithUsersToRemove.map(group => group.id);
-
         return Future.sequential([$requestsToAdd, $requestsToDelete]).flatMap(() => {
-            logger?.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
+            const groupsIdsToAdd = userGroupsWithUsersToAdd
+                .filter(group => group.usersIds.length > 0)
+                .map(group => group.id);
+            const groupsIdsToDelete = userGroupsWithUsersToRemove
+                .filter(group => group.usersIds.length > 0)
+                .map(group => group.id);
+
+            if (logger) logger.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
+
             return Future.success(undefined);
         });
     }
