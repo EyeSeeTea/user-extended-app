@@ -5,6 +5,7 @@ import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
 import { UserLogic } from "../entities/UserLogic";
+import { IMPORT_USERS_CHUNK_SIZE } from "../utils/chunk";
 
 const columnNameFromPropertyMapping = {
     id: "ID",
@@ -37,7 +38,7 @@ export class ImportUsersUseCase implements UseCase {
             .getCurrent()
             .flatMap(currentUser => {
                 return Future.sequential(
-                    _.chunk(uniqueUsers, chunkSize).map(userChunk => {
+                    _.chunk(uniqueUsers, IMPORT_USERS_CHUNK_SIZE).map(userChunk => {
                         const usernameList = userChunk.map(user => user.username);
 
                         return this.userRepository
@@ -97,5 +98,3 @@ export class ImportUsersUseCase implements UseCase {
 }
 
 export type ImportUsersUseCaseOptions = { users: User[] };
-
-const chunkSize = 100;

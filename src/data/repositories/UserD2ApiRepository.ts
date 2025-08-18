@@ -317,6 +317,11 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
+    public saveInChunks(users: User[], chunkSize: number): FutureData<void> {
+        const requests = _.chunk(users, chunkSize).map(usersChunk => this.save(usersChunk));
+        return Future.sequential(requests).toVoid();
+    }
+
     private getLogger(): FutureData<Maybe<D2LoggerMessage>> {
         return this.getCurrent().flatMap(currentUser => {
             const d2ApiTracker = new D2ApiLogger(this.api);

@@ -12,6 +12,7 @@ export interface UserRepository {
     listAllIds(options: ListOptions): FutureData<string[]>;
     getByIds(ids: string[]): FutureData<User[]>;
     save(users: User[]): FutureData<MetadataResponse>;
+    saveInChunks(users: User[], chunkSize: number): FutureData<void>;
     updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
     updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
     getColumns(): FutureData<Array<keyof User>>;

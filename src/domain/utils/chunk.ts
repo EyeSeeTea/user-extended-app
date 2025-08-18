@@ -1,0 +1,2 @@
+export const IMPORT_USERS_CHUNK_SIZE = 100;
+export const COPY_IN_USER_CHUNK_SIZE = 50;

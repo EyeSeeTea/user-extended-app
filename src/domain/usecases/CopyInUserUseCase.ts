@@ -1,23 +1,17 @@
 import _ from "lodash";
-
-import { Future, FutureData } from "../entities/Future";
+import { FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { AccessElements, UpdateStrategy, AccessElementsKeys, UserRepository } from "../repositories/UserRepository";
 import { Id } from "../entities/Ref";
+import { COPY_IN_USER_CHUNK_SIZE } from "../utils/chunk";
 
 export class CopyInUserUseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute(options: CopyInUserOptions): FutureData<void> {
         return this.getUsersToUpdate(options.selectedUsersIds).flatMap(users => {
-            const usersBatches = _.chunk(users, 50);
-
-            const $requests = usersBatches.map(usersToUpdate => {
-                const usersToSave = this.applyCopyToUsers(usersToUpdate, options);
-                return this.saveUsers(usersToSave);
-            });
-
-            return Future.sequential($requests).toVoid();
+            const usersToSave = this.applyCopyToUsers(users, options);
+            return this.saveUsers(usersToSave);
         });
     }
 
@@ -61,7 +55,7 @@ export class CopyInUserUseCase {
     }
 
     private saveUsers(users: User[]): FutureData<void> {
-        return this.userRepository.save(users).toVoid();
+        return this.userRepository.saveInChunks(users, COPY_IN_USER_CHUNK_SIZE).toVoid();
     }
 }
 
