@@ -31,11 +31,13 @@ export class ImportUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
+        const uniqueUsers = _.uniqBy(users, user => user.username);
+
         return this.userRepository
             .getCurrent()
             .flatMap(currentUser => {
                 return Future.sequential(
-                    _.chunk(users, chunkSize).map(userChunk => {
+                    _.chunk(uniqueUsers, chunkSize).map(userChunk => {
                         const usernameList = userChunk.map(user => user.username);
 
                         return this.userRepository
