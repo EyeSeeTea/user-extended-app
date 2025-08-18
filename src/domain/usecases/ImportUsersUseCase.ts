@@ -66,7 +66,7 @@ export class ImportUsersUseCase implements UseCase {
         // Merge properties from usersFromDB into users
         return users.map((userFromImport): User => {
             const user = _.pick(userFromImport, Object.keys(columnNameFromPropertyMapping));
-            const dbUser = _.find(usersFromDBMap, userFromDB => userFromDB.username === user.username);
+            const dbUser = user.username ? usersFromDBMap[user.username] : undefined;
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
                 return {
