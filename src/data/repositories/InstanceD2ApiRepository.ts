@@ -1,4 +1,4 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { D2Api } from "../../types/d2-api";
 import _ from "lodash";
 import { FutureData } from "../../domain/entities/Future";
 import { Locale } from "../../domain/entities/Locale";
