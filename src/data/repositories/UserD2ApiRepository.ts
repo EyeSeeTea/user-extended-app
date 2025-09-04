@@ -632,7 +632,14 @@ const fields = {
     organisationUnits: orgUnitsFields,
     dataViewOrganisationUnits: orgUnitsFields,
     teiSearchOrganisationUnits: orgUnitsFields,
-    access: true,
+    access: {
+        delete: true,
+        externalize: true,
+        manage: true,
+        read: true,
+        update: true,
+        write: true,
+    },
     userCredentials: {
         id: true,
         username: true,
