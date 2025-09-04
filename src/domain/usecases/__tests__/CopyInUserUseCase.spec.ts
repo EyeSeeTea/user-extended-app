@@ -5,7 +5,7 @@ import { mock, instance, when, verify, anything, deepEqual } from "ts-mockito";
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 import { sourceUser, targetUser } from "./data/user";
 import { Future } from "../../entities/Future";
-import { MetadataResponse } from "@eyeseetea/d2-api/api";
+import { MetadataResponse } from "../../../types/d2-api";
 
 let userRepositoryMock: UserD2ApiRepository;
 let copyInUserUseCase: CopyInUserUseCase;

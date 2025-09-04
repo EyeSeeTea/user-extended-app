@@ -1,4 +1,4 @@
-import { D2Api, D2UserSchema, MetadataResponse, SelectedPick } from "../../types/d2-api";
+import { D2Api, D2UserSchema, MetadataResponse, SelectedPick, PatchOperation, ErrorReport } from "../../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
@@ -20,8 +20,6 @@ import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getDiffUserIdsByGroup, getErrorFromResponse } from "../utils";
-import { PatchOperation } from "@eyeseetea/d2-api/api/patch";
-import { ErrorReport } from "@eyeseetea/d2-api/api/common";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;

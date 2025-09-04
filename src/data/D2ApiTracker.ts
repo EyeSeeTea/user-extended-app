@@ -1,10 +1,9 @@
 import _ from "lodash";
 import { Future, FutureData } from "../domain/entities/Future";
 import { LoggerSettings } from "../domain/entities/LoggerSettings";
-import { D2Api } from "../types/d2-api";
+import { D2Api, TeiGetRequest } from "../types/d2-api";
 import { Id } from "../domain/entities/Ref";
 import { apiToFuture } from "../utils/futures";
-import { TeiGetRequest } from "@eyeseetea/d2-api/api/trackedEntityInstances";
 import { getUid } from "../utils/uid";
 
 export class D2ApiTracker {

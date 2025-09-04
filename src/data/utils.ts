@@ -1,4 +1,4 @@
-import { MetadataResponse } from "@eyeseetea/d2-api/api";
+import { MetadataResponse } from "../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../domain/entities/Future";
 import { Id } from "../domain/entities/Ref";
