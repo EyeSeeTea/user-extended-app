@@ -18,12 +18,7 @@ import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import {
-    allUsersHaveAllSpecifiedAccesses,
-    allUsersHaveEmail,
-    hasReplicateAuthority,
-    User,
-} from "../../../domain/entities/User";
+import { User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../locales";
@@ -138,7 +133,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const { importSettings } = useImportSettings();
 
-    const enableReplicate = hasReplicateAuthority(currentUser);
     const snackbar = useSnackbar();
     const navigate = useNavigate();
     const userColumns = useUserColumns();
@@ -363,7 +357,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 ...action,
                 isActive: (users: User[]) => currentUserAccessibleActions[action.name](users),
             })),
-        [currentUserAccessibleActions, editUsers, enableReplicate, onAction, reload]
+        [currentUserAccessibleActions, editUsers, onAction, reload]
     );
 
     const baseConfig = useMemo((): TableConfig<User> => {

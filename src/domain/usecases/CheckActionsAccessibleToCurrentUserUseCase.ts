@@ -72,7 +72,6 @@ export class CheckActionsAccessibleToCurrentUserUseCase {
                 case Rule.HIDDEN:
                     return false;
                 case Rule.HAS_EMAIL:
-                    console.log(users);
                     return allUsersHaveEmail(users);
                 case Rule.USERS_WITHIN_LOGGED_USER_ORG_UNITS:
                     return allUsersBelongToAtLeastOneOrgUnit(users, currentUserOrgUnitIds);

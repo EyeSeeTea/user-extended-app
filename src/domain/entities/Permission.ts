@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Id, NamedRef } from "./Ref";
 
