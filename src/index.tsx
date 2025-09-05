@@ -7,7 +7,7 @@ import _ from "lodash";
 import ReactDOM from "react-dom";
 import { Instance } from "./data/entities/Instance";
 import { D2Api } from "./types/d2-api";
-import { getD2APiFromInstance } from "./utils/d2-api";
+import { getD2ApiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
 import "./webapp/utils/wdyr";
 
@@ -67,7 +67,7 @@ async function main() {
         });
 
         const instance = new Instance({ url: baseUrl });
-        const api = getD2APiFromInstance(instance);
+        const api = getD2ApiFromInstance(instance);
         if (isDev) window.api = api;
 
         const userSettings = await api.get<{ keyUiLocale: string }>("/userSettings").getData();

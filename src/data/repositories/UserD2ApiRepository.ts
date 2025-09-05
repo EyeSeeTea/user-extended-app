@@ -10,7 +10,7 @@ import { UserLogic } from "../../domain/entities/UserLogic";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
-import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
+import { getD2ApiFromInstance, joinPaths } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
@@ -26,7 +26,7 @@ export class UserD2ApiRepository implements UserRepository {
     private userStorage: StorageClient;
 
     constructor(instance: Instance) {
-        this.api = getD2APiFromInstance(instance);
+        this.api = getD2ApiFromInstance(instance);
         this.userStorage = new DataStoreStorageClient("user", instance);
     }
 
