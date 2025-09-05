@@ -10,7 +10,7 @@ export function getModuleForNamespace(namespace: string): i18n.i18n {
     return {
         ...restBinded,
         t: function (s: string | string[], options?: i18n.TranslationOptions<object>): string {
-            return i18n.t(s, { ...options, ns: namespace, nsSeparator: false });
+            return i18n.t(s, { ...options, ns: namespace });
         },
         changeLanguage: changeLanguage.bind(i18n),
     };
