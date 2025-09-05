@@ -8,13 +8,49 @@ import { Instance } from "../data/entities/Instance";
 import { User } from "../domain/entities/User";
 
 export function getTestUser(): User {
-    // @ts-ignore TODO
     return {
         id: "xE7jOejl9FI",
         name: "John Traore",
         username: "admin",
         userGroups: [],
         userRoles: [],
+        organisationUnits: [],
+        dataViewOrganisationUnits: [],
+        searchOrganisationsUnits: [],
+        firstName: "John",
+        surname: "Traore",
+        email: "john.traore@example.com",
+        phoneNumber: "",
+        whatsApp: "",
+        facebookMessenger: "",
+        skype: "",
+        telegram: "",
+        twitter: "",
+        lastUpdated: new Date("2020-01-01T12:00:00.000"),
+        created: new Date("2020-01-01T12:00:00.000"),
+        apiUrl: "http://localhost:8080/api",
+        lastLogin: new Date("2020-01-01T12:00:00.000"),
+        status: "ACTIVE",
+        disabled: false,
+        access: {
+            manage: true,
+            externalize: true,
+            write: true,
+            delete: true,
+            read: true,
+            update: true,
+        },
+        openId: null,
+        ldapId: null,
+        externalAuth: false,
+        twoFactorEnabled: false,
+        password: "",
+        accountExpiry: null,
+        authorities: ["ALL"],
+        createdBy: null,
+        lastModifiedBy: null,
+        uiLocale: "en",
+        dbLocale: "en",
     };
 }
 
