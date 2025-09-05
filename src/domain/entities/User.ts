@@ -92,14 +92,13 @@ export interface AccessPermissions {
     manage: boolean;
 }
 
-// FIXME: We need tests for these functions
-export const isSuperAdmin = (user: User): boolean => {
+export function isSuperAdmin(user: User): boolean {
     return user.authorities.includes("ALL");
-};
+}
 
-export const hasReplicateAuthority = (user: User): boolean => {
+export function hasReplicateAuthority(user: User): boolean {
     return user.authorities.includes("F_REPLICATE_USER");
-};
+}
 
 export function allUsersHaveAllSpecifiedAccesses(users: User[], accesses: string[]): boolean {
     return users.every(user => {
@@ -112,12 +111,12 @@ export function allUsersHaveAllSpecifiedAccesses(users: User[], accesses: string
     });
 }
 
-function userWithinOrgUnits(user: User, organisationUnitIds: Id[]): boolean {
+export function userWithinOrgUnits(user: User, organisationUnitIds: Id[]): boolean {
     const inheretedOrgUnits = userInheritedOrgUnitIds(user);
     return organisationUnitIds.some(orgUnitId => inheretedOrgUnits.includes(orgUnitId));
 }
 
-function userInheritedOrgUnitIds(user: User): Id[] {
+export function userInheritedOrgUnitIds(user: User): Id[] {
     const allOrgUnitIds = user.organisationUnits.flatMap(orgUnit => orgUnit.path);
     return _.uniq(allOrgUnitIds);
 }
