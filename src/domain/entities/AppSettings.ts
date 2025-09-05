@@ -1,9 +1,13 @@
 import _ from "lodash";
 import { Struct } from "./generic/Struct";
-import { Permission, PublicPermission } from "./Permission";
+import { Permission } from "./Permission";
 import { Id } from "./Ref";
 import { UserColumns } from "./User";
-import { assignValueToAllActions, UserAction } from "./UserAction";
+import { defaultRules, getMandatoryRulesForAction, UserAction, userActions } from "./UserAction";
+import { ActionPermission } from "./ActionPermission";
+import { fromPairs, getKeys } from "../../types/utils";
+import { getMandatoryRules } from "./Rule";
+import { getDefaultUserColumns } from "./Column";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
 
@@ -21,20 +25,18 @@ type AppSettingsAttr = {
     };
 };
 
-export type ActionsPermissions = Record<UserAction, PublicPermission>;
-
 export type ColumnSettingValue = "visible" | "disabled" | "optional";
-
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
+export type ActionsPermissions = Record<UserAction, ActionPermission>;
 
 export class AppSettings extends Struct<AppSettingsAttr>() {
-    static emptySettings(): AppSettings {
+    static defaultSettings(): AppSettings {
         return this.create({
-            columns: [],
+            columns: this.defaultColumns(),
             showOnlyActiveUsers: false,
             showFeedback: true,
             settingsAccess: emptyPermission,
-            actionsAccess: assignValueToAllActions(publicPermission),
+            actionsAccess: defaultActions(),
             hide: { users: [], userGroups: [], userRoles: [], orgUnits: [] },
         });
     }
@@ -67,7 +69,52 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
     isHideUserRelatedConfigurationEmpty(): boolean {
         return _.isEmpty(this.hide.users) && _.isEmpty(this.hide.userGroups) && _.isEmpty(this.hide.userRoles);
     }
+
+    private static defaultColumns(): SettingsUserColumn[] {
+        const defaultColumns = getDefaultUserColumns();
+        return defaultColumns.map(column => ({ field: column.name, value: "optional" }));
+    }
+}
+
+export function markAllActionsPublic() {
+    const publicPermission = ActionPermission.public();
+    const publicActions = Object.assign({}, ...userActions.map(action => ({ [action]: publicPermission })));
+
+    return injectMandatoryRules(publicActions);
+}
+
+function instantiateActionsAccesses(): Record<UserAction, ActionPermission> {
+    const publicPermission = ActionPermission.public();
+    return fromPairs(
+        userActions.map((action: UserAction): [UserAction, ActionPermission] => {
+            const defaultActionPermission = publicPermission.updateRules(defaultRules[action]);
+            return [action, defaultActionPermission];
+        })
+    );
+}
+
+export function removeMandatoryRules(actionsAccess: ActionsPermissions): ActionsPermissions {
+    const mandatoryRules = getMandatoryRules();
+
+    return _.mapValues(actionsAccess, permission => {
+        const filteredRules = permission.rules.filter(rule => !mandatoryRules.includes(rule));
+        return permission.updateRules(filteredRules);
+    });
+}
+
+export function injectMandatoryRules(actionsAccess: ActionsPermissions): ActionsPermissions {
+    const actionKeys = getKeys(actionsAccess);
+
+    const updatedPermissions = actionKeys.map((action): [UserAction, ActionPermission] => {
+        const newRules = _.uniq(actionsAccess[action].rules.concat(getMandatoryRulesForAction(action)));
+        return [action, actionsAccess[action].updateRules(newRules)];
+    });
+
+    return fromPairs(updatedPermissions);
+}
+
+export function defaultActions(): ActionsPermissions {
+    return instantiateActionsAccesses();
 }
 
 const emptyPermission: Permission = new Permission({ users: [], userGroups: [] });
-export const publicPermission: PublicPermission = PublicPermission.public();

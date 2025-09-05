@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Maybe } from "../../types/utils";
 import { OrgUnit } from "./OrgUnit";
-import { Id, NamedRef } from "./Ref";
+import { getId, Id, NamedRef } from "./Ref";
 
 export interface User {
     id: string;
@@ -92,26 +92,54 @@ export interface AccessPermissions {
     manage: boolean;
 }
 
+// FIXME: We need tests for these functions
 export const isSuperAdmin = (user: User): boolean => {
     return user.authorities.includes("ALL");
 };
 
 export const hasReplicateAuthority = (user: User): boolean => {
-    return _.some(user.authorities, authorities => authorities.includes("F_REPLICATE_USER"));
+    return user.authorities.includes("F_REPLICATE_USER");
 };
 
-export function checkAccess(requiredKeys: string[]) {
-    return (users: User[]) =>
-        _(users).every(user => {
-            const permissions = _(user.access).pickBy().keys().value();
-            return _(requiredKeys).difference(permissions).isEmpty();
-        });
+export function allUsersHaveAllSpecifiedAccesses(users: User[], accesses: string[]): boolean {
+    return users.every(user => {
+        const userAccesses = _(user.access)
+            .pickBy(access => Boolean(access))
+            .keys()
+            .value();
+
+        return accesses.every(key => userAccesses.includes(key));
+    });
 }
 
-export function checkHasEmail(users: User[]): boolean {
-    const currentUserHasUpdateAccessOn = checkAccess(["update"]);
+function userWithinOrgUnits(user: User, organisationUnitIds: Id[]): boolean {
+    const inheretedOrgUnits = userInheritedOrgUnitIds(user);
+    return organisationUnitIds.some(orgUnitId => inheretedOrgUnits.includes(orgUnitId));
+}
 
-    return currentUserHasUpdateAccessOn(users) && _(users).every(user => Boolean(user.email));
+function userInheritedOrgUnitIds(user: User): Id[] {
+    const allOrgUnitIds = user.organisationUnits.flatMap(orgUnit => orgUnit.path);
+    return _.uniq(allOrgUnitIds);
+}
+
+export function userOrgUnitIds(user: User): Id[] {
+    return user.organisationUnits.map(getId);
+}
+
+export function allUsersHaveEmail(users: User[]): boolean {
+    return users.every(user => Boolean(user.email));
+}
+
+export function allUsersBelongToAtLeastOneOrgUnit(users: User[], orgUnitIds: Id[]) {
+    return users.every(user => userWithinOrgUnits(user, orgUnitIds));
+}
+
+export function allUsersAreDisabled(users: User[]) {
+    return users.every(user => user.disabled);
+}
+
+export function allUsersAreActive(users: User[]) {
+    return users.every(user => !user.disabled);
 }
 
 export type LocaleCode = string;

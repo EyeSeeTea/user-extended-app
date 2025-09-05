@@ -70,7 +70,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                             onChange={event => updateFormState(event.target.checked, "showHideOrgUnits")}
                         />
                     }
-                    label={i18n.t("Hide org units for all users (except superuser)")}
+                    label={i18n.t("Hide org units on advanced filters")}
                 />
 
                 {formState.showHideOrgUnits && (

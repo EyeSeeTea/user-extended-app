@@ -1,10 +1,18 @@
 import _ from "lodash";
-import { ActionsPermissions, AppSettings } from "../../../domain/entities/AppSettings";
-import { Permission, PublicPermission } from "../../../domain/entities/Permission";
+import {
+    ActionsPermissions,
+    AppSettings,
+    injectMandatoryRules,
+    removeMandatoryRules,
+} from "../../../domain/entities/AppSettings";
+import { Permission } from "../../../domain/entities/Permission";
+import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import { getKeys, Maybe } from "../../../types/utils";
 
-export function mergeAppSettings(appSettings: Maybe<Partial<AppSettings>>): AppSettings {
-    const emptySettings = AppSettings.emptySettings();
+//FIXME: shouldn't be a Maybe if Request result is compared with Codec.
+// Partial, as new props can be added on next releases.
+export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>): AppSettings {
+    const emptySettings = AppSettings.defaultSettings();
     if (!appSettings) return emptySettings;
 
     const settingsAccess = appSettings.settingsAccess
@@ -12,15 +20,18 @@ export function mergeAppSettings(appSettings: Maybe<Partial<AppSettings>>): AppS
         : emptySettings.settingsAccess;
 
     const actionsAccess = appSettings.actionsAccess
-        ? _.mapValues(appSettings.actionsAccess, p => new PublicPermission(p))
+        ? _.mapValues(appSettings.actionsAccess, p => new ActionPermission(p))
         : emptySettings.actionsAccess;
 
-    return AppSettings.create({
+    const forcedActionsAccess = injectMandatoryRules(migrateNewerActions(actionsAccess));
+    const newAppSettings = {
         ...emptySettings,
         ...appSettings,
         settingsAccess: settingsAccess,
-        actionsAccess: migrateNewerActions(actionsAccess),
-    });
+        actionsAccess: forcedActionsAccess,
+    };
+
+    return AppSettings.create(newAppSettings);
 }
 
 /* New actions may be added in the future, so we need to ensure that
@@ -28,7 +39,7 @@ export function mergeAppSettings(appSettings: Maybe<Partial<AppSettings>>): AppS
  that could be already saved.
  */
 function migrateNewerActions(actionsAccess: ActionsPermissions): ActionsPermissions {
-    const newActionsAccess = AppSettings.emptySettings().actionsAccess;
+    const newActionsAccess = AppSettings.defaultSettings().actionsAccess;
 
     const newerActions = getKeys(newActionsAccess);
     const currentActions = getKeys(actionsAccess);
@@ -36,10 +47,19 @@ function migrateNewerActions(actionsAccess: ActionsPermissions): ActionsPermissi
     const actionsToMigrate = newerActions.filter(action => !currentActions.includes(action));
     if (actionsToMigrate.length === 0) return actionsAccess;
 
-    const newerPublic = _.pick(newActionsAccess, actionsToMigrate);
+    const newActions = _.pick(newActionsAccess, actionsToMigrate);
 
     return {
         ...actionsAccess,
-        ...newerPublic,
+        ...newActions,
     };
+}
+
+export function removeRuntimeLogic(appSettings: AppSettings): AppSettings {
+    const updatedActionsAccess = removeMandatoryRules(appSettings.actionsAccess);
+
+    return AppSettings.create({
+        ...appSettings,
+        actionsAccess: updatedActionsAccess,
+    });
 }

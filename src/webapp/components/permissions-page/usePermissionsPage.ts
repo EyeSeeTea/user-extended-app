@@ -1,10 +1,9 @@
 import _ from "lodash";
 import React from "react";
-import { AppSettings, publicPermission } from "../../../domain/entities/AppSettings";
+import { AppSettings, markAllActionsPublic } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 import { Id } from "../../../domain/entities/Ref";
-import { assignValueToAllActions } from "../../../domain/entities/UserAction";
 
 export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, permission: Permission) => {
     const { appSettings } = useAppSettingsContext();
@@ -26,7 +25,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
     const [usersToHide, setUsersToHide] = React.useState(appSettings.hide.users);
     const [userGroupsToHide, setUserGroupsToHide] = React.useState(appSettings.hide.userGroups);
     const [userRolesToHide, setUserRolesToHide] = React.useState(appSettings.hide.userRoles);
-    const [orgUnitsToHide, setOrgUnitsToHide] = React.useState(appSettings.hide.orgUnits);
+    const [orgUnitsToHide, _setOrgUnitsToHide] = React.useState(appSettings.hide.orgUnits);
 
     const updateHideOptions = React.useCallback(
         (hideOptions: Partial<{ users: Id[]; userGroups: Id[]; userRoles: Id[] }>) => {
@@ -50,9 +49,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 showOnlyActiveUsers: formState.activeUsers,
                 showFeedback: formState.feedbackButton,
                 settingsAccess: permission,
-                actionsAccess: formState.actionsArePublic
-                    ? assignValueToAllActions(publicPermission)
-                    : actionsPermissions,
+                actionsAccess: formState.actionsArePublic ? markAllActionsPublic() : actionsPermissions,
                 hide: {
                     users: formState.showHideOptions ? usersToHide : [],
                     userGroups: formState.showHideOptions ? userGroupsToHide : [],
@@ -67,12 +64,14 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.activeUsers,
         formState.feedbackButton,
         formState.showHideOptions,
+        formState.showHideOrgUnits,
         formState.actionsArePublic,
         permission,
         actionsPermissions,
         usersToHide,
         userGroupsToHide,
         userRolesToHide,
+        orgUnitsToHide,
     ]);
 
     return {

@@ -6,9 +6,10 @@ import { SharingActionsProps } from "./SharingActions";
 import { UserGroup } from "../../../domain/entities/UserGroup";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
-import { UserAction } from "../../../domain/entities/UserAction";
+import { getMandatoryRulesForAction, UserAction } from "../../../domain/entities/UserAction";
+import { Rule, getRuleLabel, getSelectableRules } from "../../../domain/entities/Rule";
+import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import i18n from "../../../locales";
-import { PublicPermission } from "../../../domain/entities/Permission";
 
 export function useSharingActions(props: SharingActionsProps) {
     const { actionsPermissions, setActionsPermissions } = props;
@@ -23,9 +24,9 @@ export function useSharingActions(props: SharingActionsProps) {
 
     const setSelectedValuesByAction = React.useCallback(
         (action: UserAction) => (values: Value[]) => {
-            setSelectedValues(selectedValues => {
+            setSelectedValues(previousValuesByAction => {
                 const isPublicSelected =
-                    values.includes("public-access") && !selectedValues[action].includes("public-access");
+                    values.includes("public-access") && !previousValuesByAction[action].includes("public-access");
                 const shouldForcePublic = isPublicSelected || _.isEmpty(values);
                 const shouldFilterOutPublic = values.length > 1;
                 const removedPublic = values.filter(value => value !== "public-access");
@@ -36,17 +37,26 @@ export function useSharingActions(props: SharingActionsProps) {
                     ? removedPublic
                     : values;
 
-                setActionsPermissions(actionsPermissions => ({
-                    ...actionsPermissions,
-                    [action]: shouldForcePublic
-                        ? PublicPermission.public()
+                setActionsPermissions(actionsPermissions => {
+                    // Note: Default rules don't necessarily mean mandatory
+                    const newActionPermission = shouldForcePublic
+                        ? ActionPermission.public()
                         : actionsPermissions[action].updateUserGroups(
                               allUserGroups.filter(userGroup => removedPublic.includes(userGroup.id))
-                          ),
-                }));
+                          );
+
+                    const newActionPermissionWithMandatoryRules = newActionPermission.updateRules(
+                        getMandatoryRulesForAction(action)
+                    );
+
+                    return {
+                        ...actionsPermissions,
+                        [action]: newActionPermissionWithMandatoryRules,
+                    };
+                });
 
                 return {
-                    ...selectedValues,
+                    ...previousValuesByAction,
                     [action]: newValues,
                 };
             });
@@ -56,8 +66,9 @@ export function useSharingActions(props: SharingActionsProps) {
 
     const items = React.useMemo(() => {
         const publicAccessItem = buildPublicAccessItem();
+        const ruleItems = buildRuleItems();
 
-        return [publicAccessItem].concat(
+        return [publicAccessItem].concat(ruleItems).concat(
             allUserGroups.map(userGroup => ({
                 value: userGroup.id,
                 text: userGroup.name,
@@ -83,10 +94,25 @@ function buildPublicAccessItem(): DropdownItem {
     };
 }
 
+function buildRuleItems(): DropdownItem[] {
+    return getSelectableRules().map(rule => ({
+        value: rule,
+        text: i18n.t("[RULE] ") + getRuleLabel(rule),
+        /* With "[RULE] {{rule}}" HTML encoding-decoding was breaking for USERS_WITHIN_LOGGED_USER_ORG_UNITS single quote */
+    }));
+}
+
 function mapSelectedValues(actionsPermissions: ActionsPermissions): Record<UserAction, Value[]> {
     return _.mapValues(actionsPermissions, permission => {
-        return permission.isPublic ? ["public-access"] : permission.userGroups.map(getId);
+        if (permission.isPublic) {
+            return ["public-access"];
+        }
+
+        const userGroupValues = permission.userGroups.map(getId);
+        const ruleValues = permission.rules || [];
+
+        return [...userGroupValues, ...ruleValues];
     });
 }
 
-export type Value = Id;
+export type Value = Id | Rule;

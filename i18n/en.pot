@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-02-27T18:53:35.899Z\n"
-"PO-Revision-Date: 2025-02-27T18:53:35.899Z\n"
+"POT-Creation-Date: 2025-08-18T10:44:52.642Z\n"
+"PO-Revision-Date: 2025-08-18T10:44:52.642Z\n"
 
 msgid "Details"
 msgstr ""
@@ -39,6 +39,9 @@ msgid "Disable"
 msgstr ""
 
 msgid "Reset password"
+msgstr ""
+
+msgid "Set password"
 msgstr ""
 
 msgid "Remove"
@@ -347,10 +350,10 @@ msgstr ""
 msgid "Show feedback button"
 msgstr ""
 
-msgid "Show only users assigned to users' organisation units"
+msgid "Show only active users"
 msgstr ""
 
-msgid "Show only active users"
+msgid "Hide org units for all users (except superuser)"
 msgstr ""
 
 msgid "Hide users, user roles and user groups"
@@ -372,6 +375,9 @@ msgid "You can't hide more than 480 users"
 msgstr ""
 
 msgid "Public access (Everyone)"
+msgstr ""
+
+msgid "Rule"
 msgstr ""
 
 msgid "Saving..."
@@ -515,6 +521,18 @@ msgstr ""
 msgid "Select users"
 msgstr ""
 
+msgid "Please confirm your password"
+msgstr ""
+
+msgid "Passwords do not match"
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "Confirm New Password"
+msgstr ""
+
 msgid "Remove users"
 msgstr ""
 
@@ -554,6 +572,60 @@ msgid ""
 msgstr ""
 
 msgid "Confirm"
+msgstr ""
+
+msgid "Please ensure all password requirements are met and passwords match"
+msgstr ""
+
+msgid "Password has been set successfully for {{username}}"
+msgstr ""
+
+msgid "Failed to set password. Please try again."
+msgstr ""
+
+msgid "Set password for {{username}}"
+msgstr ""
+
+msgid "Set Password"
+msgstr ""
+
+msgid "Password is required"
+msgstr ""
+
+msgid "Password must contain at least 8 characters"
+msgstr ""
+
+msgid "Password must not contain more than 34 characters"
+msgstr ""
+
+msgid "Password must contain at least one lowercase letter"
+msgstr ""
+
+msgid "Password must contain at least one UPPERCASE letter"
+msgstr ""
+
+msgid "Password must contain at least one digit (number)"
+msgstr ""
+
+msgid "Password must contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least 8 characters"
+msgstr ""
+
+msgid "Not contain more than 34 characters"
+msgstr ""
+
+msgid "Contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least one UPPERCASE character"
+msgstr ""
+
+msgid "Contain at least one lowercase character"
+msgstr ""
+
+msgid "Contain at least one digit (number)"
 msgstr ""
 
 msgid "Table exported: {{filename}}"
