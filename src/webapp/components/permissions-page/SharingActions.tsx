@@ -1,9 +1,10 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@material-ui/core";
 import { DropdownItem, MultipleDropdown } from "@eyeseetea/d2-ui-components";
-import { getUserActionLabel, UserAction, userActions } from "../../../domain/entities/UserAction";
+import { UserAction, userActions } from "../../../domain/entities/UserAction";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { useSharingActions, Value } from "./useSharingActions";
+import { getUserActionLabel } from "../user-list-table/userListTableHelpers";
 import i18n from "../../../locales";
 
 export type SharingActionsProps = {

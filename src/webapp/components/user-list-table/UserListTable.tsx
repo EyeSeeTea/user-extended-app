@@ -51,9 +51,10 @@ import { ImportTable } from "../import-export/ImportTable";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
-import { getUserActionLabel, UserAction } from "../../../domain/entities/UserAction";
+import { UserAction } from "../../../domain/entities/UserAction";
 import { UsersSetPasswordModal } from "../users-selected-modal/UsersSetPasswordModal";
 import { useUserColumns } from "./userColumns";
+import { getUserActionLabel } from "./userListTableHelpers";
 
 function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {

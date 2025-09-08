@@ -3,11 +3,11 @@ import { Struct } from "./generic/Struct";
 import { Permission } from "./Permission";
 import { Id } from "./Ref";
 import { UserColumns } from "./User";
-import { defaultRules, getMandatoryRulesForAction, UserAction, userActions } from "./UserAction";
+import { UserAction, userActions } from "./UserAction";
 import { ActionPermission } from "./ActionPermission";
 import { fromPairs, getKeys } from "../../types/utils";
-import { getMandatoryRules } from "./Rule";
-import { getDefaultUserColumns } from "./Column";
+import { defaultRules, getInternalRules, getInternalRulesForAction } from "./UserActionRule";
+import { userColumns } from "./UserColumn";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
 
@@ -71,8 +71,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
     }
 
     private static defaultColumns(): SettingsUserColumn[] {
-        const defaultColumns = getDefaultUserColumns();
-        return defaultColumns.map(column => ({ field: column.name, value: "optional" }));
+        return userColumns.map(column => ({ field: column, value: "optional" })); //FIXME (Next PR #232): This is making all "optional" as default
     }
 }
 
@@ -80,7 +79,7 @@ export function markAllActionsPublic() {
     const publicPermission = ActionPermission.public();
     const publicActions = Object.assign({}, ...userActions.map(action => ({ [action]: publicPermission })));
 
-    return injectMandatoryRules(publicActions);
+    return injectInternalRules(publicActions);
 }
 
 function instantiateActionsAccesses(): Record<UserAction, ActionPermission> {
@@ -93,20 +92,20 @@ function instantiateActionsAccesses(): Record<UserAction, ActionPermission> {
     );
 }
 
-export function removeMandatoryRules(actionsAccess: ActionsPermissions): ActionsPermissions {
-    const mandatoryRules = getMandatoryRules();
+export function removeInternalRules(actionsAccess: ActionsPermissions): ActionsPermissions {
+    const internalRules = getInternalRules();
 
     return _.mapValues(actionsAccess, permission => {
-        const filteredRules = permission.rules.filter(rule => !mandatoryRules.includes(rule));
+        const filteredRules = permission.rules.filter(rule => !internalRules.includes(rule));
         return permission.updateRules(filteredRules);
     });
 }
 
-export function injectMandatoryRules(actionsAccess: ActionsPermissions): ActionsPermissions {
+export function injectInternalRules(actionsAccess: ActionsPermissions): ActionsPermissions {
     const actionKeys = getKeys(actionsAccess);
 
     const updatedPermissions = actionKeys.map((action): [UserAction, ActionPermission] => {
-        const newRules = _.uniq(actionsAccess[action].rules.concat(getMandatoryRulesForAction(action)));
+        const newRules = _.uniq(actionsAccess[action].rules.concat(getInternalRulesForAction(action)));
         return [action, actionsAccess[action].updateRules(newRules)];
     });
 

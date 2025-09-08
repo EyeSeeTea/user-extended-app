@@ -6,8 +6,8 @@ import { SharingActionsProps } from "./SharingActions";
 import { UserGroup } from "../../../domain/entities/UserGroup";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
-import { getMandatoryRulesForAction, UserAction } from "../../../domain/entities/UserAction";
-import { Rule, getRuleLabel, getSelectableRules } from "../../../domain/entities/Rule";
+import { UserAction } from "../../../domain/entities/UserAction";
+import { UserActionRule, getInternalRulesForAction, getSelectableRules } from "../../../domain/entities/UserActionRule";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import i18n from "../../../locales";
 
@@ -38,20 +38,20 @@ export function useSharingActions(props: SharingActionsProps) {
                     : values;
 
                 setActionsPermissions(actionsPermissions => {
-                    // Note: Default rules don't necessarily mean mandatory
+                    // Note: Default rules don't necessarily mean internal
                     const newActionPermission = shouldForcePublic
                         ? ActionPermission.public()
                         : actionsPermissions[action].updateUserGroups(
                               allUserGroups.filter(userGroup => removedPublic.includes(userGroup.id))
                           );
 
-                    const newActionPermissionWithMandatoryRules = newActionPermission.updateRules(
-                        getMandatoryRulesForAction(action)
+                    const newActionPermissionWithInternalRules = newActionPermission.updateRules(
+                        getInternalRulesForAction(action)
                     );
 
                     return {
                         ...actionsPermissions,
-                        [action]: newActionPermissionWithMandatoryRules,
+                        [action]: newActionPermissionWithInternalRules,
                     };
                 });
 
@@ -94,6 +94,27 @@ function buildPublicAccessItem(): DropdownItem {
     };
 }
 
+function getRuleLabel(rule: UserActionRule): string {
+    switch (rule) {
+        case UserActionRule.HAS_EMAIL:
+            return i18n.t("User has email address");
+        case UserActionRule.USERS_WITHIN_LOGGED_USER_ORG_UNITS:
+            return i18n.t("Only available for users assigned to users' organization unit and below");
+        case UserActionRule.HIDDEN:
+            return i18n.t("Hidden");
+        case UserActionRule.UPDATE_ACCESS:
+            return i18n.t("Only available if user has update access over the users");
+        case UserActionRule.USER_IS_DISABLED:
+            return i18n.t("Only available for disabled users");
+        case UserActionRule.USER_IS_NOT_DISABLED:
+            return i18n.t("Only available for active users");
+        case UserActionRule.DELETE_ACCESS:
+            return i18n.t("Only available if user has delete access over the users");
+        case UserActionRule.REPLICATE_AUTHORITY:
+            return i18n.t("Only available if user has replicate authority on some owned role");
+    }
+}
+
 function buildRuleItems(): DropdownItem[] {
     return getSelectableRules().map(rule => ({
         value: rule,
@@ -115,4 +136,4 @@ function mapSelectedValues(actionsPermissions: ActionsPermissions): Record<UserA
     });
 }
 
-export type Value = Id | Rule;
+export type Value = Id | UserActionRule;

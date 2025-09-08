@@ -13,7 +13,7 @@ import {
 } from "../entities/User";
 import { getId, Id } from "../entities/Ref";
 import { UserAction } from "../entities/UserAction";
-import { Rule } from "../entities/Rule";
+import { UserActionRule } from "../entities/UserActionRule";
 import { ActionPermission } from "../entities/ActionPermission";
 
 // Old Note for Reviewer: I made it sync to make it reactive, so I have the doubt if it shouldn't be a use case and just on the useHook
@@ -56,7 +56,7 @@ export class CheckActionsAccessibleToCurrentUserUseCase {
 
     private validateRuleAccess(args: {
         currentUser: User;
-        rules: Rule[];
+        rules: UserActionRule[];
         users: User[];
         currentUserOrgUnitIds: Id[];
     }): boolean {
@@ -65,21 +65,21 @@ export class CheckActionsAccessibleToCurrentUserUseCase {
 
         return rules.every(rule => {
             switch (rule) {
-                case Rule.HIDDEN:
+                case UserActionRule.HIDDEN:
                     return false;
-                case Rule.HAS_EMAIL:
+                case UserActionRule.HAS_EMAIL:
                     return allUsersHaveEmail(users);
-                case Rule.USERS_WITHIN_LOGGED_USER_ORG_UNITS:
+                case UserActionRule.USERS_WITHIN_LOGGED_USER_ORG_UNITS:
                     return allUsersBelongToAtLeastOneOrgUnit(users, currentUserOrgUnitIds);
-                case Rule.UPDATE_ACCESS:
+                case UserActionRule.UPDATE_ACCESS:
                     return allUsersHaveAllSpecifiedAccesses(users, ["update"]);
-                case Rule.DELETE_ACCESS:
+                case UserActionRule.DELETE_ACCESS:
                     return allUsersHaveAllSpecifiedAccesses(users, ["delete"]);
-                case Rule.USER_IS_DISABLED:
+                case UserActionRule.USER_IS_DISABLED:
                     return allUsersAreDisabled(users);
-                case Rule.USER_IS_NOT_DISABLED:
+                case UserActionRule.USER_IS_NOT_DISABLED:
                     return allUsersAreActive(users);
-                case Rule.REPLICATE_AUTHORITY:
+                case UserActionRule.REPLICATE_AUTHORITY:
                     return hasReplicateAuthority(currentUser);
                 default:
                     return true;

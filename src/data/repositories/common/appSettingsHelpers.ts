@@ -2,14 +2,14 @@ import _ from "lodash";
 import {
     ActionsPermissions,
     AppSettings,
-    injectMandatoryRules,
-    removeMandatoryRules,
+    injectInternalRules,
+    removeInternalRules,
 } from "../../../domain/entities/AppSettings";
 import { Permission } from "../../../domain/entities/Permission";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import { getKeys, Maybe } from "../../../types/utils";
 
-//FIXME: shouldn't be a Maybe if Request result is compared with Codec.
+//FIXME (NOT URGENT): shouldn't be a Maybe if Request result is compared with Codec.
 // Partial, as new props can be added on next releases.
 export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>): AppSettings {
     const emptySettings = AppSettings.defaultSettings();
@@ -23,7 +23,7 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
         ? _.mapValues(appSettings.actionsAccess, p => new ActionPermission(p))
         : emptySettings.actionsAccess;
 
-    const forcedActionsAccess = injectMandatoryRules(migrateNewerActions(actionsAccess));
+    const forcedActionsAccess = injectInternalRules(migrateNewerActions(actionsAccess));
     const newAppSettings = {
         ...emptySettings,
         ...appSettings,
@@ -56,7 +56,7 @@ function migrateNewerActions(actionsAccess: ActionsPermissions): ActionsPermissi
 }
 
 export function removeRuntimeLogic(appSettings: AppSettings): AppSettings {
-    const updatedActionsAccess = removeMandatoryRules(appSettings.actionsAccess);
+    const updatedActionsAccess = removeInternalRules(appSettings.actionsAccess);
 
     return AppSettings.create({
         ...appSettings,
