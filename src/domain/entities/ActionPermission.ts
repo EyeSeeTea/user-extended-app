@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { isPermissionAccessible, PermissionAttrs } from "./Permission";
 import { Id, NamedRef } from "./Ref";
-import { Rule } from "./Rule";
+import { getSelectableRules, Rule } from "./Rule";
 
 type ActionPermissionAttrs = PermissionAttrs & {
     rules: Rule[];
@@ -13,18 +13,16 @@ export class ActionPermission extends Struct<ActionPermissionAttrs>() {
         return new ActionPermission({
             users: [],
             userGroups: [],
-            rules: [],
+            rules: [], // Mandatory rules should be added (but it depends on the action)
         });
     }
 
+    // Even if isPublic returns true, rule validations must be executed
     get isPublic(): boolean {
-        return _.isEmpty(this.users) && _.isEmpty(this.userGroups) && _.isEmpty(this.rules);
+        const selectableRules = getSelectableRules();
+        const removedMandatory = this.rules.filter(rule => selectableRules.includes(rule));
+        return _.isEmpty(this.users) && _.isEmpty(this.userGroups) && _.isEmpty(removedMandatory);
     }
-    // get isPublic(): boolean {
-    //     const selectableRules = getSelectableRules();
-    //     const removedMandatory = this.rules.filter(rule => selectableRules.includes(rule));
-    //     return _.isEmpty(this.users) && _.isEmpty(this.userGroups) && _.isEmpty(removedMandatory);
-    // }
 
     updateUsers(users: NamedRef[]): ActionPermission {
         return this._update({
@@ -44,8 +42,7 @@ export class ActionPermission extends Struct<ActionPermissionAttrs>() {
         });
     }
 
-    isAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
-        if (this.isPublic) return true;
+    isAccessibleViaWhitelist(args: { userId: Id; userGroupIds: Id[] }): boolean {
         return isPermissionAccessible(this, args);
     }
 }

@@ -27,33 +27,29 @@ export class CheckActionsAccessibleToCurrentUserUseCase {
         currentUser: User,
         actionsAccess: ActionsPermissions
     ): Record<UserAction, ActionAccessibleValidator> {
-        const userGroupIds = currentUser.userGroups.map(getId);
         const currentUserOrgUnitIds = userOrgUnitIds(currentUser);
 
         return _.mapValues(actionsAccess, (permission, _action) => {
-            const hasBasicAccess = this.hasAccessViaWhitelist(currentUser, permission, userGroupIds);
+            const hasWhitelistAccess = this.hasAccessViaWhitelist(currentUser, permission);
 
             return (users: User[]) => {
-                if (hasBasicAccess) {
-                    return true;
-                } else {
-                    return this.validateRuleAccess({
-                        currentUser,
-                        rules: permission.rules,
-                        users,
-                        currentUserOrgUnitIds,
-                    });
-                }
+                if (hasWhitelistAccess) return true;
+                return this.validateRuleAccess({
+                    currentUser,
+                    rules: permission.rules,
+                    users,
+                    currentUserOrgUnitIds,
+                });
             };
         });
     }
 
-    private hasAccessViaWhitelist(currentUser: User, permission: ActionPermission, userGroupIds: string[]) {
+    private hasAccessViaWhitelist(currentUser: User, permission: ActionPermission) {
         return (
             isSuperAdmin(currentUser) ||
-            permission.isAccessible({
+            permission.isAccessibleViaWhitelist({
                 userId: currentUser.id,
-                userGroupIds: userGroupIds,
+                userGroupIds: currentUser.userGroups.map(getId),
             })
         );
     }

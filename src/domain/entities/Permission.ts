@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Id, NamedRef } from "./Ref";
 
@@ -13,7 +14,8 @@ export class Permission extends Struct<PermissionAttrs>() {
     }
 }
 
-export function isPermissionAccessible(permission: Permission, args: { userId: Id; userGroupIds: Id[] }): boolean {
+/* Acts as a whitelist. If not present or permission users and userGroups are empty, then no access is granted */
+export function isPermissionAccessible(permission: PermissionAttrs, args: { userId: Id; userGroupIds: Id[] }): boolean {
     const { userId, userGroupIds } = args;
 
     const userAccess = permission.users.some(u => u.id === userId);
