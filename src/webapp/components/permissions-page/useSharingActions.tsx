@@ -7,7 +7,12 @@ import { UserGroup } from "../../../domain/entities/UserGroup";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
 import { UserAction } from "../../../domain/entities/UserAction";
-import { UserActionRule, getInternalRulesForAction, getSelectableRules } from "../../../domain/entities/UserActionRule";
+import {
+    UserActionRule,
+    getInternalRulesForAction,
+    getSelectableRules,
+    isRule,
+} from "../../../domain/entities/UserActionRule";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import i18n from "../../../locales";
 
@@ -45,8 +50,9 @@ export function useSharingActions(props: SharingActionsProps) {
                               allUserGroups.filter(userGroup => removedPublic.includes(userGroup.id))
                           );
 
+                    const rules = newValues.filter(isRule); // Both type of rules (_.uniq will handle duplicates)
                     const newActionPermissionWithInternalRules = newActionPermission.updateRules(
-                        getInternalRulesForAction(action)
+                        getInternalRulesForAction(action).concat(rules)
                     );
 
                     return {
