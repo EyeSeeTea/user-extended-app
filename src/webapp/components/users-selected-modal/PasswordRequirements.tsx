@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { PASSWORD_REQUIREMENTS } from "./passwordValidation";
+import { passwordRequirements } from "./passwordValidation";
 import i18n from "../../../locales";
 
 interface PasswordRequirementsProps {
@@ -12,7 +12,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = React.m
         <RequirementsContainer>
             <RequirementsTitle>{i18n.t("Password Requirements:")}</RequirementsTitle>
             <RequirementsList>
-                {PASSWORD_REQUIREMENTS.map(requirement => (
+                {passwordRequirements.map(requirement => (
                     <RequirementItem key={requirement.key} valid={requirement.validator(password)}>
                         {requirement.text()}
                     </RequirementItem>

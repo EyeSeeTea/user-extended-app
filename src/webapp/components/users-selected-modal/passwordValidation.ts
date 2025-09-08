@@ -1,21 +1,21 @@
 import i18n from "../../../locales";
 
-export const PASSWORD_PATTERNS = {
-    MIN_LENGTH: 8,
-    MAX_LENGTH: 34,
-    LOWERCASE: /(?=.*[a-z])/,
-    UPPERCASE: /(?=.*[A-Z])/,
-    DIGIT: /(?=.*[0-9])/,
-    SPECIAL_CHAR: /[^A-Za-z0-9]/,
+const passwordPatterns = {
+    minLength: 8,
+    maxLength: 34,
+    lowercase: /(?=.*[a-z])/,
+    uppercase: /(?=.*[A-Z])/,
+    digit: /(?=.*[0-9])/,
+    specialChar: /[^A-Za-z0-9]/,
 } as const;
 
-export const passwordValidations = {
-    hasMinLength: (password: string): boolean => password.length >= PASSWORD_PATTERNS.MIN_LENGTH,
-    hasMaxLength: (password: string): boolean => password.length <= PASSWORD_PATTERNS.MAX_LENGTH,
-    hasLowercase: (password: string): boolean => PASSWORD_PATTERNS.LOWERCASE.test(password),
-    hasUppercase: (password: string): boolean => PASSWORD_PATTERNS.UPPERCASE.test(password),
-    hasDigit: (password: string): boolean => PASSWORD_PATTERNS.DIGIT.test(password),
-    hasSpecialChar: (password: string): boolean => PASSWORD_PATTERNS.SPECIAL_CHAR.test(password),
+const passwordValidations = {
+    hasMinLength: (password: string): boolean => password.length >= passwordPatterns.minLength,
+    hasMaxLength: (password: string): boolean => password.length <= passwordPatterns.maxLength,
+    hasLowercase: (password: string): boolean => passwordPatterns.lowercase.test(password),
+    hasUppercase: (password: string): boolean => passwordPatterns.uppercase.test(password),
+    hasDigit: (password: string): boolean => passwordPatterns.digit.test(password),
+    hasSpecialChar: (password: string): boolean => passwordPatterns.specialChar.test(password),
 };
 
 export const validatePasswordRules = (password: string): string | undefined => {
@@ -33,7 +33,7 @@ export const validatePasswordRules = (password: string): string | undefined => {
     return undefined;
 };
 
-export const PASSWORD_REQUIREMENTS = [
+export const passwordRequirements = [
     {
         key: "minLength",
         text: () => i18n.t("Contain at least 8 characters"),
