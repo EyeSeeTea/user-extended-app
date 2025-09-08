@@ -71,11 +71,11 @@ export function useUsersSetPasswordModal(props: UseUsersSetPasswordModalProps) {
     const cancel = React.useCallback(() => {
         resetForm();
         onCancel();
-    }, [onCancel]);
+    }, [onCancel, resetForm]);
 
     React.useEffect(() => {
         if (!isOpen) resetForm();
-    }, [isOpen]);
+    }, [isOpen, resetForm]);
 
     return {
         user,
