@@ -1,9 +1,12 @@
-import { UserProps, defaultUserProps } from "../../../entities/UserProps";
+import { defaultUserProps } from "../../../entities/UserProps";
+import { User } from "../../../entities/User";
 
-export const sourceUser: UserProps = {
+export const sourceUser = new User({
     ...defaultUserProps,
     id: "oXD88WWSQpR",
     name: "Alain Traore",
+    firstName: "Alain",
+    surname: "Traore",
     username: "traore",
     userGroups: [
         {
@@ -45,12 +48,14 @@ export const sourceUser: UserProps = {
             path: ["ImspTQPwCqd"],
         },
     ],
-};
+});
 
-export const targetUser: UserProps = {
+export const targetUser = new User({
     ...defaultUserProps,
     id: "DXyJmlo9rge",
     name: "Android Barnes",
+    firstName: "Android",
+    surname: "Barnes",
     username: "android",
     userGroups: [
         {
@@ -92,4 +97,4 @@ export const targetUser: UserProps = {
             path: ["ImspTQPwCqd", "O6uvpzGd5pu", "YuQRtpLP10I"],
         },
     ],
-};
+});

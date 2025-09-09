@@ -1,5 +1,5 @@
 import { SaveUserOrgUnitUseCase, SaveUserOrgUnitOptions } from "../SaveUserOrgUnitUseCase";
-import { UserProps } from "../../entities/UserProps";
+import { User } from "../../entities/User";
 import { OrgUnit } from "../../entities/OrgUnit";
 import { Future } from "../../entities/Future";
 import { anything, deepEqual, instance, mock, when, verify } from "ts-mockito";
@@ -8,7 +8,7 @@ import { MetadataResponse } from "@eyeseetea/d2-api/api";
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 import { sourceUser, targetUser } from "./data/user";
 
-const selectedUsers: UserProps[] = [sourceUser, targetUser];
+const selectedUsers: User[] = [sourceUser, targetUser];
 const selectedOrgUnits: OrgUnit[] = [
     {
         code: "OU_525",
@@ -78,19 +78,25 @@ function givenOptionsToMerge(): SaveUserOrgUnitOptions {
     };
 }
 
-function givenExpectedUsersReplaced(): UserProps[] {
-    return selectedUsers.map(user => ({
-        ...user,
-        organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
-    }));
+function givenExpectedUsersReplaced(): User[] {
+    return selectedUsers.map(
+        user =>
+            new User({
+                ...user,
+                organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
+            })
+    );
 }
 
-function givenExpectedUsersMerged(): UserProps[] {
-    return selectedUsers.map(user => ({
-        ...user,
-        organisationUnits: _(selectedOrgUnits)
-            .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))
-            .unionBy(user.organisationUnits, "id")
-            .value(),
-    }));
+function givenExpectedUsersMerged(): User[] {
+    return selectedUsers.map(
+        user =>
+            new User({
+                ...user,
+                organisationUnits: _(selectedOrgUnits)
+                    .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))
+                    .unionBy(user.organisationUnits, "id")
+                    .value(),
+            })
+    );
 }

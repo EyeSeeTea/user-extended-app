@@ -5,7 +5,7 @@ import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
-import { LocaleCode, UserProps } from "../../domain/entities/UserProps";
+import { LocaleCode } from "../../domain/entities/UserProps";
 import { User } from "../../domain/entities/User";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
@@ -30,30 +30,30 @@ export class UserD2ApiRepository implements UserRepository {
         this.userStorage = new DataStoreStorageClient("user", instance);
     }
 
-    private getLocales(users: UserProps[]): FutureData<UserProps[]> {
-        const $requests = users.map((user): FutureData<UserProps> => {
+    private getLocales(users: User[]): FutureData<User[]> {
+        const $requests = users.map((user): FutureData<User> => {
             return apiToFuture(
                 this.api.request<D2UserSettings>({
                     method: "get",
                     url: "/userSettings.json",
                     params: { user: user.username },
                 })
-            ).map((response): UserProps => {
-                return { ...user, uiLocale: response.keyUiLocale, dbLocale: response.keyDbLocale };
+            ).map((response): User => {
+                return new User({ ...user, uiLocale: response.keyUiLocale, dbLocale: response.keyDbLocale });
             });
         });
 
         return Future.parallel($requests, { maxConcurrency: 5 }).map(users => users);
     }
 
-    private saveLocales(users: UserProps[]): FutureData<void> {
+    private saveLocales(users: User[]): FutureData<void> {
         const $requests = users.flatMap(user => {
             return [this.saveLocaleRequest(user, "keyDbLocale"), this.saveLocaleRequest(user, "keyUiLocale")];
         });
         return Future.parallel($requests, { maxConcurrency: 2 }).map(() => undefined);
     }
 
-    private saveLocaleRequest(user: UserProps, keyLocale: KeyLocale): FutureData<void> {
+    private saveLocaleRequest(user: User, keyLocale: KeyLocale): FutureData<void> {
         return apiToFuture(
             this.api.request({
                 method: "post",
@@ -63,7 +63,7 @@ export class UserD2ApiRepository implements UserRepository {
         );
     }
 
-    private getLocaleValueByType(user: UserProps, keyLocale: KeyLocale): string {
+    private getLocaleValueByType(user: User, keyLocale: KeyLocale): string {
         switch (keyLocale) {
             case DB_LOCALE_KEY:
                 return User.setDefaultLanguage(user.dbLocale);
@@ -72,8 +72,7 @@ export class UserD2ApiRepository implements UserRepository {
         }
     }
 
-    remove(users: UserProps[]): FutureData<Stats> {
-        const ids = users.map(user => user.id);
+    remove(ids: Id[]): FutureData<Stats> {
         return chunkRequest(ids, userIds => {
             return apiToFuture<Dhis2Response>(
                 this.api.metadata.post({ users: userIds.map(id => ({ id: id })) }, { importStrategy: "DELETE" })
@@ -95,7 +94,7 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     @cache()
-    public getCurrent(): FutureData<UserProps> {
+    public getCurrent(): FutureData<User> {
         return apiToFuture(
             this.api.currentUser.get({
                 fields: { ...fields, organisationUnits: { ...fields.organisationUnits, level: true } },
@@ -103,7 +102,7 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(user => this.toDomainUser(user));
     }
 
-    public list(options: ListOptions): FutureData<PaginatedResponse<UserProps>> {
+    public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
         const {
             page,
             pageSize,
@@ -136,7 +135,7 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    public listAllIds(options: ListOptions): FutureData<string[]> {
+    public listAllIds(options: ListOptions): FutureData<Id[]> {
         const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
 
@@ -152,12 +151,12 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects }) => objects.map(user => user.id));
     }
 
-    public getByIds(ids: string[]): FutureData<UserProps[]> {
+    public getByIds(ids: Id[]): FutureData<User[]> {
         if (ids.length === 0) return Future.success([]);
         return this.getUsersByIds(ids);
     }
 
-    private getUsersByIds(ids: Id[]): FutureData<UserProps[]> {
+    private getUsersByIds(ids: Id[]): FutureData<User[]> {
         const $requests = chunkRequest(
             ids,
             usersIds => {
@@ -186,10 +185,10 @@ export class UserD2ApiRepository implements UserRepository {
         return $requests.map(_.flatten);
     }
 
-    private addGroupsToUsers(users: UserProps[], d2UsersWithGroups: D2UserGroupByKey): UserProps[] {
-        return users.map((user): UserProps => {
+    private addGroupsToUsers(users: User[], d2UsersWithGroups: D2UserGroupByKey): User[] {
+        return users.map((user): User => {
             const userGroups = d2UsersWithGroups[user.id] || [];
-            return { ...user, userGroups: userGroups };
+            return new User({ ...user, userGroups: userGroups });
         });
     }
 
@@ -259,8 +258,8 @@ export class UserD2ApiRepository implements UserRepository {
 
     public listAll(
         options: ListOptions,
-        state: { initialPage: number; users: UserProps[] } = { initialPage: 1, users: [] }
-    ): FutureData<UserProps[]> {
+        state: { initialPage: number; users: User[] } = { initialPage: 1, users: [] }
+    ): FutureData<User[]> {
         const { initialPage, users } = state;
         return this.list({ ...options, pageSize: 100, page: initialPage }).flatMap(({ pager, objects }) => {
             const newUsers = [...users, ...objects];
@@ -275,7 +274,7 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    public save(usersToSave: UserProps[]): FutureData<MetadataResponse> {
+    public save(usersToSave: User[]): FutureData<MetadataResponse> {
         const validations = usersToSave.map(user => ApiUserModel.decode(this.toApiUser(user)));
         const users = _.compact(validations.map(either => either.toMaybe().extract()));
         const errors = _.compact(validations.map(either => either.leftOrDefault("")));
@@ -343,7 +342,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    public updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    public updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonRoles = _.intersectionBy(
                 ...storedUsers.map(user => user.userRoles.map(role => role)),
@@ -351,7 +350,7 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
+                return new User({
                     ...user,
                     userRoles:
                         strategy === "merge"
@@ -360,14 +359,14 @@ export class UserD2ApiRepository implements UserRepository {
                                   ({ id }) => id
                               )
                             : update,
-                };
+                });
             });
 
             return this.save(users);
         });
     }
 
-    public updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    public updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonGroups = _.intersectionBy(
                 ...storedUsers.map(user => user.userGroups.map(group => group)),
@@ -375,7 +374,7 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
+                return new User({
                     ...user,
                     userGroups:
                         strategy === "merge"
@@ -384,15 +383,15 @@ export class UserD2ApiRepository implements UserRepository {
                                   ({ id }) => id
                               )
                             : update,
-                };
+                });
             });
 
             return this.save(users);
         });
     }
 
-    public getColumns(): FutureData<Array<keyof UserProps>> {
-        const $request = this.userStorage.getOrCreateObject<Array<keyof UserProps>>(
+    public getColumns(): FutureData<Array<keyof User>> {
+        const $request = this.userStorage.getOrCreateObject<Array<keyof User>>(
             Namespaces.VISIBLE_COLUMNS,
             defaultColumns
         );
@@ -402,8 +401,8 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    public saveColumns(columns: Array<keyof UserProps>): FutureData<void> {
-        return this.userStorage.saveObject<Array<keyof UserProps>>(Namespaces.VISIBLE_COLUMNS, columns);
+    public saveColumns(columns: Array<keyof User>): FutureData<void> {
+        return this.userStorage.saveObject<Array<keyof User>>(Namespaces.VISIBLE_COLUMNS, columns);
     }
 
     updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<Stats> {
@@ -487,7 +486,7 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    private toDomainUser(input: ApiUserWithAudit): UserProps {
+    private toDomainUser(input: ApiUserWithAudit): User {
         const { userCredentials, ...user } = input;
         const authorities = _(userCredentials.userRoles)
             .map(userRole => userRole.authorities)
@@ -495,7 +494,7 @@ export class UserD2ApiRepository implements UserRepository {
             .uniq()
             .value();
 
-        return {
+        return new User({
             id: user.id,
             name: user.name,
             firstName: user.firstName,
@@ -530,10 +529,10 @@ export class UserD2ApiRepository implements UserRepository {
             dbLocale: "",
             uiLocale: "",
             ...this.getUserAuditFields(input),
-        };
+        });
     }
 
-    private getUserAuditFields(user: ApiUserWithAudit): Pick<UserProps, "createdBy" | "lastModifiedBy"> {
+    private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {
         const createdBy = user.userCredentials.createdBy || user.createdBy;
         const lastUpdatedBy = user.userCredentials.lastUpdatedBy || user.lastUpdatedBy;
         return {
@@ -542,7 +541,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    private toApiUser(input: UserProps): ApiUserWithAudit {
+    private toApiUser(input: User): ApiUserWithAudit {
         return {
             id: input.id,
             name: input.name,
@@ -580,7 +579,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    private getApiAuditFields(user: UserProps): D2UserAudit {
+    private getApiAuditFields(user: User): D2UserAudit {
         return {
             createdBy: user.createdBy ? { id: user.createdBy.id, displayName: user.createdBy.username } : undefined,
             lastUpdatedBy: user.lastModifiedBy
@@ -652,7 +651,7 @@ const fields = {
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
 export type ApiUserWithAudit = ApiUser & { userCredentials: ApiUser["userCredentials"] & D2UserAudit } & D2UserAudit;
 
-const defaultColumns: Array<keyof UserProps> = [
+const defaultColumns: Array<keyof User> = [
     "username",
     "firstName",
     "surname",

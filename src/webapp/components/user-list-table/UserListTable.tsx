@@ -16,7 +16,8 @@ import _ from "lodash";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { hasReplicateAuthority, UserProps } from "../../../domain/entities/UserProps";
+import { hasReplicateAuthority } from "../../../domain/entities/UserProps";
+import { User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../utils/i18n";
@@ -105,7 +106,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [reloadKey, reload] = useReload();
 
     const [multiSelectorDialogProps, openMultiSelectorDialog] = useState<MultiSelectorDialogProps>();
-    const [visibleColumns, setVisibleColumns] = useState<Array<keyof UserProps>>();
+    const [visibleColumns, setVisibleColumns] = useState<Array<keyof User>>();
     const [mappingColumns, setMappingColumns] = useState<ColumnMappingKeys[]>();
     const [selectedUserIds, setSelectedUserIds] = useState<Id[]>([]);
     const [actionType, setActionType] = useState<ActionType>();
@@ -169,7 +170,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         [compositionRoot, visibleColumns, onChangeVisibleColumns, snackbar]
     );
 
-    const baseConfig = useMemo((): TableConfig<UserProps> => {
+    const baseConfig = useMemo((): TableConfig<User> => {
         return {
             columns: userColumns,
             details: [
@@ -363,8 +364,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         async (
             search: string,
             { page, pageSize }: TablePagination,
-            sorting: TableSorting<UserProps>
-        ): Promise<{ objects: UserProps[]; pager: Pager }> => {
+            sorting: TableSorting<User>
+        ): Promise<{ objects: User[]; pager: Pager }> => {
             console.debug("Reloading", reloadKey, reloadTableKey);
             onChangeSearch(search);
 
@@ -401,7 +402,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     );
 
     const refreshAllIds = useCallback(
-        (search: string, sorting: TableSorting<UserProps>): Promise<string[]> => {
+        (search: string, sorting: TableSorting<User>): Promise<string[]> => {
             return compositionRoot.users
                 .listAllIds({
                     search,
@@ -416,7 +417,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
 
-    const columnsToShow = useMemo<TableColumn<UserProps>[]>(() => {
+    const columnsToShow = useMemo<TableColumn<User>[]>(() => {
         const indexes = _(visibleColumns)
             .map((columnName, idx) => [columnName, idx] as [string, number])
             .fromPairs()
@@ -546,7 +547,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
             {showSettings && <SettingsDialogModal onClose={onSettingsClose} />}
 
-            <ObjectsList<UserProps> {...tableProps} columns={columnsToShow}>
+            <ObjectsList<User> {...tableProps} columns={columnsToShow}>
                 {children}
                 <div className="user-management-control pagination" style={{ order: 11 }}>
                     {importSettings && mappingColumns && (
@@ -576,7 +577,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 };
 
 function useUserColumns() {
-    const columns = React.useMemo((): TableColumn<UserProps>[] => {
+    const columns = React.useMemo((): TableColumn<User>[] => {
         return [
             { name: "id", sortable: false, text: i18n.t("User ID"), hidden: true },
             { name: "username", sortable: false, text: i18n.t("Username") },
@@ -662,7 +663,7 @@ function useUserColumns() {
 }
 
 function checkAccess(requiredKeys: string[]) {
-    return (users: UserProps[]) =>
+    return (users: User[]) =>
         _(users).every(user => {
             const permissions = _(user.access).pickBy().keys().value();
             return _(requiredKeys).difference(permissions).isEmpty();
@@ -673,7 +674,7 @@ function isStateActionVisible(action: string) {
     const currentUserHasUpdateAccessOn = checkAccess(["update"]);
     const requiredDisabledValue = action === "enable";
 
-    return (users: UserProps[]) =>
+    return (users: User[]) =>
         currentUserHasUpdateAccessOn(users) && _(users).some(user => user.disabled === requiredDisabledValue);
 }
 
@@ -685,7 +686,7 @@ export type UserActionName =
     | "replicate_table"
     | "copy_in_user";
 
-export interface UserListTableProps extends Pick<ObjectsTableProps<UserProps>, "loading"> {
+export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loading"> {
     openSettings: (settings: Settings) => void;
     filters: ListFilters;
     canManage: string;

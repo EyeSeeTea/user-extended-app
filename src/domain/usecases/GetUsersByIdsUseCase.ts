@@ -1,12 +1,12 @@
 import { UseCase } from "../../CompositionRoot";
 import { FutureData } from "../entities/Future";
-import { UserProps } from "../entities/UserProps";
+import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";
 
 export class GetUsersByIdsUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
-    public execute(ids: string[]): FutureData<UserProps[]> {
+    public execute(ids: string[]): FutureData<User[]> {
         return this.userRepository.getByIds(ids);
     }
 }

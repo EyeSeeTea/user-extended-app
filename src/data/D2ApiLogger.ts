@@ -2,7 +2,7 @@ import _ from "lodash";
 import { TrackerProgramLogger } from "@eyeseetea/d2-logger";
 import { Future, FutureData } from "../domain/entities/Future";
 import { LoggerSettings } from "../domain/entities/LoggerSettings";
-import { UserProps } from "../domain/entities/UserProps";
+import { User } from "../domain/entities/User";
 import { D2Api } from "../types/d2-api";
 import { Maybe } from "../types/utils";
 
@@ -23,7 +23,7 @@ export class D2ApiLogger {
         this.d2ApiTracker = new D2ApiTracker(api);
     }
 
-    buildLogger(user: UserProps): FutureData<Maybe<D2LoggerMessage>> {
+    buildLogger(user: User): FutureData<Maybe<D2LoggerMessage>> {
         return this.dataStorage.getObject<LoggerSettings>(Namespaces.LOGGER).flatMap(loggerSettings => {
             const orgUnitId = this.getOrgUnitIdFromUser(user);
             if (!orgUnitId) return Future.success(undefined);
@@ -46,7 +46,7 @@ export class D2ApiLogger {
 
     private getOrCreateTei(
         orgUnitId: string,
-        user: UserProps,
+        user: User,
         loggerSettings: LoggerSettings,
         logger: TrackerProgramLogger
     ): FutureData<Maybe<D2LoggerMessage>> {
@@ -69,7 +69,7 @@ export class D2ApiLogger {
             });
     }
 
-    private getOrgUnitIdFromUser(user: UserProps): Maybe<Id> {
+    private getOrgUnitIdFromUser(user: User): Maybe<Id> {
         const sortOrgUnitsByLevel = _(user.organisationUnits)
             .orderBy(orgUnit => [orgUnit.level, orgUnit.name])
             .value();

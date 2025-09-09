@@ -55,24 +55,24 @@ export class ImportUsersUseCase implements UseCase {
         users: UserProps[],
         usersFromDB: UserProps[],
         { id, username }: UserProps = defaultUserProps
-    ): UserProps[] {
+    ): User[] {
         const usersFromDBMap = _.keyBy(usersFromDB, key => key.username);
         // Merge properties from usersFromDB into users
-        return users.map((userFromImport): UserProps => {
+        return users.map((userFromImport): User => {
             const user = _.pick(userFromImport, Object.keys(columnNameFromPropertyMapping));
             const dbUser = _.find(usersFromDBMap, userFromDB => userFromDB.username === user.username);
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
-                return {
+                return new User({
                     ...dbUser,
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
                     lastModifiedBy: { id, username },
                     dbLocale: User.setDefaultLanguage(dbUser.dbLocale),
                     uiLocale: User.setDefaultLanguage(dbUser.uiLocale),
-                };
+                });
             }
-            return {
+            return new User({
                 ...defaultUserProps,
                 ...user,
                 id: generateUid(),
@@ -81,11 +81,11 @@ export class ImportUsersUseCase implements UseCase {
                 lastModifiedBy: { id, username },
                 dbLocale: User.setDefaultLanguage(user.dbLocale),
                 uiLocale: User.setDefaultLanguage(user.uiLocale),
-            };
+            });
         });
     }
 
-    private saveUsers(users: UserProps[]): FutureData<void> {
+    private saveUsers(users: User[]): FutureData<void> {
         return this.userRepository.save(users).toVoid();
     }
 }

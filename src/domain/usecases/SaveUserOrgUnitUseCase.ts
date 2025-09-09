@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import { FutureData } from "../entities/Future";
-import { UserProps } from "../entities/UserProps";
+import { User } from "../entities/User";
 import { UpdateStrategy, UserRepository } from "../repositories/UserRepository";
 import { Id } from "../entities/Ref";
 import { OrgUnit } from "../entities/OrgUnit";
@@ -14,18 +14,18 @@ export class SaveUserOrgUnitUseCase {
         return this.saveUsers(usersToSave);
     }
 
-    private applyOrgUnitsToUsers(options: SaveUserOrgUnitOptions): UserProps[] {
+    private applyOrgUnitsToUsers(options: SaveUserOrgUnitOptions): User[] {
         return options.users.map(user => {
             const orgUnits = this.getOrgUnits(options, this.getOrgUnitFromType(user, options));
             const userOrgUnits = this.buildUserWithOrgUnits(options.orgUnitType, orgUnits);
-            return { ...user, ...userOrgUnits };
+            return new User({ ...user, ...userOrgUnits });
         });
     }
 
     private buildUserWithOrgUnits(
         orgUnitType: SaveUserOrgUnitOptions["orgUnitType"],
         orgUnits: OrgUnit[]
-    ): Partial<UserProps> {
+    ): Partial<User> {
         switch (orgUnitType) {
             case "capture":
                 return { organisationUnits: orgUnits };
@@ -36,7 +36,7 @@ export class SaveUserOrgUnitUseCase {
         }
     }
 
-    private getOrgUnitFromType(user: UserProps, options: SaveUserOrgUnitOptions): OrgUnit[] {
+    private getOrgUnitFromType(user: User, options: SaveUserOrgUnitOptions): OrgUnit[] {
         switch (options.orgUnitType) {
             case "capture":
                 return user.organisationUnits;
@@ -60,7 +60,7 @@ export class SaveUserOrgUnitUseCase {
         }
     }
 
-    private saveUsers(users: UserProps[]): FutureData<void> {
+    private saveUsers(users: User[]): FutureData<void> {
         return this.userRepository.save(users).toVoid();
     }
 
@@ -72,6 +72,6 @@ export class SaveUserOrgUnitUseCase {
 export type SaveUserOrgUnitOptions = {
     orgUnitsIds: Id[];
     updateStrategy: UpdateStrategy;
-    users: UserProps[];
+    users: User[];
     orgUnitType: "capture" | "output" | "search";
 };

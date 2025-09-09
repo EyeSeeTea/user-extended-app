@@ -1,22 +1,22 @@
 import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
 import { FutureData } from "../entities/Future";
 import { PaginatedResponse } from "../entities/PaginatedResponse";
-import { NamedRef } from "../entities/Ref";
+import { Id, NamedRef } from "../entities/Ref";
 import { Stats } from "../entities/Stats";
-import { UserProps } from "../entities/UserProps";
+import { User } from "../entities/User";
 
 export interface UserRepository {
-    getCurrent(): FutureData<UserProps>;
-    list(options: ListOptions): FutureData<PaginatedResponse<UserProps>>;
-    listAll(options: ListOptions): FutureData<UserProps[]>;
-    listAllIds(options: ListOptions): FutureData<string[]>;
-    getByIds(ids: string[]): FutureData<UserProps[]>;
-    save(users: UserProps[]): FutureData<MetadataResponse>;
-    updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
-    updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
-    getColumns(): FutureData<Array<keyof UserProps>>;
-    saveColumns(columns: Array<keyof UserProps>): FutureData<void>;
-    remove(users: UserProps[]): FutureData<Stats>;
+    getCurrent(): FutureData<User>;
+    list(options: ListOptions): FutureData<PaginatedResponse<User>>;
+    listAll(options: ListOptions): FutureData<User[]>;
+    listAllIds(options: ListOptions): FutureData<Id[]>;
+    getByIds(ids: Id[]): FutureData<User[]>;
+    save(users: User[]): FutureData<MetadataResponse>;
+    updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
+    updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
+    getColumns(): FutureData<Array<keyof User>>;
+    saveColumns(columns: Array<keyof User>): FutureData<void>;
+    remove(ids: Id[]): FutureData<Stats>;
 }
 
 export interface ListOptions {

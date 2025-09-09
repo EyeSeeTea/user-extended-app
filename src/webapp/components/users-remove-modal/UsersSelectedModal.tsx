@@ -3,12 +3,12 @@ import _ from "lodash";
 import { ConfirmationDialog, useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 
 import { useAppContext } from "../../contexts/app-context";
-import { UserProps } from "../../../domain/entities/UserProps";
+import { User } from "../../../domain/entities/User";
 import i18n from "../../../utils/i18n";
 
 type UsersRemoveModalProps = {
     isOpen: boolean;
-    users: UserProps[];
+    users: User[];
     onSuccess: () => void;
     onCancel: () => void;
     actionType: ActionType;
@@ -34,13 +34,13 @@ function getMessagesByActionType(actionType: ActionType): { title: string } {
     return { title: "" };
 }
 
-export function generateMessage(users: UserProps[]) {
+export function generateMessage(users: User[]) {
     const firstThreeUsers = _(users).take(3).value();
     const remainingUsersCount = users.length - firstThreeUsers.length;
     return remainingUsersCount > 0 ? `and ${remainingUsersCount} more` : "";
 }
 
-export function getFirstThreeUserNames(users: UserProps[]): string[] {
+export function getFirstThreeUserNames(users: User[]): string[] {
     return _(users)
         .take(3)
         .map(user => user.username)
@@ -82,7 +82,8 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
     const onSave = () => {
         loading.show();
         if (actionType === "remove") {
-            compositionRoot.users.remove(users).run(() => {
+            const ids = users.map(user => user.id);
+            compositionRoot.users.remove(ids).run(() => {
                 onSuccessAction();
             }, onErrorAction);
         } else if (actionType === "disable" || actionType === "enable") {

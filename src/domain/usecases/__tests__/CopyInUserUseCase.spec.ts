@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { CopyInUserUseCase, CopyInUserOptions } from "../CopyInUserUseCase";
-import { UserProps } from "../../entities/UserProps";
+import { User } from "../../entities/User";
 import { mock, instance, when, verify, anything, deepEqual } from "ts-mockito";
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 import { sourceUser, targetUser } from "./data/user";
@@ -75,18 +75,18 @@ function givenAOptionsToMerge(): CopyInUserOptions {
     };
 }
 
-function givenAExpectedReplacedUser(): UserProps {
-    return {
+function givenAExpectedReplacedUser(): User {
+    return new User({
         ...targetUser,
         userGroups: sourceUser.userGroups,
         userRoles: sourceUser.userRoles,
-    };
+    });
 }
 
-function givenAExpectedMergedUser(): UserProps {
-    return {
+function givenAExpectedMergedUser(): User {
+    return new User({
         ...targetUser,
         userGroups: _.unionWith(targetUser.userGroups, sourceUser.userGroups, _.isEqual),
         userRoles: _.unionWith(targetUser.userRoles, sourceUser.userRoles, _.isEqual),
-    };
+    });
 }
