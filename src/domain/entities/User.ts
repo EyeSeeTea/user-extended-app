@@ -2,8 +2,82 @@ import { Maybe } from "../../types/utils";
 import { Struct } from "./generic/Struct";
 import { UserProps } from "./UserProps";
 
+interface UserValidationErrors {
+    username?: string;
+    password?: string;
+    email?: string;
+    firstName?: string;
+    surname?: string;
+    organisationUnits?: string;
+    userRoles?: string;
+    userGroups?: string;
+}
+
 export class User extends Struct<UserProps>() {
     static DEFAULT_PASSWORD = "District123$";
+
+    static createNewUser(props: UserProps, isExistingUser = true): User {
+        const errors = User.validateUser(props, isExistingUser);
+        if (errors) {
+            throw new Error(`${JSON.stringify(errors)}`);
+        }
+        return new User(props);
+    }
+
+    static createUser(props: UserProps, isExistingUser = true): User {
+        const errors = User.validateUser(props, isExistingUser, true);
+        if (errors) {
+            throw new Error(`${JSON.stringify(errors)}`);
+        }
+        return new User(props);
+    }
+
+    /** Validates the user properties.
+     * @param props The user properties to validate.
+     * @param isExistingUser Whether the user is an existing user (true) or a new user (false).
+     * Used to determine if password is required.
+     * @param skipSourceErrors Whether to skip validation of organisationUnits, userRoles, userGroups fields.
+     * Used when loading existing users from the server that may have missing fields.
+     * @returns An object containing validation errors, or undefined if there are no errors.
+     */
+    static validateUser(
+        props: UserProps,
+        isExistingUser = true,
+        skipSourceErrors = false
+    ): UserValidationErrors | undefined {
+        const errors: UserValidationErrors = {};
+
+        const invalidUsername = User.validateUsername(props.username);
+        if (invalidUsername) {
+            errors.username = invalidUsername;
+        }
+        const invalidPassword = User.validatePassword(props.password, isExistingUser);
+        if (invalidPassword) {
+            errors.password = invalidPassword;
+        }
+        const invalidEmail = User.validateEmail(props.email);
+        if (invalidEmail) {
+            errors.email = invalidEmail;
+        }
+
+        for (const field of ["firstName", "surname"] as const) {
+            const invalidField = User.validateRequiredStringField(props[field], field);
+            if (invalidField) {
+                errors[field] = invalidField;
+            }
+        }
+
+        if (!skipSourceErrors) {
+            for (const field of ["organisationUnits", "userRoles", "userGroups"] as const) {
+                const invalidField = User.validateRequiredArrayField(props[field], field);
+                if (invalidField) {
+                    errors[field] = invalidField;
+                }
+            }
+        }
+
+        return Object.keys(errors).length > 0 ? errors : undefined;
+    }
 
     static setDefaultLanguage(language: Maybe<string>): string {
         return language || "en";
