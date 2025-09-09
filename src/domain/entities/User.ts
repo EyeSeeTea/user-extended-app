@@ -139,18 +139,6 @@ export class User extends Struct<UserProps>() {
         return undefined;
     }
 
-    static validatePhoneNumber(phoneNumber: string): string | undefined {
-        if (!phoneNumber) {
-            return undefined;
-        }
-        const phoneRegex = /^\+?[0-9 \-()]+$/;
-        if (!phoneRegex.test(phoneNumber)) {
-            return "Please provide a valid phone number";
-        }
-
-        return undefined;
-    }
-
     static validateRequiredArrayField(field: any[], fieldName: string): string | undefined {
         if (!field || field.length === 0) {
             return `Please select at least one ${fieldName}`;

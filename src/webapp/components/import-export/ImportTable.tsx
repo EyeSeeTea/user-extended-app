@@ -643,16 +643,6 @@ const useValidations = (
                     return undefined;
                 },
             };
-        case "phoneNumber":
-            return {
-                validation: (value: string) => {
-                    const phoneValidationError = User.validatePhoneNumber(value);
-                    if (phoneValidationError) {
-                        return i18n.t(phoneValidationError);
-                    }
-                    return undefined;
-                },
-            };
         case "userRoles":
         case "userGroups":
         case "organisationUnits":
