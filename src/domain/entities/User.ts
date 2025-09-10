@@ -61,10 +61,6 @@ export class User extends Struct<UserProps>() {
         if (invalidPassword) {
             errors.password = invalidPassword;
         }
-        const invalidEmail = User.validateEmail(props.email);
-        if (invalidEmail) {
-            errors.email = invalidEmail;
-        }
 
         for (const field of ["firstName", "surname"] as const) {
             const invalidField = User.validateRequiredStringField(props[field], field);
@@ -74,6 +70,11 @@ export class User extends Struct<UserProps>() {
         }
 
         if (!skipSourceErrors) {
+            const invalidEmail = User.validateEmail(props.email);
+            if (invalidEmail) {
+                errors.email = invalidEmail;
+            }
+
             for (const field of ["organisationUnits", "userRoles", "userGroups"] as const) {
                 const invalidField = User.validateRequiredArrayField(props[field], field);
                 if (invalidField) {
