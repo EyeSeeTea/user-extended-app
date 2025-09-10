@@ -9,6 +9,8 @@ export interface PasswordValidationErrors {
 }
 
 interface UsePasswordsFieldsProps {
+    password: string;
+    confirmPassword: string;
     onPasswordChange: (password: string, confirmPassword: string) => void;
     onValidationChange: (isValid: boolean) => void;
 }
@@ -20,10 +22,8 @@ const emptyErrors: PasswordValidationErrors = {
 };
 
 export function usePasswordsFields(props: UsePasswordsFieldsProps) {
-    const { onPasswordChange, onValidationChange } = props;
+    const { onPasswordChange, onValidationChange, password, confirmPassword } = props;
 
-    const [password, setPassword] = React.useState("");
-    const [confirmPassword, setConfirmPassword] = React.useState("");
     const [errors, setErrors] = React.useState<PasswordValidationErrors>(emptyErrors);
     const [touched, setTouched] = React.useState({ password: false, confirmPassword: false });
 
@@ -68,7 +68,6 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
     const handlePasswordChange = React.useCallback(
         ({ value }: { value?: string }) => {
             const newValue = value || "";
-            setPassword(newValue);
             const newTouched = { ...touched, password: true };
             setTouched(newTouched);
             validatePasswords(newValue, confirmPassword, newTouched);
@@ -80,7 +79,6 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
     const handleConfirmPasswordChange = React.useCallback(
         ({ value }: { value?: string }) => {
             const newValue = value || "";
-            setConfirmPassword(newValue);
             const newTouched = { ...touched, confirmPassword: true };
             setTouched(newTouched);
             validatePasswords(password, newValue, newTouched);

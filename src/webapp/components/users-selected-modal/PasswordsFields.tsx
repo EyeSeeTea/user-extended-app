@@ -1,27 +1,28 @@
 import React from "react";
 import styled from "styled-components";
 import { InputField } from "@dhis2/ui";
-
 import { PasswordRequirements } from "./PasswordRequirements";
 import { usePasswordsFields } from "./usePasswordsFields";
 import i18n from "../../../locales";
 
 interface PasswordFieldsProps {
+    password: string;
+    confirmPassword: string;
     onPasswordChange: (password: string, confirmPassword: string) => void;
     onValidationChange: (isValid: boolean) => void;
 }
 
-export const PasswordsFields: React.FC<PasswordFieldsProps> = React.memo(({ onPasswordChange, onValidationChange }) => {
+export const PasswordsFields: React.FC<PasswordFieldsProps> = React.memo(props => {
+    const { onPasswordChange, onValidationChange, password, confirmPassword } = props;
+
     const {
-        password,
-        confirmPassword,
         errors,
         touched,
         handlePasswordChange,
         handleConfirmPasswordChange,
         handlePasswordBlur,
         handleConfirmPasswordBlur,
-    } = usePasswordsFields({ onPasswordChange, onValidationChange });
+    } = usePasswordsFields({ onPasswordChange, onValidationChange, password, confirmPassword });
 
     return (
         <Container>

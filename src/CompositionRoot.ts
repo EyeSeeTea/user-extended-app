@@ -47,6 +47,7 @@ import { GetUserGroupsUseCase } from "./domain/usecases/GetUserGroupsUseCase";
 import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
 import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
 import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettingsD2ConstantRepository";
+import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -93,6 +94,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
             resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
+            setPassword: new SetUserPasswordUseCase(userRepository),
             searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
             checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
                 userRepository,

@@ -38,29 +38,25 @@ export function useUsersSetPasswordModal(props: UseUsersSetPasswordModalProps) {
         }
 
         setIsLoading(true);
+        const updatedUser = { ...user, password };
 
-        try {
-            // TODO: Replace with actual compositionRoot password setting logic
-            // For now, this is a placeholder that simulates the API call
-            // The real implementation will use compositionRoot.users.setPassword(user.id, password)
-            // or similar method when the use case is implemented
-
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-
-            snackbar.success(
-                i18n.t("Password has been set successfully for {{username}}", {
-                    username: user.username,
-                })
-            );
-
-            onSuccess();
-        } catch (error) {
-            console.error("Error setting password:", error);
-            snackbar.error(i18n.t("Failed to set password. Please try again."));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [isValid, password, confirmPassword, user.username, onSuccess, snackbar]);
+        compositionRoot.users.setPassword(updatedUser).run(
+            () => {
+                snackbar.success(
+                    i18n.t("Password has been set successfully for {{username}}", {
+                        username: user.username,
+                    })
+                );
+                onSuccess();
+                setIsLoading(false);
+            },
+            error => {
+                console.error("Error setting password:", error);
+                snackbar.error(i18n.t("Failed to set password. Please try again."));
+                setIsLoading(false);
+            }
+        );
+    }, [isValid, password, onSuccess, snackbar, compositionRoot, user]);
 
     const resetForm = React.useCallback(() => {
         setPassword("");
@@ -85,5 +81,7 @@ export function useUsersSetPasswordModal(props: UseUsersSetPasswordModalProps) {
         handleValidationChange: setIsValid,
         save,
         cancel,
+        password,
+        confirmPassword,
     };
 }

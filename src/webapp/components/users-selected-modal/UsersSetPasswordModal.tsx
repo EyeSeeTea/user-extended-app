@@ -8,13 +8,22 @@ import i18n from "../../../locales";
 export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.memo(props => {
     const { users, isOpen, onCancel, onSuccess } = props;
 
-    const { user, isValid, isLoading, handlePasswordChange, handleValidationChange, save, cancel } =
-        useUsersSetPasswordModal({
-            users,
-            isOpen,
-            onSuccess,
-            onCancel,
-        });
+    const {
+        user,
+        isValid,
+        isLoading,
+        handlePasswordChange,
+        handleValidationChange,
+        save,
+        cancel,
+        password,
+        confirmPassword,
+    } = useUsersSetPasswordModal({
+        users,
+        isOpen,
+        onSuccess,
+        onCancel,
+    });
 
     return (
         <ConfirmationDialog
@@ -23,7 +32,12 @@ export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.me
             onCancel={cancel}
             title={i18n.t("Set password for {{username}}", { username: user.username })}
             description={
-                <PasswordsFields onPasswordChange={handlePasswordChange} onValidationChange={handleValidationChange} />
+                <PasswordsFields
+                    onPasswordChange={handlePasswordChange}
+                    onValidationChange={handleValidationChange}
+                    password={password}
+                    confirmPassword={confirmPassword}
+                />
             }
             saveText={i18n.t("Set Password")}
             disableSave={!isValid || isLoading}
