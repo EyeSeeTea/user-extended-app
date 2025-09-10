@@ -39,7 +39,15 @@ export class UserD2ApiRepository implements UserRepository {
                     params: { user: user.username },
                 })
             ).map((response): User => {
-                return new User({ ...user, uiLocale: response.keyUiLocale, dbLocale: response.keyDbLocale });
+                try {
+                    return User.createUser({
+                        ...user,
+                        uiLocale: response.keyUiLocale,
+                        dbLocale: response.keyDbLocale,
+                    });
+                } catch (error) {
+                    throw new Error(`Error setting locales for user ${user.id}: ${(error as Error).message}`);
+                }
             });
         });
 
@@ -188,7 +196,11 @@ export class UserD2ApiRepository implements UserRepository {
     private addGroupsToUsers(users: User[], d2UsersWithGroups: D2UserGroupByKey): User[] {
         return users.map((user): User => {
             const userGroups = d2UsersWithGroups[user.id] || [];
-            return new User({ ...user, userGroups: userGroups });
+            try {
+                return User.createUser({ ...user, userGroups: userGroups });
+            } catch (error) {
+                throw new Error(`Error adding groups to user ${user.id}: ${(error as Error).message}`);
+            }
         });
     }
 
@@ -350,16 +362,20 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return new User({
-                    ...user,
-                    userRoles:
-                        strategy === "merge"
-                            ? _.uniqBy(
-                                  [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
-                                  ({ id }) => id
-                              )
-                            : update,
-                });
+                try {
+                    return User.createNewUser({
+                        ...user,
+                        userRoles:
+                            strategy === "merge"
+                                ? _.uniqBy(
+                                      [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
+                                      ({ id }) => id
+                                  )
+                                : update,
+                    });
+                } catch (error) {
+                    throw new Error(`Error updating roles for user ${user.id}: ${(error as Error).message}`);
+                }
             });
 
             return this.save(users);
@@ -374,16 +390,20 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return new User({
-                    ...user,
-                    userGroups:
-                        strategy === "merge"
-                            ? _.uniqBy(
-                                  [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
-                                  ({ id }) => id
-                              )
-                            : update,
-                });
+                try {
+                    return User.createNewUser({
+                        ...user,
+                        userGroups:
+                            strategy === "merge"
+                                ? _.uniqBy(
+                                      [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
+                                      ({ id }) => id
+                                  )
+                                : update,
+                    });
+                } catch (error) {
+                    throw new Error(`Error updating groups for user ${user.id}: ${(error as Error).message}`);
+                }
             });
 
             return this.save(users);
@@ -494,42 +514,46 @@ export class UserD2ApiRepository implements UserRepository {
             .uniq()
             .value();
 
-        return new User({
-            id: user.id,
-            name: user.name,
-            firstName: user.firstName,
-            surname: user.surname,
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            whatsApp: user.whatsApp,
-            facebookMessenger: user.facebookMessenger,
-            skype: user.skype,
-            telegram: user.telegram,
-            twitter: user.twitter,
-            lastUpdated: new Date(user.lastUpdated),
-            created: new Date(user.created),
-            userGroups: user.userGroups,
-            username: userCredentials.username,
-            apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
-            userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
-            lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
-            status: userCredentials.disabled ? "Disabled" : "Active",
-            disabled: userCredentials.disabled,
-            organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
-            dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
-            searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
-            access: user.access,
-            openId: userCredentials.openId,
-            ldapId: userCredentials.ldapId,
-            externalAuth: userCredentials.externalAuth,
-            twoFactorEnabled: userCredentials.twoFA,
-            password: userCredentials.password,
-            accountExpiry: userCredentials.accountExpiry,
-            authorities,
-            dbLocale: "",
-            uiLocale: "",
-            ...this.getUserAuditFields(input),
-        });
+        try {
+            return User.createUser({
+                id: user.id,
+                name: user.name,
+                firstName: user.firstName,
+                surname: user.surname,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                whatsApp: user.whatsApp,
+                facebookMessenger: user.facebookMessenger,
+                skype: user.skype,
+                telegram: user.telegram,
+                twitter: user.twitter,
+                lastUpdated: new Date(user.lastUpdated),
+                created: new Date(user.created),
+                userGroups: user.userGroups,
+                username: userCredentials.username,
+                apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
+                userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
+                lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
+                status: userCredentials.disabled ? "Disabled" : "Active",
+                disabled: userCredentials.disabled,
+                organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
+                dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
+                searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
+                access: user.access,
+                openId: userCredentials.openId,
+                ldapId: userCredentials.ldapId,
+                externalAuth: userCredentials.externalAuth,
+                twoFactorEnabled: userCredentials.twoFA,
+                password: userCredentials.password,
+                accountExpiry: userCredentials.accountExpiry,
+                authorities,
+                dbLocale: "",
+                uiLocale: "",
+                ...this.getUserAuditFields(input),
+            });
+        } catch (error) {
+            throw new Error(`Error processing user ${user.id}: ${(error as Error).message}`);
+        }
     }
 
     private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {

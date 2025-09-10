@@ -9,7 +9,7 @@ import { generateUid } from "../../utils/uid";
 
 export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose: () => void) {
     const { compositionRoot } = useAppContext();
-    const [userToReplicate, setUserToReplicate] = React.useState<User>(new User(defaultUserProps));
+    const [userToReplicate, setUserToReplicate] = React.useState<UserProps>(defaultUserProps);
     const [isMounted, setIsMounted] = React.useState(false);
 
     const loading = useLoading();
@@ -26,7 +26,7 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
                 if (!user) {
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
-                    setUserToReplicate(new User(user));
+                    setUserToReplicate(user);
                     setIsMounted(true);
                 }
             },
@@ -47,37 +47,42 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
         async ({ users }: { users: UserProps[] }) => {
             loading.show(true, i18n.t("Replicating users"));
 
-            const newUsers: User[] = users.map(tableUser => {
-                return new User({
-                    ...userToReplicate,
-                    id: generateUid(),
-                    username: tableUser.username,
-                    password: tableUser.password,
-                    firstName: tableUser.firstName,
-                    surname: tableUser.surname,
-                    email: tableUser.email,
-                    userGroups: tableUser.userGroups,
-                    userRoles: tableUser.userRoles,
-                    dataViewOrganisationUnits: tableUser.dataViewOrganisationUnits,
-                    organisationUnits: tableUser.organisationUnits,
-                    externalAuth: false,
-                    twoFactorEnabled: false,
-                    openId: "",
-                    ldapId: "",
+            try {
+                const newUsers: User[] = users.map(tableUser => {
+                    return User.createNewUser({
+                        ...userToReplicate,
+                        id: generateUid(),
+                        username: tableUser.username,
+                        password: tableUser.password,
+                        firstName: tableUser.firstName,
+                        surname: tableUser.surname,
+                        email: tableUser.email,
+                        userGroups: tableUser.userGroups,
+                        userRoles: tableUser.userRoles,
+                        dataViewOrganisationUnits: tableUser.dataViewOrganisationUnits,
+                        organisationUnits: tableUser.organisationUnits,
+                        externalAuth: false,
+                        twoFactorEnabled: false,
+                        openId: "",
+                        ldapId: "",
+                    });
                 });
-            });
 
-            return compositionRoot.users.import({ users: newUsers }).run(
-                () => {
-                    loading.hide();
-                    onRequestClose();
-                    snackbar.success(i18n.t("Users replicated successfully"));
-                },
-                error => {
-                    loading.hide();
-                    snackbar.error(error);
-                }
-            );
+                return compositionRoot.users.import({ users: newUsers }).run(
+                    () => {
+                        loading.hide();
+                        onRequestClose();
+                        snackbar.success(i18n.t("Users replicated successfully"));
+                    },
+                    error => {
+                        loading.hide();
+                        snackbar.error(error);
+                    }
+                );
+            } catch (error) {
+                loading.hide();
+                snackbar.error((error as Error).message);
+            }
         },
         [loading, compositionRoot.users, userToReplicate, onRequestClose, snackbar]
     );

@@ -10,8 +10,15 @@ export class SaveUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute(usersToSave: UserProps[]): FutureData<MetadataResponse> {
-        return User.validateUniqueOpenId(usersToSave)
-            ? this.userRepository.save(usersToSave.map(user => new User(user)))
-            : Future.error(i18n.t("Open IDs must be unique"));
+        if (User.validateUniqueOpenId(usersToSave)) {
+            try {
+                const users = usersToSave.map(userProps => User.createNewUser(userProps));
+                return this.userRepository.save(users);
+            } catch (error) {
+                return Future.error(i18n.t((error as Error).message));
+            }
+        } else {
+            return Future.error(i18n.t("Open IDs must be unique"));
+        }
     }
 }

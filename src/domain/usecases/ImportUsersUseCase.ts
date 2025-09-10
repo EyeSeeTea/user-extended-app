@@ -46,8 +46,12 @@ export class ImportUsersUseCase implements UseCase {
             const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
             if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
 
-            const mergedUsers = this.mergeUsers(users, usersFromDB, currentUser);
-            return this.saveUsers(mergedUsers);
+            try {
+                const mergedUsers = this.mergeUsers(users, usersFromDB, currentUser);
+                return this.saveUsers(mergedUsers);
+            } catch (error) {
+                return Future.error(i18n.t(`${(error as Error).message}`));
+            }
         });
     }
 
@@ -63,7 +67,7 @@ export class ImportUsersUseCase implements UseCase {
             const dbUser = _.find(usersFromDBMap, userFromDB => userFromDB.username === user.username);
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
-                return new User({
+                return User.createNewUser({
                     ...dbUser,
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
@@ -72,7 +76,7 @@ export class ImportUsersUseCase implements UseCase {
                     uiLocale: User.setDefaultLanguage(dbUser.uiLocale),
                 });
             }
-            return new User({
+            return User.createNewUser({
                 ...defaultUserProps,
                 ...user,
                 id: generateUid(),

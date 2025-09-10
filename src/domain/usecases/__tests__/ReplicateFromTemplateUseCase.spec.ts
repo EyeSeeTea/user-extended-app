@@ -26,8 +26,9 @@ describe("ReplicateFromTemplateUseCase", () => {
         const passwordTemplate = "District123_$index";
 
         const expectedUsers: UserProps[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
+        const template = givenAnExpectedTemplate(sourceUser, count, usernameTemplate, passwordTemplate);
 
-        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+        await replicateFromTemplateUseCase.execute(sourceUser, template).runAsync();
 
         [generatedUsers] = capture(userRepositoryMock.save).last();
         compareUsers(generatedUsers, expectedUsers);
@@ -39,8 +40,9 @@ describe("ReplicateFromTemplateUseCase", () => {
         const passwordTemplate = "District123_$index";
 
         const expectedUsers: UserProps[] = givenAnExpectedUsers(sourceUser, count, usernameTemplate, passwordTemplate);
+        const template = givenAnExpectedTemplate(sourceUser, count, usernameTemplate, passwordTemplate);
 
-        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+        await replicateFromTemplateUseCase.execute(sourceUser, template).runAsync();
 
         [generatedUsers] = capture(userRepositoryMock.save).last();
         compareUsers(generatedUsers, expectedUsers);
@@ -58,8 +60,9 @@ describe("ReplicateFromTemplateUseCase", () => {
         const passwordTemplate = "District123_$index";
 
         const expectedUsers: UserProps[] = givenAnExpectedUsers(openIdUser, count, usernameTemplate, passwordTemplate);
+        const template = givenAnExpectedTemplate(sourceUser, count, usernameTemplate, passwordTemplate);
 
-        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+        await replicateFromTemplateUseCase.execute(sourceUser, template).runAsync();
 
         [generatedUsers] = capture(userRepositoryMock.save).last();
         compareUsers(generatedUsers, expectedUsers);
@@ -77,8 +80,9 @@ describe("ReplicateFromTemplateUseCase", () => {
         const passwordTemplate = "District123_$index";
 
         const expectedUsers: UserProps[] = givenAnExpectedUsers(ldapUser, count, usernameTemplate, passwordTemplate);
+        const template = givenAnExpectedTemplate(sourceUser, count, usernameTemplate, passwordTemplate);
 
-        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+        await replicateFromTemplateUseCase.execute(sourceUser, template).runAsync();
 
         [generatedUsers] = capture(userRepositoryMock.save).last();
         compareUsers(generatedUsers, expectedUsers);
@@ -95,12 +99,31 @@ describe("ReplicateFromTemplateUseCase", () => {
         const passwordTemplate = "District123_$index";
 
         const expectedUsers: UserProps[] = givenAnExpectedUsers(tfaUser, count, usernameTemplate, passwordTemplate);
+        const template = givenAnExpectedTemplate(sourceUser, count, usernameTemplate, passwordTemplate);
 
-        await replicateFromTemplateUseCase.execute(sourceUser, count, usernameTemplate, passwordTemplate).runAsync();
+        await replicateFromTemplateUseCase.execute(sourceUser, template).runAsync();
 
         [generatedUsers] = capture(userRepositoryMock.save).last();
         compareUsers(generatedUsers, expectedUsers);
     });
+
+    function givenAnExpectedTemplate(
+        user: UserProps,
+        count: number,
+        usernameTemplate: string,
+        passwordTemplate: string
+    ): ReplicateTemplate {
+        when(userRepositoryMock.save(anything())).thenReturn(Future.success({ status: "OK" } as MetadataResponse));
+
+        return new ReplicateTemplate(
+            {
+                replicateCount: count.toString(),
+                usernameTemplate,
+                passwordTemplate,
+            },
+            [user.username]
+        );
+    }
 
     function givenAnExpectedUsers(
         user: UserProps,

@@ -8,12 +8,31 @@ export type ReplicateTemplateProps = {
     passwordTemplate: string;
 };
 
+export class ReplicateTemplateValidationError extends Error {
+    constructor(message: string, public errors?: ReplicateTemplateErrors) {
+        super(message);
+        this.name = "ReplicateTemplateValidationError";
+    }
+}
+
 export type ReplicateTemplateErrors = { replicateCount?: string; usernameTemplate?: string; passwordTemplate?: string };
 
 export class ReplicateTemplate extends Struct<ReplicateTemplateProps>() {
     private static indexString = "$index";
     private static minCount = 1;
     private static maxCount = 100;
+
+    constructor(props: ReplicateTemplateProps, existingUsernames: string[]) {
+        super(props);
+
+        const errors = ReplicateTemplate.validateReplicateTemplate(props, existingUsernames);
+        if (errors.replicateCount || errors.usernameTemplate || errors.passwordTemplate) {
+            const errorMessage = Object.entries(errors)
+                .map(([field, error]) => `${field}: ${error}`)
+                .join(", ");
+            throw new ReplicateTemplateValidationError(errorMessage, errors);
+        }
+    }
 
     static getFromTemplate(template: string, index: number): string {
         return template.replace(/\$index/g, index.toString());

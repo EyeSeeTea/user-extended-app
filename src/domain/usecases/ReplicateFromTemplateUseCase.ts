@@ -7,30 +7,29 @@ import { ReplicateTemplate } from "../entities/ReplicateTemplate";
 import { UseCase } from "../../CompositionRoot";
 import { UserRepository } from "../repositories/UserRepository";
 import { User } from "../entities/User";
-import { FutureData } from "../entities/Future";
+import { Future, FutureData } from "../entities/Future";
 
 export class ReplicateFromTemplateUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
-    execute(
-        sourceUser: User,
-        count: number,
-        usernameTemplate: string,
-        passwordTemplate: string
-    ): FutureData<MetadataResponse> {
-        const newUsers: User[] = _.times(count, index => {
-            const adjustedIndex = index + 1;
-            return new User({
-                ...sourceUser,
-                id: generateUid(),
-                username: ReplicateTemplate.getFromTemplate(usernameTemplate, adjustedIndex),
-                password: ReplicateTemplate.getFromTemplate(passwordTemplate, adjustedIndex),
-                externalAuth: false,
-                twoFactorEnabled: false,
-                openId: "",
-                ldapId: "",
+    execute(sourceUser: User, replicateTemplate: ReplicateTemplate): FutureData<MetadataResponse> {
+        try {
+            const newUsers: User[] = _.times(parseInt(replicateTemplate.replicateCount), index => {
+                const adjustedIndex = index + 1;
+                return User.createNewUser({
+                    ...sourceUser,
+                    id: generateUid(),
+                    username: ReplicateTemplate.getFromTemplate(replicateTemplate.usernameTemplate, adjustedIndex),
+                    password: ReplicateTemplate.getFromTemplate(replicateTemplate.passwordTemplate, adjustedIndex),
+                    externalAuth: false,
+                    twoFactorEnabled: false,
+                    openId: "",
+                    ldapId: "",
+                });
             });
-        });
 
-        return this.userRepository.save(newUsers);
+            return this.userRepository.save(newUsers);
+        } catch (error) {
+            return Future.error(`${(error as Error).message}`);
+        }
     }
 }

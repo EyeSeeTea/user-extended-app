@@ -6,13 +6,16 @@ import _ from "lodash";
 import i18n from "../../locales";
 import { useAppContext } from "../contexts/app-context";
 import { Id } from "../../domain/entities/Ref";
-import { defaultUserProps } from "../../domain/entities/UserProps";
 import { User } from "../../domain/entities/User";
 import { Future } from "../../domain/entities/Future";
-import { ReplicateTemplate, ReplicateTemplateProps } from "../../domain/entities/ReplicateTemplate";
+import {
+    ReplicateTemplate,
+    ReplicateTemplateProps,
+    ReplicateTemplateValidationError,
+} from "../../domain/entities/ReplicateTemplate";
 
 export interface UseReplicateUserFromTemplateReturn {
-    userToReplicate: User;
+    userToReplicate: User | undefined;
     existingUsernames: string[];
     replicateTitle: string;
     hasValidationErrors: boolean;
@@ -30,7 +33,7 @@ export const useReplicateUserFromTemplate = (
 ): UseReplicateUserFromTemplateReturn => {
     const { compositionRoot } = useAppContext();
 
-    const [userToReplicate, setUserToReplicate] = React.useState<User>(new User(defaultUserProps));
+    const [userToReplicate, setUserToReplicate] = React.useState<User | undefined>();
     const [existingUsernames, setExistingUsernames] = React.useState<string[]>([]);
     const [replicateTitle, setReplicateTitle] = React.useState<string>(i18n.t("Replicate User"));
     const [hasValidationErrors, setValidationError] = React.useState<boolean>(false);
@@ -47,7 +50,7 @@ export const useReplicateUserFromTemplate = (
     const initialValues = React.useMemo(() => {
         return {
             replicateCount: "1",
-            usernameTemplate: `${userToReplicate.username}_$index`,
+            usernameTemplate: `${userToReplicate?.username}_$index`,
             passwordTemplate: `${randomPasswordBase}_$index`,
         };
     }, [userToReplicate, randomPasswordBase]);
@@ -72,7 +75,12 @@ export const useReplicateUserFromTemplate = (
                 if (!user) {
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
-                    setUserToReplicate(new User(user));
+                    try {
+                        setUserToReplicate(User.createNewUser(user));
+                    } catch (error) {
+                        loading.show(false);
+                        handleUsersError(`User has invalid properties: ${(error as Error).message}`);
+                    }
                     const usernames = allUsers.map(u => u.username);
                     setExistingUsernames(usernames);
                     setIsUserLoaded(true);
@@ -85,7 +93,7 @@ export const useReplicateUserFromTemplate = (
     }, [compositionRoot, loading, onRequestClose, snackbar, userToReplicateId]);
 
     useEffect(() => {
-        if (isUserLoaded && userToReplicate.username) {
+        if (isUserLoaded && userToReplicate && userToReplicate.username) {
             setReplicateTitle(
                 i18n.t("Replicate {{user}}", {
                     user: `${userToReplicate.name} (${userToReplicate.username})`,
@@ -113,11 +121,20 @@ export const useReplicateUserFromTemplate = (
             usernameTemplate: string;
             passwordTemplate: string;
         }) => {
+            if (!userToReplicate) return;
+
             loading.show(true, i18n.t("Replicating users"));
 
-            return compositionRoot.users
-                .replicateFromTemplate(userToReplicate, parseInt(replicateCount), usernameTemplate, passwordTemplate)
-                .run(
+            try {
+                const replicateTemplate = new ReplicateTemplate(
+                    {
+                        replicateCount: replicateCount,
+                        usernameTemplate,
+                        passwordTemplate,
+                    },
+                    existingUsernames
+                );
+                return compositionRoot.users.replicateFromTemplate(userToReplicate, replicateTemplate).run(
                     () => {
                         loading.hide();
                         onRequestClose();
@@ -134,13 +151,30 @@ export const useReplicateUserFromTemplate = (
                             i18n.t("Error replicating user {{user}}: {{message}}", {
                                 user: userToReplicate.username,
                                 message: error,
-                                nsSeparator: false,
                             })
                         );
                     }
                 );
+            } catch (error) {
+                if (error instanceof ReplicateTemplateValidationError) {
+                    loading.hide();
+                    snackbar.error(
+                        i18n.t("Error in template: {{message}}", {
+                            message: (error as Error).message,
+                        })
+                    );
+                } else {
+                    loading.hide();
+                    snackbar.error(
+                        i18n.t("Error replicating user {{user}}: {{message}}", {
+                            user: userToReplicate.username,
+                            message: error,
+                        })
+                    );
+                }
+            }
         },
-        [compositionRoot.users, loading, snackbar, onRequestClose, userToReplicate]
+        [compositionRoot.users, loading, snackbar, onRequestClose, userToReplicate, existingUsernames]
     );
 
     const handleFormStateChange = useCallback((state: FormState<ReplicateTemplateProps>) => {

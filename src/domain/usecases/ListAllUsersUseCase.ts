@@ -7,6 +7,6 @@ export class ListAllUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute(options: ListOptions): FutureData<User[]> {
-        return this.userRepository.listAll(options).map(users => users.map(user => new User(user)));
+        return this.userRepository.listAll(options);
     }
 }
