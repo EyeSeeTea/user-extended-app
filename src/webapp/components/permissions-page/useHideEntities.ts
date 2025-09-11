@@ -6,7 +6,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { ListOptions } from "../../../domain/repositories/UserRepository";
 import { Future } from "../../../domain/entities/Future";
 import { HideEntitiesProps } from "./HideEntities";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export function useHideEntities(props: HideEntitiesProps) {
     const { updateHideEntities } = props;

@@ -3,7 +3,7 @@ import { Transfer, TransferProps } from "@dhis2/ui";
 import { Box, Typography, useTheme } from "@material-ui/core";
 import { Id } from "../../../domain/entities/Ref";
 import { useHideEntities } from "./useHideEntities";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export type HideEntitiesProps = {
     selectedUsers: Id[];

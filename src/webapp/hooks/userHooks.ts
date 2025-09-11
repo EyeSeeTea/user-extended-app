@@ -6,7 +6,7 @@ import { User, UserColumns } from "../../domain/entities/User";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
 import { useAppContext } from "../contexts/app-context";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { AllowedExportFormat, ColumnMappingKeys } from "../../domain/usecases/ExportUsersUseCase";
 import FileSaver from "file-saver";
 import { OrgUnitKey } from "../../domain/entities/OrgUnit";

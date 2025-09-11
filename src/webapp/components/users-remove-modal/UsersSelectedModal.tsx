@@ -4,7 +4,7 @@ import { ConfirmationDialog, useLoading, useSnackbar } from "@eyeseetea/d2-ui-co
 
 import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 type UsersRemoveModalProps = {
     isOpen: boolean;
@@ -23,7 +23,6 @@ export type RiskyActionType = "remove" | "enable" | "disable" | "reset_password"
 
 export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user";
 
-// TODO: Add into i18n translation files (as will not be recognized by i18n-scanner)
 function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
     switch (actionType) {
         case "remove":

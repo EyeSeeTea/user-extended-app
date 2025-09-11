@@ -6,136 +6,136 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 msgid "Details"
-msgstr "Ver detalles"
+msgstr "Detalhes"
 
 msgid "Edit"
 msgstr "Editar"
 
 msgid "Copy in user"
-msgstr "Copiar en el usuario"
+msgstr "Copiar no usuário"
 
 msgid "Assign to data capture organisation units"
-msgstr "Asignar a unidades organizativas de captura"
+msgstr "Atribuir a unidades organizacionais de coleta de dados"
 
 msgid "Assign to data view organisation units"
-msgstr "Asignar a unidades organizativas de vista"
+msgstr "Atribuir a unidades organizacionais de visualização de dados"
 
 msgid "Assign to search organisation units"
-msgstr "Asignar a unidades organizativas de búsqueda"
+msgstr "Atribuir a unidades organizacionais de pesquisa"
 
 msgid "Assign roles"
-msgstr "Asignar roles"
+msgstr "Atribuir funções"
 
 msgid "Assign groups"
-msgstr "Asignar grupos"
+msgstr "Atribuir grupos"
 
 msgid "Enable"
-msgstr "Habilitar"
+msgstr "Ativar"
 
 msgid "Disable"
-msgstr "Deshabilitar"
+msgstr "Desativar"
 
 msgid "Reset password"
-msgstr "Restablecer contraseña"
+msgstr "Redefinir senha"
 
 msgid "Remove"
-msgstr "Eliminar"
+msgstr "Remover"
 
 msgid "Replicate user from template"
-msgstr "Replicar usuario desde plantilla"
+msgstr "Replicar usuário a partir do modelo"
 
 msgid "Replicate user from table"
-msgstr "Replicar usuario desde tabla"
+msgstr "Replicar usuário a partir da tabela"
 
 msgid "ID"
 msgstr "ID"
 
 msgid "Username"
-msgstr "Usuario"
+msgstr "Nome de usuário"
 
 msgid "Password"
-msgstr "Contraseña"
+msgstr "Senha"
 
 msgid "Name"
-msgstr "Nombre"
+msgstr "Nome"
 
 msgid "First name"
-msgstr "Nombre"
+msgstr "Primeiro nome"
 
 msgid "Surname"
-msgstr "Apellido"
+msgstr "Sobrenome"
 
 msgid "Email"
-msgstr "Correo electrónico"
+msgstr "E-mail"
 
 msgid "Phone number"
-msgstr "Número de teléfono móvil"
+msgstr "Número de telefone"
 
 msgid "Updated"
-msgstr "Actualizado"
+msgstr "Atualizado"
 
 msgid "Last login"
-msgstr "Última conexión"
+msgstr "Último acesso"
 
 msgid "API URL"
-msgstr "URL de la API"
+msgstr "URL da API"
 
 msgid "Created"
-msgstr "Creado"
+msgstr "Criado"
 
 msgid "Roles"
-msgstr "Roles"
+msgstr "Funções"
 
 msgid "Groups"
 msgstr "Grupos"
 
 msgid "OUCapture"
-msgstr "Unidad Organizativa de Captura"
+msgstr "Unidade Organizacional de Coleta"
 
 msgid "OUOutput"
-msgstr "Unidad Organizativa de Salida"
+msgstr "Unidade Organizacional de Saída"
 
 msgid "OUSearch"
-msgstr "Unidad Organizativa de Búsqueda"
+msgstr "Unidade Organizacional de Pesquisa"
 
 msgid "Disabled"
-msgstr "Deshabilitado"
+msgstr "Desativado"
 
 msgid "Status"
-msgstr "Estado"
+msgstr "Status"
 
 msgid "Open ID"
-msgstr "ID abierto"
+msgstr "Open ID"
 
 msgid "Created by"
-msgstr "Creado por"
+msgstr "Criado por"
 
 msgid "Last modified by"
-msgstr "Última modificación hecha por"
+msgstr "Última modificação por"
 
 msgid "Open IDs must be unique"
-msgstr ""
+msgstr "Os Open IDs devem ser únicos"
 
 msgid "Not all users have emails"
-msgstr "No todos los usuarios tienen correo electrónico"
+msgstr "Nem todos os usuários têm e-mail"
 
 msgid "Only admin user can edit logger settings"
-msgstr "Solo el administrador puede editar la configuración del logger"
+msgstr "Apenas o administrador pode editar as configurações do logger"
 
 msgid "Copy to clipboard"
-msgstr "Copiar al portapapeles"
+msgstr "Copiar para a área de transferência"
 
 msgid "Close"
-msgstr "Cerrar"
+msgstr "Fechar"
 
 msgid "User {{user}} replicated successfully {{n}} times"
-msgstr "Usuario {{user}} replicado correctamente {{n}} veces"
+msgstr "Usuário {{user}} replicado com sucesso {{n}} vezes"
 
 msgid "Error replicating user {{user}}: {{message}}"
-msgstr "Error replicando usuario {{user}}: {{message}}"
+msgstr "Erro ao replicar o usuário {{user}}: {{message}}"
 
 msgid "Replicate {{user}}"
 msgstr "Replicar {{user}}"
@@ -144,72 +144,71 @@ msgid "Replicate"
 msgstr "Replicar"
 
 msgid "Value should be between {{min}} and {{max}}"
-msgstr "El valor debe estar entre {{min}} y {{max}}"
+msgstr "O valor deve estar entre {{min}} e {{max}}"
 
 msgid "Username. Example for two users: admin.$index -> admin.1, admin.2"
 msgstr ""
-"Nombre de usuario. Ejemplo para dos usuarios: admin.$index -> admin.1, "
-"admin.2"
+"Nome de usuário. Exemplo para dois usuários: admin.$index -> admin.1, admin.2"
 
 msgid "Replicate error"
-msgstr "Error al replicar"
+msgstr "Erro ao replicar"
 
 msgid "Save"
-msgstr "Guardar"
+msgstr "Salvar"
 
 msgid "Columns to show in table"
-msgstr "Columnas a mostrar en la tabla"
+msgstr "Colunas para mostrar na tabela"
 
 msgid "Column"
-msgstr "Columna"
+msgstr "Coluna"
 
 msgid "Visible"
-msgstr "Visible"
+msgstr "Visível"
 
 msgid "Optional"
 msgstr "Opcional"
 
 msgid "Copy in user: {{user}}"
-msgstr "Copiar a usuario: {{user}}"
+msgstr "Copiar no usuário: {{user}}"
 
 msgid "Select one toggle"
-msgstr "Selecciona una opción"
+msgstr "Selecione uma opção"
 
 msgid "Select at least one user"
-msgstr "Selecciona al menos un usuario"
+msgstr "Selecione pelo menos um usuário"
 
 msgid "Bulk update strategy: "
-msgstr "Estrategia de actualización masiva: "
+msgstr "Estratégia de atualização em massa: "
 
 msgid "Merge"
-msgstr "Combinar"
+msgstr "Mesclar"
 
 msgid "Replace"
-msgstr "Reemplazar"
+msgstr "Substituir"
 
 msgid "Search"
-msgstr "Buscar"
+msgstr "Pesquisar"
 
 msgid "User Groups"
-msgstr "Grupos de usuarios"
+msgstr "Grupos de usuários"
 
 msgid "OU Outputs"
-msgstr "Unidades Organizativas de Salida"
+msgstr "Unidades Organizacionais de Saída"
 
 msgid "User Roles"
-msgstr "Roles de usuario"
+msgstr "Funções de usuário"
 
 msgid "OU Capture"
-msgstr "Unidad Organizativa de Captura"
+msgstr "Unidade Organizacional de Coleta"
 
 msgid "Description"
-msgstr "Descripción"
+msgstr "Descrição"
 
 msgid "Owner"
-msgstr "Propietario"
+msgstr "Proprietário"
 
 msgid "Users"
-msgstr "Usuarios"
+msgstr "Usuários"
 
 msgid "Import/Export"
 msgstr "Importar/Exportar"
@@ -218,82 +217,82 @@ msgid "Import"
 msgstr "Importar"
 
 msgid "Export to CSV"
-msgstr "Exportar a CSV"
+msgstr "Exportar para CSV"
 
 msgid "Export to JSON"
-msgstr "Exportar a JSON"
+msgstr "Exportar para JSON"
 
 msgid "Export empty template"
-msgstr "Exportar plantilla vacía"
+msgstr "Exportar modelo vazio"
 
 msgid "{{n}} invalid users found, check in-line errors in table"
-msgstr "{{n}} usuarios inválidos encontrados, revisa los errores en la tabla"
+msgstr "{{n}} usuários inválidos encontrados, verifique os erros na tabela"
 
 msgid "{{n}} warning(s) while importing file"
-msgstr "{{n}} advertencia(s) al importar el archivo"
+msgstr "{{n}} aviso(s) ao importar o arquivo"
 
 msgid "[... and {{n}} more warning(s) ...]"
-msgstr ""
+msgstr "[... e mais {{n}} aviso(s) ...]"
 
 msgid "Importing users"
-msgstr "Importando usuarios"
+msgstr "Importando usuários"
 
 msgid "Users imported successfully"
-msgstr "Usuarios importados correctamente"
+msgstr "Usuários importados com sucesso"
 
 msgid "User already exists: {{id}}"
-msgstr "El usuario ya existe: {{id}}"
+msgstr "O usuário já existe: {{id}}"
 
 msgid "Add user"
-msgstr "Agregar usuario"
+msgstr "Adicionar usuário"
 
 msgid "Overwrite existing users"
-msgstr "Sobrescribir usuarios existentes"
+msgstr "Sobrescrever usuários existentes"
 
 msgid "Cancel"
 msgstr "Cancelar"
 
 msgid "Error on metadata action"
-msgstr "Error en la acción de metadatos"
+msgstr "Erro na ação de metadados"
 
 msgid "Remove user"
-msgstr "Eliminar usuario"
+msgstr "Remover usuário"
 
 msgid "Duplicated username: {{username}}"
-msgstr "Nombre de usuario duplicado: {{username}}"
+msgstr "Nome de usuário duplicado: {{username}}"
 
 msgid "Please provide a username"
-msgstr "Por favor proporcione un nombre de usuario"
+msgstr "Por favor, informe um nome de usuário"
 
 msgid "User already exists"
-msgstr "El usuario ya existe"
+msgstr "O usuário já existe"
 
 msgid "Please provide a valid email"
-msgstr "Por favor proporcione un correo electrónico válido"
+msgstr "Por favor, informe um e-mail válido"
 
 msgid "Please provide a password"
-msgstr "Por favor proporcione una contraseña"
+msgstr "Por favor, informe uma senha"
 
 msgid "Password should contain at least one lowercase letter"
-msgstr "La contraseña debe contener al menos una letra minúscula"
+msgstr "A senha deve conter pelo menos uma letra minúscula"
 
 msgid "Password should contain at least one UPPERCASE letter"
-msgstr "La contraseña debe contener al menos una letra MAYÚSCULA"
+msgstr "A senha deve conter pelo menos uma letra MAIÚSCULA"
 
 msgid "Password should contain at least one number"
-msgstr "La contraseña debe contener al menos un número"
+msgstr "A senha deve conter pelo menos um número"
 
 msgid "Password should have at least one special character"
-msgstr "La contraseña debe contener al menos un carácter especial"
+msgstr "A senha deve conter pelo menos um caractere especial"
 
 msgid "Please provide a valid phone number"
-msgstr "Por favor proporcione un número de teléfono válido"
+msgstr "Por favor, informe um número de telefone válido"
 
 msgid "Type"
 msgstr "Tipo"
 
 msgid "Deleted"
-msgstr "Eliminado"
+msgstr "Excluído"
 
 msgid "Ignored"
 msgstr "Ignorado"
@@ -305,130 +304,126 @@ msgid "Identifier"
 msgstr "Identificador"
 
 msgid "Message"
-msgstr "Mensaje"
+msgstr "Mensagem"
 
 msgid "Import Results"
-msgstr "Resultados de la importación"
+msgstr "Resultados da importação"
 
 msgid "Ok"
-msgstr "Aceptar"
+msgstr "Ok"
 
 msgid "Summary"
-msgstr "Resumen"
+msgstr "Resumo"
 
 msgid "Messages"
-msgstr "Mensajes"
+msgstr "Mensagens"
 
 msgid "JSON Response"
-msgstr "Respuesta en JSON"
+msgstr "Resposta JSON"
 
 msgid "Saving users"
-msgstr "Guardando usuarios"
+msgstr "Salvando usuários"
 
 msgid "Update strategy: "
-msgstr "Estrategia de actualización: "
+msgstr "Estratégia de atualização: "
 
 msgid "Assign roles to {{usernames}}"
-msgstr "Asignar roles a {{usernames}}"
+msgstr "Atribuir funções a {{usernames}}"
 
 msgid "Assign groups to {{usernames}}"
-msgstr "Asignar grupos a {{usernames}}"
+msgstr "Atribuir grupos a {{usernames}}"
 
 msgid "Bulk update strategy: {{strategy}}"
-msgstr "Estrategia de actualización masiva: {{strategy}}"
+msgstr "Estratégia de atualização em massa: {{strategy}}"
 
 msgid "Back"
-msgstr "Volver"
+msgstr "Voltar"
 
 msgid "Help"
-msgstr "Ayuda"
+msgstr "Ajuda"
 
 msgid "Search users"
-msgstr "Buscar usuarios"
+msgstr "Pesquisar usuários"
 
 msgid "Search user roles"
-msgstr "Buscar roles de usuario"
+msgstr "Pesquisar funções de usuário"
 
 msgid "Search user groups"
-msgstr "Buscar grupos de usuario"
+msgstr "Pesquisar grupos de usuários"
 
 msgid "Show feedback button"
-msgstr "Mostrar botón de comentarios"
+msgstr "Mostrar botão de feedback"
 
 msgid "Show only users assigned to users' organisation units"
-msgstr ""
-"Mostrar solo los usuarios asignados a las unidades organizativas del usuario"
+msgstr "Mostrar apenas usuários atribuídos às unidades organizacionais do usuário"
 
 msgid "Show only active users"
-msgstr "Mostrar solo usuarios activos"
+msgstr "Mostrar apenas usuários ativos"
 
 msgid "Hide users, user roles and user groups"
-msgstr "Ocultar usuarios, roles de usuario y grupos de usuario"
+msgstr "Ocultar usuários, funções e grupos de usuários"
 
 msgid "Actions available for all users"
-msgstr "Acciones disponibles para todos los usuarios"
+msgstr "Ações disponíveis para todos os usuários"
 
 msgid "Access to Settings Section"
-msgstr "Acceso a la sección de configuración"
+msgstr "Acesso à seção de configurações"
 
 msgid ""
 "Changes on 'Who has access' to settings will be reflected after page reload"
 msgstr ""
-"Los cambios en 'Quién tiene acceso' a la configuración se reflejarán después "
-"de recargar la página"
+"As alterações em 'Quem tem acesso' às configurações serão refletidas após recarregar a página"
 
 msgid "Select user groups"
-msgstr "Seleccionar grupos de usuario"
+msgstr "Selecionar grupos de usuários"
 
 msgid "You can't hide more than 480 users"
-msgstr "No puedes ocultar más de 480 usuarios"
+msgstr "Você não pode ocultar mais de 480 usuários"
 
 msgid "Public access (Everyone)"
-msgstr "Acceso público (Todos)"
+msgstr "Acesso público (Todos)"
 
 msgid "Saving..."
-msgstr "Guardando..."
+msgstr "Salvando..."
 
 msgid "Logger"
 msgstr "Logger"
 
 msgid "Columns"
-msgstr "Columnas"
+msgstr "Colunas"
 
 msgid "Permissions"
-msgstr "Permisos"
+msgstr "Permissões"
 
 msgid "Dashboards"
-msgstr "Tableros"
+msgstr "Painéis"
 
 msgid "Error saving user"
-msgstr "Error al guardar usuario"
+msgstr "Erro ao salvar usuário"
 
 msgid "General info"
-msgstr "Información general"
+msgstr "Informações gerais"
 
 msgid "Assignment"
-msgstr "Asignación"
+msgstr "Atribuição"
 
 msgid "Other information"
-msgstr "Otra información"
+msgstr "Outras informações"
 
 msgid "Please provide a valid identifier"
-msgstr "Por favor proporcione un identificador válido"
+msgstr "Por favor, informe um identificador válido"
 
 msgid "Please provide a valid international phone number (+0123456789)"
-msgstr ""
-"Por favor proporcione un número de teléfono internacional válido "
-"(+0123456789)"
+msgstr "Por favor, informe um número de telefone internacional válido (+0123456789)"
 
 msgid "First Name"
-msgstr "Nombre"
+msgstr "Primeiro nome"
 
 msgid "Account expiration date"
-msgstr "Fecha de expiración de la cuenta"
+msgstr "Data de expiração da conta"
 
 msgid "Phone Number"
-msgstr "Número de teléfono"
+msgstr "Número de telefone"
 
 msgid "WhatsApp"
 msgstr "WhatsApp"
@@ -446,121 +441,121 @@ msgid "Twitter"
 msgstr "Twitter"
 
 msgid "External authentication only (OpenID or LDAP)"
-msgstr "Solo autenticación externa (OpenID o LDAP)"
+msgstr "Apenas autenticação externa (OpenID ou LDAP)"
 
 msgid "Data Capture Organisation Units"
-msgstr "Unidades Organizativas de Captura"
+msgstr "Unidades Organizacionais de Coleta de Dados"
 
 msgid "Data View Organisation Units"
-msgstr "Unidades Organizativas de Vista"
+msgstr "Unidades Organizacionais de Visualização de Dados"
 
 msgid "Search Organisation Units"
-msgstr "Unidades Organizativas de Búsqueda"
+msgstr "Unidades Organizacionais de Pesquisa"
 
 msgid "LDAP identifier"
 msgstr "Identificador LDAP"
 
 msgid "Interface language"
-msgstr "Idioma de la interfaz"
+msgstr "Idioma da interface"
 
 msgid "Database language"
-msgstr "Idioma de la base de datos"
+msgstr "Idioma do banco de dados"
 
 msgid "Api URL"
-msgstr "URL de la API"
+msgstr "URL da API"
 
 msgid "Last updated"
-msgstr "Última actualización"
+msgstr "Última atualização"
 
 msgid "OU Output"
-msgstr "Unidad Organizativa de Salida"
+msgstr "Unidade Organizacional de Saída"
 
 msgid "OU Search"
-msgstr "Unidad Organizativa de Búsqueda"
+msgstr "Unidade Organizacional de Pesquisa"
 
 msgid "Settings"
-msgstr "Configuración"
+msgstr "Configurações"
 
 msgid "Search by name or username..."
-msgstr "Buscar por nombre o usuario..."
+msgstr "Pesquisar por nome ou nome de usuário..."
 
 msgid "Assign to organisation units capture"
-msgstr "Asignar a unidades organizativas de captura"
+msgstr "Atribuir a unidades organizacionais de coleta"
 
 msgid "Assign to organisation units output"
-msgstr "Asignar a unidades organizativas de salida"
+msgstr "Atribuir a unidades organizacionais de saída"
 
 msgid "Assign to organisation units search"
-msgstr "Asignar a unidades organizativas de búsqueda"
+msgstr "Atribuir a unidades organizacionais de pesquisa"
 
 msgid "{{action}}: {{users}} {{remainingCount}}"
 msgstr "{{action}}: {{users}} {{remainingCount}}"
 
 msgid "User ID"
-msgstr "ID de usuario"
+msgstr "ID do usuário"
 
 msgid "Data capture organisation units"
-msgstr "Unidades organizativas de captura"
+msgstr "Unidades organizacionais de coleta de dados"
 
 msgid "Data view organisation units"
-msgstr "Unidades organizativas de vista"
+msgstr "Unidades organizacionais de visualização de dados"
 
 msgid "Search organisation units"
-msgstr "Unidades organizativas de búsqueda"
+msgstr "Unidades organizacionais de pesquisa"
 
 msgid "Created By"
-msgstr "Creado por"
+msgstr "Criado por"
 
 msgid "Last Modified By"
-msgstr "Última modificación hecha por"
+msgstr "Última modificação por"
 
 msgid "2FA"
-msgstr ""
+msgstr "2FA"
 
 msgid "External Auth"
-msgstr ""
+msgstr "Autenticação Externa"
 
 msgid "And {{overflow}} more..."
-msgstr "Y {{overflow}} más..."
+msgstr "E mais {{overflow}}..."
 
 msgid "Loading users..."
-msgstr "Cargando usuarios..."
+msgstr "Carregando usuários..."
 
 msgid "Filter owners"
-msgstr "Filtrar propietarios"
+msgstr "Filtrar proprietários"
 
 msgid "Clear"
-msgstr "Limpiar"
+msgstr "Limpar"
 
 msgid "Select users"
-msgstr "Seleccionar usuarios"
+msgstr "Selecionar usuários"
 
 msgid "Remove users"
-msgstr "Eliminar usuarios"
+msgstr "Remover usuários"
 
 msgid "Users removed"
-msgstr "Usuarios eliminados"
+msgstr "Usuários removidos"
 
 msgid "Disable users"
-msgstr "Deshabilitar usuarios"
+msgstr "Desativar usuários"
 
 msgid "Users disabled"
-msgstr "Usuarios deshabilitados"
+msgstr "Usuários desativados"
 
 msgid "Enable users"
-msgstr "Habilitar usuarios"
+msgstr "Ativar usuários"
 
 msgid "Users enabled"
-msgstr "Usuarios habilitados"
+msgstr "Usuários ativados"
 
 msgid "Reset passwords"
-msgstr "Restablecer contraseñas"
+msgstr "Redefinir senhas"
 
 msgid "reset the passwords for"
-msgstr "restablecer las contraseñas de"
+msgstr "redefinir as senhas de"
 
 msgid "Passwords have been reset"
-msgstr "Las contraseñas han sido restablecidas"
+msgstr "As senhas foram redefinidas"
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"
@@ -572,27 +567,23 @@ msgid ""
 "Are you sure you want to {{actionDescription}} the selected users? {{users}} "
 "{{remainingCount}}"
 msgstr ""
-"¿Estás seguro de que deseas {{actionDescription}} los usuarios "
-"seleccionados? {{users}} {{remainingCount}}"
+"Tem certeza de que deseja {{actionDescription}} os usuários selecionados? {{users}} {{remainingCount}}"
 
 msgid "Confirm"
 msgstr "Confirmar"
 
 msgid "Table exported: {{filename}}"
-msgstr "Tabla exportada: {{filename}}"
+msgstr "Tabela exportada: {{filename}}"
 
 msgid "Distributed under GNU GLPv3"
-msgstr "Distribuido bajo GNU GLPv3"
+msgstr "Distribuído sob GNU GLPv3"
 
 msgid ""
 "User-Extended App is a DHIS2 Web Application that provides an easy and "
 "integrated way to perform common operations to DHIS2 users which would be "
 "burdensome to perform using the in-built DHIS2 User management application."
 msgstr ""
-"User-Extended App es una aplicación web de DHIS2 que proporciona una forma "
-"fácil e integrada de realizar operaciones comunes a los usuarios de DHIS2, "
-"que serían difíciles de realizar usando la aplicación de gestión de usuarios "
-"incorporada en DHIS2."
+"O User-Extended App é um aplicativo web DHIS2 que fornece uma forma fácil e integrada de realizar operações comuns para usuários DHIS2, que seriam difíceis de executar usando o aplicativo de gestão de usuários padrão do DHIS2."
 
 msgid ""
 "This application has been funded by the the Norwegian Refugee Council (NRC), "
@@ -603,88 +594,79 @@ msgid ""
 "notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea."
 "github.io/user-extended-app-blessed/)"
 msgstr ""
-"Esta aplicación ha sido financiada por el Norwegian Refugee Council (NRC), "
-"el Programa Mundial de Malaria de la OMS, Samaritan’s Purse y Médicos Sin "
-"Fronteras (MSF) para apoyar a los países en el fortalecimiento de la "
-"recopilación y uso de datos de salud utilizando DHIS2. La aplicación ha sido "
-"desarrollada por [EyeSeeTea SL](http://eyeseetea.com). El código fuente, la "
-"documentación y las notas de lanzamiento se pueden encontrar en la [página "
-"del proyecto EyeSeetea en GitHub](https://eyeseetea.github.io/user-extended-"
-"app-blessed/)"
+"Este aplicativo foi financiado pelo Norwegian Refugee Council (NRC), pelo Programa Global de Malária da OMS, Samaritan’s Purse e Médicos Sem Fronteiras (MSF) para apoiar os países no fortalecimento da coleta e uso de dados de saúde através do DHIS2. O aplicativo foi desenvolvido pela [EyeSeeTea SL](http://eyeseetea.com). O código-fonte, documentação e notas de lançamento podem ser encontrados na [página do projeto EyeSeetea no GitHub](https://eyeseetea.github.io/user-extended-app-blessed/)"
 
 msgid ""
 "If you wish to contribute to the development of User Extended App with new "
 "features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com)."
 msgstr ""
-"Si deseas contribuir al desarrollo de User Extended App con nuevas "
-"funcionalidades, por favor contacta a [EyeSeeTea](mailto:hello@eyeseetea."
-"com)."
+"Se você deseja contribuir para o desenvolvimento do User Extended App com novas funcionalidades, por favor entre em contato com [EyeSeeTea](mailto:hello@eyeseetea.com)."
 
 msgid "About User Extended App"
-msgstr "Sobre User Extended App"
+msgstr "Sobre o User Extended App"
 
 msgid "Samaritan's Purse"
 msgstr "Samaritan's Purse"
 
 msgid "World Health Organization"
-msgstr "Organización Mundial de la Salud"
+msgstr "Organização Mundial da Saúde"
 
 msgid "EyeSeeTea"
 msgstr "EyeSeeTea"
 
 msgid "Norwegian Refugee Council"
-msgstr "Consejo Noruego para Refugiados"
+msgstr "Conselho Norueguês para Refugiados"
 
 msgid "MSF"
 msgstr "MSF"
 
 msgid "Settings saved"
-msgstr "Configuración guardada"
+msgstr "Configurações salvas"
 
 msgid "Enable Logger"
-msgstr "Habilitar Logger"
+msgstr "Ativar Logger"
 
 msgid "Tracker Program"
-msgstr "Programa de seguimiento"
+msgstr "Programa de rastreamento"
 
 msgid "Username Attribute"
-msgstr "Atributo de nombre de usuario"
+msgstr "Atributo do nome de usuário"
 
 msgid "Program Stages"
-msgstr "Etapas del programa"
+msgstr "Etapas do programa"
 
 msgid "Data Element File ID"
-msgstr "ID de archivo de elemento de datos"
+msgstr "ID do arquivo do elemento de dados"
 
 msgid "Data Element DateTime"
-msgstr "Fecha y hora del elemento de datos"
+msgstr "Data e hora do elemento de dados"
 
 msgid "Edit users"
-msgstr "Editar usuarios"
+msgstr "Editar usuários"
 
 msgid "Column settings"
-msgstr "Gestionar columnas"
+msgstr "Configurações de colunas"
 
 msgid "Error saving users"
-msgstr "Error al guardar usuarios"
+msgstr "Erro ao salvar usuários"
 
 msgid "Delete"
-msgstr "Eliminar"
+msgstr "Excluir"
 
 msgid "Edit user"
-msgstr "Editar usuario"
+msgstr "Editar usuário"
 
 msgid "New user"
-msgstr "Nuevo usuario"
+msgstr "Novo usuário"
 
 msgid "Network error"
-msgstr "Error de red"
+msgstr "Erro de rede"
 
 msgid "Unable to load user {{id}}"
-msgstr "Error al obtener el usuario {{id}}"
+msgstr "Não foi possível carregar o usuário {{id}}"
 
 msgid "Open in user management"
-msgstr "Abrir en Administración de usuarios"
+msgstr "Abrir na gestão de usuários"
 
 msgid " and {{overflow}} more..."
-msgstr " y {{overflow}} más..."
+msgstr " e mais {{overflow}}..."

@@ -5,6 +5,7 @@ import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
 import { UserLogic } from "../entities/UserLogic";
+import i18n from "../../locales";
 
 const columnNameFromPropertyMapping = {
     id: "ID",
@@ -32,19 +33,21 @@ export class ImportUsersUseCase implements UseCase {
 
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
         const usernameList = users.map(user => user.username);
-        return Future.join2(
-            this.userRepository.listAll({
+
+        if (!UserLogic.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
+        const hasRequiredFields = UserLogic.validateHasRequiredFields(users);
+        if (!hasRequiredFields)
+            return Future.error("All users must have at least one Organisation Unit, Role and Group");
+
+        return Future.joinObj({
+            usersFromDB: this.userRepository.listAll({
                 filters: { "userCredentials.username": ["in", usernameList] },
                 onlyActiveUsers: false,
                 onlyUsersOrgUnits: false,
                 hideUsers: [],
             }),
-            this.userRepository.getCurrent()
-        ).flatMap(([usersFromDB, currentUser]: [User[], User]) => {
-            const hasRequiredFields = UserLogic.validateHasRequiredFields(users);
-            if (!hasRequiredFields)
-                return Future.error("All users must have at least one Organisation Unit, Role and Group");
-
+            currentUser: this.userRepository.getCurrent(),
+        }).flatMap(({ usersFromDB, currentUser }) => {
             const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
             if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
 

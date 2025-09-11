@@ -1,7 +1,7 @@
 import _ from "lodash";
 import moment from "moment";
 import Papa from "papaparse";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 
 import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
@@ -10,6 +10,8 @@ import { OrgUnitKey } from "../entities/OrgUnit";
 
 const fieldSplitChar = "||";
 const defaultNameField = "name";
+
+//FIXME: If this columns are used for export, should be translated? Now i18n is not being processed as it's called before initialization
 const columnNameFromPropertyMapping = {
     id: i18n.t("ID"),
     username: i18n.t("Username"),

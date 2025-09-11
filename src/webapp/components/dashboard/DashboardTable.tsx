@@ -9,7 +9,7 @@ import {
 import React from "react";
 import { Dashboard } from "../../../domain/entities/Dashboard";
 import { GetDashboardOptions } from "../../../domain/repositories/DashboardRepository";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import { FilteredUser, UsersFilters } from "../users-filter/UsersFilters";
 

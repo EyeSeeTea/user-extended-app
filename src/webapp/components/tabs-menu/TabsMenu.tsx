@@ -1,40 +1,43 @@
 import React from "react";
 import { Paper, Tab, Tabs } from "@material-ui/core";
-import i18n from "./../../../locales";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Maybe } from "../../../types/utils";
+import i18n from "./../../../utils/i18n";
 
-const tabsValues = [
-    {
-        value: "/",
-        label: i18n.t("Users"),
-    },
-    {
-        value: "/user-groups",
-        label: i18n.t("User Groups"),
-    },
-    {
-        value: "/user-roles",
-        label: i18n.t("User Roles"),
-    },
-    {
-        value: "/dashboards",
-        label: i18n.t("Dashboards"),
-    },
-] as const;
+function getTabsValues() {
+    return [
+        {
+            value: "/",
+            label: i18n.t("Users"),
+        },
+        {
+            value: "/user-groups",
+            label: i18n.t("User Groups"),
+        },
+        {
+            value: "/user-roles",
+            label: i18n.t("User Roles"),
+        },
+        {
+            value: "/dashboards",
+            label: i18n.t("Dashboards"),
+        },
+    ] as const;
+}
 
-type TabType = typeof tabsValues[number]["value"];
+type TabType = ReturnType<typeof getTabsValues>[number]["value"];
 
 function convertToTabType(value: Maybe<string>): TabType {
-    const currentTab = tabsValues.find(tab => tab.value === value);
+    const currentTab = getTabsValues().find(tab => tab.value === value);
     return currentTab?.value || "/";
 }
 
 export const TabsMenu = React.memo((props: { children: React.ReactNode }) => {
     const location = useLocation();
     const navigate = useNavigate();
+
+    const allTabs = getTabsValues();
     const [currentTab, setCurrentTab] = React.useState<TabType>(convertToTabType(location.pathname));
-    const allTabs = tabsValues;
 
     const handleChange = (_event: React.ChangeEvent<{}>, newValue: TabType) => {
         setCurrentTab(newValue);

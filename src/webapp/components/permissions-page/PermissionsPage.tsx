@@ -6,7 +6,7 @@ import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useSharingSettings } from "./useSharingSettings";
 import { usePermissionsPage } from "./usePermissionsPage";
 import { SharingActions } from "./SharingActions";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { HideEntities } from "./HideEntities";
 
 type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void; onClose: () => void };

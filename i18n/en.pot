@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-02-27T18:53:35.899Z\n"
-"PO-Revision-Date: 2025-02-27T18:53:35.899Z\n"
+"POT-Creation-Date: 2025-08-11T04:41:53.550Z\n"
+"PO-Revision-Date: 2025-08-11T04:41:53.550Z\n"
 
 msgid "Details"
 msgstr ""
@@ -114,6 +114,9 @@ msgid "Created by"
 msgstr ""
 
 msgid "Last modified by"
+msgstr ""
+
+msgid "Open IDs must be unique"
 msgstr ""
 
 msgid "Not all users have emails"
@@ -225,6 +228,9 @@ msgid "{{n}} invalid users found, check in-line errors in table"
 msgstr ""
 
 msgid "{{n}} warning(s) while importing file"
+msgstr ""
+
+msgid "[... and {{n}} more warning(s) ...]"
 msgstr ""
 
 msgid "Importing users"
@@ -500,6 +506,12 @@ msgstr ""
 msgid "Last Modified By"
 msgstr ""
 
+msgid "2FA"
+msgstr ""
+
+msgid "External Auth"
+msgstr ""
+
 msgid "And {{overflow}} more..."
 msgstr ""
 
@@ -650,8 +662,4 @@ msgid "Open in user management"
 msgstr ""
 
 msgid " and {{overflow}} more..."
-msgstr ""
-
-msgctxt "warnings"
-msgid "and_n_more"
 msgstr ""

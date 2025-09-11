@@ -7,7 +7,7 @@ import { UserGroup } from "../../../domain/entities/UserGroup";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
 import { UserAction } from "../../../domain/entities/UserAction";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { PublicPermission } from "../../../domain/entities/Permission";
 
 export function useSharingActions(props: SharingActionsProps) {

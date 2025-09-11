@@ -4,7 +4,7 @@ import { DropdownItem, MultipleDropdown } from "@eyeseetea/d2-ui-components";
 import { getUserActionLabel, UserAction, userActions } from "../../../domain/entities/UserAction";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { useSharingActions, Value } from "./useSharingActions";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export type SharingActionsProps = {
     actionsPermissions: ActionsPermissions;

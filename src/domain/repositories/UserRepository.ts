@@ -33,7 +33,7 @@ export interface ListOptions {
     hideUsers: Id[];
 }
 
-export type ListFilterType = "in" | "eq";
+export type ListFilterType = "in" | "eq" | "gt";
 export type ListFilters = Record<string, [ListFilterType, string[]]>;
 export type UpdateStrategy = "replace" | "merge";
 
