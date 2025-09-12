@@ -31,6 +31,10 @@ function getValue(columnName: UserColumn) {
             return (user: User) => user.createdBy?.username || "";
         case UserColumn.LAST_MODIFIED_BY:
             return (user: User) => user.lastModifiedBy?.username || "";
+        case UserColumn.TWO_FACTOR_ENABLED:
+            return (user: User) => (user.twoFactorEnabled ? <Check /> : undefined);
+        case UserColumn.EXTERNAL_AUTH:
+            return (user: User) => (user.externalAuth ? <Check /> : undefined);
         default:
             return undefined; // Will be handled by ObjectsList component
     }
@@ -80,5 +84,7 @@ export function getDefaultUserColumns(): Column[] {
         { name: UserColumn.DISABLED, sortable: false, text: i18n.t("Disabled"), hidden: false },
         { name: UserColumn.CREATED_BY, sortable: false, text: i18n.t("Created By"), hidden: false },
         { name: UserColumn.LAST_MODIFIED_BY, sortable: false, text: i18n.t("Last Modified By"), hidden: false },
+        { name: UserColumn.TWO_FACTOR_ENABLED, sortable: false, text: i18n.t("2FA"), hidden: false },
+        { name: UserColumn.EXTERNAL_AUTH, sortable: false, text: i18n.t("External Auth"), hidden: false },
     ];
 }

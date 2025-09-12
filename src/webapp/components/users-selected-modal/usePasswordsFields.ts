@@ -78,7 +78,7 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
 
             if (isValid) debouncedValidateOnline();
         },
-        [debouncedValidateOnline]
+        [debouncedValidateOnline, snackbar]
     );
 
     const debounceValidatePasswords = React.useMemo(() => _.debounce(validatePasswords, 300), [validatePasswords]);

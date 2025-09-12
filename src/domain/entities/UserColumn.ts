@@ -19,6 +19,8 @@ export enum UserColumn {
     DISABLED = "disabled",
     CREATED_BY = "createdBy",
     LAST_MODIFIED_BY = "lastModifiedBy",
+    TWO_FACTOR_ENABLED = "twoFactorEnabled",
+    EXTERNAL_AUTH = "externalAuth",
 }
 
 export const userColumns = Object.values(UserColumn);
