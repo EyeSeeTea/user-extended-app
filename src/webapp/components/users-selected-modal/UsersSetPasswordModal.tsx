@@ -3,7 +3,7 @@ import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
 import { UsersSelectedModalProps } from "./UsersSelectedModal";
 import { PasswordsFields } from "./PasswordsFields";
 import { useUsersSetPasswordModal } from "./useUsersSetPasswordModal";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { LinearProgress } from "material-ui";
 
 export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.memo(props => {

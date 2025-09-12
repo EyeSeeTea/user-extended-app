@@ -8,7 +8,7 @@ import { cache } from "../../utils/cache";
 import { getD2APiFromInstance } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
 import { Instance } from "../entities/Instance";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 
 export class InstanceD2ApiRepository implements InstanceRepository {
     private api: D2Api;

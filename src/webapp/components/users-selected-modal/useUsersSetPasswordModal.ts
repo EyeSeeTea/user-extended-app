@@ -2,7 +2,7 @@ import React from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 interface UseUsersSetPasswordModalProps {
     users: User[];

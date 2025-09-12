@@ -4,7 +4,7 @@ import { Check } from "@material-ui/icons";
 import { User } from "../../../domain/entities/User";
 import { buildEllipsizedList } from "./UserListTable";
 import { UserColumn } from "../../../domain/entities/UserColumn";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export function useUserColumns(): TableColumn<User>[] {
     const columns = React.useMemo(() => {

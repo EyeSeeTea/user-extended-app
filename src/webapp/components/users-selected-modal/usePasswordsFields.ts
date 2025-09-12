@@ -3,7 +3,7 @@ import React from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { validatePasswordRules } from "./passwordValidation";
 import { useAppContext } from "../../contexts/app-context";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export interface PasswordValidationErrors {
     password?: string;

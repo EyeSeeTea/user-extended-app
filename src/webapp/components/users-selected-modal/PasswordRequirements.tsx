@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { passwordRequirements } from "./passwordValidation";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 interface PasswordRequirementsProps {
     password: string;
