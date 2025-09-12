@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-12T13:51:57.143Z\n"
+"POT-Creation-Date: 2025-09-12T15:01:38.333Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -492,6 +492,9 @@ msgstr "Atribuir a unidades organizacionais de pesquisa"
 msgid "{{action}}: {{users}} {{remainingCount}}"
 msgstr "{{action}}: {{users}} {{remainingCount}}"
 
+msgid "And {{overflow}} more..."
+msgstr "E mais {{overflow}}..."
+
 msgid "User ID"
 msgstr "ID do usuário"
 
@@ -515,9 +518,6 @@ msgstr "2FA"
 
 msgid "External Auth"
 msgstr "Autenticação Externa"
-
-msgid "And {{overflow}} more..."
-msgstr "E mais {{overflow}}..."
 
 msgid "Details"
 msgstr "Detalhes"
