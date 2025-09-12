@@ -1,5 +1,5 @@
 import _ from "lodash";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export type UserFormField = typeof userFormFields[number];
 

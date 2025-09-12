@@ -2,7 +2,7 @@ import React from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 
 const styles = {
     contents: {

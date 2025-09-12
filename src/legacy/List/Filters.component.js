@@ -83,6 +83,8 @@ export default class Filters extends React.Component {
             orgUnitsOutput: [],
             searchOrgUnits: [],
             userDisabled: this.props.onlyActiveUsers ? false : null,
+            twoFactorEnabled: null,
+            externalAuth: null,
             userRolesAll: [],
             userGroupsAll: [],
             rootJunction: this.props.areFiltersOverrided ? "AND" : "OR",
@@ -153,6 +155,8 @@ export default class Filters extends React.Component {
             userRoles,
             userGroups,
             userDisabled,
+            twoFactorEnabled,
+            externalAuth,
             orgUnits,
             orgUnitsOutput,
             searchOrgUnits,
@@ -167,6 +171,8 @@ export default class Filters extends React.Component {
             ...(rootJunction ? { rootJunction } : {}),
             filters: {
                 "userCredentials.disabled": userDisabled !== null ? ["eq", userDisabled] : undefined,
+                "userCredentials.twoFA": twoFactorEnabled !== null ? ["eq", twoFactorEnabled] : undefined,
+                "userCredentials.externalAuth": externalAuth !== null ? ["eq", externalAuth] : undefined,
                 "userCredentials.userRoles.id": inFilter(userRoles),
                 "userGroups.id": inFilter(userGroups),
                 "organisationUnits.id": inFilter(orgUnits.map(ou => ou.id)),
@@ -185,6 +191,8 @@ export default class Filters extends React.Component {
                 userGroups: [],
                 userRoles: [],
                 userDisabled: this.props.onlyActiveUsers ? false : null,
+                twoFactorEnabled: null,
+                externalAuth: null,
                 orgUnits: [],
                 orgUnitsOutput: [],
                 searchOrgUnits: [],
@@ -242,12 +250,17 @@ export default class Filters extends React.Component {
         const filterIconColor = isExtendedFiltering ? "#ff9800" : undefined;
         const filterButtonColor = showExtendedFilters ? { backgroundColor: "#cdcdcd" } : undefined;
 
-        const dropdownOptions = [
+        const activeInactiveOptions = [
             { value: false, text: this.getTranslation("active") },
             { value: true, text: this.getTranslation("inactive") },
         ];
 
         const forcedFilterOptions = [{ value: false, text: this.getTranslation("filter_active_modified") }];
+
+        const enabledDisabledOptions = [
+            { value: true, text: this.getTranslation("enabled") },
+            { value: false, text: this.getTranslation("disabled") },
+        ];
 
         return (
             <div className="user-management-controls" style={styles.wrapper}>
@@ -331,11 +344,31 @@ export default class Filters extends React.Component {
                             <div className="user-management-control select-active-or-inactive">
                                 <Dropdown
                                     labelText={this.getTranslation("filter_active_inactive_users")}
-                                    options={onlyActiveUsers ? forcedFilterOptions : dropdownOptions}
+                                    options={onlyActiveUsers ? forcedFilterOptions : activeInactiveOptions}
                                     value={this.state.userDisabled}
                                     onChange={this.setFilter("userDisabled", this.dropdownHandler)}
                                     style={styles.dropdownStyles}
                                     disabled={onlyActiveUsers}
+                                />
+                            </div>
+
+                            <div className="user-management-control select-active-or-inactive">
+                                <Dropdown
+                                    labelText={this.getTranslation("filter_2fa_status")}
+                                    options={enabledDisabledOptions}
+                                    value={this.state.twoFactorEnabled}
+                                    onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
+                                    style={styles.dropdownStyles}
+                                />
+                            </div>
+
+                            <div className="user-management-control select-active-or-inactive">
+                                <Dropdown
+                                    labelText={this.getTranslation("filter_externalAuth_status")}
+                                    options={enabledDisabledOptions}
+                                    value={this.state.externalAuth}
+                                    onChange={this.setFilter("externalAuth", this.dropdownHandler)}
+                                    style={styles.dropdownStyles}
                                 />
                             </div>
 

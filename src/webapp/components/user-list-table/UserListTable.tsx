@@ -21,7 +21,7 @@ import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
@@ -142,8 +142,9 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const { users: allUsers } = useGetAllUsers(onlyUsersOrgUnits);
     const { appSettings, setAppSettings } = useAppSettingsContext();
     const {
+        showOnlyUsersOrgUnits: onlyUsersOrgUnits,
         showOnlyActiveUsers: onlyActiveUsers,
-        hide: { users: _hideUsers },
+        hide: { users: hideUsers },
     } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
@@ -661,7 +662,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         {importSettings && mappingColumns && (
                             <ImportExport
                                 columns={mappingColumns}
-                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers }}
+                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers, hideUsers }}
                                 onImport={showImportDialog}
                                 settings={importSettings}
                             />
@@ -685,6 +686,93 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         </React.Fragment>
     );
 };
+
+//FIXME: Review useUserColumns
+export function useUserColumns() {
+    const columns = React.useMemo((): TableColumn<User>[] => {
+        return [
+            { name: "id", sortable: false, text: i18n.t("User ID"), hidden: true },
+            { name: "username", sortable: false, text: i18n.t("Username") },
+            { name: "firstName", sortable: true, text: i18n.t("First Name") },
+            { name: "surname", sortable: true, text: i18n.t("Surname") },
+            { name: "email", sortable: true, text: i18n.t("Email") },
+            { name: "phoneNumber", text: i18n.t("Phone number") },
+            { name: "openId", sortable: false, text: i18n.t("Open ID"), hidden: true },
+            { name: "created", sortable: true, text: i18n.t("Created"), hidden: true },
+            { name: "lastUpdated", sortable: true, text: i18n.t("Last updated"), hidden: true },
+            { name: "apiUrl", sortable: false, text: i18n.t("API URL"), hidden: true },
+            {
+                name: "userRoles",
+                sortable: false,
+                text: i18n.t("Roles"),
+                getValue: user => buildEllipsizedList(user.userRoles),
+                hidden: true,
+            },
+            {
+                name: "userGroups",
+                sortable: false,
+                text: i18n.t("Groups"),
+                getValue: user => buildEllipsizedList(user.userGroups),
+                hidden: true,
+            },
+            {
+                name: "organisationUnits",
+                sortable: false,
+                text: i18n.t("Data capture organisation units"),
+                getValue: user => buildEllipsizedList(user.organisationUnits),
+            },
+            {
+                name: "dataViewOrganisationUnits",
+                sortable: false,
+                text: i18n.t("Data view organisation units"),
+                getValue: user => buildEllipsizedList(user.dataViewOrganisationUnits),
+            },
+            {
+                name: "searchOrganisationsUnits",
+                sortable: false,
+                text: i18n.t("Search organisation units"),
+                getValue: user => buildEllipsizedList(user.searchOrganisationsUnits),
+            },
+            { name: "lastLogin", sortable: false, text: i18n.t("Last login") },
+            {
+                name: "status",
+                sortable: true,
+                text: i18n.t("Status"),
+            },
+            {
+                name: "disabled",
+                sortable: false,
+                text: i18n.t("Disabled"),
+                getValue: row => (row.disabled ? <Check /> : undefined),
+            },
+            {
+                name: "createdBy",
+                sortable: false,
+                text: i18n.t("Created By"),
+                getValue: row => row.createdBy?.username || "",
+            },
+            {
+                name: "lastModifiedBy",
+                sortable: false,
+                text: i18n.t("Last Modified By"),
+                getValue: row => row.lastModifiedBy?.username || "",
+            },
+            {
+                name: "twoFactorEnabled",
+                sortable: false,
+                text: i18n.t("2FA"),
+                getValue: row => (row.twoFactorEnabled ? <Check /> : undefined),
+            },
+            {
+                name: "externalAuth",
+                sortable: false,
+                text: i18n.t("External Auth"),
+                getValue: row => (row.externalAuth ? <Check /> : undefined),
+            },
+        ];
+    }, []);
+    return columns;
+}
 
 function generateColumnsFromSettings(options: {
     appSettings: Maybe<AppSettings>;

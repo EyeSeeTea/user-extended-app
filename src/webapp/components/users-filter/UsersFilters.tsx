@@ -5,7 +5,7 @@ import { Select, MenuItem } from "@material-ui/core";
 
 import { Id } from "../../../domain/entities/Ref";
 import { UserSimple } from "../../../domain/entities/UserSimple";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 
 type UsersFiltersProps = {

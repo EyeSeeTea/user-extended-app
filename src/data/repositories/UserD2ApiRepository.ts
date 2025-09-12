@@ -477,10 +477,12 @@ export class UserD2ApiRepository implements UserRepository {
 
         const existingKeys = _(allExistingUsersGroups).keys().value();
 
-        const groupsIdsToAdd = users.flatMap(user => {
+        const groupsIdsToAddRef = users.flatMap(user => {
             const groupsRef = user.userGroups.map(userGroup => ({ id: userGroup.id }));
             return groupsRef.filter(({ id }) => !existingKeys.includes(id));
         });
+
+        const groupsIdsToAdd = _.uniqBy(groupsIdsToAddRef, ({ id }) => id);
 
         const groupsIdsToDelete = users.flatMap(user => {
             const existingUser = existing.find(({ id }) => id === user.id);
@@ -586,6 +588,7 @@ export class UserD2ApiRepository implements UserRepository {
             openId: userCredentials.openId,
             ldapId: userCredentials.ldapId,
             externalAuth: userCredentials.externalAuth,
+            twoFactorEnabled: userCredentials.twoFA,
             password: userCredentials.password,
             accountExpiry: userCredentials.accountExpiry,
             authorities,
@@ -635,6 +638,7 @@ export class UserD2ApiRepository implements UserRepository {
                 externalAuth: input.externalAuth ?? "",
                 password: input.password ?? "",
                 accountExpiry: input.accountExpiry ?? "",
+                twoFA: input.twoFactorEnabled ?? "",
                 ...this.getApiAuditFields(input),
             },
             ...this.getApiAuditFields(input),
@@ -706,6 +710,7 @@ const fields = {
         externalAuth: true,
         password: true,
         accountExpiry: true,
+        twoFA: true,
     },
 } as const;
 

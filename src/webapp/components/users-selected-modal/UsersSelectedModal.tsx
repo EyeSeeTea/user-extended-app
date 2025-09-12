@@ -4,7 +4,7 @@ import { ConfirmationDialog, useLoading, useSnackbar } from "@eyeseetea/d2-ui-co
 
 import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export type UsersSelectedModalProps = {
     isOpen: boolean;

@@ -14,7 +14,7 @@ import {
     isRule,
 } from "../../../domain/entities/UserActionRule";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export function useSharingActions(props: SharingActionsProps) {
     const { actionsPermissions, setActionsPermissions } = props;

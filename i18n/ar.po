@@ -1,0 +1,680 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"POT-Creation-Date: 2025-08-11T04:41:53.550Z\n"
+"PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgid "Details"
+msgstr "تفاصيل"
+
+msgid "Edit"
+msgstr "حرّر"
+
+msgid "Copy in user"
+msgstr "نسخ إلى المستخدم"
+
+msgid "Assign to data capture organisation units"
+msgstr "تعيين إلى وحدات التنظيم لجمع البيانات"
+
+msgid "Assign to data view organisation units"
+msgstr "تعيين إلى وحدات تنظيم عرض البيانات"
+
+msgid "Assign to search organisation units"
+msgstr "تعيين إلى وحدات تنظيم البحث"
+
+msgid "Assign roles"
+msgstr "تعيين الأدوار"
+
+msgid "Assign groups"
+msgstr "تعيين المجموعات"
+
+msgid "Enable"
+msgstr "تفعيل"
+
+msgid "Disable"
+msgstr "تعطيل"
+
+msgid "Reset password"
+msgstr "إعادة تعيين كلمة المرور"
+
+msgid "Remove"
+msgstr "إزالة"
+
+msgid "Replicate user from template"
+msgstr "تكرار المستخدم من القالب"
+
+msgid "Replicate user from table"
+msgstr "تكرار المستخدم من الجدول"
+
+msgid "ID"
+msgstr "المعرف"
+
+msgid "Username"
+msgstr "اسم المستخدم"
+
+msgid "Password"
+msgstr "كلمة المرور"
+
+msgid "Name"
+msgstr "الاسم"
+
+msgid "First name"
+msgstr "الاسم الأول"
+
+msgid "Surname"
+msgstr "اسم العائلة"
+
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Phone number"
+msgstr "رقم الهاتف"
+
+msgid "Updated"
+msgstr "تم التحديث"
+
+msgid "Last login"
+msgstr "آخر تسجيل دخول"
+
+msgid "API URL"
+msgstr "رابط واجهة البرمجة"
+
+msgid "Created"
+msgstr "تم الإنشاء"
+
+msgid "Roles"
+msgstr "الأدوار"
+
+msgid "Groups"
+msgstr "المجموعات"
+
+msgid "OUCapture"
+msgstr "وحدة تنظيم الجمع"
+
+msgid "OUOutput"
+msgstr "وحدة تنظيم الإخراج"
+
+msgid "OUSearch"
+msgstr "وحدة تنظيم البحث"
+
+msgid "Disabled"
+msgstr "معطل"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Open ID"
+msgstr "معرف مفتوح"
+
+msgid "Created by"
+msgstr "تم الإنشاء بواسطة"
+
+msgid "Last modified by"
+msgstr "آخر تعديل بواسطة"
+
+msgid "Open IDs must be unique"
+msgstr ""
+
+msgid "Not all users have emails"
+msgstr "ليس كل المستخدمين لديهم بريد إلكتروني"
+
+msgid "Only admin user can edit logger settings"
+msgstr "يمكن للمسؤول فقط تعديل إعدادات السجل"
+
+msgid "Copy to clipboard"
+msgstr "نسخ إلى الحافظة"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "User {{user}} replicated successfully {{n}} times"
+msgstr "تم تكرار المستخدم {{user}} بنجاح {{n}} مرات"
+
+msgid "Error replicating user {{user}}: {{message}}"
+msgstr "خطأ في تكرار المستخدم {{user}}: {{message}}"
+
+msgid "Replicate {{user}}"
+msgstr "تكرار {{user}}"
+
+msgid "Replicate"
+msgstr "تكرار"
+
+msgid "Value should be between {{min}} and {{max}}"
+msgstr "يجب أن تكون القيمة بين {{min}} و {{max}}"
+
+msgid "Username. Example for two users: admin.$index -> admin.1, admin.2"
+msgstr "اسم المستخدم. مثال لمستخدمين: admin.$index -> admin.1، admin.2"
+
+msgid "Replicate error"
+msgstr "خطأ في التكرار"
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Columns to show in table"
+msgstr "الأعمدة المعروضة في الجدول"
+
+msgid "Column"
+msgstr "عمود"
+
+msgid "Visible"
+msgstr "مرئي"
+
+msgid "Optional"
+msgstr "اختياري"
+
+msgid "Copy in user: {{user}}"
+msgstr "نسخ في المستخدم: {{user}}"
+
+msgid "Select one toggle"
+msgstr "اختر تبديل واحد"
+
+msgid "Select at least one user"
+msgstr "اختر مستخدم واحد على الأقل"
+
+msgid "Bulk update strategy: "
+msgstr "استراتيجية التحديث الجماعي: "
+
+msgid "Merge"
+msgstr "دمج"
+
+msgid "Replace"
+msgstr "استبدال"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "User Groups"
+msgstr "مجموعات المستخدمين"
+
+msgid "OU Outputs"
+msgstr "إخراج وحدات التنظيم"
+
+msgid "User Roles"
+msgstr "أدوار المستخدم"
+
+msgid "OU Capture"
+msgstr "جمع وحدات التنظيم"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Owner"
+msgstr "المالك"
+
+msgid "Users"
+msgstr "المستخدمون"
+
+msgid "Import/Export"
+msgstr "استيراد/تصدير"
+
+msgid "Import"
+msgstr "استيراد"
+
+msgid "Export to CSV"
+msgstr "تصدير إلى CSV"
+
+msgid "Export to JSON"
+msgstr "تصدير إلى JSON"
+
+msgid "Export empty template"
+msgstr "تصدير قالب فارغ"
+
+msgid "{{n}} invalid users found, check in-line errors in table"
+msgstr "تم العثور على {{n}} مستخدمين غير صالحين، تحقق من الأخطاء في الجدول"
+
+msgid "{{n}} warning(s) while importing file"
+msgstr "تم العثور على {{n}} تحذير أثناء استيراد الملف"
+
+msgid "[... and {{n}} more warning(s) ...]"
+msgstr ""
+
+msgid "Importing users"
+msgstr "جارٍ استيراد المستخدمين"
+
+msgid "Users imported successfully"
+msgstr "تم استيراد المستخدمين بنجاح"
+
+msgid "User already exists: {{id}}"
+msgstr "المستخدم موجود بالفعل: {{id}}"
+
+msgid "Add user"
+msgstr "إضافة مستخدم"
+
+msgid "Overwrite existing users"
+msgstr "الكتابة فوق المستخدمين الحاليين"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Error on metadata action"
+msgstr "خطأ في إجراء البيانات الوصفية"
+
+msgid "Remove user"
+msgstr "إزالة المستخدم"
+
+msgid "Duplicated username: {{username}}"
+msgstr "اسم مستخدم مكرر: {{username}}"
+
+msgid "Please provide a username"
+msgstr "يرجى إدخال اسم مستخدم"
+
+msgid "User already exists"
+msgstr "المستخدم موجود بالفعل"
+
+msgid "Please provide a valid email"
+msgstr "يرجى إدخال بريد إلكتروني صالح"
+
+msgid "Please provide a password"
+msgstr "يرجى إدخال كلمة مرور"
+
+msgid "Password should contain at least one lowercase letter"
+msgstr "يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل"
+
+msgid "Password should contain at least one UPPERCASE letter"
+msgstr "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل"
+
+msgid "Password should contain at least one number"
+msgstr "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل"
+
+msgid "Password should have at least one special character"
+msgstr "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
+
+msgid "Please provide a valid phone number"
+msgstr "يرجى إدخال رقم هاتف صالح"
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Deleted"
+msgstr "تم الحذف"
+
+msgid "Ignored"
+msgstr "تم التجاهل"
+
+msgid "Total"
+msgstr "الإجمالي"
+
+msgid "Identifier"
+msgstr "المعرف"
+
+msgid "Message"
+msgstr "رسالة"
+
+msgid "Import Results"
+msgstr "نتائج الاستيراد"
+
+msgid "Ok"
+msgstr "موافق"
+
+msgid "Summary"
+msgstr "الملخص"
+
+msgid "Messages"
+msgstr "الرسائل"
+
+msgid "JSON Response"
+msgstr "استجابة JSON"
+
+msgid "Saving users"
+msgstr "جارٍ حفظ المستخدمين"
+
+msgid "Update strategy: "
+msgstr "استراتيجية التحديث: "
+
+msgid "Assign roles to {{usernames}}"
+msgstr "تعيين الأدوار إلى {{usernames}}"
+
+msgid "Assign groups to {{usernames}}"
+msgstr "تعيين المجموعات إلى {{usernames}}"
+
+msgid "Bulk update strategy: {{strategy}}"
+msgstr "استراتيجية التحديث الجماعي: {{strategy}}"
+
+msgid "Back"
+msgstr "رجوع"
+
+msgid "Help"
+msgstr "مساعدة"
+
+msgid "Search users"
+msgstr "بحث المستخدمين"
+
+msgid "Search user roles"
+msgstr "بحث أدوار المستخدم"
+
+msgid "Search user groups"
+msgstr "بحث مجموعات المستخدم"
+
+msgid "Show feedback button"
+msgstr "إظهار زر الملاحظات"
+
+msgid "Show only users assigned to users' organisation units"
+msgstr "إظهار فقط المستخدمين المعينين لوحدات تنظيم المستخدمين"
+
+msgid "Show only active users"
+msgstr "إظهار المستخدمين النشطين فقط"
+
+msgid "Hide users, user roles and user groups"
+msgstr "إخفاء المستخدمين وأدوار المستخدم ومجموعات المستخدم"
+
+msgid "Actions available for all users"
+msgstr "الإجراءات المتاحة لجميع المستخدمين"
+
+msgid "Access to Settings Section"
+msgstr "الوصول إلى قسم الإعدادات"
+
+msgid ""
+"Changes on 'Who has access' to settings will be reflected after page reload"
+msgstr ""
+"سيتم تطبيق تغييرات 'من لديه حق الوصول' إلى الإعدادات بعد إعادة تحميل الصفحة"
+
+msgid "Select user groups"
+msgstr "اختر مجموعات المستخدمين"
+
+msgid "You can't hide more than 480 users"
+msgstr "لا يمكنك إخفاء أكثر من 480 مستخدمًا"
+
+msgid "Public access (Everyone)"
+msgstr "وصول عام (الجميع)"
+
+msgid "Saving..."
+msgstr "جارٍ الحفظ..."
+
+msgid "Logger"
+msgstr "السجل"
+
+msgid "Columns"
+msgstr "الأعمدة"
+
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+msgid "Dashboards"
+msgstr "لوحات المعلومات"
+
+msgid "Error saving user"
+msgstr "خطأ في حفظ المستخدم"
+
+msgid "General info"
+msgstr "معلومات عامة"
+
+msgid "Assignment"
+msgstr "التعيين"
+
+msgid "Other information"
+msgstr "معلومات أخرى"
+
+msgid "Please provide a valid identifier"
+msgstr "يرجى إدخال معرف صالح"
+
+msgid "Please provide a valid international phone number (+0123456789)"
+msgstr "يرجى إدخال رقم هاتف دولي صالح (+0123456789)"
+
+msgid "First Name"
+msgstr "الاسم الأول"
+
+msgid "Account expiration date"
+msgstr "تاريخ انتهاء الحساب"
+
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+msgid "WhatsApp"
+msgstr "واتساب"
+
+msgid "Facebook Messenger"
+msgstr "فيسبوك ماسنجر"
+
+msgid "Skype"
+msgstr "سكايب"
+
+msgid "Telegram"
+msgstr "تيليجرام"
+
+msgid "Twitter"
+msgstr "تويتر"
+
+msgid "External authentication only (OpenID or LDAP)"
+msgstr "المصادقة الخارجية فقط (OpenID أو LDAP)"
+
+msgid "Data Capture Organisation Units"
+msgstr "وحدات تنظيم جمع البيانات"
+
+msgid "Data View Organisation Units"
+msgstr "وحدات تنظيم عرض البيانات"
+
+msgid "Search Organisation Units"
+msgstr "وحدات تنظيم البحث"
+
+msgid "LDAP identifier"
+msgstr "معرف LDAP"
+
+msgid "Interface language"
+msgstr "لغة الواجهة"
+
+msgid "Database language"
+msgstr "لغة قاعدة البيانات"
+
+msgid "Api URL"
+msgstr "رابط API"
+
+msgid "Last updated"
+msgstr "آخر تحديث"
+
+msgid "OU Output"
+msgstr "إخراج وحدة التنظيم"
+
+msgid "OU Search"
+msgstr "بحث وحدة التنظيم"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Search by name or username..."
+msgstr "بحث بالاسم أو اسم المستخدم..."
+
+msgid "Assign to organisation units capture"
+msgstr "تعيين إلى وحدات تنظيم الجمع"
+
+msgid "Assign to organisation units output"
+msgstr "تعيين إلى وحدات تنظيم الإخراج"
+
+msgid "Assign to organisation units search"
+msgstr "تعيين إلى وحدات تنظيم البحث"
+
+msgid "{{action}}: {{users}} {{remainingCount}}"
+msgstr "{{action}}: {{users}} {{remainingCount}}"
+
+msgid "User ID"
+msgstr "معرف المستخدم"
+
+msgid "Data capture organisation units"
+msgstr "وحدات تنظيم جمع البيانات"
+
+msgid "Data view organisation units"
+msgstr "وحدات تنظيم عرض البيانات"
+
+msgid "Search organisation units"
+msgstr "وحدات تنظيم البحث"
+
+msgid "Created By"
+msgstr "تم الإنشاء بواسطة"
+
+msgid "Last Modified By"
+msgstr "آخر تعديل بواسطة"
+
+msgid "2FA"
+msgstr ""
+
+msgid "External Auth"
+msgstr ""
+
+msgid "And {{overflow}} more..."
+msgstr "و{{overflow}} المزيد..."
+
+msgid "Loading users..."
+msgstr "جارٍ تحميل المستخدمين..."
+
+msgid "Filter owners"
+msgstr "تصفية المالكين"
+
+msgid "Clear"
+msgstr "مسح"
+
+msgid "Select users"
+msgstr "اختر المستخدمين"
+
+msgid "Remove users"
+msgstr "إزالة المستخدمين"
+
+msgid "Users removed"
+msgstr "تمت إزالة المستخدمين"
+
+msgid "Disable users"
+msgstr "تعطيل المستخدمين"
+
+msgid "Users disabled"
+msgstr "تم تعطيل المستخدمين"
+
+msgid "Enable users"
+msgstr "تفعيل المستخدمين"
+
+msgid "Users enabled"
+msgstr "تم تفعيل المستخدمين"
+
+msgid "Reset passwords"
+msgstr "إعادة تعيين كلمات المرور"
+
+msgid "reset the passwords for"
+msgstr "إعادة تعيين كلمات المرور لـ"
+
+msgid "Passwords have been reset"
+msgstr "تمت إعادة تعيين كلمات المرور"
+
+msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
+msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"
+
+msgid "{{actionTitle}}"
+msgstr "{{actionTitle}}"
+
+msgid ""
+"Are you sure you want to {{actionDescription}} the selected users? {{users}} "
+"{{remainingCount}}"
+msgstr ""
+"هل أنت متأكد أنك تريد {{actionDescription}} المستخدمين المحددين؟ {{users}} "
+"{{remainingCount}}"
+
+msgid "Confirm"
+msgstr "تأكيد"
+
+msgid "Table exported: {{filename}}"
+msgstr "تم تصدير الجدول: {{filename}}"
+
+msgid "Distributed under GNU GLPv3"
+msgstr "موزع بموجب رخصة GNU GLPv3"
+
+msgid ""
+"User-Extended App is a DHIS2 Web Application that provides an easy and "
+"integrated way to perform common operations to DHIS2 users which would be "
+"burdensome to perform using the in-built DHIS2 User management application."
+msgstr ""
+"تطبيق المستخدم الموسع هو تطبيق ويب DHIS2 يوفر طريقة سهلة ومتكاملة لتنفيذ "
+"العمليات الشائعة لمستخدمي DHIS2 والتي قد تكون مرهقة عند استخدام تطبيق إدارة "
+"المستخدمين المدمج في DHIS2."
+
+msgid ""
+"This application has been funded by the the Norwegian Refugee Council (NRC), "
+"the WHO Global Malaria Programme, Samaritan’s Purse and Medecins Sans "
+"Frontières (MSF) to support countries in strengthening the collection and "
+"use of health data by using DHIS2. The application has been developed by "
+"[EyeSeeTea SL](http://eyeseetea.com). Source code, documentation and release "
+"notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea."
+"github.io/user-extended-app-blessed/)"
+msgstr ""
+"تم تمويل هذا التطبيق من قبل المجلس النرويجي للاجئين (NRC)، وبرنامج الملاريا "
+"العالمي لمنظمة الصحة العالمية، وSamaritan’s Purse، وأطباء بلا حدود (MSF) "
+"لدعم البلدان في تعزيز جمع واستخدام بيانات الصحة باستخدام DHIS2. تم تطوير "
+"التطبيق بواسطة [EyeSeeTea SL](http://eyeseetea.com). يمكن العثور على الشيفرة "
+"المصدرية والوثائق وملاحظات الإصدار في [صفحة مشروع EyeSeetea على GitHub]"
+"(https://eyeseetea.github.io/user-extended-app-blessed/)"
+
+msgid ""
+"If you wish to contribute to the development of User Extended App with new "
+"features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com)."
+msgstr ""
+"إذا كنت ترغب في المساهمة في تطوير تطبيق المستخدم الموسع بميزات جديدة، يرجى "
+"التواصل مع [EyeSeeTea](mailto:hello@eyeseetea.com)."
+
+msgid "About User Extended App"
+msgstr "حول تطبيق المستخدم الموسع"
+
+msgid "Samaritan's Purse"
+msgstr "Samaritan's Purse"
+
+msgid "World Health Organization"
+msgstr "منظمة الصحة العالمية"
+
+msgid "EyeSeeTea"
+msgstr "EyeSeeTea"
+
+msgid "Norwegian Refugee Council"
+msgstr "المجلس النرويجي للاجئين"
+
+msgid "MSF"
+msgstr "أطباء بلا حدود"
+
+msgid "Settings saved"
+msgstr "تم حفظ الإعدادات"
+
+msgid "Enable Logger"
+msgstr "تفعيل السجل"
+
+msgid "Tracker Program"
+msgstr "برنامج التتبع"
+
+msgid "Username Attribute"
+msgstr "خاصية اسم المستخدم"
+
+msgid "Program Stages"
+msgstr "مراحل البرنامج"
+
+msgid "Data Element File ID"
+msgstr "معرف ملف عنصر البيانات"
+
+msgid "Data Element DateTime"
+msgstr "عنصر بيانات التاريخ والوقت"
+
+msgid "Edit users"
+msgstr "تعديل المستخدمين"
+
+msgid "Column settings"
+msgstr "إعدادات الأعمدة"
+
+msgid "Error saving users"
+msgstr "خطأ في حفظ المستخدمين"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Edit user"
+msgstr "تعديل المستخدم"
+
+msgid "New user"
+msgstr "مستخدم جديد"
+
+msgid "Network error"
+msgstr "خطأ في الشبكة"
+
+msgid "Unable to load user {{id}}"
+msgstr "تعذر تحميل المستخدم {{id}}"
+
+msgid "Open in user management"
+msgstr "فتح في إدارة المستخدمين"
+
+msgid " and {{overflow}} more..."
+msgstr " و{{overflow}} المزيد..."

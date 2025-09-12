@@ -4,7 +4,7 @@ import { ConfirmationDialog, OrgUnitsSelector } from "@eyeseetea/d2-ui-component
 
 import { useAppContext } from "../../contexts/app-context";
 import Toggle from "material-ui/Toggle";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { User } from "../../../domain/entities/User";
 import { Id } from "../../../domain/entities/Ref";
 import { UpdateStrategy } from "../../../domain/repositories/UserRepository";

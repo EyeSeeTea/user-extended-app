@@ -2,7 +2,6 @@ import { HeaderBar } from "@dhis2/ui";
 import { LoadingProvider, SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import _ from "lodash";
-//@ts-ignore
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import React, { useEffect, useState } from "react";
 import { appConfig } from "../../../app-config";
@@ -18,18 +17,35 @@ import { muiTheme } from "./themes/dhis2.theme";
 import { Feedback, FeedbackOptions } from "@eyeseetea/feedback-component";
 import { AppSettingsProvider, useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Maybe } from "../../../types/utils";
+import { getMuiLocalization } from "./themes/muiLocales";
 
 export interface AppProps {
     api: D2Api;
     d2: D2;
     instance: Instance;
+    keyUiLocale: string;
 }
 
-export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instance }) {
+export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instance, keyUiLocale }) {
     const [showShareButton, setShowShareButton] = useState(false);
     const [loading, setLoading] = useState(true);
     const [appContext, setAppContext] = useState<AppContextState | null>(null);
     const [username, setUsername] = useState("");
+
+    const appTheme = React.useMemo(() => {
+        const parts = keyUiLocale.split("_");
+        const language = parts[0];
+        const fallbackLocalization = getMuiLocalization("en", "US");
+
+        if (!language) return muiTheme(fallbackLocalization);
+
+        const country = parts[1] ?? language.toUpperCase();
+
+        console.debug(`Setting app theme for language: ${language}, country: ${country}`);
+        const localization = getMuiLocalization(language, country);
+
+        return muiTheme(localization);
+    }, [keyUiLocale]);
 
     useEffect(() => {
         async function setup() {
@@ -52,7 +68,7 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
     if (loading) return null;
 
     return (
-        <MuiThemeProvider theme={muiTheme}>
+        <MuiThemeProvider theme={appTheme}>
             <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
                 <SnackbarProvider>
                     <LoadingProvider>

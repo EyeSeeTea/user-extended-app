@@ -5,7 +5,7 @@ import { UserAction, userActions } from "../../../domain/entities/UserAction";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { useSharingActions, Value } from "./useSharingActions";
 import { getUserActionLabel } from "../user-list-table/userListTableHelpers";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export type SharingActionsProps = {
     actionsPermissions: ActionsPermissions;
