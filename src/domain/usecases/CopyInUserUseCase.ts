@@ -13,8 +13,12 @@ export class CopyInUserUseCase {
             const usersBatches = _.chunk(users, 50);
 
             const $requests = usersBatches.map(usersToUpdate => {
-                const usersToSave = this.applyCopyToUsers(usersToUpdate, options);
-                return this.saveUsers(usersToSave);
+                try {
+                    const usersToSave = this.applyCopyToUsers(usersToUpdate, options);
+                    return this.saveUsers(usersToSave);
+                } catch (error) {
+                    return Future.error(`${(error as Error).message}`);
+                }
             });
 
             return Future.sequential($requests).toVoid();
@@ -30,7 +34,11 @@ export class CopyInUserUseCase {
     }
 
     private replaceAccessElementsKeys(targetUser: User, sourceUser: User, properties: AccessElementsKeys[]): User {
-        return { ...targetUser, ..._.pick(sourceUser, properties) };
+        try {
+            return User.createNewUser({ ...targetUser, ..._.pick(sourceUser, properties) });
+        } catch (error) {
+            throw new Error(`Error replacing user properties: ${(error as Error).message}`);
+        }
     }
 
     private mergeAccessElementsKeys(targetUser: User, sourceUser: User, properties: AccessElementsKeys[]): User {

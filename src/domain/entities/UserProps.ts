@@ -1,0 +1,104 @@
+import { Maybe } from "../../types/utils";
+import { OrgUnit } from "./OrgUnit";
+import { Id, NamedRef } from "./Ref";
+
+export interface UserProps {
+    id: string;
+    name: string;
+    username: string;
+    firstName: string;
+    surname: string;
+    email: string;
+    phoneNumber: string;
+    whatsApp: string;
+    facebookMessenger: string;
+    skype: string;
+    telegram: string;
+    twitter: string;
+    lastUpdated: Date;
+    created: Date;
+    apiUrl: string;
+    userRoles: NamedRef[];
+    userGroups: NamedRef[];
+    organisationUnits: OrgUnit[];
+    dataViewOrganisationUnits: OrgUnit[];
+    searchOrganisationsUnits: OrgUnit[];
+    lastLogin: Maybe<Date>;
+    status: string;
+    disabled: boolean;
+    access: AccessPermissions;
+    openId: Maybe<string>;
+    ldapId: Maybe<string>;
+    externalAuth: boolean;
+    twoFactorEnabled: boolean;
+    password: string;
+    accountExpiry: Maybe<string>;
+    authorities: string[];
+    createdBy: Maybe<UserAudit>;
+    lastModifiedBy: Maybe<UserAudit>;
+    uiLocale: LocaleCode;
+    dbLocale: LocaleCode;
+}
+
+export interface UserAudit {
+    id: Id;
+    username: string;
+}
+
+const emptyOrgUnit: OrgUnit = { id: "", name: "", code: "", path: [] };
+
+export const defaultUserProps: UserProps = {
+    id: "",
+    name: "",
+    username: "",
+    firstName: "",
+    surname: "",
+    email: "",
+    phoneNumber: "",
+    whatsApp: "",
+    facebookMessenger: "",
+    skype: "",
+    telegram: "",
+    twitter: "",
+    lastUpdated: new Date(),
+    created: new Date(),
+    apiUrl: "",
+    userRoles: [{ id: "", name: "" }],
+    userGroups: [{ id: "", name: "" }],
+    organisationUnits: [emptyOrgUnit],
+    dataViewOrganisationUnits: [emptyOrgUnit],
+    searchOrganisationsUnits: [emptyOrgUnit],
+    lastLogin: new Date(),
+    status: "",
+    disabled: false,
+    access: { read: true, update: true, externalize: true, delete: true, write: true, manage: true },
+    openId: "",
+    ldapId: "",
+    externalAuth: false,
+    twoFactorEnabled: false,
+    password: "",
+    authorities: [""],
+    createdBy: { id: "", username: "" },
+    lastModifiedBy: { id: "", username: "" },
+    accountExpiry: undefined,
+    uiLocale: "",
+    dbLocale: "",
+};
+export interface AccessPermissions {
+    read: boolean;
+    update: boolean;
+    externalize: boolean;
+    delete: boolean;
+    write: boolean;
+    manage: boolean;
+}
+
+export const isSuperAdmin = (user: UserProps): boolean => {
+    return user.authorities.includes("ALL");
+};
+
+export const hasReplicateAuthority = (user: UserProps): boolean => {
+    return isSuperAdmin(user) || user.authorities.includes("F_REPLICATE_USER");
+};
+
+export type LocaleCode = string;

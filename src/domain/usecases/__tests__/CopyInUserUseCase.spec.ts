@@ -76,17 +76,17 @@ function givenAOptionsToMerge(): CopyInUserOptions {
 }
 
 function givenAExpectedReplacedUser(): User {
-    return {
+    return User.createNewUser({
         ...targetUser,
         userGroups: sourceUser.userGroups,
         userRoles: sourceUser.userRoles,
-    };
+    });
 }
 
 function givenAExpectedMergedUser(): User {
-    return {
+    return User.createNewUser({
         ...targetUser,
         userGroups: _.unionWith(targetUser.userGroups, sourceUser.userGroups, _.isEqual),
         userRoles: _.unionWith(targetUser.userRoles, sourceUser.userRoles, _.isEqual),
-    };
+    });
 }

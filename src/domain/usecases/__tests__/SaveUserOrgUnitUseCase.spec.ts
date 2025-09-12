@@ -79,18 +79,22 @@ function givenOptionsToMerge(): SaveUserOrgUnitOptions {
 }
 
 function givenExpectedUsersReplaced(): User[] {
-    return selectedUsers.map(user => ({
-        ...user,
-        organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
-    }));
+    return selectedUsers.map(user =>
+        User.createNewUser({
+            ...user,
+            organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
+        })
+    );
 }
 
 function givenExpectedUsersMerged(): User[] {
-    return selectedUsers.map(user => ({
-        ...user,
-        organisationUnits: _(selectedOrgUnits)
-            .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))
-            .unionBy(user.organisationUnits, "id")
-            .value(),
-    }));
+    return selectedUsers.map(user =>
+        User.createNewUser({
+            ...user,
+            organisationUnits: _(selectedOrgUnits)
+                .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))
+                .unionBy(user.organisationUnits, "id")
+                .value(),
+        })
+    );
 }

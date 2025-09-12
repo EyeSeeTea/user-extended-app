@@ -1,13 +1,13 @@
 import i18n from "../../utils/i18n";
 import { Future, FutureData } from "../entities/Future";
 import { LoggerSettings } from "../entities/LoggerSettings";
-import { isSuperAdmin, User } from "../entities/User";
+import { isSuperAdmin, UserProps } from "../entities/UserProps";
 import { LoggerSettingsRepository } from "../repositories/LoggerSettingsRepository";
 
 export class SaveLoggerSettingsUseCase {
     constructor(private loggerSettings: LoggerSettingsRepository) {}
 
-    execute(loggerSettings: LoggerSettings, user: User): FutureData<void> {
+    execute(loggerSettings: LoggerSettings, user: UserProps): FutureData<void> {
         if (isSuperAdmin(user)) {
             return this.loggerSettings.save(loggerSettings);
         } else {
