@@ -1,10 +1,9 @@
+import _ from "lodash";
 import React from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { validatePasswordRules } from "./passwordValidation";
 import { useAppContext } from "../../contexts/app-context";
 import i18n from "../../../locales";
-import { Maybe } from "../../../types/utils";
-import _ from "lodash";
 
 export interface PasswordValidationErrors {
     password?: string;
@@ -38,14 +37,18 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
         compositionRoot.instance.verifyPassword(password).run(
             isValid => {
                 onValidationChange(isValid);
+                if (!isValid) snackbar.error(i18n.t("Password does not meet DHIS2 instance requirements"));
             },
             err => {
                 snackbar.error(err);
             }
         );
-    }, [compositionRoot]);
+    }, [compositionRoot, password, onValidationChange, snackbar]);
 
-    const debouncedValidateOnline = React.useMemo(() => _.debounce(validatePasswordsOnline, 500), []);
+    const debouncedValidateOnline = React.useMemo(
+        () => _.debounce(validatePasswordsOnline, 500),
+        [validatePasswordsOnline]
+    );
 
     const validatePasswords = React.useCallback(
         (pwd: string, confirmPwd: string, touchedFields: typeof touched) => {
@@ -69,7 +72,7 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
 
             if (isValid) debouncedValidateOnline();
         },
-        [onValidationChange]
+        [debouncedValidateOnline]
     );
 
     const handlePasswordBlur = React.useCallback(() => {
