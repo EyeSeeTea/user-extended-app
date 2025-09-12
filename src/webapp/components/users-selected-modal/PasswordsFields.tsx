@@ -54,7 +54,8 @@ export const PasswordsFields: React.FC<PasswordFieldsProps> = React.memo(props =
                 />
             </FieldContainer>
 
-            <PasswordRequirements password={password} />
+            {/* Commented for reference, but was requested to verify delegating on DHIS2 instead */}
+            {/* <PasswordRequirements password={password} /> */}
         </Container>
     );
 });

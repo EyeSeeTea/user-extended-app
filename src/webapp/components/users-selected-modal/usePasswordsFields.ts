@@ -1,6 +1,10 @@
 import React from "react";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { validatePasswordRules } from "./passwordValidation";
+import { useAppContext } from "../../contexts/app-context";
 import i18n from "../../../locales";
+import { Maybe } from "../../../types/utils";
+import _ from "lodash";
 
 export interface PasswordValidationErrors {
     password?: string;
@@ -24,8 +28,24 @@ const emptyErrors: PasswordValidationErrors = {
 export function usePasswordsFields(props: UsePasswordsFieldsProps) {
     const { onPasswordChange, onValidationChange, password, confirmPassword } = props;
 
+    const snackbar = useSnackbar();
+    const { compositionRoot } = useAppContext();
+
     const [errors, setErrors] = React.useState<PasswordValidationErrors>(emptyErrors);
     const [touched, setTouched] = React.useState({ password: false, confirmPassword: false });
+
+    const validatePasswordsOnline = React.useCallback(() => {
+        compositionRoot.instance.verifyPassword(password).run(
+            isValid => {
+                onValidationChange(isValid);
+            },
+            err => {
+                snackbar.error(err);
+            }
+        );
+    }, [compositionRoot]);
+
+    const debouncedValidateOnline = React.useMemo(() => _.debounce(validatePasswordsOnline, 500), []);
 
     const validatePasswords = React.useCallback(
         (pwd: string, confirmPwd: string, touchedFields: typeof touched) => {
@@ -47,8 +67,7 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
                 !!confirmPwd &&
                 pwd === confirmPwd;
 
-            onValidationChange(isValid);
-            return isValid;
+            if (isValid) debouncedValidateOnline();
         },
         [onValidationChange]
     );

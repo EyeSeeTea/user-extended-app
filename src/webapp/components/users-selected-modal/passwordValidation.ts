@@ -20,15 +20,16 @@ const passwordValidations = {
 
 export const validatePasswordRules = (password: string): string | undefined => {
     if (!password) return i18n.t("Password is required");
-    if (!passwordValidations.hasMinLength(password)) return i18n.t("Password must contain at least 8 characters");
-    if (!passwordValidations.hasMaxLength(password)) return i18n.t("Password must not contain more than 34 characters");
-    if (!passwordValidations.hasLowercase(password))
-        return i18n.t("Password must contain at least one lowercase letter");
-    if (!passwordValidations.hasUppercase(password))
-        return i18n.t("Password must contain at least one UPPERCASE letter");
-    if (!passwordValidations.hasDigit(password)) return i18n.t("Password must contain at least one digit (number)");
-    if (!passwordValidations.hasSpecialChar(password))
-        return i18n.t("Password must contain at least one special character (non-alphanumeric)");
+    // Left declared for reference
+    // if (!passwordValidations.hasMinLength(password)) return i18n.t("Password must contain at least 8 characters");
+    // if (!passwordValidations.hasMaxLength(password)) return i18n.t("Password must not contain more than 34 characters");
+    // if (!passwordValidations.hasLowercase(password))
+    //     return i18n.t("Password must contain at least one lowercase letter");
+    // if (!passwordValidations.hasUppercase(password))
+    //     return i18n.t("Password must contain at least one UPPERCASE letter");
+    // if (!passwordValidations.hasDigit(password)) return i18n.t("Password must contain at least one digit (number)");
+    // if (!passwordValidations.hasSpecialChar(password))
+    //     return i18n.t("Password must contain at least one special character (non-alphanumeric)");
 
     return undefined;
 };

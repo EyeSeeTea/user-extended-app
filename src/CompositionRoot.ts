@@ -48,6 +48,7 @@ import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
 import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
 import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettingsD2ConstantRepository";
 import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase";
+import { VerifyPasswordUseCase } from "./domain/usecases/VerifyPasswordUseCase";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -76,6 +77,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         instance: getExecute({
             getVersion: new GetInstanceVersionUseCase(instanceRepository),
             getLocales: new GetInstanceLocalesUseCase(instanceRepository),
+            verifyPassword: new VerifyPasswordUseCase(instanceRepository),
         }),
         users: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),
