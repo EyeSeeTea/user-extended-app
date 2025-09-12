@@ -1,5 +1,6 @@
 import { UseCase } from "../../CompositionRoot";
-import { FutureData } from "../entities/Future";
+import i18n from "../../locales";
+import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";
 
@@ -7,10 +8,14 @@ export class SaveUserStatusUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute(users: User[], options: SaveUserStatusOptions): FutureData<void> {
-        const usersToUpdate = users.map(user => {
-            return { ...user, disabled: options.disabled };
-        });
-        return this.userRepository.save(usersToUpdate).toVoid();
+        try {
+            const usersToUpdate = users.map(user => {
+                return User.createNewUser({ ...user, disabled: options.disabled });
+            });
+            return this.userRepository.save(usersToUpdate).toVoid();
+        } catch (error) {
+            return Future.error(i18n.t(`${(error as Error).message}`));
+        }
     }
 }
 

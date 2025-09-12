@@ -16,10 +16,11 @@ import _ from "lodash";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { hasReplicateAuthority, User } from "../../../domain/entities/User";
+import { hasReplicateAuthority } from "../../../domain/entities/UserProps";
+import { User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
@@ -643,6 +644,18 @@ function useUserColumns() {
                 sortable: false,
                 text: i18n.t("Last Modified By"),
                 getValue: row => row.lastModifiedBy?.username || "",
+            },
+            {
+                name: "twoFactorEnabled",
+                sortable: false,
+                text: i18n.t("2FA"),
+                getValue: row => (row.twoFactorEnabled ? <Check /> : undefined),
+            },
+            {
+                name: "externalAuth",
+                sortable: false,
+                text: i18n.t("External Auth"),
+                getValue: row => (row.externalAuth ? <Check /> : undefined),
             },
         ];
     }, []);

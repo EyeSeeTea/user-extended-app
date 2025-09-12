@@ -5,8 +5,8 @@ import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
-import { LocaleCode, User } from "../../domain/entities/User";
-import { UserLogic } from "../../domain/entities/UserLogic";
+import { LocaleCode } from "../../domain/entities/UserProps";
+import { User } from "../../domain/entities/User";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
@@ -39,7 +39,15 @@ export class UserD2ApiRepository implements UserRepository {
                     params: { user: user.username },
                 })
             ).map((response): User => {
-                return { ...user, uiLocale: response.keyUiLocale, dbLocale: response.keyDbLocale };
+                try {
+                    return User.createUser({
+                        ...user,
+                        uiLocale: response.keyUiLocale,
+                        dbLocale: response.keyDbLocale,
+                    });
+                } catch (error) {
+                    throw new Error(`Error setting locales for user ${user.id}: ${(error as Error).message}`);
+                }
             });
         });
 
@@ -66,14 +74,13 @@ export class UserD2ApiRepository implements UserRepository {
     private getLocaleValueByType(user: User, keyLocale: KeyLocale): string {
         switch (keyLocale) {
             case DB_LOCALE_KEY:
-                return UserLogic.setDefaultLanguage(user.dbLocale);
+                return User.setDefaultLanguage(user.dbLocale);
             case UI_LOCALE_KEY:
-                return UserLogic.setDefaultLanguage(user.uiLocale);
+                return User.setDefaultLanguage(user.uiLocale);
         }
     }
 
-    remove(users: User[]): FutureData<Stats> {
-        const ids = users.map(user => user.id);
+    remove(ids: Id[]): FutureData<Stats> {
         return chunkRequest(ids, userIds => {
             return apiToFuture<Dhis2Response>(
                 this.api.metadata.post({ users: userIds.map(id => ({ id: id })) }, { importStrategy: "DELETE" })
@@ -136,7 +143,7 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    public listAllIds(options: ListOptions): FutureData<string[]> {
+    public listAllIds(options: ListOptions): FutureData<Id[]> {
         const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
 
@@ -152,7 +159,7 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects }) => objects.map(user => user.id));
     }
 
-    public getByIds(ids: string[]): FutureData<User[]> {
+    public getByIds(ids: Id[]): FutureData<User[]> {
         if (ids.length === 0) return Future.success([]);
         return this.getUsersByIds(ids);
     }
@@ -189,7 +196,11 @@ export class UserD2ApiRepository implements UserRepository {
     private addGroupsToUsers(users: User[], d2UsersWithGroups: D2UserGroupByKey): User[] {
         return users.map((user): User => {
             const userGroups = d2UsersWithGroups[user.id] || [];
-            return { ...user, userGroups: userGroups };
+            try {
+                return User.createUser({ ...user, userGroups: userGroups });
+            } catch (error) {
+                throw new Error(`Error adding groups to user ${user.id}: ${(error as Error).message}`);
+            }
         });
     }
 
@@ -348,7 +359,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    public updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    public updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonRoles = _.intersectionBy(
                 ...storedUsers.map(user => user.userRoles.map(role => role)),
@@ -356,23 +367,27 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
-                    ...user,
-                    userRoles:
-                        strategy === "merge"
-                            ? _.uniqBy(
-                                  [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
-                                  ({ id }) => id
-                              )
-                            : update,
-                };
+                try {
+                    return User.createNewUser({
+                        ...user,
+                        userRoles:
+                            strategy === "merge"
+                                ? _.uniqBy(
+                                      [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
+                                      ({ id }) => id
+                                  )
+                                : update,
+                    });
+                } catch (error) {
+                    throw new Error(`Error updating roles for user ${user.id}: ${(error as Error).message}`);
+                }
             });
 
             return this.save(users);
         });
     }
 
-    public updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    public updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonGroups = _.intersectionBy(
                 ...storedUsers.map(user => user.userGroups.map(group => group)),
@@ -380,16 +395,20 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
-                    ...user,
-                    userGroups:
-                        strategy === "merge"
-                            ? _.uniqBy(
-                                  [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
-                                  ({ id }) => id
-                              )
-                            : update,
-                };
+                try {
+                    return User.createNewUser({
+                        ...user,
+                        userGroups:
+                            strategy === "merge"
+                                ? _.uniqBy(
+                                      [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
+                                      ({ id }) => id
+                                  )
+                                : update,
+                    });
+                } catch (error) {
+                    throw new Error(`Error updating groups for user ${user.id}: ${(error as Error).message}`);
+                }
             });
 
             return this.save(users);
@@ -417,10 +436,12 @@ export class UserD2ApiRepository implements UserRepository {
 
         const existingKeys = _(allExistingUsersGroups).keys().value();
 
-        const groupsIdsToAdd = users.flatMap(user => {
+        const groupsIdsToAddRef = users.flatMap(user => {
             const groupsRef = user.userGroups.map(userGroup => ({ id: userGroup.id }));
             return groupsRef.filter(({ id }) => !existingKeys.includes(id));
         });
+
+        const groupsIdsToAdd = _.uniqBy(groupsIdsToAddRef, ({ id }) => id);
 
         const groupsIdsToDelete = users.flatMap(user => {
             const existingUser = existing.find(({ id }) => id === user.id);
@@ -498,41 +519,46 @@ export class UserD2ApiRepository implements UserRepository {
             .uniq()
             .value();
 
-        return {
-            id: user.id,
-            name: user.name,
-            firstName: user.firstName,
-            surname: user.surname,
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            whatsApp: user.whatsApp,
-            facebookMessenger: user.facebookMessenger,
-            skype: user.skype,
-            telegram: user.telegram,
-            twitter: user.twitter,
-            lastUpdated: new Date(user.lastUpdated),
-            created: new Date(user.created),
-            userGroups: user.userGroups,
-            username: userCredentials.username,
-            apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
-            userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
-            lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
-            status: userCredentials.disabled ? "Disabled" : "Active",
-            disabled: userCredentials.disabled,
-            organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
-            dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
-            searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
-            access: user.access,
-            openId: userCredentials.openId,
-            ldapId: userCredentials.ldapId,
-            externalAuth: userCredentials.externalAuth,
-            password: userCredentials.password,
-            accountExpiry: userCredentials.accountExpiry,
-            authorities,
-            dbLocale: "",
-            uiLocale: "",
-            ...this.getUserAuditFields(input),
-        };
+        try {
+            return User.createUser({
+                id: user.id,
+                name: user.name,
+                firstName: user.firstName,
+                surname: user.surname,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                whatsApp: user.whatsApp,
+                facebookMessenger: user.facebookMessenger,
+                skype: user.skype,
+                telegram: user.telegram,
+                twitter: user.twitter,
+                lastUpdated: new Date(user.lastUpdated),
+                created: new Date(user.created),
+                userGroups: user.userGroups,
+                username: userCredentials.username,
+                apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
+                userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
+                lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
+                status: userCredentials.disabled ? "Disabled" : "Active",
+                disabled: userCredentials.disabled,
+                organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
+                dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
+                searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
+                access: user.access,
+                openId: userCredentials.openId,
+                ldapId: userCredentials.ldapId,
+                externalAuth: userCredentials.externalAuth,
+                twoFactorEnabled: userCredentials.twoFA,
+                password: userCredentials.password,
+                accountExpiry: userCredentials.accountExpiry,
+                authorities,
+                dbLocale: "",
+                uiLocale: "",
+                ...this.getUserAuditFields(input),
+            });
+        } catch (error) {
+            throw new Error(`Error processing user ${user.id}: ${(error as Error).message}`);
+        }
     }
 
     private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {
@@ -575,6 +601,7 @@ export class UserD2ApiRepository implements UserRepository {
                 externalAuth: input.externalAuth ?? "",
                 password: input.password ?? "",
                 accountExpiry: input.accountExpiry ?? "",
+                twoFA: input.twoFactorEnabled ?? false,
                 ...this.getApiAuditFields(input),
             },
             ...this.getApiAuditFields(input),
@@ -641,6 +668,7 @@ const fields = {
         userRoles: { id: true, name: true, authorities: true },
         lastLogin: true,
         disabled: true,
+        twoFA: true,
         openId: true,
         ldapId: true,
         externalAuth: true,

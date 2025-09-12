@@ -1,7 +1,7 @@
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import _ from "lodash";
-import { User } from "../../../domain/entities/User";
+import { UserProps } from "../../../domain/entities/UserProps";
 import { Id } from "../../../domain/entities/Ref";
 import { AccessElements, AccessElementsKeys, UpdateStrategy } from "../../../domain/repositories/UserRepository";
 import { Toggle } from "material-ui";
@@ -130,9 +130,9 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
 export type CopyInUserDialogProps = {
     onCancel: () => void;
     onSave: (selectedUsersIds: Id[], updateStrategy: UpdateStrategy, accessElements: AccessElements) => void;
-    user: User;
+    user: UserProps;
     visible: boolean;
-    usersList: User[];
+    usersList: UserProps[];
 };
 
 const Container = styled.div`

@@ -1,7 +1,7 @@
 import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
 import { FutureData } from "../entities/Future";
 import { PaginatedResponse } from "../entities/PaginatedResponse";
-import { NamedRef } from "../entities/Ref";
+import { Id, NamedRef } from "../entities/Ref";
 import { Stats } from "../entities/Stats";
 import { User } from "../entities/User";
 
@@ -9,15 +9,15 @@ export interface UserRepository {
     getCurrent(): FutureData<User>;
     list(options: ListOptions): FutureData<PaginatedResponse<User>>;
     listAll(options: ListOptions): FutureData<User[]>;
-    listAllIds(options: ListOptions): FutureData<string[]>;
-    getByIds(ids: string[]): FutureData<User[]>;
+    listAllIds(options: ListOptions): FutureData<Id[]>;
+    getByIds(ids: Id[]): FutureData<User[]>;
     save(users: User[]): FutureData<MetadataResponse>;
     saveInChunks(users: User[], chunkSize: number): FutureData<void>;
-    updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
-    updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
+    updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
+    updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
     getColumns(): FutureData<Array<keyof User>>;
     saveColumns(columns: Array<keyof User>): FutureData<void>;
-    remove(users: User[]): FutureData<Stats>;
+    remove(ids: Id[]): FutureData<Stats>;
 }
 
 export interface ListOptions {
@@ -30,7 +30,7 @@ export interface ListOptions {
     rootJunction?: "AND" | "OR";
 }
 
-export type ListFilterType = "in" | "eq";
+export type ListFilterType = "in" | "eq" | "gt";
 export type ListFilters = Record<string, [ListFilterType, string[]]>;
 export type UpdateStrategy = "replace" | "merge";
 

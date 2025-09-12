@@ -1,5 +1,5 @@
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { IconButton, Menu, MenuItem } from "material-ui";
 import { Popover } from "@material-ui/core";
 import ImportExportIcon from "@material-ui/icons/ImportExport";
@@ -12,7 +12,7 @@ import { useSnackbar, useLoading } from "@eyeseetea/d2-ui-components";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { useExportUsers } from "../../hooks/userHooks";
 import Settings from "../../../legacy/models/settings";
-import { User } from "../../../domain/entities/User";
+import { UserProps } from "../../../domain/entities/UserProps";
 import { Columns } from "./ImportTable";
 import { ImportUser } from "../../../domain/entities/ImportUser";
 
@@ -112,4 +112,4 @@ export type ImportExportProps = {
     settings: Settings;
 };
 
-export type ImportResult = { columns: Columns[]; users: User[]; success: boolean; warnings: string[] };
+export type ImportResult = { columns: Columns[]; users: UserProps[]; success: boolean; warnings: string[] };

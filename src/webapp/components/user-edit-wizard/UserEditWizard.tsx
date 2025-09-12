@@ -1,5 +1,5 @@
 import { Button, ButtonStrip, NoticeBox } from "@dhis2/ui";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Paper, Step, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowBack, ArrowForward } from "@material-ui/icons";
 import { FORM_ERROR } from "final-form";
@@ -7,7 +7,7 @@ import _ from "lodash";
 import React, { FunctionComponent, useCallback, useState } from "react";
 import { Form } from "react-final-form";
 import styled from "styled-components";
-import { User } from "../../../domain/entities/User";
+import { UserProps } from "../../../domain/entities/UserProps";
 import { useGoBack } from "../../hooks/useGoBack";
 import { UserEditWizardStep, UserEditWizardStepProps } from "./UserEditWizardStep";
 
@@ -19,17 +19,17 @@ interface WizardStep {
 }
 
 export interface UserEditWizardProps {
-    user: User;
+    user: UserProps;
     isEdit: boolean;
     onCancel: () => void;
-    onSave: (user: User) => Promise<string | undefined>;
+    onSave: (user: UserProps) => Promise<string | undefined>;
 }
 
 export const UserEditWizard: React.FC<UserEditWizardProps> = ({ user, onSave, onCancel, isEdit }) => {
     const goBack = useGoBack();
 
     const onSubmit = useCallback(
-        async (values: { users: User[] }) => {
+        async (values: { users: UserProps[] }) => {
             const user = values.users[0];
             if (!user) return { [FORM_ERROR]: i18n.t("Error saving user") };
 
@@ -97,7 +97,7 @@ export const UserEditWizard: React.FC<UserEditWizardProps> = ({ user, onSave, on
     }, []);
 
     return (
-        <Form<{ users: User[] }>
+        <Form<{ users: UserProps[] }>
             autocomplete="off"
             onSubmit={onSubmit}
             initialValues={{ users: [user] }}

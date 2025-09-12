@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs, Tab, Dialog } from "@material-ui/core";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import Settings from "../../../legacy/models/settings";
 import { useAppContext } from "../../contexts/app-context";
 import SettingsDialog from "../../../legacy/components/SettingsDialog.component";

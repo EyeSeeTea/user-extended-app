@@ -9,10 +9,10 @@ import { GetInstanceLocalesUseCase } from "./domain/usecases/GetInstanceLocalesU
 import { GetInstanceVersionUseCase } from "./domain/usecases/GetInstanceVersionUseCase";
 import { GetOrgUnitPathsUseCase } from "./domain/usecases/GetOrgUnitPathsUseCase";
 import { GetUsersByIdsUseCase } from "./domain/usecases/GetUsersByIdsUseCase";
-import { ListAllUserIdsUseCase } from "./domain/usecases/ListAllUserIdsUseCase";
 import { ListMetadataUseCase } from "./domain/usecases/ListMetadataUseCase";
 import { ListUsersUseCase } from "./domain/usecases/ListUsersUseCase";
 import { ListAllUsersUseCase } from "./domain/usecases/ListAllUsersUseCase";
+import { ListAllUserIdsUseCase } from "./domain/usecases/ListAllUserIdsUseCase";
 import { RemoveUsersUseCase } from "./domain/usecases/RemoveUsersUseCase";
 import { SaveColumnsUseCase } from "./domain/usecases/SaveColumnsUseCase";
 import { SaveUserOrgUnitUseCase } from "./domain/usecases/SaveUserOrgUnitUseCase";
@@ -27,6 +27,7 @@ import { getD2APiFromInstance } from "./utils/d2-api";
 import { LoggerSettingsD2Repository } from "./data/repositories/LoggerSettingsD2Repository";
 import { GetLoggerSettingsUseCase } from "./domain/usecases/GetLoggerSettingsUseCase";
 import { SaveLoggerSettingsUseCase } from "./domain/usecases/SaveLoggerSettingsUseCase";
+import { ReplicateFromTemplateUseCase } from "./domain/usecases/ReplicateFromTemplateUseCase";
 
 export function getCompositionRoot(instance: Instance) {
     const api = getD2APiFromInstance(instance);
@@ -62,6 +63,7 @@ export function getCompositionRoot(instance: Instance) {
             export: new ExportUsersUseCase(userRepository),
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
+            replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
         }),
         metadata: getExecute({
             list: new ListMetadataUseCase(metadataRepository),

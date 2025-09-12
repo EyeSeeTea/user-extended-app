@@ -3,14 +3,14 @@ import styled from "styled-components";
 import { Dropdown, DropdownItem, DropdownProps, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
 
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Button, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
 import { LoggerSettings } from "../../../domain/entities/LoggerSettings";
 import { useGetLoggerSettings, usePrograms } from "./useLogger";
 import { Maybe } from "../../../types/utils";
 import { DataElementAttrs, ProgramStageAttrs } from "../../../domain/entities/Program";
 import { Id } from "../../../domain/entities/Ref";
-import { isSuperAdmin } from "../../../domain/entities/User";
+import { isSuperAdmin } from "../../../domain/entities/UserProps";
 
 function convertToDropdownItem<T extends { id: string; name: string }>(data: T[]): DropdownItem[] {
     return data.map(item => ({ value: item.id, text: item.name }));

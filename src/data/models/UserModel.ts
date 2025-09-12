@@ -1,4 +1,4 @@
-import { AccessPermissions } from "../../domain/entities/User";
+import { AccessPermissions } from "../../domain/entities/UserProps";
 import { Codec, Schema } from "../../utils/codec";
 import { ApiUser } from "../repositories/UserD2ApiRepository";
 import { NamedRefModel, OrgUnitModel } from "./DHIS2Model";
@@ -43,6 +43,7 @@ export const ApiUserModel: Codec<ApiUser> = Schema.object({
         ),
         lastLogin: Schema.optionalSafe(Schema.string, ""),
         disabled: Schema.boolean,
+        twoFA: Schema.boolean,
         openId: Schema.optionalSafe(Schema.string, ""),
         ldapId: Schema.optionalSafe(Schema.string, ""),
         externalAuth: Schema.boolean,
