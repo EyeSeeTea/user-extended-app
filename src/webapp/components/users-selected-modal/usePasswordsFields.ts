@@ -32,15 +32,20 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
 
     const [errors, setErrors] = React.useState<PasswordValidationErrors>(emptyErrors);
     const [touched, setTouched] = React.useState({ password: false, confirmPassword: false });
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const validatePasswordsOnline = React.useCallback(() => {
+        setIsLoading(true);
+        snackbar.closeSnackbar();
         compositionRoot.instance.verifyPassword(password).run(
             isValid => {
                 onValidationChange(isValid);
-                if (!isValid) snackbar.error(i18n.t("Password does not meet DHIS2 instance requirements"));
+                if (isValid) snackbar.info(i18n.t("Password is valid"));
+                setIsLoading(false);
             },
             err => {
-                snackbar.error(err);
+                snackbar.warning(err);
+                setIsLoading(false);
             }
         );
     }, [compositionRoot, password, onValidationChange, snackbar]);
@@ -52,6 +57,7 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
 
     const validatePasswords = React.useCallback(
         (pwd: string, confirmPwd: string, touchedFields: typeof touched) => {
+            snackbar.closeSnackbar();
             const newErrors: PasswordValidationErrors = {
                 password: touchedFields.password ? validatePasswordRules(pwd) : undefined,
                 confirmPassword:
@@ -75,27 +81,29 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
         [debouncedValidateOnline]
     );
 
+    const debounceValidatePasswords = React.useMemo(() => _.debounce(validatePasswords, 300), [validatePasswords]);
+
     const handlePasswordBlur = React.useCallback(() => {
         const newTouched = { ...touched, password: true };
         setTouched(newTouched);
-        validatePasswords(password, confirmPassword, newTouched);
-    }, [password, confirmPassword, touched, validatePasswords]);
+        debounceValidatePasswords(password, confirmPassword, newTouched);
+    }, [password, confirmPassword, touched, debounceValidatePasswords]);
 
     const handleConfirmPasswordBlur = React.useCallback(() => {
         const newTouched = { ...touched, confirmPassword: true };
         setTouched(newTouched);
-        validatePasswords(password, confirmPassword, newTouched);
-    }, [password, confirmPassword, touched, validatePasswords]);
+        debounceValidatePasswords(password, confirmPassword, newTouched);
+    }, [password, confirmPassword, touched, debounceValidatePasswords]);
 
     const handlePasswordChange = React.useCallback(
         ({ value }: { value?: string }) => {
             const newValue = value || "";
             const newTouched = { ...touched, password: true };
             setTouched(newTouched);
-            validatePasswords(newValue, confirmPassword, newTouched);
+            debounceValidatePasswords(newValue, confirmPassword, newTouched);
             onPasswordChange(newValue, confirmPassword);
         },
-        [confirmPassword, touched, validatePasswords, onPasswordChange]
+        [confirmPassword, touched, debounceValidatePasswords, onPasswordChange]
     );
 
     const handleConfirmPasswordChange = React.useCallback(
@@ -103,10 +111,10 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
             const newValue = value || "";
             const newTouched = { ...touched, confirmPassword: true };
             setTouched(newTouched);
-            validatePasswords(password, newValue, newTouched);
+            debounceValidatePasswords(password, newValue, newTouched);
             onPasswordChange(password, newValue);
         },
-        [password, touched, validatePasswords, onPasswordChange]
+        [password, touched, debounceValidatePasswords, onPasswordChange]
     );
 
     return {
@@ -118,5 +126,6 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
         handleConfirmPasswordChange,
         handlePasswordBlur,
         handleConfirmPasswordBlur,
+        isLoading,
     };
 }

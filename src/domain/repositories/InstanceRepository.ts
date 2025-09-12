@@ -5,7 +5,7 @@ export interface InstanceRepository {
     getBaseUrl(): string;
     getInstanceVersion(): FutureData<string>;
     getLocales(type: LocaleType): FutureData<Locale[]>;
-    verifyPassword(password: string): FutureData<boolean>;
+    verifyPassword(password: string): FutureData<true>;
 }
 
 export type LocaleType = "dbLocale" | "uiLocale";

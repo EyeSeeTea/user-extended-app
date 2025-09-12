@@ -4,6 +4,7 @@ import { UsersSelectedModalProps } from "./UsersSelectedModal";
 import { PasswordsFields } from "./PasswordsFields";
 import { useUsersSetPasswordModal } from "./useUsersSetPasswordModal";
 import i18n from "../../../locales";
+import { LinearProgress } from "material-ui";
 
 export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.memo(props => {
     const { users, isOpen, onCancel, onSuccess } = props;
@@ -32,12 +33,15 @@ export const UsersSetPasswordModal: React.FC<UsersSelectedModalProps> = React.me
             onCancel={cancel}
             title={i18n.t("Set password for {{username}}", { username: user.username })}
             description={
-                <PasswordsFields
-                    onPasswordChange={handlePasswordChange}
-                    onValidationChange={handleValidationChange}
-                    password={password}
-                    confirmPassword={confirmPassword}
-                />
+                <>
+                    <PasswordsFields
+                        onPasswordChange={handlePasswordChange}
+                        onValidationChange={handleValidationChange}
+                        password={password}
+                        confirmPassword={confirmPassword}
+                    />
+                    {isLoading && <LinearProgress />}
+                </>
             }
             saveText={i18n.t("Set Password")}
             disableSave={!isValid || isLoading}

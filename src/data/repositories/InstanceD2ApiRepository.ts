@@ -1,5 +1,6 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
 import _ from "lodash";
+import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { Codec, exactly, string } from "purify-ts";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { Locale } from "../../domain/entities/Locale";
 import { InstanceRepository, LocaleType } from "../../domain/repositories/InstanceRepository";
@@ -7,7 +8,6 @@ import { cache } from "../../utils/cache";
 import { getD2APiFromInstance } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
 import { Instance } from "../entities/Instance";
-import { boolean, Codec } from "purify-ts";
 import i18n from "../../locales";
 
 export class InstanceD2ApiRepository implements InstanceRepository {
@@ -39,18 +39,25 @@ export class InstanceD2ApiRepository implements InstanceRepository {
         );
     }
 
-    verifyPassword(password: string): FutureData<boolean> {
+    verifyPassword(password: string): FutureData<true> {
         return apiToFuture(
-            this.api.post<typeof verifyPasswordResponseCodec>("/verifyPassword", undefined, { password: password })
+            this.api.post<typeof verifyPasswordResponseCodec>(`/account/validatePassword?password=${password}`)
         ).flatMap(data => {
-            return verifyPasswordResponseCodec.decode(data).caseOf<FutureData<boolean>>({
+            return verifyPasswordResponseCodec.decode(data).caseOf<FutureData<true>>({
                 Left: () => Future.error(i18n.t("Invalid response from server")),
-                Right: data => Future.success(data.isCorrectPassword),
+                Right: data => {
+                    if (data.response === "error") {
+                        return Future.error(data.message || i18n.t("Unknown error"));
+                    } else {
+                        return Future.success(true);
+                    }
+                },
             });
         });
     }
 }
 
 const verifyPasswordResponseCodec = Codec.interface({
-    isCorrectPassword: boolean,
+    response: exactly("success", "error"),
+    message: string,
 });
