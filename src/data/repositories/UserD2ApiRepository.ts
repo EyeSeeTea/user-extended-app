@@ -1,4 +1,4 @@
-import { D2Api, D2UserSchema, MetadataResponse, SelectedPick } from "@eyeseetea/d2-api/2.36";
+import { D2Api, D2UserSchema, MetadataResponse, SelectedPick, PatchOperation, ErrorReport } from "../../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
@@ -10,7 +10,7 @@ import { UserLogic } from "../../domain/entities/UserLogic";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
-import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
+import { getD2ApiFromInstance, joinPaths } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
@@ -20,15 +20,13 @@ import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getDiffUserIdsByGroup, getErrorFromResponse } from "../utils";
-import { PatchOperation } from "@eyeseetea/d2-api/api/patch";
-import { ErrorReport } from "@eyeseetea/d2-api/api/common";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
     private userStorage: StorageClient;
 
     constructor(instance: Instance) {
-        this.api = getD2APiFromInstance(instance);
+        this.api = getD2ApiFromInstance(instance);
         this.userStorage = new DataStoreStorageClient("user", instance);
     }
 
@@ -632,7 +630,14 @@ const fields = {
     organisationUnits: orgUnitsFields,
     dataViewOrganisationUnits: orgUnitsFields,
     teiSearchOrganisationUnits: orgUnitsFields,
-    access: true,
+    access: {
+        delete: true,
+        externalize: true,
+        manage: true,
+        read: true,
+        update: true,
+        write: true,
+    },
     userCredentials: {
         id: true,
         username: true,
