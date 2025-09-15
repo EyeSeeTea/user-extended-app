@@ -3,7 +3,7 @@ import { FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { AccessElements, UpdateStrategy, AccessElementsKeys, UserRepository } from "../repositories/UserRepository";
 import { Id } from "../entities/Ref";
-import { COPY_IN_USER_CHUNK_SIZE } from "../utils/chunk";
+import { COPY_IN_USER_CHUNK_SIZE } from "../utils/limits";
 
 export class CopyInUserUseCase {
     constructor(private userRepository: UserRepository) {}
