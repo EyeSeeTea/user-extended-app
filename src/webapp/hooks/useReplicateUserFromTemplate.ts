@@ -151,6 +151,7 @@ export const useReplicateUserFromTemplate = (
                             i18n.t("Error replicating user {{user}}: {{message}}", {
                                 user: userToReplicate.username,
                                 message: error,
+                                nsSeparator: false,
                             })
                         );
                     }
@@ -158,17 +159,21 @@ export const useReplicateUserFromTemplate = (
             } catch (error) {
                 if (error instanceof ReplicateTemplateValidationError) {
                     loading.hide();
+                    const errorMessage = (error as Error).message;
                     snackbar.error(
                         i18n.t("Error in template: {{message}}", {
-                            message: (error as Error).message,
+                            message: errorMessage,
+                            nsSeparator: false,
                         })
                     );
                 } else {
                     loading.hide();
+                    const errorMessage = (error as Error).message;
                     snackbar.error(
                         i18n.t("Error replicating user {{user}}: {{message}}", {
                             user: userToReplicate.username,
-                            message: error,
+                            message: errorMessage,
+                            nsSeparator: false,
                         })
                     );
                 }

@@ -15,7 +15,7 @@ export class SaveUsersUseCase implements UseCase {
                 const users = usersToSave.map(userProps => User.createNewUser(userProps));
                 return this.userRepository.save(users);
             } catch (error) {
-                return Future.error(i18n.t((error as Error).message));
+                return Future.error(`${(error as Error).message}`);
             }
         } else {
             return Future.error(i18n.t("Open IDs must be unique"));

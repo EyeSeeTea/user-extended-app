@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-09-15T12:00:47.797Z\n"
-"PO-Revision-Date: 2025-09-15T12:00:47.797Z\n"
+"POT-Creation-Date: 2025-09-15T12:21:48.861Z\n"
+"PO-Revision-Date: 2025-09-15T12:21:48.861Z\n"
 
 msgid "ID"
 msgstr ""
@@ -459,6 +459,12 @@ msgid "Replicate User"
 msgstr ""
 
 msgid "User {{user}} replicated successfully {{n}} times"
+msgstr ""
+
+msgid "Error replicating user {{user}}: {{message}}"
+msgstr ""
+
+msgid "Error in template: {{message}}"
 msgstr ""
 
 msgid "Saving..."

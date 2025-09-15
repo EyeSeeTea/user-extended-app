@@ -50,7 +50,7 @@ export class ImportUsersUseCase implements UseCase {
                 const mergedUsers = this.mergeUsers(users, usersFromDB, currentUser);
                 return this.saveUsers(mergedUsers);
             } catch (error) {
-                return Future.error(i18n.t(`${(error as Error).message}`));
+                return Future.error(`${(error as Error).message}`);
             }
         });
     }

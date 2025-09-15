@@ -1,5 +1,4 @@
 import { UseCase } from "../../CompositionRoot";
-import i18n from "../../locales";
 import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";
@@ -14,7 +13,7 @@ export class SaveUserStatusUseCase implements UseCase {
             });
             return this.userRepository.save(usersToUpdate).toVoid();
         } catch (error) {
-            return Future.error(i18n.t(`${(error as Error).message}`));
+            return Future.error(`${(error as Error).message}`);
         }
     }
 }
