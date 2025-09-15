@@ -6,16 +6,7 @@ import React, { useState, useEffect, useCallback, SetStateAction, ComponentType 
 import InfoDialog from "../../../legacy/components/InfoDialog";
 import { generateUid } from "../../../utils/uid";
 import i18n from "../../../utils/i18n";
-import UserLegacy from "../../../legacy/models/user";
 import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
-import {
-    composeValidators,
-    createMaxCharacterLength,
-    createMinCharacterLength,
-    createPattern,
-    hasValue,
-    string,
-} from "@dhis2/ui";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import {
     TableRow,
@@ -37,7 +28,7 @@ import {
 import { IconButton, Chip } from "material-ui";
 import { Form, FormSpy, useForm, Field } from "react-final-form";
 import { FormState } from "final-form";
-import { defaultUser, User } from "../../../domain/entities/User";
+import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
 import { ColumnSelectorDialog } from "../column-selector-dialog/ColumnSelectorDialog";
 import { UserFormField, getUserFieldName, userFormFields } from "../user-form/utils";
 import { UserRoleGroupFF } from "../user-form/components/UserRoleGroupFF";
@@ -49,7 +40,7 @@ import { useGetAllUsers } from "../../hooks/userHooks";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportUser } from "../../../domain/entities/ImportUser";
-import { UserLogic } from "../../../domain/entities/UserLogic";
+import { User } from "../../../domain/entities/User";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
     id: "ID",
@@ -86,11 +77,12 @@ export type Columns =
 
 type ImportTableProps = {
     title: string;
-    usersFromFile: User[];
+    usersFromFile: UserProps[];
     columns: Columns[];
-    onSave: (users: User[]) => void;
+    onSave?: (users: UserProps[]) => void;
+    onSubmit?: (params: { users: UserProps[] }) => void;
     onRequestClose: () => void;
-    templateUser?: UserLegacy;
+    templateUser?: UserProps;
     actionText: string;
     warnings: string[];
 };
@@ -105,9 +97,10 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         templateUser = null,
         actionText,
         warnings = [],
+        onSubmit: customOnSubmit,
     } = props;
-    const [users, setUsers] = useState<User[]>(usersFromFile);
-    const [existingUsers, setExistingUsers] = React.useState<Record<string, User>>({});
+    const [users, setUsers] = useState<UserProps[]>(usersFromFile);
+    const [existingUsers, setExistingUsers] = React.useState<Record<string, UserProps>>({});
     const [existingUsersNames, setExistingUsersNames] = React.useState<string[]>([]);
 
     const [infoDialog, setInfoDialog] = React.useState<{ response: string }>();
@@ -122,6 +115,11 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const [errorsCount, setErrorsCount] = React.useState(0);
     const [areUsersValid, setAreUsersValid] = React.useState(false);
+
+    const randomPassword = React.useMemo(() => {
+        return User.generateRandomPassword();
+    }, []);
+
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
 
@@ -129,7 +127,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const { users: allUsers } = useGetAllUsers();
     useEffect(() => {
-        const getUsername = (user: User | ApiUser): string => {
+        const getUsername = (user: UserProps | ApiUser): string => {
             if ("userCredentials" in user) {
                 return user.userCredentials.username;
             } else {
@@ -143,9 +141,9 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
             if (!allUsers) {
                 return;
             }
-            const existingUsersMapped = _.keyBy(allUsers, getUsername) as Record<string, User>;
-            setExistingUsers(existingUsersMapped as unknown as SetStateAction<Record<string, User>>);
-            setExistingUsersNames(allUsers.map((user: User) => getUsername(user)));
+            const existingUsersMapped = _.keyBy(allUsers, getUsername) as Record<string, UserProps>;
+            setExistingUsers(existingUsersMapped as unknown as SetStateAction<Record<string, UserProps>>);
+            setExistingUsersNames(allUsers.map((user: UserProps) => getUsername(user)));
             setIsLoading(false);
             loading.reset();
         };
@@ -154,7 +152,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     }, [allUsers, loading]);
 
     const existingUserInTable = useCallback(
-        (newUsers: User[]) => {
+        (newUsers: UserProps[]) => {
             if (!existingUsersNames) {
                 return false;
             }
@@ -217,14 +215,16 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         );
     };
 
-    const onSubmit = useCallback(
-        ({ users }: { users: User[] }) => {
+    const defaultOnSubmit = useCallback(
+        ({ users }: { users: UserProps[] }) => {
             loading.show(true, i18n.t("Importing users"));
             return compositionRoot.users.import({ users }).run(
                 () => {
                     onRequestClose();
                     loading.hide();
-                    onSave([]);
+                    if (onSave) {
+                        onSave([]);
+                    }
                     snackbar.success(i18n.t("Users imported successfully"));
                 },
                 error => {
@@ -236,20 +236,45 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         [loading, onRequestClose, onSave, snackbar, compositionRoot.users]
     );
 
-    const addRow = useCallback((currentUsers: User[]) => {
-        const newUser: User = {
-            ...defaultUser,
-            id: generateUid(),
-            username: "",
-            password: UserLogic.DEFAULT_PASSWORD,
-            userRoles: [],
-            userGroups: [],
-        };
-        setUsers(currentUsers.concat(newUser));
-    }, []);
+    const onSubmit = customOnSubmit || defaultOnSubmit;
+
+    const defaultAddRow = useCallback(
+        (currentUsers: UserProps[]) => {
+            const newUser: UserProps = {
+                ...defaultUserProps,
+                id: generateUid(),
+                username: "",
+                password: randomPassword,
+                userRoles: [],
+                userGroups: [],
+            };
+            setUsers(currentUsers.concat(newUser));
+        },
+        [randomPassword]
+    );
+
+    const replicateAddRow = useCallback(
+        (currentUsers: UserProps[]) => {
+            if (templateUser) {
+                const existingNames = existingUsersNames.concat(currentUsers.map(user => user.username));
+                const makeUsername = (i = 0) => `${templateUser.username}_${i}`;
+                const index = _.range(1, 1000).find(i => !existingNames.some(username => username === makeUsername(i)));
+                const newUser = {
+                    ...templateUser,
+                    username: makeUsername(index),
+                    password: randomPassword,
+                    id: generateUid(),
+                };
+                setUsers(currentUsers.concat(newUser));
+            }
+        },
+        [existingUsersNames, randomPassword, templateUser]
+    );
+
+    const addRow = templateUser ? replicateAddRow : defaultAddRow;
 
     const renderTableRow = useCallback(
-        (user: User, rowIndex: number, users: User[]) => {
+        (user: UserProps, rowIndex: number, users: UserProps[]) => {
             const currentUsername = users[rowIndex]?.username || user.username;
             const existingUser = existingUsers[currentUsername];
             const chipTitle = existingUser
@@ -283,7 +308,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         [columns, existingUsers, existingUsersNames, allowOverwrite]
     );
 
-    const updateFormState = ({ values: { users: updatedUsers }, errors }: FormState<{ users: User[] }>) => {
+    const updateFormState = ({ values: { users: updatedUsers }, errors }: FormState<{ users: UserProps[] }>) => {
         setErrorsCount(errors?.users?.length || 0);
         setAreUsersValid(_.isEmpty(errors?.users));
         setShowOverwriteToggle(existingUserInTable(updatedUsers));
@@ -305,7 +330,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                             />
                         )}
                         <TableContainer>
-                            <Form<{ users: User[] }>
+                            <Form<{ users: UserProps[] }>
                                 autocomplete="off"
                                 onSubmit={onSubmit}
                                 initialValues={{ users }}
@@ -314,7 +339,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                     return (
                                         <>
                                             <FormSpy
-                                                onChange={(state: FormState<{ users: User[] }>) => {
+                                                onChange={(state: FormState<{ users: UserProps[] }>) => {
                                                     requestAnimationFrame(() => {
                                                         updateFormState(state);
                                                     });
@@ -335,7 +360,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {_.map(users, (user: User, rowIndex: string) =>
+                                                        {_.map(users, (user: UserProps, rowIndex: string) =>
                                                             renderTableRow(user, Number(rowIndex), values.users)
                                                         )}
                                                     </TableBody>
@@ -395,12 +420,12 @@ type RowItemProps = {
     data: { columns: string[]; duplicateUsernames?: DuplicateInfo; existingUsersNames: string[] };
     columnIndex: number;
     rowIndex: number;
-    onDelete: (users: User[]) => void;
+    onDelete: (users: UserProps[]) => void;
     allowOverwrite: boolean;
 };
 
 const RowItem: React.FC<RowItemProps> = ({ data, columnIndex, rowIndex, onDelete, allowOverwrite }) => {
-    const form = useForm<{ users: User[] }>();
+    const form = useForm<{ users: UserProps[] }>();
     const deleteRow = columnIndex === data.columns.length - 1;
     const field = data.columns[columnIndex];
     const username = form.getState().values.users[rowIndex]?.username;
@@ -577,16 +602,6 @@ const FormTextField = (props: FormTextFieldProps) => {
     );
 };
 
-const userRequiredFields = [
-    "username",
-    "firstName",
-    "surname",
-    "password",
-    "userRoles",
-    "userGroups",
-    "organisationUnits",
-];
-
 const useValidations = (
     field: UserFormField,
     allowOverwrite = false,
@@ -596,51 +611,37 @@ const useValidations = (
         case "username": {
             return {
                 validation: (value: string) => {
-                    if (!value) return i18n.t("Please provide a username");
                     if (allowOverwrite && isExistingUser) return "";
                     if (isExistingUser) {
                         return i18n.t("User already exists");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(2),
-                            createMaxCharacterLength(140)
-                        );
-                        return validators(value);
                     }
+                    const usernameValidationError = User.validateUsername(value);
+                    if (usernameValidationError) {
+                        return i18n.t(usernameValidationError);
+                    }
+                    return undefined;
                 },
             };
         }
         case "email":
             return {
-                validation: createPattern(
-                    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-                    i18n.t("Please provide a valid email")
-                ),
+                validation: (value: string) => {
+                    const emailValidationError = User.validateEmail(value);
+                    if (emailValidationError) {
+                        return i18n.t(emailValidationError);
+                    }
+                    return undefined;
+                },
             };
         case "password":
             return {
                 validation: (value: string) => {
-                    if (isExistingUser && !value) return "";
-                    if (!value) {
-                        return i18n.t("Please provide a password");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(8),
-                            createMaxCharacterLength(255),
-                            createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
-                            createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
-                            createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
-                            createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
-                        );
-                        return validators(value);
+                    const passwordValidationError = User.validatePassword(value, isExistingUser && !value);
+                    if (passwordValidationError) {
+                        return i18n.t(passwordValidationError);
                     }
+                    return undefined;
                 },
-            };
-        case "phoneNumber":
-            return {
-                validation: createPattern(/^\+?[0-9 \-()]+$/, i18n.t("Please provide a valid phone number")),
             };
         case "userRoles":
         case "userGroups":
@@ -648,14 +649,28 @@ const useValidations = (
             // NOTE: userGroups is not a mandatory field but its required by src/domain/usecases/ImportUsersUseCase.ts
             return {
                 validation: (value: string[]) => {
-                    const errorMessage = "Please select at least one item";
-                    if (!value) return i18n.t(errorMessage);
-                    return value.length > 0 ? undefined : i18n.t(errorMessage);
+                    // Make the field name singular for the error message
+                    const fieldName = field.slice(0, -1);
+                    const arrayFieldValidationResult = User.validateRequiredArrayField(value, fieldName);
+                    if (arrayFieldValidationResult) {
+                        return i18n.t(arrayFieldValidationResult);
+                    }
+                    return undefined;
+                },
+            };
+        case "firstName":
+        case "surname":
+            return {
+                validation: (value: string) => {
+                    const fieldValidationError = User.validateRequiredStringField(value, field);
+                    if (fieldValidationError) {
+                        return i18n.t(fieldValidationError);
+                    }
+                    return undefined;
                 },
             };
         default: {
-            const required = userRequiredFields.includes(field);
-            return { validation: required ? hasValue : undefined };
+            return { validation: undefined };
         }
     }
 };
@@ -721,7 +736,7 @@ interface DuplicateInfo {
     duplicateValue: string;
 }
 
-function findDuplicatesInUsernames(users: User[]): DuplicateInfo | undefined {
+function findDuplicatesInUsernames(users: UserProps[]): DuplicateInfo | undefined {
     const groupedUsers = _(users)
         .groupBy(user => user.username)
         .pickBy(group => group.length > 1)

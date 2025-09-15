@@ -1,10 +1,10 @@
 import _ from "lodash";
 import { Future, FutureData } from "../entities/Future";
-import { User, defaultUser } from "../entities/User";
+import { UserProps, defaultUserProps } from "../entities/UserProps";
 import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
-import { UserLogic } from "../entities/UserLogic";
+import { User } from "../entities/User";
 import i18n from "../../locales";
 
 const columnNameFromPropertyMapping = {
@@ -37,21 +37,29 @@ export class ImportUsersUseCase implements UseCase {
             usersFromDB: this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
             currentUser: this.userRepository.getCurrent(),
         }).flatMap(({ usersFromDB, currentUser }) => {
-            if (!UserLogic.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
+            if (!User.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
 
-            const hasRequiredFields = UserLogic.validateHasRequiredFields(users);
+            const hasRequiredFields = User.validateHasRequiredFields(users);
             if (!hasRequiredFields)
                 return Future.error("All users must have at least one Organisation Unit, Role and Group");
 
             const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
             if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
 
-            const mergedUsers = this.mergeUsers(users, usersFromDB, currentUser);
-            return this.saveUsers(mergedUsers);
+            try {
+                const mergedUsers = this.mergeUsers(users, usersFromDB, currentUser);
+                return this.saveUsers(mergedUsers);
+            } catch (error) {
+                return Future.error(i18n.t(`${(error as Error).message}`));
+            }
         });
     }
 
-    private mergeUsers(users: User[], usersFromDB: User[], { id, username }: User = defaultUser): User[] {
+    private mergeUsers(
+        users: UserProps[],
+        usersFromDB: UserProps[],
+        { id, username }: UserProps = defaultUserProps
+    ): User[] {
         const usersFromDBMap = _.keyBy(usersFromDB, key => key.username);
         // Merge properties from usersFromDB into users
         return users.map((userFromImport): User => {
@@ -59,25 +67,25 @@ export class ImportUsersUseCase implements UseCase {
             const dbUser = _.find(usersFromDBMap, userFromDB => userFromDB.username === user.username);
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
-                return {
+                return User.createNewUser({
                     ...dbUser,
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
                     lastModifiedBy: { id, username },
-                    dbLocale: UserLogic.setDefaultLanguage(dbUser.dbLocale),
-                    uiLocale: UserLogic.setDefaultLanguage(dbUser.uiLocale),
-                };
+                    dbLocale: User.setDefaultLanguage(dbUser.dbLocale),
+                    uiLocale: User.setDefaultLanguage(dbUser.uiLocale),
+                });
             }
-            return {
-                ...defaultUser,
+            return User.createNewUser({
+                ...defaultUserProps,
                 ...user,
                 id: generateUid(),
                 name: `${user.firstName} ${user.surname}`,
                 createdBy: { id, username },
                 lastModifiedBy: { id, username },
-                dbLocale: UserLogic.setDefaultLanguage(user.dbLocale),
-                uiLocale: UserLogic.setDefaultLanguage(user.uiLocale),
-            };
+                dbLocale: User.setDefaultLanguage(user.dbLocale),
+                uiLocale: User.setDefaultLanguage(user.uiLocale),
+            });
         });
     }
 
@@ -86,4 +94,4 @@ export class ImportUsersUseCase implements UseCase {
     }
 }
 
-export type ImportUsersUseCaseOptions = { users: User[] };
+export type ImportUsersUseCaseOptions = { users: UserProps[] };
