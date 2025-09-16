@@ -77,7 +77,10 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
 export function markAllActionsPublic() {
     const publicPermission = ActionPermission.public();
-    const publicActions = Object.assign({}, ...userActions.map(action => ({ [action]: publicPermission })));
+    const publicActions: ActionsPermissions = Object.assign(
+        {},
+        ...userActions.map(action => ({ [action]: publicPermission }))
+    );
 
     return injectInternalRules(publicActions);
 }

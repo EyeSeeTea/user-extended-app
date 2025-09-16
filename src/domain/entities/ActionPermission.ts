@@ -10,7 +10,7 @@ type ActionPermissionAttrs = PermissionAttrs & {
 
 export class ActionPermission extends Struct<ActionPermissionAttrs>() {
     static public(): ActionPermission {
-        return new ActionPermission({
+        return this.create({
             users: [],
             userGroups: [],
             rules: [], // Internal rules should be added (but it depends on the action)
