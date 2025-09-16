@@ -45,7 +45,9 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
         font-size: 32px;
         line-height: 47px;
         font-weight: 300;
-        margin: 0px 0px 30px 0px;
+        margin-block-start: 0px;
+        margin-block-end: 30px;
+        margin-inline: 0px;
     }
 
     p {

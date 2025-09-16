@@ -701,8 +701,12 @@ const StyledTableColumn = styled(TableCell)`
 `;
 
 const StyledDialogTitle = styled(DialogTitle)`
-    margin: 0px 0px -1px;
-    padding: 24px 24px 20px;
+    margin-block-start: 0px;
+    margin-block-end: -1px;
+    margin-inline: 0px;
+    padding-block-start: 24px;
+    padding-block-end: 20px;
+    padding-inline: 24px;
     font-size: 24px;
     font-weight: bold;
     line-height: 32px;
