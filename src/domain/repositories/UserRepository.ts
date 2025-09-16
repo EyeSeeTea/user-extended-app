@@ -18,6 +18,7 @@ export interface UserRepository {
     saveColumns(columns: Array<keyof User>): FutureData<void>;
     remove(users: User[]): FutureData<Stats>;
     resetPasswords(users: User[]): FutureData<Stats>;
+    verifyPassword(password: string): FutureData<true>;
 }
 
 export interface ListOptions {

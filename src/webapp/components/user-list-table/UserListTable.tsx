@@ -55,6 +55,7 @@ import { UserAction } from "../../../domain/entities/UserAction";
 import { UsersSetPasswordModal } from "../users-selected-modal/UsersSetPasswordModal";
 import { useUserColumns } from "./userColumns";
 import { getUserActionLabel } from "./userListTableHelpers";
+import { useActionsAccessibleToCurrentUser } from "./useActionsAccessibleToCurrentUser";
 
 function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -147,10 +148,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
-    const currentUserAccessibleActions = useMemo(
-        () => compositionRoot.users.checkActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess),
-        [compositionRoot.users, currentUser, appSettings.actionsAccess]
-    );
+    const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess);
 
     /* Pagination DHIS2 Bug */
     const needsPatch =

@@ -36,7 +36,6 @@ import { UserSearchD2Repository } from "./data/repositories/UserSearchD2Reposito
 import { CheckCurrentUserCanAccessSettingsUseCase } from "./domain/usecases/CheckCurrentUserCanAccessSettingsUseCase";
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { GetAllUserGroupsUseCase } from "./domain/usecases/GetAllUserGroupsUseCase";
-import { CheckActionsAccessibleToCurrentUserUseCase } from "./domain/usecases/CheckActionsAccessibleToCurrentUserUseCase";
 import { GetAllUserRolesUseCase } from "./domain/usecases/GetAllUserRolesUseCase";
 import { UserRoleD2Repository } from "./data/repositories/UserRoleD2Repository";
 import { GetDashboardsUseCase } from "./domain/usecases/GetDashboardsUseCase";
@@ -77,7 +76,6 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         instance: getExecute({
             getVersion: new GetInstanceVersionUseCase(instanceRepository),
             getLocales: new GetInstanceLocalesUseCase(instanceRepository),
-            verifyPassword: new VerifyPasswordUseCase(instanceRepository),
         }),
         users: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),
@@ -96,13 +94,13 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
             resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
+            verifyPassword: new VerifyPasswordUseCase(userRepository),
             setPassword: new SetUserPasswordUseCase(userRepository),
             searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
             checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
                 userRepository,
                 appSettingsRepository
             ),
-            checkActionsAccessibleToCurrentUser: new CheckActionsAccessibleToCurrentUserUseCase(),
             getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository),
         }),
         userGroups: getExecute({

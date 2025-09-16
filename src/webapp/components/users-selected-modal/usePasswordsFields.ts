@@ -37,7 +37,7 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
     const validatePasswordsOnline = React.useCallback(() => {
         setIsLoading(true);
         snackbar.closeSnackbar();
-        compositionRoot.instance.verifyPassword(password).run(
+        compositionRoot.users.verifyPassword(password).run(
             isValid => {
                 onValidationChange(isValid);
                 if (isValid) snackbar.info(i18n.t("Password is valid"));

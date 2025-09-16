@@ -1,10 +1,10 @@
 import { FutureData } from "../entities/Future";
-import { InstanceRepository } from "../repositories/InstanceRepository";
+import { UserRepository } from "../repositories/UserRepository";
 
 export class VerifyPasswordUseCase {
-    constructor(private instanceRepository: InstanceRepository) {}
+    constructor(private userRepository: UserRepository) {}
 
     public execute(password: string): FutureData<true> {
-        return this.instanceRepository.verifyPassword(password);
+        return this.userRepository.verifyPassword(password);
     }
 }
