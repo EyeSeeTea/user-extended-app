@@ -274,17 +274,19 @@ export class UserD2ApiRepository implements UserRepository {
         state: { initialPage: number; users: User[] } = { initialPage: 1, users: [] }
     ): FutureData<User[]> {
         const { initialPage, users } = state;
-        return this.list({ ...options, pageSize: LIST_ALL_USERS_PAGE_SIZE, page: initialPage }).flatMap(({ pager, objects }) => {
-            const newUsers = [...users, ...objects];
-            if (pager.page >= pager.pageCount) {
-                return Future.success(newUsers);
-            } else {
-                return this.listAll(options, {
-                    initialPage: initialPage + 1,
-                    users: newUsers,
-                });
+        return this.list({ ...options, pageSize: LIST_ALL_USERS_PAGE_SIZE, page: initialPage }).flatMap(
+            ({ pager, objects }) => {
+                const newUsers = [...users, ...objects];
+                if (pager.page >= pager.pageCount) {
+                    return Future.success(newUsers);
+                } else {
+                    return this.listAll(options, {
+                        initialPage: initialPage + 1,
+                        users: newUsers,
+                    });
+                }
             }
-        });
+        );
     }
 
     public save(usersToSave: User[]): FutureData<MetadataResponse> {
