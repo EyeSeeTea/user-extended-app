@@ -56,13 +56,13 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
     }
 
     img {
-        max-width: 100%;
+        max-inline-size: 100%;
         border-radius: 1em;
         user-drag: none;
     }
 
     video {
-        max-width: 100%;
+        max-inline-size: 100%;
         user-drag: none;
     }
 

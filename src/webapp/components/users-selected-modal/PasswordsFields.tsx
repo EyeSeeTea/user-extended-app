@@ -69,7 +69,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     gap: 16px;
-    min-width: 400px;
+    min-inline-size: 400px;
 `;
 
 const FieldContainer = styled.div`

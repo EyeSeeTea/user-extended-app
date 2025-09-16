@@ -92,7 +92,8 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
 };
 
 const Wrapper = styled.div`
-    margin: 20px 30px;
+    margin-block: 20px;
+    margin-inline: 30px;
 `;
 
 const MaintenanceButton = styled(Button)`

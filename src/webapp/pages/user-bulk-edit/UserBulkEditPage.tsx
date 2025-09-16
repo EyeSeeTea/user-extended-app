@@ -235,7 +235,8 @@ const Container = styled(Paper)`
 `;
 
 const Item = styled.div`
-    margin: 4px 0;
+    margin-block: 4px;
+    margin-inline: 0;
     padding: 10px;
 `;
 

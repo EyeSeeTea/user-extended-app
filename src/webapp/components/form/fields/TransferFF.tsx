@@ -48,7 +48,7 @@ const WarningBox = styled(NoticeBox)`
     align-items: center;
 
     h6 {
-        margin: 0px;
+        margin: 0;
     }
 `;
 
