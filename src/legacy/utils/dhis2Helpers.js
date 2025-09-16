@@ -44,7 +44,7 @@ async function mapPromise(inputValues, mapper) {
    avoid hitting the 414 URL too-long error.
 */
 async function listWithInFilter(model, inFilterField, inFilterValues, listOptions, { useInOperator = true } = {}) {
-    const maxUrlLength = 8192 - 1000; // Reserve some chars for the rest of URL
+    const maxUrlLength = 6192 - 1000; // Reserve some chars for the rest of URL
     let filterOptions, chunkPredicate;
 
     if (useInOperator) {
