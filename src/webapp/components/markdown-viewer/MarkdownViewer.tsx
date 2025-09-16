@@ -38,7 +38,9 @@ export const SimpleMarkdownViewer: React.FC<{ className?: string; source: string
 
 export const MarkdownViewer = styled(SimpleMarkdownViewer)`
     color: white;
-    padding: 5px 20px 0 20px;
+    padding-block-start: 5px;
+    padding-block-end: 0;
+    padding-inline: 20px;
     text-align-last: ${props => (props.center ? "center" : "unset")};
 
     h1 {
@@ -92,7 +94,7 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
     details > summary::before {
         content: url(./img/note.svg);
         margin-inline-end: 20px;
-        top: 3px;
+        inset-block-start: 3px;
         position: relative;
     }
 

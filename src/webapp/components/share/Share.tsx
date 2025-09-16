@@ -77,7 +77,7 @@ const styles = {
         borderRadius: "0px",
         height: "auto",
         opacity: ".85",
-        paddingBottom: "40px",
+        paddingBlockEnd: "40px",
         width: "40px",
         zIndex: 10001,
         textAlign: "center" as const,

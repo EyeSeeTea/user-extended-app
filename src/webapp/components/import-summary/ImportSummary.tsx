@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
         padding: "4px 24px 4px",
     },
     accordion: {
-        paddingBottom: "10px",
+        paddingBlockEnd: "10px",
     },
     tooltip: {
         maxInlineSize: 650,
