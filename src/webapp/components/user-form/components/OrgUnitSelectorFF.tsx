@@ -76,7 +76,7 @@ export const OrgUnitSelectorFF = ({ input, meta, validationText, ...rest }: OrgU
 };
 
 const WarningBox = styled(NoticeBox)`
-    margin-top: 20px;
+    margin-block-start: 20px;
     align-items: center;
 
     h6 {

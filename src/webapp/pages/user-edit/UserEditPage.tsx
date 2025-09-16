@@ -96,8 +96,8 @@ const Wrapper = styled.div`
 `;
 
 const MaintenanceButton = styled(Button)`
-    float: right;
-    margin-top: 2px;
+    float: inline-end;
+    margin-block-start: 2px;
 
     :focus::after {
         border-color: transparent !important;

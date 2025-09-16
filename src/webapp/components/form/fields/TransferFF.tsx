@@ -44,7 +44,7 @@ export const TransferFF = ({
 };
 
 const WarningBox = styled(NoticeBox)`
-    margin-top: 20px;
+    margin-block-start: 20px;
     align-items: center;
 
     h6 {
@@ -58,6 +58,6 @@ const StyledTransfer = styled(Transfer)`
     }
 
     .status-icon {
-        margin-left: 0;
+        margin-inline-start: 0;
     }
 `;

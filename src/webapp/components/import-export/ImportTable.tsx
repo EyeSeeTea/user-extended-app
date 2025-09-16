@@ -710,7 +710,7 @@ const StyledDialogTitle = styled(DialogTitle)`
 `;
 
 const DialogTooltip = styled(Tooltip)`
-    float: right;
+    float: inline-end;
 `;
 
 const AddButtonRow = styled.div`

@@ -23,7 +23,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = React.m
 });
 
 const RequirementsContainer = styled.div`
-    margin-top: 8px;
+    margin-block-start: 8px;
     padding: 12px;
     background-color: #f8f9fa;
     border-radius: 4px;
@@ -32,14 +32,14 @@ const RequirementsContainer = styled.div`
 
 const RequirementsTitle = styled.div`
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-block-end: 8px;
     color: #495057;
     font-size: 14px;
 `;
 
 const RequirementsList = styled.ul`
     margin: 0;
-    padding-left: 16px;
+    padding-inline-start: 16px;
 `;
 
 interface RequirementItemProps {
@@ -49,7 +49,7 @@ interface RequirementItemProps {
 const RequirementItem = styled.li<RequirementItemProps>`
     color: ${props => (props.valid ? "#28a745" : "#6c757d")};
     font-size: 13px;
-    margin-bottom: 4px;
+    margin-block-end: 4px;
 
     &::marker {
         color: ${props => (props.valid ? "#28a745" : "#6c757d")};

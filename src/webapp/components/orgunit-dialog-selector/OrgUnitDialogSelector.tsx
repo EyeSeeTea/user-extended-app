@@ -106,7 +106,7 @@ export type OrgUnitDialogSelectorProps = {
 };
 
 const ToggleStyle = styled(Toggle)`
-    margin-left: auto;
+    margin-inline-start: auto;
     width: initial !important;
 `;
 

@@ -79,7 +79,7 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
         list-style-type: none;
         font-size: 33px;
         font-weight: 100;
-        text-align: left;
+        text-align: start;
         user-select: none;
     }
 
@@ -89,7 +89,7 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
 
     details > summary::before {
         content: url(./img/note.svg);
-        margin-right: 20px;
+        margin-inline-end: 20px;
         top: 3px;
         position: relative;
     }
@@ -97,7 +97,7 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
     details > summary::after {
         content: "keyboard_arrow_down";
         font-size: 35px;
-        margin-left: 10px;
+        margin-inline-start: 10px;
         font-family: "Material Icons";
     }
 

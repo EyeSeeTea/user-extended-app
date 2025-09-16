@@ -83,7 +83,7 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
                 <IconButton
                     tooltip={i18n.t("Column settings")}
                     onClick={() => setColumnSelectorOpen(true)}
-                    style={{ float: "right" }}
+                    style={{ float: "inline-end" }}
                 >
                     <ViewColumn />
                 </IconButton>
