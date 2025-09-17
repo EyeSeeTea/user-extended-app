@@ -443,9 +443,33 @@ export class UserD2ApiRepository implements UserRepository {
                 .filter(group => group.usersIds.length > 0)
                 .map(group => group.id);
 
-            if (logger) logger.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
+            if (logger) {
+                this.logGroupChanges(logger, userGroupsWithUsersToAdd, "add");
+                this.logGroupChanges(logger, userGroupsWithUsersToRemove, "delete");
+
+                logger.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
+            }
 
             return Future.success(undefined);
+        });
+    }
+
+    private logGroupChanges(
+        logger: D2LoggerMessage,
+        groups: Array<{
+            id: Id;
+            usersIds: Id[];
+        }>,
+        action: "add" | "delete"
+    ) {
+        groups.forEach(group => {
+            if (group.usersIds.length > 0) {
+                logger.log({
+                    action: action,
+                    groupId: group.id,
+                    usersIds: group.usersIds,
+                });
+            }
         });
     }
 
