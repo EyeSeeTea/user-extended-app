@@ -495,7 +495,7 @@ export class UserD2ApiRepository implements UserRepository {
                 }))
             )
             .groupBy(x => x.groupId)
-            .mapValues(groupUsers => groupUsers.map(groupUser => groupUser.user))
+            .mapValues(groupUsers => groupUsers.map(({ user }) => ({ id: user.id, name: user.name })))
             .value();
     }
 
