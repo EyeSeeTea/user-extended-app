@@ -82,6 +82,7 @@ export class UserD2ApiRepository implements UserRepository {
 
     remove(ids: Id[]): FutureData<Stats> {
         return chunkRequest(ids, userIds => {
+            // TODO: This should be replaced with per-user DELETE /api/users/{id} or the bulk delete if DHIS2 version supports it
             return apiToFuture<Dhis2Response>(
                 this.api.metadata.post({ users: userIds.map(id => ({ id: id })) }, { importStrategy: "DELETE" })
             ).flatMap(d2Response => {
