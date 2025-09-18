@@ -7,6 +7,8 @@ export class SetUserPasswordUseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute(userToSave: User): FutureData<MetadataResponse> {
-        return this.userRepository.save([userToSave]);
+        return this.userRepository
+            .verifyPassword(userToSave.password)
+            .flatMap(() => this.userRepository.save([userToSave]));
     }
 }

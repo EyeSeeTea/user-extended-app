@@ -1,8 +1,6 @@
-import _ from "lodash";
 import React from "react";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { validatePasswordRules } from "./passwordValidation";
-import { useAppContext } from "../../contexts/app-context";
 import i18n from "../../../utils/i18n";
 
 export interface PasswordValidationErrors {
@@ -28,32 +26,9 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
     const { onPasswordChange, onValidationChange, password, confirmPassword } = props;
 
     const snackbar = useSnackbar();
-    const { compositionRoot } = useAppContext();
 
     const [errors, setErrors] = React.useState<PasswordValidationErrors>(emptyErrors);
     const [touched, setTouched] = React.useState({ password: false, confirmPassword: false });
-    const [isLoading, setIsLoading] = React.useState(false);
-
-    const validatePasswordsOnline = React.useCallback(() => {
-        setIsLoading(true);
-        snackbar.closeSnackbar();
-        compositionRoot.users.verifyPassword(password).run(
-            isValid => {
-                onValidationChange(isValid);
-                if (isValid) snackbar.info(i18n.t("Password is valid"));
-                setIsLoading(false);
-            },
-            err => {
-                snackbar.warning(err);
-                setIsLoading(false);
-            }
-        );
-    }, [compositionRoot, password, onValidationChange, snackbar]);
-
-    const debouncedValidateOnline = React.useMemo(
-        () => _.debounce(validatePasswordsOnline, 500),
-        [validatePasswordsOnline]
-    );
 
     const validatePasswords = React.useCallback(
         (pwd: string, confirmPwd: string, touchedFields: typeof touched) => {
@@ -76,34 +51,32 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
                 !!confirmPwd &&
                 pwd === confirmPwd;
 
-            if (isValid) debouncedValidateOnline();
+            onValidationChange(isValid);
         },
-        [debouncedValidateOnline, snackbar]
+        [onValidationChange, snackbar]
     );
-
-    const debounceValidatePasswords = React.useMemo(() => _.debounce(validatePasswords, 300), [validatePasswords]);
 
     const handlePasswordBlur = React.useCallback(() => {
         const newTouched = { ...touched, password: true };
         setTouched(newTouched);
-        debounceValidatePasswords(password, confirmPassword, newTouched);
-    }, [password, confirmPassword, touched, debounceValidatePasswords]);
+        validatePasswords(password, confirmPassword, newTouched);
+    }, [password, confirmPassword, touched, validatePasswords]);
 
     const handleConfirmPasswordBlur = React.useCallback(() => {
         const newTouched = { ...touched, confirmPassword: true };
         setTouched(newTouched);
-        debounceValidatePasswords(password, confirmPassword, newTouched);
-    }, [password, confirmPassword, touched, debounceValidatePasswords]);
+        validatePasswords(password, confirmPassword, newTouched);
+    }, [password, confirmPassword, touched, validatePasswords]);
 
     const handlePasswordChange = React.useCallback(
         ({ value }: { value?: string }) => {
             const newValue = value || "";
             const newTouched = { ...touched, password: true };
             setTouched(newTouched);
-            debounceValidatePasswords(newValue, confirmPassword, newTouched);
+            validatePasswords(newValue, confirmPassword, newTouched);
             onPasswordChange(newValue, confirmPassword);
         },
-        [confirmPassword, touched, debounceValidatePasswords, onPasswordChange]
+        [confirmPassword, touched, validatePasswords, onPasswordChange]
     );
 
     const handleConfirmPasswordChange = React.useCallback(
@@ -111,10 +84,10 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
             const newValue = value || "";
             const newTouched = { ...touched, confirmPassword: true };
             setTouched(newTouched);
-            debounceValidatePasswords(password, newValue, newTouched);
+            validatePasswords(password, newValue, newTouched);
             onPasswordChange(password, newValue);
         },
-        [password, touched, debounceValidatePasswords, onPasswordChange]
+        [password, touched, validatePasswords, onPasswordChange]
     );
 
     return {
@@ -126,6 +99,5 @@ export function usePasswordsFields(props: UsePasswordsFieldsProps) {
         handleConfirmPasswordChange,
         handlePasswordBlur,
         handleConfirmPasswordBlur,
-        isLoading,
     };
 }

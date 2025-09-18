@@ -4,6 +4,8 @@ jest.mock("../../../../locales", () => ({
     t: (key: string) => key,
 }));
 
+//https://docs.dhis2.org/en/use/user-guides/dhis-core-version-241/configuring-the-system/users-roles-and-groups.html#password-requirements
+
 describe("validatePasswordRules", () => {
     describe("empty password validation", () => {
         it("should return error for empty string", () => {
@@ -22,7 +24,6 @@ describe("validatePasswordRules", () => {
         });
     });
 
-    /* Commented for reference
     describe("length validation", () => {
         describe("minimum length (8 characters)", () => {
             it("should reject passwords shorter than 8 characters", () => {
@@ -322,5 +323,4 @@ describe("validatePasswordRules", () => {
             expect(validatePasswordRules(tooLongPassword)).toBe("Password must not contain more than 34 characters");
         });
     });
-    */
 });

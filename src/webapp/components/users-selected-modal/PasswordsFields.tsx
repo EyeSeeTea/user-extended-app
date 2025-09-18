@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import { InputField } from "@dhis2/ui";
 import { usePasswordsFields } from "./usePasswordsFields";
+import { PasswordRequirements } from "./PasswordRequirements";
 import i18n from "../../../utils/i18n";
-import { LinearProgress } from "material-ui";
 
 interface PasswordFieldsProps {
     password: string;
@@ -22,7 +22,6 @@ export const PasswordsFields: React.FC<PasswordFieldsProps> = React.memo(props =
         handleConfirmPasswordChange,
         handlePasswordBlur,
         handleConfirmPasswordBlur,
-        isLoading,
     } = usePasswordsFields({ onPasswordChange, onValidationChange, password, confirmPassword });
 
     return (
@@ -38,7 +37,6 @@ export const PasswordsFields: React.FC<PasswordFieldsProps> = React.memo(props =
                     required
                     onChange={handlePasswordChange}
                     onBlur={handlePasswordBlur}
-                    disabled={isLoading}
                 />
             </FieldContainer>
 
@@ -53,14 +51,10 @@ export const PasswordsFields: React.FC<PasswordFieldsProps> = React.memo(props =
                     required
                     onChange={handleConfirmPasswordChange}
                     onBlur={handleConfirmPasswordBlur}
-                    disabled={isLoading || !password.length}
+                    disabled={!password.length}
                 />
             </FieldContainer>
-
-            {isLoading && <LinearProgress />}
-
-            {/* Commented for reference, but was requested to verify delegating on DHIS2 instead */}
-            {/* <PasswordRequirements password={password} /> */}
+            <PasswordRequirements password={password} />
         </Container>
     );
 });
