@@ -75,10 +75,10 @@ export const Router: React.FC = React.memo(() => {
 
 const IconsContainer = styled.div`
     align-items: center;
-    bottom: -3px;
+    inset-block-end: -3px;
     display: flex;
     gap: 1em;
     justify-content: center;
     position: fixed;
-    right: 80px;
+    inset-inline-end: 80px;
 `;

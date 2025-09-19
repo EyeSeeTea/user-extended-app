@@ -1,5 +1,5 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
 import _ from "lodash";
+import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { FutureData } from "../../domain/entities/Future";
 import { Locale } from "../../domain/entities/Locale";
 import { InstanceRepository, LocaleType } from "../../domain/repositories/InstanceRepository";

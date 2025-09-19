@@ -1,54 +1,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-08-11T04:41:53.550Z\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-msgid "Details"
-msgstr "Ver detalles"
+msgid "Invalid response from server"
+msgstr ""
 
-msgid "Edit"
-msgstr "Editar"
-
-msgid "Copy in user"
-msgstr "Copiar en el usuario"
-
-msgid "Assign to data capture organisation units"
-msgstr "Asignar a unidades organizativas de captura"
-
-msgid "Assign to data view organisation units"
-msgstr "Asignar a unidades organizativas de vista"
-
-msgid "Assign to search organisation units"
-msgstr "Asignar a unidades organizativas de búsqueda"
-
-msgid "Assign roles"
-msgstr "Asignar roles"
-
-msgid "Assign groups"
-msgstr "Asignar grupos"
-
-msgid "Enable"
-msgstr "Habilitar"
-
-msgid "Disable"
-msgstr "Deshabilitar"
-
-msgid "Reset password"
-msgstr "Restablecer contraseña"
-
-msgid "Remove"
-msgstr "Eliminar"
-
-msgid "Replicate user from template"
-msgstr "Replicar usuario desde plantilla"
-
-msgid "Replicate user from table"
-msgstr "Replicar usuario desde tabla"
+msgid "Unknown error"
+msgstr ""
 
 msgid "ID"
 msgstr "ID"
@@ -168,6 +132,9 @@ msgstr "Visible"
 
 msgid "Optional"
 msgstr "Opcional"
+
+msgid "Disable"
+msgstr "Deshabilitar"
 
 msgid "Copy in user: {{user}}"
 msgstr "Copiar a usuario: {{user}}"
@@ -355,12 +322,11 @@ msgstr "Buscar grupos de usuario"
 msgid "Show feedback button"
 msgstr "Mostrar botón de comentarios"
 
-msgid "Show only users assigned to users' organisation units"
-msgstr ""
-"Mostrar solo los usuarios asignados a las unidades organizativas del usuario"
-
 msgid "Show only active users"
 msgstr "Mostrar solo usuarios activos"
+
+msgid "Hide org units on advanced filters"
+msgstr ""
 
 msgid "Hide users, user roles and user groups"
 msgstr "Ocultar usuarios, roles de usuario y grupos de usuario"
@@ -377,7 +343,8 @@ msgstr ""
 "Los cambios en 'Quién tiene acceso' a la configuración se reflejarán después "
 "de recargar la página"
 
-msgid "Select user groups"
+#, fuzzy
+msgid "Select user groups and rules"
 msgstr "Seleccionar grupos de usuario"
 
 msgid "You can't hide more than 480 users"
@@ -385,6 +352,35 @@ msgstr "No puedes ocultar más de 480 usuarios"
 
 msgid "Public access (Everyone)"
 msgstr "Acceso público (Todos)"
+
+msgid "User has email address"
+msgstr ""
+
+msgid "Only available for users assigned to users' organization unit and below"
+msgstr ""
+
+msgid "Hidden"
+msgstr ""
+
+msgid "Only available if user has update access over the users"
+msgstr ""
+
+#, fuzzy
+msgid "Only available for disabled users"
+msgstr "Acciones disponibles para todos los usuarios"
+
+#, fuzzy
+msgid "Only available for active users"
+msgstr "Acciones disponibles para todos los usuarios"
+
+msgid "Only available if user has delete access over the users"
+msgstr ""
+
+msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+msgid "[RULE] "
+msgstr ""
 
 msgid "Saving..."
 msgstr "Guardando..."
@@ -496,6 +492,9 @@ msgstr "Asignar a unidades organizativas de búsqueda"
 msgid "{{action}}: {{users}} {{remainingCount}}"
 msgstr "{{action}}: {{users}} {{remainingCount}}"
 
+msgid "And {{overflow}} more..."
+msgstr "Y {{overflow}} más..."
+
 msgid "User ID"
 msgstr "ID de usuario"
 
@@ -520,8 +519,48 @@ msgstr ""
 msgid "External Auth"
 msgstr ""
 
-msgid "And {{overflow}} more..."
-msgstr "Y {{overflow}} más..."
+msgid "Details"
+msgstr "Ver detalles"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Copy in user"
+msgstr "Copiar en el usuario"
+
+msgid "Assign to data capture organisation units"
+msgstr "Asignar a unidades organizativas de captura"
+
+msgid "Assign to data view organisation units"
+msgstr "Asignar a unidades organizativas de vista"
+
+msgid "Assign to search organisation units"
+msgstr "Asignar a unidades organizativas de búsqueda"
+
+msgid "Assign roles"
+msgstr "Asignar roles"
+
+msgid "Assign groups"
+msgstr "Asignar grupos"
+
+msgid "Enable"
+msgstr "Habilitar"
+
+msgid "Reset password"
+msgstr "Restablecer contraseña"
+
+#, fuzzy
+msgid "Set password"
+msgstr "Restablecer contraseña"
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Replicate user from template"
+msgstr "Replicar usuario desde plantilla"
+
+msgid "Replicate user from table"
+msgstr "Replicar usuario desde tabla"
 
 msgid "Loading users..."
 msgstr "Cargando usuarios..."
@@ -534,6 +573,14 @@ msgstr "Limpiar"
 
 msgid "Select users"
 msgstr "Seleccionar usuarios"
+
+#, fuzzy
+msgid "New Password"
+msgstr "Contraseña"
+
+#, fuzzy
+msgid "Confirm New Password"
+msgstr "Contraseña"
 
 msgid "Remove users"
 msgstr "Eliminar usuarios"
@@ -577,6 +624,78 @@ msgstr ""
 
 msgid "Confirm"
 msgstr "Confirmar"
+
+#, fuzzy
+msgid "Set password for {{username}}"
+msgstr "Asignar roles a {{usernames}}"
+
+#, fuzzy
+msgid "Set Password"
+msgstr "Contraseña"
+
+msgid "Password is required"
+msgstr ""
+
+#, fuzzy
+msgid "Password must contain at least 8 characters"
+msgstr "La contraseña debe contener al menos un número"
+
+msgid "Password must not contain more than 34 characters"
+msgstr ""
+
+#, fuzzy
+msgid "Password must contain at least one lowercase letter"
+msgstr "La contraseña debe contener al menos una letra minúscula"
+
+#, fuzzy
+msgid "Password must contain at least one UPPERCASE letter"
+msgstr "La contraseña debe contener al menos una letra MAYÚSCULA"
+
+#, fuzzy
+msgid "Password must contain at least one digit (number)"
+msgstr "La contraseña debe contener al menos un número"
+
+#, fuzzy
+msgid "Password must contain at least one special character (non-alphanumeric)"
+msgstr "La contraseña debe contener al menos un carácter especial"
+
+msgid "Contain at least 8 characters"
+msgstr ""
+
+msgid "Not contain more than 34 characters"
+msgstr ""
+
+#, fuzzy
+msgid "Contain at least one special character (non-alphanumeric)"
+msgstr "La contraseña debe contener al menos un carácter especial"
+
+#, fuzzy
+msgid "Contain at least one UPPERCASE character"
+msgstr "La contraseña debe contener al menos una letra MAYÚSCULA"
+
+#, fuzzy
+msgid "Contain at least one lowercase character"
+msgstr "La contraseña debe contener al menos una letra minúscula"
+
+#, fuzzy
+msgid "Contain at least one digit (number)"
+msgstr "La contraseña debe contener al menos un número"
+
+#, fuzzy
+msgid "Please confirm your password"
+msgstr "Por favor proporcione una contraseña"
+
+msgid "Passwords do not match"
+msgstr ""
+
+msgid "Please ensure all password requirements are met and passwords match"
+msgstr ""
+
+msgid "Password has been set successfully for {{username}}"
+msgstr ""
+
+msgid "Failed to set password. Please try again."
+msgstr ""
 
 msgid "Table exported: {{filename}}"
 msgstr "Tabla exportada: {{filename}}"
@@ -688,3 +807,7 @@ msgstr "Abrir en Administración de usuarios"
 
 msgid " and {{overflow}} more..."
 msgstr " y {{overflow}} más..."
+
+#, fuzzy
+#~ msgid "Password is valid"
+#~ msgstr "Contraseña"

@@ -5,49 +5,13 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-08-11T04:41:53.550Z\n"
-"PO-Revision-Date: 2025-08-11T04:41:53.550Z\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"PO-Revision-Date: 2025-09-19T06:22:59.402Z\n"
 
-msgid "Details"
+msgid "Invalid response from server"
 msgstr ""
 
-msgid "Edit"
-msgstr ""
-
-msgid "Copy in user"
-msgstr ""
-
-msgid "Assign to data capture organisation units"
-msgstr ""
-
-msgid "Assign to data view organisation units"
-msgstr ""
-
-msgid "Assign to search organisation units"
-msgstr ""
-
-msgid "Assign roles"
-msgstr ""
-
-msgid "Assign groups"
-msgstr ""
-
-msgid "Enable"
-msgstr ""
-
-msgid "Disable"
-msgstr ""
-
-msgid "Reset password"
-msgstr ""
-
-msgid "Remove"
-msgstr ""
-
-msgid "Replicate user from template"
-msgstr ""
-
-msgid "Replicate user from table"
+msgid "Unknown error"
 msgstr ""
 
 msgid "ID"
@@ -165,6 +129,9 @@ msgid "Visible"
 msgstr ""
 
 msgid "Optional"
+msgstr ""
+
+msgid "Disable"
 msgstr ""
 
 msgid "Copy in user: {{user}}"
@@ -353,10 +320,10 @@ msgstr ""
 msgid "Show feedback button"
 msgstr ""
 
-msgid "Show only users assigned to users' organisation units"
+msgid "Show only active users"
 msgstr ""
 
-msgid "Show only active users"
+msgid "Hide org units on advanced filters"
 msgstr ""
 
 msgid "Hide users, user roles and user groups"
@@ -371,13 +338,40 @@ msgstr ""
 msgid "Changes on 'Who has access' to settings will be reflected after page reload"
 msgstr ""
 
-msgid "Select user groups"
+msgid "Select user groups and rules"
 msgstr ""
 
 msgid "You can't hide more than 480 users"
 msgstr ""
 
 msgid "Public access (Everyone)"
+msgstr ""
+
+msgid "User has email address"
+msgstr ""
+
+msgid "Only available for users assigned to users' organization unit and below"
+msgstr ""
+
+msgid "Hidden"
+msgstr ""
+
+msgid "Only available if user has update access over the users"
+msgstr ""
+
+msgid "Only available for disabled users"
+msgstr ""
+
+msgid "Only available for active users"
+msgstr ""
+
+msgid "Only available if user has delete access over the users"
+msgstr ""
+
+msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+msgid "[RULE] "
 msgstr ""
 
 msgid "Saving..."
@@ -488,6 +482,9 @@ msgstr ""
 msgid "{{action}}: {{users}} {{remainingCount}}"
 msgstr ""
 
+msgid "And {{overflow}} more..."
+msgstr ""
+
 msgid "User ID"
 msgstr ""
 
@@ -512,7 +509,46 @@ msgstr ""
 msgid "External Auth"
 msgstr ""
 
-msgid "And {{overflow}} more..."
+msgid "Details"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Copy in user"
+msgstr ""
+
+msgid "Assign to data capture organisation units"
+msgstr ""
+
+msgid "Assign to data view organisation units"
+msgstr ""
+
+msgid "Assign to search organisation units"
+msgstr ""
+
+msgid "Assign roles"
+msgstr ""
+
+msgid "Assign groups"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Reset password"
+msgstr ""
+
+msgid "Set password"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Replicate user from template"
+msgstr ""
+
+msgid "Replicate user from table"
 msgstr ""
 
 msgid "Loading users..."
@@ -525,6 +561,12 @@ msgid "Clear"
 msgstr ""
 
 msgid "Select users"
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "Confirm New Password"
 msgstr ""
 
 msgid "Remove users"
@@ -566,6 +608,66 @@ msgid ""
 msgstr ""
 
 msgid "Confirm"
+msgstr ""
+
+msgid "Set password for {{username}}"
+msgstr ""
+
+msgid "Set Password"
+msgstr ""
+
+msgid "Password is required"
+msgstr ""
+
+msgid "Password must contain at least 8 characters"
+msgstr ""
+
+msgid "Password must not contain more than 34 characters"
+msgstr ""
+
+msgid "Password must contain at least one lowercase letter"
+msgstr ""
+
+msgid "Password must contain at least one UPPERCASE letter"
+msgstr ""
+
+msgid "Password must contain at least one digit (number)"
+msgstr ""
+
+msgid "Password must contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least 8 characters"
+msgstr ""
+
+msgid "Not contain more than 34 characters"
+msgstr ""
+
+msgid "Contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least one UPPERCASE character"
+msgstr ""
+
+msgid "Contain at least one lowercase character"
+msgstr ""
+
+msgid "Contain at least one digit (number)"
+msgstr ""
+
+msgid "Please confirm your password"
+msgstr ""
+
+msgid "Passwords do not match"
+msgstr ""
+
+msgid "Please ensure all password requirements are met and passwords match"
+msgstr ""
+
+msgid "Password has been set successfully for {{username}}"
+msgstr ""
+
+msgid "Failed to set password. Please try again."
 msgstr ""
 
 msgid "Table exported: {{filename}}"

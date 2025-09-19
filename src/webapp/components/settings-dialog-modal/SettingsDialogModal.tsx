@@ -63,9 +63,8 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
         [loading, onCloseAppSettings, save, snackbar]
     );
 
-    const saveColumns = React.useCallback(
+    const updateColumns = React.useCallback(
         (columns: SettingsUserColumn[]) => {
-            if (!appSettings) return;
             const updatedSettings = appSettings.updateColumns(columns);
             setAppSettings(updatedSettings);
         },
@@ -75,13 +74,6 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     const saveSettings = React.useCallback(() => {
         onSaveData(appSettings);
     }, [appSettings, onSaveData]);
-
-    const onSavePermissions = React.useCallback(
-        updatedSettings => {
-            onSaveData(updatedSettings);
-        },
-        [onSaveData]
-    );
 
     const closeDialog = React.useCallback(() => {
         onClose(undefined);
@@ -97,13 +89,13 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                 return (
                     <ColumnsSettingsPage
                         appSettings={appSettings}
-                        onUpdateColumns={saveColumns}
+                        onUpdateColumns={updateColumns}
                         onClose={closeDialog}
                         onSave={saveSettings}
                     />
                 );
             case "permissions":
-                return <PermissionsPage onSave={onSavePermissions} onClose={closeDialog} />;
+                return <PermissionsPage onSave={onSaveData} onClose={closeDialog} />;
         }
     };
 

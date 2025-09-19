@@ -6,7 +6,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
 import i18n from "../../../utils/i18n";
 
-type UsersRemoveModalProps = {
+export type UsersSelectedModalProps = {
     isOpen: boolean;
     users: User[];
     onSuccess: () => void;
@@ -21,7 +21,7 @@ export type OrgUnitActionType =
 
 export type RiskyActionType = "remove" | "enable" | "disable" | "reset_password";
 
-export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user";
+export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user" | "set_password";
 
 function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
     switch (actionType) {
@@ -55,7 +55,7 @@ export function getFirstThreeUserNames(users: User[]): string[] {
         .value();
 }
 
-export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
+export const UsersSelectedModal: React.FC<UsersSelectedModalProps> = ({
     actionType,
     users,
     isOpen,

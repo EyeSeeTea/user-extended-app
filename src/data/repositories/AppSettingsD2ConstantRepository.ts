@@ -1,12 +1,11 @@
-import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { AppSettings, CONSTANT_SETTINGS_CODE } from "../../domain/entities/AppSettings";
 import { FutureData } from "../../domain/entities/Future";
 import { AppSettingsRepository } from "../../domain/repositories/AppSettingsRepository";
-import { Permission, PublicPermission } from "../../domain/entities/Permission";
 import { apiToFuture } from "../../utils/futures";
 import { Maybe } from "../../types/utils";
 import { getUid } from "../../utils/uid";
+import { mergeAndAddRuntimeProps, removeRuntimeLogic } from "./common/appSettingsHelpers";
 
 export class AppSettingsD2ConstantRepository implements AppSettingsRepository {
     private constantCode = CONSTANT_SETTINGS_CODE;
@@ -18,6 +17,8 @@ export class AppSettingsD2ConstantRepository implements AppSettingsRepository {
     }
 
     save(appSettings: AppSettings): FutureData<AppSettings> {
+        const settingsToSave = removeRuntimeLogic(appSettings);
+
         return apiToFuture(
             this.api.models.constants.get({
                 fields: { $owner: true },
@@ -33,7 +34,7 @@ export class AppSettingsD2ConstantRepository implements AppSettingsRepository {
                 code: this.constantCode,
                 name,
                 shortName: name,
-                description: JSON.stringify(appSettings, null, 2),
+                description: JSON.stringify(settingsToSave, null, 2),
                 value: 1,
             };
             return apiToFuture(this.api.metadata.post({ constants: [constantToSave] })).map(() => appSettings);
@@ -41,22 +42,7 @@ export class AppSettingsD2ConstantRepository implements AppSettingsRepository {
     }
 
     private getSettings() {
-        const emptySettings = AppSettings.emptySettings();
-
-        return this.getConstant().map(d2Response =>
-            d2Response
-                ? AppSettings.create({
-                      ...emptySettings,
-                      ...d2Response,
-                      settingsAccess: d2Response.settingsAccess
-                          ? new Permission(d2Response.settingsAccess)
-                          : emptySettings.settingsAccess,
-                      actionsAccess: d2Response.actionsAccess
-                          ? _.mapValues(d2Response.actionsAccess, p => new PublicPermission(p))
-                          : emptySettings.actionsAccess,
-                  })
-                : emptySettings
-        );
+        return this.getConstant().map(d2Response => mergeAndAddRuntimeProps(d2Response));
     }
 
     private getConstant(): FutureData<Maybe<AppSettings>> {
@@ -70,7 +56,7 @@ export class AppSettingsD2ConstantRepository implements AppSettingsRepository {
         ).map(response => {
             const d2Constant = response.objects[0];
             if (!d2Constant) return undefined;
-            return JSON.parse(d2Constant.description) as AppSettings;
+            return JSON.parse(d2Constant.description) as AppSettings; //TODO: Type checking with Codec
         });
     }
 }

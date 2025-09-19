@@ -90,7 +90,7 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
     return { saveUsersOrgUnits };
 }
 
-export function useGetAllUsers() {
+export function useGetAllUsers(onlyUsersOrgUnits: boolean) {
     const { compositionRoot } = useAppContext();
     const { appSettings } = useAppSettingsContext();
     const [users, setUsers] = React.useState<User[]>();
@@ -99,7 +99,7 @@ export function useGetAllUsers() {
     React.useMemo(() => {
         compositionRoot.users
             .listAll({
-                onlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
+                onlyUsersOrgUnits: onlyUsersOrgUnits,
                 onlyActiveUsers: appSettings.showOnlyActiveUsers,
                 hideUsers: appSettings.hide.users,
             })
@@ -111,13 +111,7 @@ export function useGetAllUsers() {
                     snackbar.error(error);
                 }
             );
-    }, [
-        appSettings.hide.users,
-        appSettings.showOnlyActiveUsers,
-        appSettings.showOnlyUsersOrgUnits,
-        compositionRoot.users,
-        snackbar,
-    ]);
+    }, [appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits, compositionRoot.users, snackbar]);
 
     return { users };
 }

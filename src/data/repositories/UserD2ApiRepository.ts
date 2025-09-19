@@ -20,6 +20,8 @@ import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
+import { Codec, exactly, string } from "purify-ts";
+import i18n from "../../utils/i18n";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
@@ -130,6 +132,23 @@ export class UserD2ApiRepository implements UserRepository {
                     ? users.filter(user => !usersIdsToHide.includes(user.id))
                     : users;
                 return { pager, objects: excludeHiddenUsers };
+            });
+        });
+    }
+
+    verifyPassword(password: string): FutureData<true> {
+        return apiToFuture(
+            this.api.post<typeof verifyPasswordResponseCodec>(`/account/validatePassword?password=${password}`)
+        ).flatMap(data => {
+            return verifyPasswordResponseCodec.decode(data).caseOf<FutureData<true>>({
+                Left: () => Future.error(i18n.t("Invalid response from server")),
+                Right: data => {
+                    if (data.response === "error") {
+                        return Future.error(data.message || i18n.t("Unknown error"));
+                    } else {
+                        return Future.success(true);
+                    }
+                },
             });
         });
     }
@@ -672,6 +691,11 @@ export class UserD2ApiRepository implements UserRepository {
         );
     }
 }
+
+const verifyPasswordResponseCodec = Codec.interface({
+    response: exactly("success", "error"),
+    message: string,
+});
 
 const orgUnitsFields = { id: true, name: true, code: true, path: true } as const;
 

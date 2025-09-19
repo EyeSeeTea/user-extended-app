@@ -1,9 +1,10 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@material-ui/core";
 import { DropdownItem, MultipleDropdown } from "@eyeseetea/d2-ui-components";
-import { getUserActionLabel, UserAction, userActions } from "../../../domain/entities/UserAction";
+import { UserAction, userActions } from "../../../domain/entities/UserAction";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { useSharingActions, Value } from "./useSharingActions";
+import { getUserActionLabel } from "../user-list-table/userListTableHelpers";
 import i18n from "../../../utils/i18n";
 
 export type SharingActionsProps = {
@@ -16,6 +17,17 @@ export const SharingActions: React.FC<SharingActionsProps> = React.memo(props =>
 
     const { items, selectedValues, setSelectedValues } = useSharingActions(props);
 
+    const sharingActionProps: SharingActionProps[] = React.useMemo(
+        () =>
+            userActions.map(action => ({
+                action,
+                items,
+                values: selectedValues[action],
+                onChange: setSelectedValues(action),
+            })),
+        [items, setSelectedValues, selectedValues]
+    );
+
     return (
         <Box
             display="flex"
@@ -25,14 +37,8 @@ export const SharingActions: React.FC<SharingActionsProps> = React.memo(props =>
             paddingX={theme.spacing(0.25)}
             gridRowGap={theme.spacing(2)}
         >
-            {userActions.map(action => (
-                <SharingAction
-                    key={action}
-                    action={action}
-                    items={items}
-                    values={selectedValues[action]}
-                    onChange={setSelectedValues(action)}
-                />
+            {sharingActionProps.map(props => (
+                <SharingAction key={props.action} {...props} />
             ))}
         </Box>
     );
@@ -55,7 +61,7 @@ const SharingAction: React.FC<SharingActionProps> = props => {
                 key={action}
                 items={items}
                 onChange={onChange}
-                label={i18n.t("Select user groups")}
+                label={i18n.t("Select user groups and rules")}
                 values={values}
             />
         </Box>

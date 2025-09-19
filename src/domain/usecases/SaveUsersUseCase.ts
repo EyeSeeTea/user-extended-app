@@ -1,5 +1,5 @@
 import { UseCase } from "../../CompositionRoot";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { UserLogic } from "../entities/UserLogic";

@@ -1,54 +1,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-08-11T04:41:53.550Z\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-msgid "Details"
-msgstr "Voir les détails"
+msgid "Invalid response from server"
+msgstr ""
 
-msgid "Edit"
-msgstr "Modifiez"
-
-msgid "Copy in user"
-msgstr "Copier vers l'utilisateur"
-
-msgid "Assign to data capture organisation units"
-msgstr "Assigner aux unités d'organisation de saisie de données"
-
-msgid "Assign to data view organisation units"
-msgstr "Assigner aux unités d'organisation de visualisation des données"
-
-msgid "Assign to search organisation units"
-msgstr "Assigner aux unités d'organisation de recherche"
-
-msgid "Assign roles"
-msgstr "Assigner des rôles"
-
-msgid "Assign groups"
-msgstr "Assigner des groupes"
-
-msgid "Enable"
-msgstr "Activez"
-
-msgid "Disable"
-msgstr "Désactivez"
-
-msgid "Reset password"
-msgstr "Réinitialiser le mot de passe"
-
-msgid "Remove"
-msgstr "Supprimer"
-
-msgid "Replicate user from template"
-msgstr "Répliquer l'utilisateur à partir du modèle"
-
-msgid "Replicate user from table"
-msgstr "Répliquer l'utilisateur à partir du tableau"
+msgid "Unknown error"
+msgstr ""
 
 msgid "ID"
 msgstr "ID"
@@ -168,6 +132,9 @@ msgstr "Visible"
 
 msgid "Optional"
 msgstr "Optionnel"
+
+msgid "Disable"
+msgstr "Désactivez"
 
 msgid "Copy in user: {{user}}"
 msgstr "Copier dans l'utilisateur : {{user}}"
@@ -356,13 +323,11 @@ msgstr "Rechercher des groupes d'utilisateurs"
 msgid "Show feedback button"
 msgstr "Afficher le bouton de retour"
 
-msgid "Show only users assigned to users' organisation units"
-msgstr ""
-"Afficher uniquement les utilisateurs assignés aux unités d'organisation des "
-"utilisateurs"
-
 msgid "Show only active users"
 msgstr "Afficher uniquement les utilisateurs actifs"
+
+msgid "Hide org units on advanced filters"
+msgstr ""
 
 msgid "Hide users, user roles and user groups"
 msgstr "Masquer les utilisateurs, les rôles et les groupes d'utilisateurs"
@@ -379,7 +344,8 @@ msgstr ""
 "Les modifications sur 'Qui a accès' aux paramètres seront prises en compte "
 "après le rechargement de la page"
 
-msgid "Select user groups"
+#, fuzzy
+msgid "Select user groups and rules"
 msgstr "Sélectionner des groupes d'utilisateurs"
 
 msgid "You can't hide more than 480 users"
@@ -387,6 +353,38 @@ msgstr "Vous ne pouvez pas masquer plus de 480 utilisateurs"
 
 msgid "Public access (Everyone)"
 msgstr "Accès public (Tout le monde)"
+
+msgid "User has email address"
+msgstr ""
+
+#, fuzzy
+msgid "Only available for users assigned to users' organization unit and below"
+msgstr ""
+"Afficher uniquement les utilisateurs assignés aux unités d'organisation des "
+"utilisateurs"
+
+msgid "Hidden"
+msgstr ""
+
+msgid "Only available if user has update access over the users"
+msgstr ""
+
+#, fuzzy
+msgid "Only available for disabled users"
+msgstr "Actions disponibles pour tous les utilisateurs"
+
+#, fuzzy
+msgid "Only available for active users"
+msgstr "Actions disponibles pour tous les utilisateurs"
+
+msgid "Only available if user has delete access over the users"
+msgstr ""
+
+msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+msgid "[RULE] "
+msgstr ""
 
 msgid "Saving..."
 msgstr "Enregistrement..."
@@ -497,6 +495,9 @@ msgstr "Assigner aux unités d'organisation de recherche"
 msgid "{{action}}: {{users}} {{remainingCount}}"
 msgstr "{{action}} : {{users}} {{remainingCount}}"
 
+msgid "And {{overflow}} more..."
+msgstr "Et {{overflow}} de plus..."
+
 msgid "User ID"
 msgstr "ID utilisateur"
 
@@ -521,8 +522,48 @@ msgstr ""
 msgid "External Auth"
 msgstr ""
 
-msgid "And {{overflow}} more..."
-msgstr "Et {{overflow}} de plus..."
+msgid "Details"
+msgstr "Voir les détails"
+
+msgid "Edit"
+msgstr "Modifiez"
+
+msgid "Copy in user"
+msgstr "Copier vers l'utilisateur"
+
+msgid "Assign to data capture organisation units"
+msgstr "Assigner aux unités d'organisation de saisie de données"
+
+msgid "Assign to data view organisation units"
+msgstr "Assigner aux unités d'organisation de visualisation des données"
+
+msgid "Assign to search organisation units"
+msgstr "Assigner aux unités d'organisation de recherche"
+
+msgid "Assign roles"
+msgstr "Assigner des rôles"
+
+msgid "Assign groups"
+msgstr "Assigner des groupes"
+
+msgid "Enable"
+msgstr "Activez"
+
+msgid "Reset password"
+msgstr "Réinitialiser le mot de passe"
+
+#, fuzzy
+msgid "Set password"
+msgstr "Réinitialiser le mot de passe"
+
+msgid "Remove"
+msgstr "Supprimer"
+
+msgid "Replicate user from template"
+msgstr "Répliquer l'utilisateur à partir du modèle"
+
+msgid "Replicate user from table"
+msgstr "Répliquer l'utilisateur à partir du tableau"
 
 msgid "Loading users..."
 msgstr "Chargement des utilisateurs..."
@@ -535,6 +576,13 @@ msgstr "Effacer"
 
 msgid "Select users"
 msgstr "Sélectionner des utilisateurs"
+
+#, fuzzy
+msgid "New Password"
+msgstr "Mot de passe"
+
+msgid "Confirm New Password"
+msgstr ""
 
 msgid "Remove users"
 msgstr "Supprimer les utilisateurs"
@@ -578,6 +626,79 @@ msgstr ""
 
 msgid "Confirm"
 msgstr "Confirmer"
+
+#, fuzzy
+msgid "Set password for {{username}}"
+msgstr "Assigner des rôles à {{usernames}}"
+
+#, fuzzy
+msgid "Set Password"
+msgstr "Mot de passe"
+
+msgid "Password is required"
+msgstr ""
+
+#, fuzzy
+msgid "Password must contain at least 8 characters"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+msgid "Password must not contain more than 34 characters"
+msgstr ""
+
+#, fuzzy
+msgid "Password must contain at least one lowercase letter"
+msgstr "Le mot de passe doit contenir au moins une lettre minuscule"
+
+#, fuzzy
+msgid "Password must contain at least one UPPERCASE letter"
+msgstr "Le mot de passe doit contenir au moins une lettre MAJUSCULE"
+
+#, fuzzy
+msgid "Password must contain at least one digit (number)"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+#, fuzzy
+msgid "Password must contain at least one special character (non-alphanumeric)"
+msgstr "Le mot de passe doit contenir au moins un caractère spécial"
+
+msgid "Contain at least 8 characters"
+msgstr ""
+
+#, fuzzy
+msgid "Not contain more than 34 characters"
+msgstr "Vous ne pouvez pas masquer plus de 480 utilisateurs"
+
+#, fuzzy
+msgid "Contain at least one special character (non-alphanumeric)"
+msgstr "Le mot de passe doit contenir au moins un caractère spécial"
+
+#, fuzzy
+msgid "Contain at least one UPPERCASE character"
+msgstr "Le mot de passe doit contenir au moins une lettre MAJUSCULE"
+
+#, fuzzy
+msgid "Contain at least one lowercase character"
+msgstr "Le mot de passe doit contenir au moins une lettre minuscule"
+
+#, fuzzy
+msgid "Contain at least one digit (number)"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+#, fuzzy
+msgid "Please confirm your password"
+msgstr "Veuillez fournir un mot de passe"
+
+msgid "Passwords do not match"
+msgstr ""
+
+msgid "Please ensure all password requirements are met and passwords match"
+msgstr ""
+
+msgid "Password has been set successfully for {{username}}"
+msgstr ""
+
+msgid "Failed to set password. Please try again."
+msgstr ""
 
 msgid "Table exported: {{filename}}"
 msgstr "Tableau exporté : {{filename}}"
@@ -689,3 +810,7 @@ msgstr "Ouvrir dans la gestion des utilisateurs"
 
 msgid " and {{overflow}} more..."
 msgstr " et {{overflow}} de plus..."
+
+#, fuzzy
+#~ msgid "Password is valid"
+#~ msgstr "Mot de passe"

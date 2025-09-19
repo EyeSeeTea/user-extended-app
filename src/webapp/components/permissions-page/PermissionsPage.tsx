@@ -56,22 +56,29 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={formState.usersOrgUnits}
-                            onChange={event => updateFormState(event.target.checked, "usersOrgUnits")}
-                        />
-                    }
-                    label={i18n.t("Show only users assigned to users' organisation units")}
-                />
-
-                <FormControlLabel
-                    control={
-                        <Switch
                             checked={formState.activeUsers}
                             onChange={event => updateFormState(event.target.checked, "activeUsers")}
                         />
                     }
                     label={i18n.t("Show only active users")}
                 />
+
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.showHideOrgUnits}
+                            onChange={event => updateFormState(event.target.checked, "showHideOrgUnits")}
+                        />
+                    }
+                    label={i18n.t("Hide org units on advanced filters")}
+                />
+
+                {/* Feature: Blacklist org units within advanced filters trees */}
+                {/* {formState.showHideOrgUnits && (
+                    <Box marginTop={1} marginBottom={3}>
+                        Placeholder for org units tree
+                    </Box>
+                )} */}
 
                 <FormControlLabel
                     control={

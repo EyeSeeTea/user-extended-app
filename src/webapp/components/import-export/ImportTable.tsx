@@ -93,6 +93,7 @@ type ImportTableProps = {
     templateUser?: UserLegacy;
     actionText: string;
     warnings: string[];
+    onlyUsersOrgUnits: boolean;
 };
 
 export const ImportTable: React.FC<ImportTableProps> = props => {
@@ -105,6 +106,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         templateUser = null,
         actionText,
         warnings = [],
+        onlyUsersOrgUnits,
     } = props;
     const [users, setUsers] = useState<User[]>(usersFromFile);
     const [existingUsers, setExistingUsers] = React.useState<Record<string, User>>({});
@@ -127,7 +129,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const loading = useLoading();
 
-    const { users: allUsers } = useGetAllUsers();
+    const { users: allUsers } = useGetAllUsers(onlyUsersOrgUnits);
     useEffect(() => {
         const getUsername = (user: User | ApiUser): string => {
             if ("userCredentials" in user) {
@@ -699,8 +701,12 @@ const StyledTableColumn = styled(TableCell)`
 `;
 
 const StyledDialogTitle = styled(DialogTitle)`
-    margin: 0px 0px -1px;
-    padding: 24px 24px 20px;
+    margin-block-start: 0px;
+    margin-block-end: -1px;
+    margin-inline: 0px;
+    padding-block-start: 24px;
+    padding-block-end: 20px;
+    padding-inline: 24px;
     font-size: 24px;
     font-weight: bold;
     line-height: 32px;
@@ -708,7 +714,7 @@ const StyledDialogTitle = styled(DialogTitle)`
 `;
 
 const DialogTooltip = styled(Tooltip)`
-    float: right;
+    float: inline-end;
 `;
 
 const AddButtonRow = styled.div`

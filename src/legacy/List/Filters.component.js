@@ -14,6 +14,7 @@ import OrgUnitsSelectorFilter from "../components/OrgUnitsSelectorFilter";
 import listActions from "./list.actions";
 import listStore from "./list.store";
 import Dropdown from "../components/Dropdown.component";
+import { DEFAULT_SHOW_ONLY_ACTIVE_USERS } from "./List.component";
 
 export default class Filters extends React.Component {
     static contextTypes = {
@@ -25,6 +26,8 @@ export default class Filters extends React.Component {
         onlyActiveUsers: PropTypes.bool,
         areFiltersOverrided: PropTypes.bool,
         hideUsersCanManageFilter: PropTypes.bool,
+        onlyUsersOrgUnits: PropTypes.bool,
+        setOnlyUsersOrgUnits: PropTypes.func.isRequired,
     };
 
     styles = {
@@ -85,6 +88,7 @@ export default class Filters extends React.Component {
             userRolesAll: [],
             userGroupsAll: [],
             rootJunction: this.props.areFiltersOverrided ? "AND" : "OR",
+            onlyUsersOrgUnits: this.props.onlyUsersOrgUnits,
         };
     }
 
@@ -94,6 +98,9 @@ export default class Filters extends React.Component {
         }
         if (prevProps.areFiltersOverrided !== this.props.areFiltersOverrided) {
             this.setState({ rootJunction: this.props.areFiltersOverrided ? "AND" : "OR" }, this.notifyParent);
+        }
+        if (prevProps.onlyUsersOrgUnits !== this.props.onlyUsersOrgUnits) {
+            this.setState({ onlyUsersOrgUnits: this.props.onlyUsersOrgUnits }, this.notifyParentOnlyUsersOrgUnits);
         }
     }
 
@@ -176,6 +183,7 @@ export default class Filters extends React.Component {
     };
 
     clearFilters = () => {
+        this.setState({ onlyUsersOrgUnits: DEFAULT_SHOW_ONLY_ACTIVE_USERS }, this.notifyParentOnlyUsersOrgUnits);
         this.setState(
             {
                 showOnlyManagedUsers: false,
@@ -194,15 +202,21 @@ export default class Filters extends React.Component {
         );
     };
 
+    notifyParentOnlyUsersOrgUnits = () => {
+        this.props.setOnlyUsersOrgUnits(this.state.onlyUsersOrgUnits);
+    };
+
     notifyParent = () => {
         const filterOptions = this.getFilterOptions();
         this.props.onChange(filterOptions);
     };
 
     _setFilter = (key, getter) => {
+        const notify = key === "onlyUsersOrgUnits" ? this.notifyParentOnlyUsersOrgUnits : this.notifyParent;
+
         return (...args) => {
             const newValue = getter ? getter(...args) : args[0];
-            this.setState({ [key]: newValue }, this.notifyParent);
+            this.setState({ [key]: newValue }, notify);
         };
     };
 
@@ -218,6 +232,7 @@ export default class Filters extends React.Component {
             orgUnitsOutput,
             searchOrgUnits,
             showOnlyManagedUsers,
+            onlyUsersOrgUnits,
             showExtendedFilters,
             rootJunction,
         } = this.state;
@@ -228,6 +243,7 @@ export default class Filters extends React.Component {
 
         const isExtendedFiltering =
             showOnlyManagedUsers ||
+            onlyUsersOrgUnits ||
             userDisabled ||
             !_([userGroups, userRoles, orgUnits, orgUnitsOutput, searchOrgUnits]).every(_.isEmpty);
         const isFiltering = showOnlyManagedUsers || isExtendedFiltering;
@@ -271,7 +287,7 @@ export default class Filters extends React.Component {
                 >
                     <div style={{ padding: "0.5em", margin: "0.5em" }}>
                         <Box display="flex" alignItems="center" width="100%" marginBottom={1.5}>
-                            <Box display="flex" flexGrow={1}>
+                            <Box display="flex" flexGrow={1} flexDirection={"column"} gridRowGap="1em">
                                 {!hideUsersCanManageFilter && (
                                     <Checkbox
                                         className="control-checkbox"
@@ -280,6 +296,12 @@ export default class Filters extends React.Component {
                                         checked={showOnlyManagedUsers}
                                     />
                                 )}
+                                <Checkbox
+                                    className="control-checkbox"
+                                    label={this.getTranslation("only_users_assigned_to_org_unit")}
+                                    onCheck={this.setFilter("onlyUsersOrgUnits", this.checkboxHandler)}
+                                    checked={onlyUsersOrgUnits}
+                                />
                             </Box>
                             <Box display="flex" gridColumnGap="1.5em">
                                 <span style={styles.filterBehavior}>

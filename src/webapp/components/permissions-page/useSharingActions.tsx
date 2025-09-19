@@ -7,8 +7,14 @@ import { UserGroup } from "../../../domain/entities/UserGroup";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
 import { UserAction } from "../../../domain/entities/UserAction";
+import {
+    UserActionRule,
+    getInternalRulesForAction,
+    getSelectableRules,
+    isRule,
+} from "../../../domain/entities/UserActionRule";
+import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import i18n from "../../../utils/i18n";
-import { PublicPermission } from "../../../domain/entities/Permission";
 
 export function useSharingActions(props: SharingActionsProps) {
     const { actionsPermissions, setActionsPermissions } = props;
@@ -23,9 +29,9 @@ export function useSharingActions(props: SharingActionsProps) {
 
     const setSelectedValuesByAction = React.useCallback(
         (action: UserAction) => (values: Value[]) => {
-            setSelectedValues(selectedValues => {
+            setSelectedValues(previousValuesByAction => {
                 const isPublicSelected =
-                    values.includes("public-access") && !selectedValues[action].includes("public-access");
+                    values.includes("public-access") && !previousValuesByAction[action].includes("public-access");
                 const shouldForcePublic = isPublicSelected || _.isEmpty(values);
                 const shouldFilterOutPublic = values.length > 1;
                 const removedPublic = values.filter(value => value !== "public-access");
@@ -36,17 +42,27 @@ export function useSharingActions(props: SharingActionsProps) {
                     ? removedPublic
                     : values;
 
-                setActionsPermissions(actionsPermissions => ({
-                    ...actionsPermissions,
-                    [action]: shouldForcePublic
-                        ? PublicPermission.public()
+                setActionsPermissions(actionsPermissions => {
+                    // Note: Default rules don't necessarily mean internal
+                    const newActionPermission = shouldForcePublic
+                        ? ActionPermission.public()
                         : actionsPermissions[action].updateUserGroups(
                               allUserGroups.filter(userGroup => removedPublic.includes(userGroup.id))
-                          ),
-                }));
+                          );
+
+                    const rules = newValues.filter(isRule); // Both type of rules (_.uniq will handle duplicates)
+                    const newActionPermissionWithInternalRules = newActionPermission.updateRules(
+                        getInternalRulesForAction(action).concat(rules)
+                    );
+
+                    return {
+                        ...actionsPermissions,
+                        [action]: newActionPermissionWithInternalRules,
+                    };
+                });
 
                 return {
-                    ...selectedValues,
+                    ...previousValuesByAction,
                     [action]: newValues,
                 };
             });
@@ -56,8 +72,9 @@ export function useSharingActions(props: SharingActionsProps) {
 
     const items = React.useMemo(() => {
         const publicAccessItem = buildPublicAccessItem();
+        const ruleItems = buildRuleItems();
 
-        return [publicAccessItem].concat(
+        return [publicAccessItem].concat(ruleItems).concat(
             allUserGroups.map(userGroup => ({
                 value: userGroup.id,
                 text: userGroup.name,
@@ -83,10 +100,46 @@ function buildPublicAccessItem(): DropdownItem {
     };
 }
 
+function getRuleLabel(rule: UserActionRule): string {
+    switch (rule) {
+        case UserActionRule.HAS_EMAIL:
+            return i18n.t("User has email address");
+        case UserActionRule.USERS_WITHIN_LOGGED_USER_ORG_UNITS:
+            return i18n.t("Only available for users assigned to users' organization unit and below");
+        case UserActionRule.HIDDEN:
+            return i18n.t("Hidden");
+        case UserActionRule.UPDATE_ACCESS:
+            return i18n.t("Only available if user has update access over the users");
+        case UserActionRule.USER_IS_DISABLED:
+            return i18n.t("Only available for disabled users");
+        case UserActionRule.USER_IS_NOT_DISABLED:
+            return i18n.t("Only available for active users");
+        case UserActionRule.DELETE_ACCESS:
+            return i18n.t("Only available if user has delete access over the users");
+        case UserActionRule.REPLICATE_AUTHORITY:
+            return i18n.t("Only available if user has replicate authority on some owned role");
+    }
+}
+
+function buildRuleItems(): DropdownItem[] {
+    return getSelectableRules().map(rule => ({
+        value: rule,
+        text: i18n.t("[RULE] ") + getRuleLabel(rule),
+        /* With "[RULE] {{rule}}" HTML encoding-decoding was breaking for USERS_WITHIN_LOGGED_USER_ORG_UNITS single quote */
+    }));
+}
+
 function mapSelectedValues(actionsPermissions: ActionsPermissions): Record<UserAction, Value[]> {
     return _.mapValues(actionsPermissions, permission => {
-        return permission.isPublic ? ["public-access"] : permission.userGroups.map(getId);
+        if (permission.isPublic) {
+            return ["public-access"];
+        }
+
+        const userGroupValues = permission.userGroups.map(getId);
+        const ruleValues = permission.rules || [];
+
+        return [...userGroupValues, ...ruleValues];
     });
 }
 
-export type Value = Id;
+export type Value = Id | UserActionRule;

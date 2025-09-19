@@ -5,7 +5,7 @@ import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
 import { UserLogic } from "../entities/UserLogic";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 
 const columnNameFromPropertyMapping = {
     id: "ID",

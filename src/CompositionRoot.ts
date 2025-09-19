@@ -36,7 +36,6 @@ import { UserSearchD2Repository } from "./data/repositories/UserSearchD2Reposito
 import { CheckCurrentUserCanAccessSettingsUseCase } from "./domain/usecases/CheckCurrentUserCanAccessSettingsUseCase";
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { GetAllUserGroupsUseCase } from "./domain/usecases/GetAllUserGroupsUseCase";
-import { CheckActionsAccessibleToCurrentUserUseCase } from "./domain/usecases/CheckActionsAccessibleToCurrentUserUseCase";
 import { GetAllUserRolesUseCase } from "./domain/usecases/GetAllUserRolesUseCase";
 import { UserRoleD2Repository } from "./data/repositories/UserRoleD2Repository";
 import { GetDashboardsUseCase } from "./domain/usecases/GetDashboardsUseCase";
@@ -47,6 +46,8 @@ import { GetUserGroupsUseCase } from "./domain/usecases/GetUserGroupsUseCase";
 import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
 import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
 import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettingsD2ConstantRepository";
+import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase";
+import { VerifyPasswordUseCase } from "./domain/usecases/VerifyPasswordUseCase";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -93,12 +94,13 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
             resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
+            verifyPassword: new VerifyPasswordUseCase(userRepository),
+            setPassword: new SetUserPasswordUseCase(userRepository),
             searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
             checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
                 userRepository,
                 appSettingsRepository
             ),
-            checkActionsAccessibleToCurrentUser: new CheckActionsAccessibleToCurrentUserUseCase(),
             getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository),
         }),
         userGroups: getExecute({

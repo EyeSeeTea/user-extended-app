@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { Button, ButtonGroup, DialogActions, Typography } from "@material-ui/core";
 
-import { useUserColumns } from "../user-list-table/UserListTable";
 import i18n from "../../../utils/i18n";
 import { AppSettings, ColumnSettingValue, SettingsUserColumn } from "../../../domain/entities/AppSettings";
 import { Maybe } from "../../../types/utils";
+import { useUserColumns } from "../user-list-table/userColumns";
 
 type ColumnsSettingsPageProps = {
     appSettings: Maybe<AppSettings>;
