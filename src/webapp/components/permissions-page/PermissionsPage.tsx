@@ -73,11 +73,12 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                     label={i18n.t("Hide org units on advanced filters")}
                 />
 
-                {formState.showHideOrgUnits && (
+                {/* Feature: Blacklist org units within advanced filters trees */}
+                {/* {formState.showHideOrgUnits && (
                     <Box marginTop={1} marginBottom={3}>
                         Placeholder for org units tree
                     </Box>
-                )}
+                )} */}
 
                 <FormControlLabel
                     control={
