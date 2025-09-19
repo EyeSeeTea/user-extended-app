@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-09-12T15:01:38.333Z\n"
-"PO-Revision-Date: 2025-09-12T15:01:38.333Z\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"PO-Revision-Date: 2025-09-19T06:22:59.402Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -653,9 +653,6 @@ msgid "Contain at least one lowercase character"
 msgstr ""
 
 msgid "Contain at least one digit (number)"
-msgstr ""
-
-msgid "Password is valid"
 msgstr ""
 
 msgid "Please confirm your password"

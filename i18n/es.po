@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-12T15:01:38.333Z\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -682,10 +682,6 @@ msgid "Contain at least one digit (number)"
 msgstr "La contraseña debe contener al menos un número"
 
 #, fuzzy
-msgid "Password is valid"
-msgstr "Contraseña"
-
-#, fuzzy
 msgid "Please confirm your password"
 msgstr "Por favor proporcione una contraseña"
 
@@ -811,3 +807,7 @@ msgstr "Abrir en Administración de usuarios"
 
 msgid " and {{overflow}} more..."
 msgstr " y {{overflow}} más..."
+
+#, fuzzy
+#~ msgid "Password is valid"
+#~ msgstr "Contraseña"

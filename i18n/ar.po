@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-12T15:01:38.333Z\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -678,10 +678,6 @@ msgid "Contain at least one digit (number)"
 msgstr "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل"
 
 #, fuzzy
-msgid "Password is valid"
-msgstr "كلمة المرور"
-
-#, fuzzy
 msgid "Please confirm your password"
 msgstr "يرجى إدخال كلمة مرور"
 
@@ -803,3 +799,7 @@ msgstr "فتح في إدارة المستخدمين"
 
 msgid " and {{overflow}} more..."
 msgstr " و{{overflow}} المزيد..."
+
+#, fuzzy
+#~ msgid "Password is valid"
+#~ msgstr "كلمة المرور"
