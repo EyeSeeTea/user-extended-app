@@ -1,6 +1,6 @@
 import { validatePasswordRules } from "../passwordValidation";
 
-jest.mock("../../../../locales", () => ({
+jest.mock("../../../../utils/i18n", () => ({
     t: (key: string) => key,
 }));
 
