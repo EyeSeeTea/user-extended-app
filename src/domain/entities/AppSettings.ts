@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Permission } from "./Permission";
 import { Id } from "./Ref";
-import { UserColumns } from "./User";
+import { isSuperAdmin, User, UserColumns } from "./User";
 import { UserAction, userActions } from "./UserAction";
 import { ActionPermission } from "./ActionPermission";
 import { fromPairs, getKeys } from "../../types/utils";
@@ -28,6 +28,7 @@ type AppSettingsAttr = {
 export type ColumnSettingValue = "visible" | "disabled" | "optional";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
 export type ActionsPermissions = Record<UserAction, ActionPermission>;
+const defaultHideValues = { users: [], userGroups: [], userRoles: [], orgUnits: [] };
 
 export class AppSettings extends Struct<AppSettingsAttr>() {
     static defaultSettings(): AppSettings {
@@ -37,7 +38,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showFeedback: true,
             settingsAccess: emptyPermission,
             actionsAccess: defaultActions(),
-            hide: { users: [], userGroups: [], userRoles: [], orgUnits: [] },
+            hide: defaultHideValues,
         });
     }
 
@@ -68,6 +69,10 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     isHideUserRelatedConfigurationEmpty(): boolean {
         return _.isEmpty(this.hide.users) && _.isEmpty(this.hide.userGroups) && _.isEmpty(this.hide.userRoles);
+    }
+
+    validateUserAndBuild(user: User): AppSettings {
+        return isSuperAdmin(user) ? this._update({ hide: defaultHideValues }) : this;
     }
 
     private static defaultColumns(): SettingsUserColumn[] {

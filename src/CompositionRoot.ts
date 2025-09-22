@@ -101,14 +101,14 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
                 userRepository,
                 appSettingsRepository
             ),
-            getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository),
+            getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository, appSettingsRepository),
         }),
         userGroups: getExecute({
             getAll: new GetAllUserGroupsUseCase(userGroupRepository),
-            get: new GetUserGroupsUseCase(userGroupRepository, orgUnitRepository),
+            get: new GetUserGroupsUseCase(userGroupRepository, orgUnitRepository, appSettingsRepository),
         }),
         userRoles: getExecute({
-            get: new GetUserRolesUseCase(userRoleRepository, orgUnitRepository),
+            get: new GetUserRolesUseCase(userRoleRepository, orgUnitRepository, appSettingsRepository),
             getAll: new GetAllUserRolesUseCase(userRoleRepository),
         }),
         metadata: getExecute({
@@ -120,7 +120,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             save: new SaveAppSettingsUseCase(appSettingsRepository),
         },
         dashboards: {
-            get: new GetDashboardsUseCase(dashboardRepository),
+            get: new GetDashboardsUseCase(dashboardRepository, appSettingsRepository),
         },
     };
 }

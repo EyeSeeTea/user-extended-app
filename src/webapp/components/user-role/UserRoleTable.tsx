@@ -32,7 +32,7 @@ function generateTableConfig(): TableConfig<UserRole> {
 }
 
 export const UserRoleTable: React.FC<{}> = React.memo(() => {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, currentUser } = useAppContext();
 
     const config = React.useMemo(() => {
         return generateTableConfig();
@@ -51,10 +51,11 @@ export const UserRoleTable: React.FC<{}> = React.memo(() => {
                     search: search,
                     sorting: { field: sorting.field, order: sorting.order },
                     excludeUsersOutsideOrgUnits: true,
+                    user: currentUser,
                 })
                 .toPromise();
         },
-        [compositionRoot.userRoles]
+        [compositionRoot.userRoles, currentUser]
     );
 
     const tableProps = useObjectsTable(config, getRows);
