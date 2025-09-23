@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
-"PO-Revision-Date: 2025-09-19T06:22:59.402Z\n"
+"POT-Creation-Date: 2025-09-23T17:00:48.255Z\n"
+"PO-Revision-Date: 2025-09-23T17:00:48.255Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -123,6 +123,9 @@ msgid "Columns to show in table"
 msgstr ""
 
 msgid "Column"
+msgstr ""
+
+msgid "Mandatory"
 msgstr ""
 
 msgid "Visible"
@@ -453,6 +456,12 @@ msgid "Database language"
 msgstr ""
 
 msgid "Api URL"
+msgstr ""
+
+msgid "Column settings have been successfully reset."
+msgstr ""
+
+msgid "Reset Columns"
 msgstr ""
 
 msgid "Last updated"

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"POT-Creation-Date: 2025-09-23T17:00:48.255Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -124,6 +124,9 @@ msgstr "الأعمدة المعروضة في الجدول"
 
 msgid "Column"
 msgstr "عمود"
+
+msgid "Mandatory"
+msgstr ""
 
 msgid "Visible"
 msgstr "مرئي"
@@ -460,6 +463,13 @@ msgstr "لغة قاعدة البيانات"
 
 msgid "Api URL"
 msgstr "رابط API"
+
+msgid "Column settings have been successfully reset."
+msgstr ""
+
+#, fuzzy
+msgid "Reset Columns"
+msgstr "الأعمدة"
 
 msgid "Last updated"
 msgstr "آخر تحديث"
