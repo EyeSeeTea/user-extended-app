@@ -19,7 +19,7 @@ export class User extends Struct<UserProps>() {
     static createNewUser(props: UserProps, isExistingUser = true): User {
         const errors = User.validateUser(props, isExistingUser);
         if (errors) {
-            throw new Error(User.makeErrorMessage(errors));
+            throw new Error(makeErrorMessage(errors));
         }
         return new User(props);
     }
@@ -27,15 +27,9 @@ export class User extends Struct<UserProps>() {
     static createUser(props: UserProps, isExistingUser = true): User {
         const errors = User.validateUser(props, isExistingUser, true);
         if (errors) {
-            throw new Error(User.makeErrorMessage(errors));
+            throw new Error(makeErrorMessage(errors));
         }
         return new User(props);
-    }
-
-    static makeErrorMessage(message: UserValidationErrors): string {
-        return Object.entries(message)
-            .map(([field, error]) => `${field}: ${error}`)
-            .join(", ");
     }
 
     /** Validates the user properties.
@@ -235,4 +229,10 @@ export class User extends Struct<UserProps>() {
 
         return undefined;
     }
+}
+
+function makeErrorMessage(message: UserValidationErrors): string {
+    return Object.entries(message)
+        .map(([field, error]) => `${field}: ${error}`)
+        .join(", ");
 }
