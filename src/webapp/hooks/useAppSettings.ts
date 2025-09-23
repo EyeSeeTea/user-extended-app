@@ -5,13 +5,13 @@ import { AppSettings } from "../../domain/entities/AppSettings";
 import { useAppContext } from "../contexts/app-context";
 
 export function useAppSettings() {
-    const { compositionRoot, currentUser } = useAppContext();
+    const { compositionRoot } = useAppContext();
     const [appSettings, setAppSettings] = React.useState<AppSettings>(AppSettings.defaultSettings());
     const [hasLoaded, setHasLoaded] = React.useState(false);
     const snackbar = useSnackbar();
 
     React.useEffect(() => {
-        return compositionRoot.settings.get.execute(currentUser).run(
+        return compositionRoot.settings.get.execute().run(
             result => {
                 setAppSettings(result);
                 setHasLoaded(true);
@@ -21,7 +21,7 @@ export function useAppSettings() {
                 setHasLoaded(true);
             }
         );
-    }, [compositionRoot.settings.get, snackbar, currentUser]);
+    }, [compositionRoot.settings.get, snackbar]);
 
     const save = React.useCallback(
         (settings: AppSettings, onSuccess: () => void, onError: (message: string) => void) => {

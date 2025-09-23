@@ -79,9 +79,9 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         }),
         users: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),
-            list: new ListUsersUseCase(userRepository),
+            list: new ListUsersUseCase(userRepository, appSettingsRepository),
             listAll: new ListAllUsersUseCase(userRepository),
-            listAllIds: new ListAllUserIdsUseCase(userRepository),
+            listAllIds: new ListAllUserIdsUseCase(userRepository, appSettingsRepository),
             get: new GetUsersByIdsUseCase(userRepository),
             save: new SaveUsersUseCase(userRepository),
             saveStatus: new SaveUserStatusUseCase(userRepository),

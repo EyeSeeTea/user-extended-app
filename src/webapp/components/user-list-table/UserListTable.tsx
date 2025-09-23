@@ -18,7 +18,7 @@ import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { User } from "../../../domain/entities/User";
+import { isSuperAdmin, User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../utils/i18n";
@@ -453,9 +453,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 })
                 .map(({ objects, pager }) => ({
                     pager,
-                    objects: objects.map(
-                        hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
-                    ),
+                    objects: isSuperAdmin(currentUser)
+                        ? objects
+                        : objects.map(
+                              hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
+                          ),
                 }))
                 .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
@@ -474,6 +476,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             appSettings.hide.userRoles,
             appSettings.hide.userGroups,
             needsPatch,
+            currentUser,
         ]
     );
 
