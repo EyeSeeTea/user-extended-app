@@ -2945,10 +2945,10 @@
     real-cancellable-promise "^1.1.2"
     typed-immutable-map "0.2.0"
 
-"@eyeseetea/d2-ui-components@2.11.0-beta.1":
-  version "2.11.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@eyeseetea/d2-ui-components/-/d2-ui-components-2.11.0-beta.1.tgz#b4b4c76285a03f4f99d2645d8c7476122da8f289"
-  integrity sha512-OLBphENbEUQjVe94rqKqaw9vClPLXeYSIAD0Zpx7etnY2Out2lh5DOl97muff13mKJmvN6u35BApp7DLnX0X0g==
+"@eyeseetea/d2-ui-components@2.12.0-beta.1":
+  version "2.12.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@eyeseetea/d2-ui-components/-/d2-ui-components-2.12.0-beta.1.tgz#2497eeef98999205acf158e178ce6da120c36f89"
+  integrity sha512-eclivwpPW3+lQ4H1bl92yCY9wOf9YB5D5RsxfwsqfPVp52y0DcbKDQPfw3AWmiunuaPos/VwC+g/Owd8T7u+5Q==
   dependencies:
     "@date-io/core" "1.3.6"
     "@date-io/moment" "1.0.2"
@@ -2962,7 +2962,6 @@
     moment "2.29.4"
     nano-memoize "1.2.1"
     react-linkify "1.0.0-alpha"
-    rxjs-compat "6.6.3"
     throttle-debounce "2.1.0"
 
 "@eyeseetea/feedback-component@0.3.0":
