@@ -19,7 +19,7 @@ export function useUserColumns(): TableColumn<User>[] {
 
 function getValue(columnName: UserColumn) {
     switch (columnName) {
-        // BuildEllipsizedList
+        // Build ellipsized list
         case UserColumn.USER_ROLES:
         case UserColumn.USER_GROUPS:
         case UserColumn.ORGANISATION_UNITS:
