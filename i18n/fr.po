@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"POT-Creation-Date: 2025-09-25T19:44:43.501Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -335,6 +335,12 @@ msgstr "Masquer les utilisateurs, les rôles et les groupes d'utilisateurs"
 msgid "Actions available for all users"
 msgstr "Actions disponibles pour tous les utilisateurs"
 
+msgid ""
+"All actions will be available for administrators (but still subject to the "
+"circumstances that need to be met for each action). Eg: 'Enable' action will "
+"not be available if selected users are already enabled."
+msgstr ""
+
 msgid "Access to Settings Section"
 msgstr "Accès à la section des paramètres"
 
@@ -381,6 +387,40 @@ msgid "Only available if user has delete access over the users"
 msgstr ""
 
 msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+#, fuzzy
+msgid "Selected users have email address"
+msgstr "Tous les utilisateurs n'ont pas d'e-mail"
+
+msgid "Selected users belong to at least one of users' organization units"
+msgstr ""
+
+#, fuzzy
+msgid "User has update access"
+msgstr "Utilisateurs importés avec succès"
+
+#, fuzzy
+msgid "Selected users are disabled"
+msgstr "Répliquer l'utilisateur à partir du tableau"
+
+#, fuzzy
+msgid "Selected users are active"
+msgstr "Sélectionner des utilisateurs"
+
+msgid "User has delete access"
+msgstr ""
+
+msgid "User has replicate authority"
+msgstr ""
+
+msgid "criteria"
+msgstr ""
+
+msgid "criterion"
+msgstr ""
+
+msgid "The following {{label}} must always be satisfied: {{criterias}}"
 msgstr ""
 
 msgid "[RULE] "
@@ -610,6 +650,10 @@ msgstr "réinitialiser les mots de passe pour"
 
 msgid "Passwords have been reset"
 msgstr "Les mots de passe ont été réinitialisés"
+
+msgid ""
+"An email will be sent to the users with instructions to reset their password."
+msgstr ""
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"

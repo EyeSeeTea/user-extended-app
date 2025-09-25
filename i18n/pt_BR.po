@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"POT-Creation-Date: 2025-09-25T19:44:43.501Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -333,6 +333,12 @@ msgstr "Ocultar usuários, funções e grupos de usuários"
 msgid "Actions available for all users"
 msgstr "Ações disponíveis para todos os usuários"
 
+msgid ""
+"All actions will be available for administrators (but still subject to the "
+"circumstances that need to be met for each action). Eg: 'Enable' action will "
+"not be available if selected users are already enabled."
+msgstr ""
+
 msgid "Access to Settings Section"
 msgstr "Acesso à seção de configurações"
 
@@ -378,6 +384,40 @@ msgid "Only available if user has delete access over the users"
 msgstr ""
 
 msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+#, fuzzy
+msgid "Selected users have email address"
+msgstr "Nem todos os usuários têm e-mail"
+
+msgid "Selected users belong to at least one of users' organization units"
+msgstr ""
+
+#, fuzzy
+msgid "User has update access"
+msgstr "Usuários importados com sucesso"
+
+#, fuzzy
+msgid "Selected users are disabled"
+msgstr "Replicar usuário a partir da tabela"
+
+#, fuzzy
+msgid "Selected users are active"
+msgstr "Selecionar usuários"
+
+msgid "User has delete access"
+msgstr ""
+
+msgid "User has replicate authority"
+msgstr ""
+
+msgid "criteria"
+msgstr ""
+
+msgid "criterion"
+msgstr ""
+
+msgid "The following {{label}} must always be satisfied: {{criterias}}"
 msgstr ""
 
 msgid "[RULE] "
@@ -607,6 +647,10 @@ msgstr "redefinir as senhas de"
 
 msgid "Passwords have been reset"
 msgstr "As senhas foram redefinidas"
+
+msgid ""
+"An email will be sent to the users with instructions to reset their password."
+msgstr ""
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"

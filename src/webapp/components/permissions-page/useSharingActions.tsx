@@ -160,6 +160,7 @@ function getInfoForAction(action: UserAction): Maybe<string> {
     return i18n.t("The following {{label}} must always be satisfied: {{criterias}}", {
         label,
         criterias,
+        nsSeparator: false,
     });
 }
 

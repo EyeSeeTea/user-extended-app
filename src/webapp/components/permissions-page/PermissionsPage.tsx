@@ -115,7 +115,10 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                 fontSize="small"
                                 color="disabled"
                                 titleAccess={i18n.t(
-                                    "All actions will be available for administrators (but still subject to the circumstances that need to be met for each action). Eg: 'Enable' action will not be available if selected users are already enabled."
+                                    "All actions will be available for administrators (but still subject to the circumstances that need to be met for each action). Eg: 'Enable' action will not be available if selected users are already enabled.",
+                                    {
+                                        nsSeparator: false,
+                                    }
                                 )}
                             />
                         </Box>
