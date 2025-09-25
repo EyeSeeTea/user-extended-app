@@ -19,22 +19,25 @@ export function useUserColumns(): TableColumn<User>[] {
 
 function getValue(columnName: UserColumn) {
     switch (columnName) {
+        // BuildEllipsizedList
         case UserColumn.USER_ROLES:
         case UserColumn.USER_GROUPS:
         case UserColumn.ORGANISATION_UNITS:
         case UserColumn.DATA_VIEW_ORGANISATION_UNITS:
         case UserColumn.SEARCH_ORGANISATIONS_UNITS:
             return (user: User) => buildEllipsizedList(user[columnName]);
-        case UserColumn.LAST_LOGIN:
-            return (user: User) => (user.disabled ? <Check /> : undefined);
+
+        // Modified by
         case UserColumn.CREATED_BY:
-            return (user: User) => user.createdBy?.username || "";
         case UserColumn.LAST_MODIFIED_BY:
-            return (user: User) => user.lastModifiedBy?.username || "";
+            return (user: User) => user[columnName]?.username || "";
+
+        // Check icon
         case UserColumn.TWO_FACTOR_ENABLED:
-            return (user: User) => (user.twoFactorEnabled ? <Check /> : undefined);
+        case UserColumn.DISABLED:
         case UserColumn.EXTERNAL_AUTH:
-            return (user: User) => (user.externalAuth ? <Check /> : undefined);
+            return (user: User) => (user[columnName] ? <Check /> : undefined);
+
         default:
             return undefined; // Will be handled by ObjectsList component
     }
