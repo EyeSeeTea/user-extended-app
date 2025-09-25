@@ -27,7 +27,7 @@ function getValue(columnName: UserColumn) {
         case UserColumn.SEARCH_ORGANISATIONS_UNITS:
             return (user: User) => buildEllipsizedList(user[columnName]);
 
-        // Modified by
+        // Created/modified by fields
         case UserColumn.CREATED_BY:
         case UserColumn.LAST_MODIFIED_BY:
             return (user: User) => user[columnName]?.username || "";
