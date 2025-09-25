@@ -32,7 +32,7 @@ function getValue(columnName: UserColumn) {
         case UserColumn.LAST_MODIFIED_BY:
             return (user: User) => user[columnName]?.username || "";
 
-        // Check icon
+        // Boolean fields with check icon display
         case UserColumn.TWO_FACTOR_ENABLED:
         case UserColumn.DISABLED:
         case UserColumn.EXTERNAL_AUTH:
