@@ -108,7 +108,18 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                             onChange={event => updateFormState(event.target.checked, "actionsArePublic")}
                         />
                     }
-                    label={i18n.t("Actions available for all users")}
+                    label={
+                        <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
+                            {i18n.t("Actions available for all users")}
+                            <InfoOutlinedIcon
+                                fontSize="small"
+                                color="disabled"
+                                titleAccess={i18n.t(
+                                    "All actions will be available for administrators (but still subject to the circumstances that need to be met for each action). Eg: 'Enable' action will not be available if selected users are already enabled."
+                                )}
+                            />
+                        </Box>
+                    }
                 />
 
                 {!formState.actionsArePublic && (
@@ -129,7 +140,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                         />
                     }
                     label={
-                        <Box display="flex" alignItems="flex-start" gridColumnGap={theme.spacing(0.5)}>
+                        <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
                             {i18n.t("Access to Settings Section")}
                             <InfoOutlinedIcon
                                 fontSize="small"

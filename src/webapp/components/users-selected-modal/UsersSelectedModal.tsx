@@ -1,6 +1,8 @@
 import React from "react";
 import _ from "lodash";
 import { ConfirmationDialog, useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
+import { Box, useTheme } from "@material-ui/core";
+import { InfoOutlined as InfoOutlinedIcon } from "@material-ui/icons";
 
 import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
@@ -23,7 +25,12 @@ export type RiskyActionType = "remove" | "enable" | "disable" | "reset_password"
 
 export type ActionType = RiskyActionType | OrgUnitActionType | "copy_in_user" | "set_password";
 
-function getMessagesByActionType(actionType: ActionType): { title: string; description: string; success: string } {
+function getMessagesByActionType(actionType: ActionType): {
+    title: string;
+    description: string;
+    success: string;
+    help?: string;
+} {
     switch (actionType) {
         case "remove":
             return { title: i18n.t("Remove users"), description: "remove", success: i18n.t("Users removed") };
@@ -36,13 +43,14 @@ function getMessagesByActionType(actionType: ActionType): { title: string; descr
                 title: i18n.t("Reset passwords"),
                 description: i18n.t("reset the passwords for"),
                 success: i18n.t("Passwords have been reset"),
+                help: i18n.t("An email will be sent to the users with instructions to reset their password."),
             };
         default:
             return { title: "", description: "", success: "" };
     }
 }
 
-export function generateMessage(users: User[]) {
+export function formatUserList(users: User[]) {
     const firstThreeUsers = _(users).take(3).value();
     const remainingUsersCount = users.length - firstThreeUsers.length;
     return remainingUsersCount > 0 ? `and ${remainingUsersCount} more` : "";
@@ -65,6 +73,7 @@ export const UsersSelectedModal: React.FC<UsersSelectedModalProps> = ({
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
     const loading = useLoading();
+    const theme = useTheme();
 
     const messages = getMessagesByActionType(actionType);
 
@@ -75,7 +84,7 @@ export const UsersSelectedModal: React.FC<UsersSelectedModalProps> = ({
             i18n.t("{{actionSuccess}}. {{users}} {{remainingCount}}", {
                 actionSuccess: messages.success,
                 users: firstThreeUsers.join(", "),
-                remainingCount: generateMessage(users),
+                remainingCount: formatUserList(users),
             })
         );
         onSuccess();
@@ -110,13 +119,18 @@ export const UsersSelectedModal: React.FC<UsersSelectedModalProps> = ({
             isOpen={isOpen}
             onSave={onSave}
             onCancel={onCancel}
-            title={i18n.t("{{actionTitle}}", { actionTitle: messages.title })}
+            title={
+                <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
+                    {i18n.t("{{actionTitle}}", { actionTitle: messages.title })}
+                    {messages.help && <InfoOutlinedIcon fontSize="small" color="primary" titleAccess={messages.help} />}
+                </Box>
+            }
             description={i18n.t(
                 "Are you sure you want to {{actionDescription}} the selected users? {{users}} {{remainingCount}}",
                 {
                     actionDescription: messages.description,
                     users: firstThreeUsers.join(", "),
-                    remainingCount: generateMessage(users),
+                    remainingCount: formatUserList(users),
                 }
             )}
             saveText={i18n.t("Confirm")}
