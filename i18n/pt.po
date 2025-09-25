@@ -9,10 +9,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgid "Invalid response from server"
-msgstr ""
+msgstr "Resposta inválida do servidor"
 
 msgid "Unknown error"
-msgstr ""
+msgstr "Erro desconhecido"
 
 msgid "ID"
 msgstr "ID"
@@ -326,7 +326,7 @@ msgid "Show only active users"
 msgstr "Mostrar apenas utilizadores ativos"
 
 msgid "Hide org units on advanced filters"
-msgstr ""
+msgstr "Ocultar unidades organizacionais nos filtros avançados"
 
 msgid "Hide users, user roles and user groups"
 msgstr "Ocultar utilizadores, funções e grupos de utilizadores"
@@ -339,6 +339,10 @@ msgid ""
 "circumstances that need to be met for each action). Eg: 'Enable' action will "
 "not be available if selected users are already enabled."
 msgstr ""
+"Todas as ações estarão disponíveis para administradores (mas ainda sujeitas "
+"às circunstâncias que precisam ser atendidas para cada ação). Ex: a ação "
+"'Ativar' não estará disponível se os utilizadores selecionados já estiverem "
+"ativados."
 
 msgid "Access to Settings Section"
 msgstr "Acesso à secção de definições"
@@ -360,7 +364,7 @@ msgid "Public access (Everyone)"
 msgstr "Acesso público (Todos)"
 
 msgid "User has email address"
-msgstr ""
+msgstr "Utilizador tem endereço de e-mail"
 
 #, fuzzy
 msgid "Only available for users assigned to users' organization unit and below"
@@ -369,10 +373,10 @@ msgstr ""
 "utilizador"
 
 msgid "Hidden"
-msgstr ""
+msgstr "Oculto"
 
 msgid "Only available if user has update access over the users"
-msgstr ""
+msgstr "Apenas disponível se o utilizador tiver acesso de atualização sobre os utilizadores"
 
 #, fuzzy
 msgid "Only available for disabled users"
@@ -383,17 +387,17 @@ msgid "Only available for active users"
 msgstr "Ações disponíveis para todos os utilizadores"
 
 msgid "Only available if user has delete access over the users"
-msgstr ""
+msgstr "Apenas disponível se o utilizador tiver acesso de exclusão sobre os utilizadores"
 
 msgid "Only available if user has replicate authority on some owned role"
-msgstr ""
+msgstr "Apenas disponível se o utilizador tiver autoridade de replicação em alguma função própria"
 
 #, fuzzy
 msgid "Selected users have email address"
 msgstr "Nem todos os utilizadores têm email"
 
 msgid "Selected users belong to at least one of users' organization units"
-msgstr ""
+msgstr "Os utilizadores selecionados pertencem a pelo menos uma das unidades organizacionais dos utilizadores"
 
 #, fuzzy
 msgid "User has update access"
@@ -408,22 +412,22 @@ msgid "Selected users are active"
 msgstr "Selecionar utilizadores"
 
 msgid "User has delete access"
-msgstr ""
+msgstr "Utilizador tem acesso de exclusão"
 
 msgid "User has replicate authority"
-msgstr ""
+msgstr "Utilizador tem autoridade de replicação"
 
 msgid "criteria"
-msgstr ""
+msgstr "critérios"
 
 msgid "criterion"
-msgstr ""
+msgstr "critério"
 
 msgid "The following {{label}} must always be satisfied: {{criterias}}"
-msgstr ""
+msgstr "Os seguintes {{label}} devem sempre ser satisfeitos: {{criterias}}"
 
 msgid "[RULE] "
-msgstr ""
+msgstr "[REGRA] "
 
 msgid "Saving..."
 msgstr "A guardar..."
@@ -621,7 +625,7 @@ msgid "New Password"
 msgstr "Palavra-passe"
 
 msgid "Confirm New Password"
-msgstr ""
+msgstr "Confirmar Nova Palavra-passe"
 
 msgid "Remove users"
 msgstr "Remover utilizadores"
@@ -653,6 +657,8 @@ msgstr "As palavras-passe foram repostas"
 msgid ""
 "An email will be sent to the users with instructions to reset their password."
 msgstr ""
+"Será enviado um e-mail aos utilizadores com instruções para repor a sua "
+"palavra-passe."
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"
@@ -679,14 +685,14 @@ msgid "Set Password"
 msgstr "Palavra-passe"
 
 msgid "Password is required"
-msgstr ""
+msgstr "Palavra-passe é obrigatória"
 
 #, fuzzy
 msgid "Password must contain at least 8 characters"
 msgstr "A palavra-passe deve conter pelo menos um número"
 
 msgid "Password must not contain more than 34 characters"
-msgstr ""
+msgstr "A palavra-passe não deve conter mais de 34 caracteres"
 
 #, fuzzy
 msgid "Password must contain at least one lowercase letter"
@@ -705,7 +711,7 @@ msgid "Password must contain at least one special character (non-alphanumeric)"
 msgstr "A palavra-passe deve conter pelo menos um carácter especial"
 
 msgid "Contain at least 8 characters"
-msgstr ""
+msgstr "Conter pelo menos 8 caracteres"
 
 #, fuzzy
 msgid "Not contain more than 34 characters"
@@ -732,16 +738,18 @@ msgid "Please confirm your password"
 msgstr "Por favor, indique uma palavra-passe"
 
 msgid "Passwords do not match"
-msgstr ""
+msgstr "As palavras-passe não coincidem"
 
 msgid "Please ensure all password requirements are met and passwords match"
 msgstr ""
+"Por favor, certifique-se de que todos os requisitos da palavra-passe sejam "
+"atendidos e as palavras-passe coincidam"
 
 msgid "Password has been set successfully for {{username}}"
-msgstr ""
+msgstr "A palavra-passe foi definida com sucesso para {{username}}"
 
 msgid "Failed to set password. Please try again."
-msgstr ""
+msgstr "Falha ao definir a palavra-passe. Tente novamente."
 
 msgid "Table exported: {{filename}}"
 msgstr "Tabela exportada: {{filename}}"
