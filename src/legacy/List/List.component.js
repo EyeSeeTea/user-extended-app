@@ -10,15 +10,22 @@ import Settings from "../models/settings";
 import snackActions from "../Snackbar/snack.actions";
 import Filters from "./Filters.component";
 import { useAppSettingsContext } from "../../webapp/contexts/AppSettingsProvider";
+import { isSuperAdmin } from "../../domain/entities/User";
 
 const initialSorting = ["name", "asc"];
 
 export const DEFAULT_SHOW_ONLY_ACTIVE_USERS = true;
 
 const ListHybridWrapper = props => {
-    const { appSettings } = useAppSettingsContext();
+    const { appSettings, currentUser } = useAppSettingsContext();
 
-    return <ListHybrid {...props} onlyActiveUsers={appSettings.showOnlyActiveUsers} />;
+    return (
+        <ListHybrid
+            {...props}
+            isSuperAdmin={isSuperAdmin(currentUser)}
+            onlyActiveUsers={appSettings.showOnlyActiveUsers}
+        />
+    );
 };
 
 export { ListHybridWrapper as ListHybrid };
@@ -228,9 +235,9 @@ class ListHybrid extends React.Component {
 
     render() {
         const { replicateUser, listFilterOptions, onlyUsersOrgUnits } = this.state;
-        const { onlyActiveUsers } = this.props;
+        const { onlyActiveUsers, isSuperAdmin } = this.props;
 
-        const areFiltersOverrided = onlyActiveUsers;
+        const areFiltersOverrided = isSuperAdmin ? false : onlyActiveUsers;
         const hideUsersCanManageFilter = onlyActiveUsers && onlyUsersOrgUnits;
 
         return (
@@ -255,6 +262,7 @@ class ListHybrid extends React.Component {
                                 showSearch={false}
                                 api={this.props.api}
                                 onlyActiveUsers={onlyActiveUsers}
+                                isSuperAdmin={isSuperAdmin}
                                 areFiltersOverrided={areFiltersOverrided}
                                 hideUsersCanManageFilter={hideUsersCanManageFilter}
                                 onlyUsersOrgUnits={onlyUsersOrgUnits}

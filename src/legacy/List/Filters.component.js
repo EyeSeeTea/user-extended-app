@@ -28,6 +28,7 @@ export default class Filters extends React.Component {
         hideUsersCanManageFilter: PropTypes.bool,
         onlyUsersOrgUnits: PropTypes.bool,
         setOnlyUsersOrgUnits: PropTypes.func.isRequired,
+        isSuperAdmin: PropTypes.bool,
     };
 
     styles = {
@@ -237,7 +238,7 @@ export default class Filters extends React.Component {
             rootJunction,
         } = this.state;
 
-        const { onlyActiveUsers, areFiltersOverrided, hideUsersCanManageFilter } = this.props;
+        const { isSuperAdmin, areFiltersOverrided, hideUsersCanManageFilter } = this.props;
 
         const { styles } = this;
 
@@ -344,11 +345,11 @@ export default class Filters extends React.Component {
                             <div className="user-management-control select-active-or-inactive">
                                 <Dropdown
                                     labelText={this.getTranslation("filter_active_inactive_users")}
-                                    options={onlyActiveUsers ? forcedFilterOptions : activeInactiveOptions}
+                                    options={!isSuperAdmin ? forcedFilterOptions : activeInactiveOptions}
                                     value={this.state.userDisabled}
                                     onChange={this.setFilter("userDisabled", this.dropdownHandler)}
                                     style={styles.dropdownStyles}
-                                    disabled={onlyActiveUsers}
+                                    disabled={!isSuperAdmin}
                                 />
                             </div>
 

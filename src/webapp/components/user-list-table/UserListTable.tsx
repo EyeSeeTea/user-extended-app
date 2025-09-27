@@ -151,8 +151,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess);
 
     /* Pagination DHIS2 Bug */
-    const needsPatch =
-        onlyUsersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
+    const needsPatch = false;
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
