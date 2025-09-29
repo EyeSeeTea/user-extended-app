@@ -19,7 +19,7 @@ export function useUserColumns(): TableColumn<User>[] {
 
 function getValue(columnName: UserColumn) {
     switch (columnName) {
-        // BuildEllipsizedList
+        // Build ellipsized list
         case UserColumn.USER_ROLES:
         case UserColumn.USER_GROUPS:
         case UserColumn.ORGANISATION_UNITS:
@@ -27,12 +27,12 @@ function getValue(columnName: UserColumn) {
         case UserColumn.SEARCH_ORGANISATIONS_UNITS:
             return (user: User) => buildEllipsizedList(user[columnName]);
 
-        // Modified by
+        // Created/modified by fields
         case UserColumn.CREATED_BY:
         case UserColumn.LAST_MODIFIED_BY:
             return (user: User) => user[columnName]?.username || "";
 
-        // Check icon
+        // Boolean fields with check icon display
         case UserColumn.TWO_FACTOR_ENABLED:
         case UserColumn.DISABLED:
         case UserColumn.EXTERNAL_AUTH:
