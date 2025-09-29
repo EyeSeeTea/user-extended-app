@@ -46,9 +46,11 @@ export type SharingActionProps = {
 const SharingAction: React.FC<SharingActionProps> = props => {
     const { action, items, values, onChange, info } = props;
 
+    const theme = useTheme();
+
     return (
         <Box display="grid" key={action} gridTemplateColumns="1fr 3fr" alignItems="center">
-            <Box display="flex" alignItems="center" gridColumnGap={6}>
+            <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
                 <Typography variant="body2">{getUserActionLabel(action)}</Typography>
                 {info && <OfflinePinOutlinedIcon fontSize="small" color="primary" titleAccess={info} />}
             </Box>
