@@ -121,7 +121,7 @@ export const UsersSelectedModal: React.FC<UsersSelectedModalProps> = ({
             onCancel={onCancel}
             title={
                 <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
-                    {i18n.t("{{actionTitle}}", { actionTitle: messages.title })}
+                    {messages.title}
                     {messages.help && <InfoOutlinedIcon fontSize="small" color="primary" titleAccess={messages.help} />}
                 </Box>
             }
