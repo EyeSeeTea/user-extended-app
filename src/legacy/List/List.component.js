@@ -17,7 +17,8 @@ const initialSorting = ["name", "asc"];
 export const DEFAULT_SHOW_ONLY_ACTIVE_USERS = true;
 
 const ListHybridWrapper = props => {
-    const { appSettings, currentUser } = useAppSettingsContext();
+    const { currentUser } = props.params;
+    const { appSettings } = useAppSettingsContext();
 
     return (
         <ListHybrid
