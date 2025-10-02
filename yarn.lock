@@ -2945,10 +2945,10 @@
     real-cancellable-promise "^1.1.2"
     typed-immutable-map "0.2.0"
 
-"@eyeseetea/d2-ui-components@2.12.0-beta.1":
-  version "2.12.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@eyeseetea/d2-ui-components/-/d2-ui-components-2.12.0-beta.1.tgz#2497eeef98999205acf158e178ce6da120c36f89"
-  integrity sha512-eclivwpPW3+lQ4H1bl92yCY9wOf9YB5D5RsxfwsqfPVp52y0DcbKDQPfw3AWmiunuaPos/VwC+g/Owd8T7u+5Q==
+"@eyeseetea/d2-ui-components@2.12.0-beta.3":
+  version "2.12.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@eyeseetea/d2-ui-components/-/d2-ui-components-2.12.0-beta.3.tgz#51ce1b0c2514eb38d2efa83d91a6ca3dfc820eb0"
+  integrity sha512-OgerroMm7+DTHVgxDjmjJ+L0yj/ONTBA/kgCOHU84rhp+za5BKCtZ7V2dbApDCFILuP6jKRMvH2gQiu1SBJvfQ==
   dependencies:
     "@date-io/core" "1.3.6"
     "@date-io/moment" "1.0.2"
