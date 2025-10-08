@@ -13,6 +13,7 @@ import {
     ReplicateTemplateProps,
     ReplicateTemplateValidationError,
 } from "../../domain/entities/ReplicateTemplate";
+import { Password } from "../../domain/value-objects/Password";
 
 export interface UseReplicateUserFromTemplateReturn {
     userToReplicate: User | undefined;
@@ -44,7 +45,7 @@ export const useReplicateUserFromTemplate = (
     const snackbar = useSnackbar();
 
     const randomPasswordBase = React.useMemo(() => {
-        return User.generateRandomPassword();
+        return Password.generate().value;
     }, []);
 
     const initialValues = React.useMemo(() => {

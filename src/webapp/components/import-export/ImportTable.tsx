@@ -120,7 +120,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     const [areUsersValid, setAreUsersValid] = React.useState(false);
 
     const randomPassword = React.useMemo(() => {
-        return User.generateRandomPassword();
+        return Password.generate().value;
     }, []);
 
     const { compositionRoot } = useAppContext();

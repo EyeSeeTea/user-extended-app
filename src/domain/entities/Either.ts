@@ -49,6 +49,21 @@ export class Either<Error, Data> {
         });
     }
 
+    getOrThrow(): Data {
+        return this.match({
+            success: data => data,
+            error: error => {
+                if (error instanceof Error) {
+                    throw error;
+                } else if (Array.isArray(error)) {
+                    throw new Error(error.join(", "));
+                } else {
+                    throw new Error(String(error));
+                }
+            },
+        });
+    }
+
     static error<Error>(error: Error) {
         return new Either<Error, never>({ type: "error", error });
     }

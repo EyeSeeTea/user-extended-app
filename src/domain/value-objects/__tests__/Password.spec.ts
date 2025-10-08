@@ -138,6 +138,27 @@ describe("Password value object", () => {
         });
     });
 
+    describe("generate", () => {
+        it("should generate a password with default length of 16", () => {
+            const password = Password.generate();
+
+            expect(password.value.length).toBe(16);
+        });
+
+        it("should generate a password with specified length", () => {
+            const password = Password.generate(20);
+
+            expect(password.value.length).toBe(20);
+        });
+
+        it("should generate password that passes validation", () => {
+            const generatedPassword = Password.generate();
+            const validationResult = Password.create(generatedPassword.value, false);
+
+            expect(validationResult.isSuccess()).toBe(true);
+        });
+    });
+
     describe("equality", () => {
         it("should be equal when values are the same", () => {
             const password1 = Password.create("ValidPassword123!");
