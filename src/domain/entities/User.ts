@@ -1,6 +1,7 @@
 import { Maybe } from "../../types/utils";
 import { Username } from "../value-objects/Username";
 import { Password } from "../value-objects/Password";
+import { Email } from "../value-objects/Email";
 import { Struct } from "./generic/Struct";
 import { UserProps } from "./UserProps";
 
@@ -68,9 +69,11 @@ export class User extends Struct<UserProps>() {
         }
 
         if (!skipSourceErrors) {
-            const invalidEmail = User.validateEmail(props.email);
-            if (invalidEmail) {
-                errors.email = invalidEmail;
+            if (props.email) {
+                const emailResult = Email.create(props.email);
+                if (emailResult.isError()) {
+                    errors.email = emailResult.value.error.join(", ");
+                }
             }
 
             for (const field of ["organisationUnits", "userRoles", "userGroups"] as const) {
@@ -152,18 +155,6 @@ export class User extends Struct<UserProps>() {
             .join("");
 
         return shuffledPassword;
-    }
-
-    static validateEmail(email: string): string | undefined {
-        if (!email) {
-            return undefined;
-        }
-        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-        if (!emailRegex.test(email)) {
-            return "Please provide a valid email";
-        }
-
-        return undefined;
     }
 
     static validateRequiredArrayField(field: any[], fieldName: string): string | undefined {

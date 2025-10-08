@@ -43,6 +43,7 @@ import { ImportUser } from "../../../domain/entities/ImportUser";
 import { User } from "../../../domain/entities/User";
 import { Username } from "../../../domain/value-objects/Username";
 import { Password } from "../../../domain/value-objects/Password";
+import { Email } from "../../../domain/value-objects/Email";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
     id: "ID",
@@ -631,9 +632,12 @@ const useValidations = (
         case "email":
             return {
                 validation: (value: string) => {
-                    const emailValidationError = User.validateEmail(value);
-                    if (emailValidationError) {
-                        return i18n.t(emailValidationError);
+                    if (value) {
+                        const emailResult = Email.create(value);
+
+                        if (emailResult.isError()) {
+                            return emailResult.value.error.map(error => i18n.t(error)).join(", ");
+                        }
                     }
                     return undefined;
                 },
