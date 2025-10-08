@@ -1,5 +1,6 @@
 import { Maybe } from "../../types/utils";
 import { Username } from "../value-objects/Username";
+import { Password } from "../value-objects/Password";
 import { Struct } from "./generic/Struct";
 import { UserProps } from "./UserProps";
 
@@ -54,9 +55,9 @@ export class User extends Struct<UserProps>() {
             errors.username = usernameResult.value.error.join(", ");
         }
 
-        const invalidPassword = User.validatePassword(props.password, isExistingUser);
-        if (invalidPassword) {
-            errors.password = invalidPassword;
+        const passwordResult = Password.create(props.password, isExistingUser);
+        if (passwordResult.isError()) {
+            errors.password = passwordResult.value.error.join(", ");
         }
 
         for (const field of ["firstName", "surname"] as const) {
@@ -151,35 +152,6 @@ export class User extends Struct<UserProps>() {
             .join("");
 
         return shuffledPassword;
-    }
-
-    static validatePassword(password: string, isExistingUser = false): string | undefined {
-        if (isExistingUser && !password) {
-            return undefined;
-        }
-        if (!password) {
-            return "Please provide a password";
-        }
-        if (password.length < 8) {
-            return "Password should be at least 8 characters long";
-        }
-        if (password.length > 255) {
-            return "Password should be no longer than 255 characters";
-        }
-        if (!/.*[a-z]/.test(password)) {
-            return "Password should contain at least one lowercase letter";
-        }
-        if (!/.*[A-Z]/.test(password)) {
-            return "Password should contain at least one UPPERCASE letter";
-        }
-        if (!/.*[0-9]/.test(password)) {
-            return "Password should contain at least one number";
-        }
-        if (!/[^A-Za-z0-9]/.test(password)) {
-            return "Password should have at least one special character";
-        }
-
-        return undefined;
     }
 
     static validateEmail(email: string): string | undefined {

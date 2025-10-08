@@ -24,6 +24,10 @@ export class Username extends ValueObject<UsernameProps> {
     public static create(value: string): Either<string[], Username> {
         const requiredError = validateRequired(value, "Please provide a username");
 
+        if (requiredError) {
+            return Either.error([requiredError]);
+        }
+
         const startError = validateNotRegexp(value, /^[._@-]|[._@-]$/, "Username cannot start or end with a separator");
         const doubleError = validateNotRegexp(value, /([._@-]){2,}/, "Username cannot have two separators in a row");
         const charError = validateRegexp(
@@ -35,7 +39,7 @@ export class Username extends ValueObject<UsernameProps> {
         const minLengthError = validateLengthMin(value, 2, "Username should be at least 2 characters long");
         const maxLengthError = validateLengthMax(value, 255, "Username may not exceed 255 characters");
 
-        const errors = [requiredError, startError, doubleError, charError, minLengthError, maxLengthError].filter(
+        const errors = [startError, doubleError, charError, minLengthError, maxLengthError].filter(
             error => error !== undefined
         ) as string[];
 

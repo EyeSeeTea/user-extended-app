@@ -41,6 +41,8 @@ import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportUser } from "../../../domain/entities/ImportUser";
 import { User } from "../../../domain/entities/User";
+import { Username } from "../../../domain/value-objects/Username";
+import { Password } from "../../../domain/value-objects/Password";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
     id: "ID",
@@ -615,10 +617,13 @@ const useValidations = (
                     if (isExistingUser) {
                         return i18n.t("User already exists");
                     }
-                    const usernameValidationError = User.validateUsername(value);
-                    if (usernameValidationError) {
-                        return i18n.t(usernameValidationError);
+
+                    const usernameResult = Username.create(value);
+
+                    if (usernameResult.isError()) {
+                        return usernameResult.value.error.map(error => i18n.t(error)).join(", ");
                     }
+
                     return undefined;
                 },
             };
@@ -636,10 +641,12 @@ const useValidations = (
         case "password":
             return {
                 validation: (value: string) => {
-                    const passwordValidationError = User.validatePassword(value, isExistingUser && !value);
-                    if (passwordValidationError) {
-                        return i18n.t(passwordValidationError);
+                    const passwordResult = Password.create(value, isExistingUser);
+
+                    if (passwordResult.isError()) {
+                        return passwordResult.value.error.map(error => i18n.t(error)).join(", ");
                     }
+
                     return undefined;
                 },
             };
