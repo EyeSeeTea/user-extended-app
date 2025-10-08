@@ -622,7 +622,8 @@ const useValidations = (
                     const usernameResult = Username.create(value);
 
                     if (usernameResult.isError()) {
-                        return usernameResult.value.error.map(error => i18n.t(error)).join(", ");
+                        const error = usernameResult.value.error[0] || "";
+                        return i18n.t(error);
                     }
 
                     return undefined;
@@ -636,7 +637,8 @@ const useValidations = (
                         const emailResult = Email.create(value);
 
                         if (emailResult.isError()) {
-                            return emailResult.value.error.map(error => i18n.t(error)).join(", ");
+                            const error = emailResult.value.error[0] || "";
+                            return i18n.t(error);
                         }
                     }
                     return undefined;
@@ -648,7 +650,8 @@ const useValidations = (
                     const passwordResult = Password.create(value, isExistingUser);
 
                     if (passwordResult.isError()) {
-                        return passwordResult.value.error.map(error => i18n.t(error)).join(", ");
+                        const error = passwordResult.value.error[0] || "";
+                        return i18n.t(error);
                     }
 
                     return undefined;

@@ -1,6 +1,5 @@
 import _ from "lodash";
 import { Struct } from "./generic/Struct";
-import { User } from "./User";
 import { Username } from "../value-objects/Username";
 import { Password } from "../value-objects/Password";
 
