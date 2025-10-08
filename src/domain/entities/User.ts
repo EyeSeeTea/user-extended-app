@@ -1,4 +1,5 @@
 import { Maybe } from "../../types/utils";
+import { Username } from "../value-objects/Username";
 import { Struct } from "./generic/Struct";
 import { UserProps } from "./UserProps";
 
@@ -47,10 +48,12 @@ export class User extends Struct<UserProps>() {
     ): UserValidationErrors | undefined {
         const errors: UserValidationErrors = {};
 
-        const invalidUsername = User.validateUsername(props.username);
-        if (invalidUsername) {
-            errors.username = invalidUsername;
+        const usernameResult = Username.create(props.username);
+
+        if (usernameResult.isError()) {
+            errors.username = usernameResult.value.error.join(", ");
         }
+
         const invalidPassword = User.validatePassword(props.password, isExistingUser);
         if (invalidPassword) {
             errors.password = invalidPassword;
@@ -148,29 +151,6 @@ export class User extends Struct<UserProps>() {
             .join("");
 
         return shuffledPassword;
-    }
-
-    static validateUsername(username: string): string | undefined {
-        if (!username) {
-            return "Please provide a username";
-        }
-        if (/^[._@-]|[._@-]$/.test(username)) {
-            return "Username cannot start or end with a separator";
-        }
-        if (/([._@-]){2,}/.test(username)) {
-            return "Username cannot have two separators in a row";
-        }
-        if (!/^[a-zA-Z0-9._@-]+$/.test(username)) {
-            return "Username can only include . _ - or @ as separators";
-        }
-        if (username.length < 2) {
-            return "Username should be at least 2 characters long";
-        }
-        if (username.length > 255) {
-            return "Username may not exceed 255 characters";
-        }
-
-        return undefined;
     }
 
     static validatePassword(password: string, isExistingUser = false): string | undefined {

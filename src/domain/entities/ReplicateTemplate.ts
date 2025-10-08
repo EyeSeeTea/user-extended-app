@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { User } from "./User";
+import { Username } from "../value-objects/Username";
 
 export type ReplicateTemplateProps = {
     replicateCount: string;
@@ -74,8 +75,10 @@ export class ReplicateTemplate extends Struct<ReplicateTemplateProps>() {
             return "User already exists";
         }
 
-        const usernameValidationError = User.validateUsername(this.getFromTemplate(value, count));
-        if (usernameValidationError) {
+        const usernameResult = Username.create(this.getFromTemplate(value, count));
+
+        if (usernameResult.isError()) {
+            const usernameValidationError = usernameResult.value.error.join(", ");
             return usernameValidationError;
         }
 
