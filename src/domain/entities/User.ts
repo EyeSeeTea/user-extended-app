@@ -78,7 +78,7 @@ export class User extends Struct<UserProps>() {
             }
 
             for (const field of ["organisationUnits", "userRoles", "userGroups"] as const) {
-                const invalidField = User.validateRequiredArrayField(props[field], field);
+                const invalidField = validateRequired(props[field], `Please select at least one ${field}`);
                 if (invalidField) {
                     errors[field] = invalidField;
                 }
@@ -101,14 +101,6 @@ export class User extends Struct<UserProps>() {
     static validateUniqueOpenId(users: UserProps[]): boolean {
         const allOpenIds = users.filter(user => Boolean(user.openId)).map(user => user.openId);
         return new Set(allOpenIds).size === allOpenIds.length;
-    }
-
-    static validateRequiredArrayField(field: any[], fieldName: string): string | undefined {
-        if (!field || field.length === 0) {
-            return `Please select at least one ${fieldName}`;
-        }
-
-        return undefined;
     }
 }
 

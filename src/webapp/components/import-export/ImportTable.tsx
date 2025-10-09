@@ -40,7 +40,6 @@ import { useGetAllUsers } from "../../hooks/userHooks";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportUser } from "../../../domain/entities/ImportUser";
-import { User } from "../../../domain/entities/User";
 import { Username } from "../../../domain/value-objects/Username";
 import { Password } from "../../../domain/value-objects/Password";
 import { Email } from "../../../domain/value-objects/Email";
@@ -666,7 +665,10 @@ const useValidations = (
                 validation: (value: string[]) => {
                     // Make the field name singular for the error message
                     const fieldName = field.slice(0, -1);
-                    const arrayFieldValidationResult = User.validateRequiredArrayField(value, fieldName);
+                    const arrayFieldValidationResult = validateRequired(
+                        value,
+                        `Please select at least one ${fieldName}`
+                    );
                     if (arrayFieldValidationResult) {
                         return i18n.t(arrayFieldValidationResult);
                     }
