@@ -4,6 +4,7 @@ import { Password } from "../value-objects/Password";
 import { Email } from "../value-objects/Email";
 import { Struct } from "./generic/Struct";
 import { UserProps } from "./UserProps";
+import { validateRequired } from "../utils/validations";
 
 interface UserValidationErrors {
     username?: string;
@@ -50,6 +51,13 @@ export class User extends Struct<UserProps>() {
     ): UserValidationErrors | undefined {
         const errors: UserValidationErrors = {};
 
+        for (const field of ["firstName", "surname"] as const) {
+            const invalidField = validateRequired(props[field], `${field} is required`);
+            if (invalidField) {
+                errors[field] = invalidField;
+            }
+        }
+
         const usernameResult = Username.create(props.username);
 
         if (usernameResult.isError()) {
@@ -59,13 +67,6 @@ export class User extends Struct<UserProps>() {
         const passwordResult = Password.create(props.password, isExistingUser);
         if (passwordResult.isError()) {
             errors.password = passwordResult.value.error.join(", ");
-        }
-
-        for (const field of ["firstName", "surname"] as const) {
-            const invalidField = User.validateRequiredStringField(props[field], field);
-            if (invalidField) {
-                errors[field] = invalidField;
-            }
         }
 
         if (!skipSourceErrors) {
@@ -105,14 +106,6 @@ export class User extends Struct<UserProps>() {
     static validateRequiredArrayField(field: any[], fieldName: string): string | undefined {
         if (!field || field.length === 0) {
             return `Please select at least one ${fieldName}`;
-        }
-
-        return undefined;
-    }
-
-    static validateRequiredStringField(field: string, fieldName: string): string | undefined {
-        if (!field || field.trim().length === 0) {
-            return `${fieldName} is required`;
         }
 
         return undefined;

@@ -44,6 +44,7 @@ import { User } from "../../../domain/entities/User";
 import { Username } from "../../../domain/value-objects/Username";
 import { Password } from "../../../domain/value-objects/Password";
 import { Email } from "../../../domain/value-objects/Email";
+import { validateRequired } from "../../../domain/utils/validations";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
     id: "ID",
@@ -676,7 +677,7 @@ const useValidations = (
         case "surname":
             return {
                 validation: (value: string) => {
-                    const fieldValidationError = User.validateRequiredStringField(value, field);
+                    const fieldValidationError = validateRequired(value, `${field} is required`);
                     if (fieldValidationError) {
                         return i18n.t(fieldValidationError);
                     }
