@@ -85,27 +85,19 @@ export class Password extends ValueObject<PasswordProps> {
             special: "!@#$%^&*()_+~`|}{[]:;?><,./-=",
         };
 
-        const getRandomNumber = (): number => {
-            //TODO: avoid in domain if when it's node. Try unique solution for browser and node
+        const getRandomChar = (characters: string): string => {
+            const bytes = new Uint8Array(1);
 
             const isNode = typeof process !== "undefined" && process.versions?.node;
 
-            // Check if running in Node.js (Jest environment)
             if (isNode) {
-                const nodeCrypto = require("crypto");
-                return nodeCrypto.randomBytes(4).readUInt32BE(0);
+                require("crypto").randomFillSync(bytes);
+            } else {
+                crypto.getRandomValues(bytes);
             }
 
-            // Browser environment
-            const array = new Uint32Array(1);
-            crypto.getRandomValues(array);
-            return array[0] as number;
-        };
-
-        const getRandomChar = (str: string): string => {
-            const rand = getRandomNumber();
-            const char = str.charAt(rand % str.length);
-            return char;
+            const index = Math.floor(((bytes[0] as number) / 256) * characters.length);
+            return characters.charAt(index);
         };
 
         const requiredChars = [
@@ -120,11 +112,8 @@ export class Password extends ValueObject<PasswordProps> {
             requiredChars
         );
 
-        const shuffledPassword: string = password
-            .map(char => ({ char, rand: getRandomNumber() % length }))
-            .sort((a, b) => a.rand - b.rand)
-            .map(({ char }) => char)
-            .join("");
+        // Simple shuffle
+        const shuffledPassword = password.sort(() => Math.random() - 0.5).join("");
 
         return Password.create(shuffledPassword).getOrThrow();
     }
