@@ -7,6 +7,7 @@ import { generateUid } from "../../utils/uid";
 import { User } from "../entities/User";
 import i18n from "../../locales";
 import { getLanguage } from "../utils/getLanguage";
+import { isUniqueOpenId } from "../utils/isUniqueOpenId";
 
 const columnNameFromPropertyMapping = {
     id: "ID",
@@ -38,7 +39,7 @@ export class ImportUsersUseCase implements UseCase {
             usersFromDB: this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
             currentUser: this.userRepository.getCurrent(),
         }).flatMap(({ usersFromDB, currentUser }) => {
-            if (!User.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
+            if (!isUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
 
             const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
             if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
