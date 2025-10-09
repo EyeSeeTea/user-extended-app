@@ -6,7 +6,7 @@ import { UserColumns } from "./User";
 import { UserAction, userActions } from "./UserAction";
 import { ActionPermission } from "./ActionPermission";
 import { fromPairs, getKeys } from "../../types/utils";
-import { defaultRules, getInternalRules, getInternalRulesForAction } from "./UserActionRule";
+import { defaultRules, getInternalRulesForAction } from "./UserActionRule";
 import { userColumns } from "./UserColumn";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
@@ -96,10 +96,8 @@ function instantiateActionsAccesses(): Record<UserAction, ActionPermission> {
 }
 
 export function removeInternalRules(actionsAccess: ActionsPermissions): ActionsPermissions {
-    const internalRules = getInternalRules();
-
     return _.mapValues(actionsAccess, permission => {
-        const filteredRules = permission.rules.filter(rule => !internalRules.includes(rule));
+        const filteredRules = permission.getSelectableRules();
         return permission.updateRules(filteredRules);
     });
 }

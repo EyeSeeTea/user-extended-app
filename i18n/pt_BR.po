@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"POT-Creation-Date: 2025-09-25T19:44:43.501Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -9,10 +9,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 
 msgid "Invalid response from server"
-msgstr ""
+msgstr "Resposta inválida do servidor"
 
 msgid "Unknown error"
-msgstr ""
+msgstr "Erro desconhecido"
 
 msgid "ID"
 msgstr "ID"
@@ -325,13 +325,23 @@ msgid "Show only active users"
 msgstr "Mostrar apenas usuários ativos"
 
 msgid "Hide org units on advanced filters"
-msgstr ""
+msgstr "Ocultar unidades organizacionais nos filtros avançados"
 
 msgid "Hide users, user roles and user groups"
 msgstr "Ocultar usuários, funções e grupos de usuários"
 
 msgid "Actions available for all users"
 msgstr "Ações disponíveis para todos os usuários"
+
+msgid ""
+"All actions will be available for administrators (but still subject to the "
+"circumstances that need to be met for each action). Eg: 'Enable' action will "
+"not be available if selected users are already enabled."
+msgstr ""
+"Todas as ações estarão disponíveis para administradores (mas ainda sujeitas "
+"às circunstâncias que precisam ser atendidas para cada ação). Ex: a ação "
+"'Ativar' não estará disponível se os usuários selecionados já estiverem "
+"ativados."
 
 msgid "Access to Settings Section"
 msgstr "Acesso à seção de configurações"
@@ -353,7 +363,7 @@ msgid "Public access (Everyone)"
 msgstr "Acesso público (Todos)"
 
 msgid "User has email address"
-msgstr ""
+msgstr "Usuário tem endereço de e-mail"
 
 #, fuzzy
 msgid "Only available for users assigned to users' organization unit and below"
@@ -361,10 +371,10 @@ msgstr ""
 "Mostrar apenas usuários atribuídos às unidades organizacionais do usuário"
 
 msgid "Hidden"
-msgstr ""
+msgstr "Oculto"
 
 msgid "Only available if user has update access over the users"
-msgstr ""
+msgstr "Disponível apenas se o usuário tiver acesso de atualização sobre os usuários"
 
 #, fuzzy
 msgid "Only available for disabled users"
@@ -375,13 +385,47 @@ msgid "Only available for active users"
 msgstr "Ações disponíveis para todos os usuários"
 
 msgid "Only available if user has delete access over the users"
-msgstr ""
+msgstr "Disponível apenas se o usuário tiver acesso de exclusão sobre os usuários"
 
 msgid "Only available if user has replicate authority on some owned role"
-msgstr ""
+msgstr "Disponível apenas se o usuário tiver autoridade de replicação em alguma função própria"
+
+#, fuzzy
+msgid "Selected users have email address"
+msgstr "Nem todos os usuários têm e-mail"
+
+msgid "Selected users belong to at least one of users' organization units"
+msgstr "Usuários selecionados pertencem a pelo menos uma das unidades organizacionais do usuário"
+
+#, fuzzy
+msgid "User has update access"
+msgstr "Usuários importados com sucesso"
+
+#, fuzzy
+msgid "Selected users are disabled"
+msgstr "Replicar usuário a partir da tabela"
+
+#, fuzzy
+msgid "Selected users are active"
+msgstr "Selecionar usuários"
+
+msgid "User has delete access"
+msgstr "Usuário tem acesso de exclusão"
+
+msgid "User has replicate authority"
+msgstr "Usuário tem autoridade de replicação"
+
+msgid "criteria"
+msgstr "critérios"
+
+msgid "criterion"
+msgstr "critério"
+
+msgid "The following {{label}} must always be satisfied: {{criterias}}"
+msgstr "Os seguintes {{label}} devem sempre ser satisfeitos: {{criterias}}"
 
 msgid "[RULE] "
-msgstr ""
+msgstr "[REGRA] "
 
 msgid "Saving..."
 msgstr "Salvando..."
@@ -579,7 +623,7 @@ msgid "New Password"
 msgstr "Senha"
 
 msgid "Confirm New Password"
-msgstr ""
+msgstr "Confirmar Nova Senha"
 
 msgid "Remove users"
 msgstr "Remover usuários"
@@ -608,6 +652,12 @@ msgstr "redefinir as senhas de"
 msgid "Passwords have been reset"
 msgstr "As senhas foram redefinidas"
 
+msgid ""
+"An email will be sent to the users with instructions to reset their password."
+msgstr ""
+"Um e-mail será enviado aos usuários com instruções para redefinir sua "
+"senha."
+
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"
 
@@ -633,14 +683,14 @@ msgid "Set Password"
 msgstr "Senha"
 
 msgid "Password is required"
-msgstr ""
+msgstr "Senha é obrigatória"
 
 #, fuzzy
 msgid "Password must contain at least 8 characters"
 msgstr "A senha deve conter pelo menos um número"
 
 msgid "Password must not contain more than 34 characters"
-msgstr ""
+msgstr "A senha não deve conter mais de 34 caracteres"
 
 #, fuzzy
 msgid "Password must contain at least one lowercase letter"
@@ -659,7 +709,7 @@ msgid "Password must contain at least one special character (non-alphanumeric)"
 msgstr "A senha deve conter pelo menos um caractere especial"
 
 msgid "Contain at least 8 characters"
-msgstr ""
+msgstr "Conter pelo menos 8 caracteres"
 
 #, fuzzy
 msgid "Not contain more than 34 characters"
@@ -686,16 +736,16 @@ msgid "Please confirm your password"
 msgstr "Por favor, informe uma senha"
 
 msgid "Passwords do not match"
-msgstr ""
+msgstr "As senhas não coincidem"
 
 msgid "Please ensure all password requirements are met and passwords match"
-msgstr ""
+msgstr "Por favor, certifique-se de que todos os requisitos de senha sejam atendidos e as senhas coincidam"
 
 msgid "Password has been set successfully for {{username}}"
-msgstr ""
+msgstr "A senha foi definida com sucesso para {{username}}"
 
 msgid "Failed to set password. Please try again."
-msgstr ""
+msgstr "Falha ao definir a senha. Tente novamente."
 
 msgid "Table exported: {{filename}}"
 msgstr "Tabela exportada: {{filename}}"
