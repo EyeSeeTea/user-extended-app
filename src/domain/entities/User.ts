@@ -84,12 +84,6 @@ export class User extends Struct<UserProps>() {
         return new User(processedProps);
     }
 
-    static validateHasRequiredFields(users: UserProps[]): boolean {
-        return users.every(
-            user => user.organisationUnits.length > 0 && user.userRoles.length > 0 && user.userGroups.length > 0
-        );
-    }
-
     static validateUniqueOpenId(users: UserProps[]): boolean {
         const allOpenIds = users.filter(user => Boolean(user.openId)).map(user => user.openId);
         return new Set(allOpenIds).size === allOpenIds.length;

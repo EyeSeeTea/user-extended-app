@@ -40,10 +40,6 @@ export class ImportUsersUseCase implements UseCase {
         }).flatMap(({ usersFromDB, currentUser }) => {
             if (!User.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
 
-            const hasRequiredFields = User.validateHasRequiredFields(users);
-            if (!hasRequiredFields)
-                return Future.error("All users must have at least one Organisation Unit, Role and Group");
-
             const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
             if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
 
