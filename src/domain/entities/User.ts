@@ -18,8 +18,6 @@ interface UserValidationErrors {
 }
 
 export class User extends Struct<UserProps>() {
-    static DEFAULT_PASSWORD = "District123$";
-
     static createNewUser(props: UserProps, isExistingUser = true): User {
         return User.validateAndCreateUser(props, isExistingUser);
     }
