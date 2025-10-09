@@ -77,6 +77,20 @@ describe("User Entity", () => {
                 expect(user).toBeInstanceOf(User);
                 expect(user.email).toBe("");
             });
+
+            it("should use 'en' as default language when empty language is provided", () => {
+                const propsWithEmptyLanguages = {
+                    ...validUserProps,
+                    uiLocale: "",
+                    dbLocale: "",
+                };
+
+                const user = User.createNewUser(propsWithEmptyLanguages);
+
+                expect(user).toBeInstanceOf(User);
+                expect(user.uiLocale).toBe("en");
+                expect(user.dbLocale).toBe("en");
+            });
         });
 
         describe("username validation", () => {

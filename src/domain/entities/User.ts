@@ -1,10 +1,10 @@
-import { Maybe } from "../../types/utils";
 import { Username } from "../value-objects/Username";
 import { Password } from "../value-objects/Password";
 import { Email } from "../value-objects/Email";
 import { Struct } from "./generic/Struct";
 import { UserProps } from "./UserProps";
 import { validateRequired } from "../utils/validations";
+import { getLanguage } from "../utils/getLanguage";
 
 interface UserValidationErrors {
     username?: string;
@@ -21,19 +21,11 @@ export class User extends Struct<UserProps>() {
     static DEFAULT_PASSWORD = "District123$";
 
     static createNewUser(props: UserProps, isExistingUser = true): User {
-        const errors = User.validateUser(props, isExistingUser);
-        if (errors) {
-            throw new Error(makeErrorMessage(errors));
-        }
-        return new User(props);
+        return User.validateAndCreateUser(props, isExistingUser);
     }
 
     static createUser(props: UserProps, isExistingUser = true): User {
-        const errors = User.validateUser(props, isExistingUser, true);
-        if (errors) {
-            throw new Error(makeErrorMessage(errors));
-        }
-        return new User(props);
+        return User.validateAndCreateUser(props, isExistingUser, true);
     }
 
     /** Validates the user properties.
@@ -44,12 +36,14 @@ export class User extends Struct<UserProps>() {
      * Used when loading existing users from the server that may have missing fields.
      * @returns An object containing validation errors, or undefined if there are no errors.
      */
-    private static validateUser(
-        props: UserProps,
-        isExistingUser = true,
-        skipSourceErrors = false
-    ): UserValidationErrors | undefined {
+    private static validateAndCreateUser(props: UserProps, isExistingUser = true, skipSourceErrors = false): User {
         const errors: UserValidationErrors = {};
+
+        const processedProps = {
+            ...props,
+            dbLocale: getLanguage(props.dbLocale),
+            uiLocale: getLanguage(props.uiLocale),
+        };
 
         for (const field of ["firstName", "surname"] as const) {
             const invalidField = validateRequired(props[field], `${field} is required`);
@@ -85,11 +79,11 @@ export class User extends Struct<UserProps>() {
             }
         }
 
-        return Object.keys(errors).length > 0 ? errors : undefined;
-    }
+        if (Object.keys(errors).length > 0) {
+            throw new Error(makeErrorMessage(errors));
+        }
 
-    static setDefaultLanguage(language: Maybe<string>): string {
-        return language || "en";
+        return new User(processedProps);
     }
 
     static validateHasRequiredFields(users: UserProps[]): boolean {

@@ -6,6 +6,7 @@ import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
 import { User } from "../entities/User";
 import i18n from "../../locales";
+import { getLanguage } from "../utils/getLanguage";
 
 const columnNameFromPropertyMapping = {
     id: "ID",
@@ -72,8 +73,8 @@ export class ImportUsersUseCase implements UseCase {
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
                     lastModifiedBy: { id, username },
-                    dbLocale: User.setDefaultLanguage(dbUser.dbLocale),
-                    uiLocale: User.setDefaultLanguage(dbUser.uiLocale),
+                    dbLocale: dbUser.dbLocale,
+                    uiLocale: dbUser.uiLocale,
                 });
             }
             return User.createNewUser({
@@ -83,8 +84,8 @@ export class ImportUsersUseCase implements UseCase {
                 name: `${user.firstName} ${user.surname}`,
                 createdBy: { id, username },
                 lastModifiedBy: { id, username },
-                dbLocale: User.setDefaultLanguage(user.dbLocale),
-                uiLocale: User.setDefaultLanguage(user.uiLocale),
+                dbLocale: getLanguage(user.dbLocale),
+                uiLocale: getLanguage(user.uiLocale),
             });
         });
     }

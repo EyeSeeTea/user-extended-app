@@ -20,6 +20,7 @@ import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
+import { getLanguage } from "../../domain/utils/getLanguage";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
@@ -74,9 +75,9 @@ export class UserD2ApiRepository implements UserRepository {
     private getLocaleValueByType(user: User, keyLocale: KeyLocale): string {
         switch (keyLocale) {
             case DB_LOCALE_KEY:
-                return User.setDefaultLanguage(user.dbLocale);
+                return getLanguage(user.dbLocale);
             case UI_LOCALE_KEY:
-                return User.setDefaultLanguage(user.uiLocale);
+                return getLanguage(user.uiLocale);
         }
     }
 
