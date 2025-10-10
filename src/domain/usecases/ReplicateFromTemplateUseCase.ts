@@ -15,7 +15,7 @@ export class ReplicateFromTemplateUseCase implements UseCase {
         try {
             const newUsers: User[] = _.times(parseInt(replicateTemplate.replicateCount), index => {
                 const adjustedIndex = index + 1;
-                return User.createNewUser({
+                return User.createNew({
                     ...sourceUser,
                     id: generateUid(),
                     username: ReplicateTemplate.getFromTemplate(replicateTemplate.usernameTemplate, adjustedIndex),
@@ -24,7 +24,7 @@ export class ReplicateFromTemplateUseCase implements UseCase {
                     twoFactorEnabled: false,
                     openId: "",
                     ldapId: "",
-                });
+                }).getOrThrow();
             });
 
             return this.userRepository.save(newUsers);

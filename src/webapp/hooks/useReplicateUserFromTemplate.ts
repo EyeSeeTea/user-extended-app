@@ -77,7 +77,7 @@ export const useReplicateUserFromTemplate = (
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
                     try {
-                        setUserToReplicate(User.createNewUser(user));
+                        setUserToReplicate(User.createNew(user).getOrThrow());
                     } catch (error) {
                         loading.show(false);
                         handleUsersError(`User has invalid properties: ${(error as Error).message}`);

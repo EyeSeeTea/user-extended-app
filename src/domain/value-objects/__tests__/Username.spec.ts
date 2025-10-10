@@ -6,37 +6,53 @@ describe("Username value object", () => {
             it("should create a username with valid properties", () => {
                 const result = Username.create("johndoe");
 
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value.data.value).toBe("johndoe");
-                }
+                result.match({
+                    success: username => {
+                        expect(username.value).toBe("johndoe");
+                    },
+                    error: () => {
+                        throw new Error("Expected username creation to succeed but it failed");
+                    },
+                });
             });
 
             it("should allow username with valid separators", () => {
                 const result = Username.create("john.doe_test@domain-name");
 
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value.data.value).toBe("john.doe_test@domain-name");
-                }
+                result.match({
+                    success: username => {
+                        expect(username.value).toBe("john.doe_test@domain-name");
+                    },
+                    error: () => {
+                        throw new Error("Expected username creation to succeed but it failed");
+                    },
+                });
             });
 
             it("should allow numeric characters", () => {
                 const result = Username.create("user123");
 
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value.data.value).toBe("user123");
-                }
+                result.match({
+                    success: username => {
+                        expect(username.value).toBe("user123");
+                    },
+                    error: () => {
+                        throw new Error("Expected username creation to succeed but it failed");
+                    },
+                });
             });
 
             it("should allow mixed case letters", () => {
                 const result = Username.create("UserName");
 
-                expect(result.isSuccess()).toBe(true);
-                if (result.isSuccess()) {
-                    expect(result.value.data.value).toBe("UserName");
-                }
+                result.match({
+                    success: username => {
+                        expect(username.value).toBe("UserName");
+                    },
+                    error: () => {
+                        throw new Error("Expected username creation to succeed but it failed");
+                    },
+                });
             });
         });
 
@@ -44,28 +60,40 @@ describe("Username value object", () => {
             it("should return error when username is empty", () => {
                 const result = Username.create("");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Please provide a username");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Please provide a username");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username is null", () => {
                 const result = Username.create(null as any);
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Please provide a username");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Please provide a username");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username is undefined", () => {
                 const result = Username.create(undefined as any);
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Please provide a username");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Please provide a username");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
         });
 
@@ -73,118 +101,170 @@ describe("Username value object", () => {
             it("should return error when username starts with dot", () => {
                 const result = Username.create(".johndoe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username starts with underscore", () => {
                 const result = Username.create("_johndoe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username starts with @", () => {
                 const result = Username.create("@johndoe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username starts with dash", () => {
                 const result = Username.create("-johndoe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username ends with dot", () => {
                 const result = Username.create("johndoe.");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username ends with underscore", () => {
                 const result = Username.create("johndoe_");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username ends with @", () => {
                 const result = Username.create("johndoe@");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username ends with dash", () => {
                 const result = Username.create("johndoe-");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot start or end with a separator");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot start or end with a separator");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username has consecutive dots", () => {
                 const result = Username.create("john..doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot have two separators in a row");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot have two separators in a row");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username has consecutive underscores", () => {
                 const result = Username.create("john__doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot have two separators in a row");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot have two separators in a row");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username has consecutive @ symbols", () => {
                 const result = Username.create("john@@doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot have two separators in a row");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot have two separators in a row");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username has consecutive dashes", () => {
                 const result = Username.create("john--doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot have two separators in a row");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot have two separators in a row");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username has mixed consecutive separators", () => {
                 const result = Username.create("john.-doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username cannot have two separators in a row");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username cannot have two separators in a row");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
         });
 
@@ -192,46 +272,66 @@ describe("Username value object", () => {
             it("should return error when username contains invalid characters", () => {
                 const result = Username.create("john#doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username can only include . _ - or @ as separators");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username can only include . _ - or @ as separators");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username contains $", () => {
                 const result = Username.create("traore_$index");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username can only include . _ - or @ as separators");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username can only include . _ - or @ as separators");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username contains %", () => {
                 const result = Username.create("john%doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username can only include . _ - or @ as separators");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username can only include . _ - or @ as separators");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username contains spaces", () => {
                 const result = Username.create("john doe");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username can only include . _ - or @ as separators");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username can only include . _ - or @ as separators");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should return error when username contains special characters", () => {
                 const result = Username.create("john&doe*test");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username can only include . _ - or @ as separators");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username can only include . _ - or @ as separators");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
         });
 
@@ -239,10 +339,14 @@ describe("Username value object", () => {
             it("should return error when username is too short", () => {
                 const result = Username.create("a");
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username should be at least 2 characters long");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username should be at least 2 characters long");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should allow username with exactly 2 characters", () => {
@@ -258,10 +362,14 @@ describe("Username value object", () => {
                 const longUsername = "a".repeat(256);
                 const result = Username.create(longUsername);
 
-                expect(result.isError()).toBe(true);
-                if (result.isError()) {
-                    expect(result.value.error).toContain("Username may not exceed 255 characters");
-                }
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username may not exceed 255 characters");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
             });
 
             it("should allow username with exactly 255 characters", () => {
@@ -281,12 +389,11 @@ describe("Username value object", () => {
             const username1 = Username.create("johndoe");
             const username2 = Username.create("johndoe");
 
-            expect(username1.isSuccess()).toBe(true);
-            expect(username2.isSuccess()).toBe(true);
-
             if (username1.isSuccess() && username2.isSuccess()) {
                 expect(username1.value.data.equals(username2.value.data)).toBe(true);
-            }
+            } else {
+                throw new Error("Expected both username creations to succeed but one or both failed");
+            }   
         });
 
         it("should not be equal when values are different", () => {
@@ -298,17 +405,22 @@ describe("Username value object", () => {
 
             if (username1.isSuccess() && username2.isSuccess()) {
                 expect(username1.value.data.equals(username2.value.data)).toBe(false);
+            } else {
+                throw new Error("Expected both username creations to succeed but one or both failed");
             }
         });
 
         it("should not be equal to undefined", () => {
             const username = Username.create("johndoe");
 
-            expect(username.isSuccess()).toBe(true);
-
-            if (username.isSuccess()) {
-                expect(username.value.data.equals(undefined)).toBe(false);
-            }
+            username.match({
+                success: usernameObj => {
+                    expect(usernameObj.equals(undefined)).toBe(false);
+                },
+                error: () => {
+                    throw new Error("Expected username creation to succeed but it failed");
+                },
+            });
         });
 
         it("should not be equal to null", () => {

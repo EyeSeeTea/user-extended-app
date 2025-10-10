@@ -8,6 +8,8 @@ export const sourceUser = new User({
     firstName: "Alain",
     surname: "Traore",
     username: "traore",
+    password: "ValidPassword123!",
+    email: "alain.traore@example.com",
     userGroups: [
         {
             name: "Partner for Health International",
@@ -57,6 +59,8 @@ export const targetUser = new User({
     firstName: "Android",
     surname: "Barnes",
     username: "android",
+    password: "ValidPassword123!",
+    email: "android.barnes@example.com",
     userGroups: [
         {
             name: "Partner for Health International",

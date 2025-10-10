@@ -49,7 +49,7 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
 
             try {
                 const newUsers: User[] = users.map(tableUser => {
-                    return User.createNewUser({
+                    return User.createNew({
                         ...userToReplicate,
                         id: generateUid(),
                         username: tableUser.username,
@@ -65,7 +65,7 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
                         twoFactorEnabled: false,
                         openId: "",
                         ldapId: "",
-                    });
+                    }).getOrThrow();
                 });
 
                 return compositionRoot.users.import({ users: newUsers }).run(

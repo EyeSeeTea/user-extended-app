@@ -65,16 +65,16 @@ export class ImportUsersUseCase implements UseCase {
             const dbUser = _.find(usersFromDBMap, userFromDB => userFromDB.username === user.username);
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
-                return User.createNewUser({
+                return User.createNew({
                     ...dbUser,
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
                     lastModifiedBy: { id, username },
                     dbLocale: dbUser.dbLocale,
                     uiLocale: dbUser.uiLocale,
-                });
+                }).getOrThrow();
             }
-            return User.createNewUser({
+            return User.createNew({
                 ...defaultUserProps,
                 ...user,
                 id: generateUid(),
@@ -83,7 +83,7 @@ export class ImportUsersUseCase implements UseCase {
                 lastModifiedBy: { id, username },
                 dbLocale: getLanguage(user.dbLocale),
                 uiLocale: getLanguage(user.uiLocale),
-            });
+            }).getOrThrow();
         });
     }
 
