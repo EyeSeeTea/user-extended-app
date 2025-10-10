@@ -9,7 +9,6 @@ import { Either } from "./Either";
 import { ValidationError } from "../errors/Errors";
 
 export class User extends Struct<UserProps>() {
-
     static createNew(props: UserProps): Either<ValidationError<User>[], User> {
         return User.validateAndCreateUser(props, false);
     }
@@ -28,7 +27,7 @@ export class User extends Struct<UserProps>() {
      */
     private static validateAndCreateUser(
         props: UserProps,
-        isExistingUser:boolean
+        isExistingUser: boolean
     ): Either<ValidationError<User>[], User> {
         const processedProps = {
             ...props,
@@ -54,7 +53,9 @@ export class User extends Struct<UserProps>() {
         const optionalValidationErrors = isExistingUser
             ? []
             : [
-                  props.email ? extractErrorFromEither("email", props.email, Email.create(props.email || "")) : undefined,
+                  props.email
+                      ? extractErrorFromEither("email", props.email, Email.create(props.email || ""))
+                      : undefined,
                   extractErrorsFromString(
                       "organisationUnits",
                       props.organisationUnits,
@@ -72,9 +73,9 @@ export class User extends Struct<UserProps>() {
                   ),
               ];
 
-        const allErrors = ([...validationErrors, ...optionalValidationErrors]
-            .filter(Boolean) as ValidationError<User>[])
-            .filter(ve => ve.errors.length > 0);
+        const allErrors = (
+            [...validationErrors, ...optionalValidationErrors].filter(Boolean) as ValidationError<User>[]
+        ).filter(ve => ve.errors.length > 0);
 
         if (allErrors.length > 0) {
             return Either.error(allErrors);

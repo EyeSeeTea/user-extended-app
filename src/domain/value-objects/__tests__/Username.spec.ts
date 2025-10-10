@@ -393,7 +393,7 @@ describe("Username value object", () => {
                 expect(username1.value.data.equals(username2.value.data)).toBe(true);
             } else {
                 throw new Error("Expected both username creations to succeed but one or both failed");
-            }   
+            }
         });
 
         it("should not be equal when values are different", () => {

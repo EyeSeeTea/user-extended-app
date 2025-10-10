@@ -52,7 +52,6 @@ describe("User Entity", () => {
                 expect(user.email).toBe("john.doe@example.com");
             });
 
-
             it("should allow valid username with separators", () => {
                 const propsWithValidUsername = { ...validUserProps, username: "john.doe_test@domain-name" };
 
@@ -242,7 +241,9 @@ describe("User Entity", () => {
                     error: errors => {
                         expect(errors.length).toBeGreaterThanOrEqual(1);
                         const allErrors = errors.flatMap(e => e.errors);
-                        expect(allErrors.some(error => error.includes("Password should be no longer than 255 characters"))).toBe(true);
+                        expect(
+                            allErrors.some(error => error.includes("Password should be no longer than 255 characters"))
+                        ).toBe(true);
                     },
                     success: () => {
                         throw new Error("Expected validation to fail but it succeeded");
@@ -544,7 +545,9 @@ describe("User Entity", () => {
                     expect(allErrors.some(err => err.includes("Please provide a username"))).toBe(true);
                     expect(allErrors.some(err => err.includes("First name is required"))).toBe(true);
                     expect(allErrors.some(err => err.includes("Surname is required"))).toBe(true);
-                    expect(allErrors.some(err => err.includes("Password should be at least 8 characters long"))).toBe(true);
+                    expect(allErrors.some(err => err.includes("Password should be at least 8 characters long"))).toBe(
+                        true
+                    );
                 },
                 success: () => {
                     throw new Error("Expected validation to fail but it succeeded");

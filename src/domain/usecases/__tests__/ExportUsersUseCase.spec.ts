@@ -88,7 +88,9 @@ describe("ExportUsersUseCase", () => {
 
 function givenUsersToExport(): void {
     const users = [userToExport as UserProps];
-    when(userRepositoryMock.listAll(deepEqual({}))).thenReturn(Future.success(users.map(u => User.createExisted(u).getOrThrow())));
+    when(userRepositoryMock.listAll(deepEqual({}))).thenReturn(
+        Future.success(users.map(u => User.createExisted(u).getOrThrow()))
+    );
 }
 
 /**
