@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { Dashboard } from "../../domain/entities/Dashboard";
 import { FutureData } from "../../domain/entities/Future";
@@ -49,10 +50,13 @@ export class DashboardD2Repository implements DashboardRepository {
                 name: d2Dashboard.displayName,
                 description: d2Dashboard.displayDescription,
                 owner: { id: ownerUser?.id ?? notAvailableLabel, name: ownerUser?.name ?? notAvailableLabel },
-                users: Object.values(d2Dashboard.sharing.users).map(user => ({
-                    id: user.id,
-                    name: user.displayName ?? notAvailableLabel,
-                })),
+                users: _(d2Dashboard.sharing.users)
+                    .mapValues(user => ({
+                        id: user.id,
+                        name: user.displayName ?? notAvailableLabel,
+                    }))
+                    .orderBy(user => user.name)
+                    .value(),
             });
         });
     }

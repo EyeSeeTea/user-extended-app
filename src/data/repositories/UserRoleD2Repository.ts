@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { FutureData } from "../../domain/entities/Future";
 import { CommonFilterParams, PaginatedResponse } from "../../domain/entities/PaginatedResponse";
@@ -44,7 +45,10 @@ export class UserRoleD2Repository implements UserRoleRepository {
                         id: d2Role.id,
                         name: d2Role.displayName,
                         description: d2Role.description,
-                        users: d2Role.users.map(d2User => ({ id: d2User.id, name: d2User.displayName })),
+                        users: _(d2Role.users)
+                            .map(d2User => ({ id: d2User.id, name: d2User.displayName }))
+                            .orderBy(u => u.name)
+                            .value(),
                     });
                 }),
                 pager: response.pager,

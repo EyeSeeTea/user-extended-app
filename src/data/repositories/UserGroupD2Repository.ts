@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { FutureData } from "../../domain/entities/Future";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
@@ -42,7 +43,10 @@ export class UserGroupD2Repository implements UserGroupRepository {
                     return UserGroup.create({
                         id: d2Role.id,
                         name: d2Role.displayName,
-                        users: d2Role.users.map(d2User => ({ id: d2User.id, name: d2User.displayName })),
+                        users: _(d2Role.users)
+                            .map(d2User => ({ id: d2User.id, name: d2User.displayName }))
+                            .orderBy(u => u.name)
+                            .value(),
                     });
                 }),
                 pager: response.pager,
