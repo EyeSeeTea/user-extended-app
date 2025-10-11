@@ -304,6 +304,8 @@ export default class Filters extends React.Component {
                                     checked={onlyUsersOrgUnits}
                                 />
                             </Box>
+                        </Box>
+                        <Box display="flex" justifyContent="flex-end">
                             <Box display="flex" gridColumnGap="1.5em">
                                 <span style={styles.filterBehavior}>
                                     {this.getTranslation("Filtering_behavior")}
