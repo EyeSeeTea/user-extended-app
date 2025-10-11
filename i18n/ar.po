@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-25T19:44:43.501Z\n"
+"POT-Creation-Date: 2025-10-11T03:08:13.109Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -391,7 +391,9 @@ msgid "Selected users have email address"
 msgstr "ليس كل المستخدمين لديهم بريد إلكتروني"
 
 msgid "Selected users belong to at least one of users' organization units"
-msgstr "المستخدمون المحددون ينتمون إلى وحدة تنظيمية واحدة على الأقل من وحدات المستخدمين"
+msgstr ""
+"المستخدمون المحددون ينتمون إلى وحدة تنظيمية واحدة على الأقل من وحدات "
+"المستخدمين"
 
 #, fuzzy
 msgid "User has update access"
@@ -503,6 +505,9 @@ msgstr "لغة قاعدة البيانات"
 
 msgid "Api URL"
 msgstr "رابط API"
+
+msgid "Actions"
+msgstr ""
 
 msgid "Last updated"
 msgstr "آخر تحديث"
@@ -654,9 +659,6 @@ msgstr ""
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"
-
-msgid "{{actionTitle}}"
-msgstr "{{actionTitle}}"
 
 msgid ""
 "Are you sure you want to {{actionDescription}} the selected users? {{users}} "
@@ -847,6 +849,9 @@ msgstr "فتح في إدارة المستخدمين"
 
 msgid " and {{overflow}} more..."
 msgstr " و{{overflow}} المزيد..."
+
+#~ msgid "{{actionTitle}}"
+#~ msgstr "{{actionTitle}}"
 
 #, fuzzy
 #~ msgid "Password is valid"
