@@ -23,7 +23,7 @@ export const PopoverList: React.FC<PopoverListProps> = props => {
     };
 
     return (
-        <div style={{ order: 100 }}>
+        <div>
             <Tooltip title={title}>
                 <IconButton onClick={openMenu}>
                     <ImportExportIcon />
