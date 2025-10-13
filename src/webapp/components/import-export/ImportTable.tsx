@@ -4,7 +4,6 @@ import { FontIcon, RaisedButton } from "material-ui";
 import React, { useState, useEffect, useCallback, SetStateAction, ComponentType } from "react";
 
 import InfoDialog from "../../../legacy/components/InfoDialog";
-import { generateUid } from "../../../utils/uid";
 import i18n from "../../../utils/i18n";
 import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
@@ -245,7 +244,6 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         (currentUsers: UserProps[]) => {
             const newUser: UserProps = {
                 ...defaultUserProps,
-                id: generateUid(),
                 username: "",
                 password: randomPassword,
                 userRoles: [],
@@ -266,7 +264,6 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                     ...templateUser,
                     username: makeUsername(index),
                     password: randomPassword,
-                    id: generateUid(),
                 };
                 setUsers(currentUsers.concat(newUser));
             }

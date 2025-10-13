@@ -7,14 +7,19 @@ import { validateRequired } from "../utils/validations";
 import { getLanguage } from "../utils/getLanguage";
 import { Either } from "./Either";
 import { ValidationError } from "../errors/Errors";
+import { generateUid } from "../../utils/uid";
 
 export class User extends Struct<UserProps>() {
-    static createNew(props: UserProps): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser(props, false);
+    static createNew(props: Omit<UserProps, "id">): Either<ValidationError<User>[], User> {
+        return User.validateAndCreateUser({ ...props, id: generateUid() }, false);
     }
 
     static createExisted(props: UserProps): Either<ValidationError<User>[], User> {
         return User.validateAndCreateUser(props, true);
+    }
+
+    update(props: Partial<UserProps>): Either<ValidationError<User>[], User> {
+        return User.validateAndCreateUser({ ...this, ...props }, false);
     }
 
     /** Validates the user properties.
@@ -84,12 +89,6 @@ export class User extends Struct<UserProps>() {
         }
     }
 }
-
-// function makeErrorMessage(message: UserValidationErrors): string {
-//     return Object.entries(message)
-//         .map(([field, error]) => `${field}: ${error}`)
-//         .join(", ");
-// }
 
 function extractErrorsFromString(
     property: keyof User,

@@ -80,7 +80,7 @@ function givenOptionsToMerge(): SaveUserOrgUnitOptions {
 
 function givenExpectedUsersReplaced(): User[] {
     return selectedUsers.map(user =>
-        User.createNew({
+        User.createExisted({
             ...user,
             organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
         }).getOrThrow()
@@ -89,7 +89,7 @@ function givenExpectedUsersReplaced(): User[] {
 
 function givenExpectedUsersMerged(): User[] {
     return selectedUsers.map(user =>
-        User.createNew({
+        User.createExisted({
             ...user,
             organisationUnits: _(selectedOrgUnits)
                 .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))

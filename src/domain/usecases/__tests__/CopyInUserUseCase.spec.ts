@@ -76,7 +76,7 @@ function givenAOptionsToMerge(): CopyInUserOptions {
 }
 
 function givenAExpectedReplacedUser(): User {
-    return User.createNew({
+    return User.createExisted({
         ...targetUser,
         userGroups: sourceUser.userGroups,
         userRoles: sourceUser.userRoles,
@@ -84,7 +84,7 @@ function givenAExpectedReplacedUser(): User {
 }
 
 function givenAExpectedMergedUser(): User {
-    return User.createNew({
+    return User.createExisted({
         ...targetUser,
         userGroups: _.unionWith(targetUser.userGroups, sourceUser.userGroups, _.isEqual),
         userRoles: _.unionWith(targetUser.userRoles, sourceUser.userRoles, _.isEqual),

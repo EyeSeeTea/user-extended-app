@@ -3,7 +3,6 @@ import { Future, FutureData } from "../entities/Future";
 import { UserProps, defaultUserProps } from "../entities/UserProps";
 import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
-import { generateUid } from "../../utils/uid";
 import { User } from "../entities/User";
 import i18n from "../../locales";
 import { getLanguage } from "../utils/getLanguage";
@@ -77,7 +76,6 @@ export class ImportUsersUseCase implements UseCase {
             return User.createNew({
                 ...defaultUserProps,
                 ...user,
-                id: generateUid(),
                 name: `${user.firstName} ${user.surname}`,
                 createdBy: { id, username },
                 lastModifiedBy: { id, username },

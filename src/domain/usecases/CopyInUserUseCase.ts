@@ -34,7 +34,7 @@ export class CopyInUserUseCase {
     }
 
     private replaceAccessElementsKeys(targetUser: User, sourceUser: User, properties: AccessElementsKeys[]): User {
-        const userResult = User.createNew({ ...targetUser, ..._.pick(sourceUser, properties) });
+        const userResult = targetUser.update({ ..._.pick(sourceUser, properties) });
 
         return userResult.match({
             success: user => {
