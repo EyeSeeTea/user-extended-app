@@ -65,13 +65,13 @@ export const useReplicateUserFromTemplate = (
         setIsUserLoaded(false);
 
         const userFuture = compositionRoot.users.get([userToReplicateId]);
-        const usernamesFuture = compositionRoot.users.listAll({});
+        const identifiersFuture = compositionRoot.users.listAllIdentifiers({});
 
         Future.joinObj({
             user: userFuture,
-            allUsers: usernamesFuture,
+            allIdentifiers: identifiersFuture,
         }).run(
-            ({ user: [user], allUsers }) => {
+            ({ user: [user], allIdentifiers }) => {
                 if (!user) {
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
@@ -81,7 +81,7 @@ export const useReplicateUserFromTemplate = (
                         loading.show(false);
                         handleUsersError(`User has invalid properties: ${(error as Error).message}`);
                     }
-                    const usernames = allUsers.map(u => u.username);
+                    const usernames = allIdentifiers.map(u => u.username);
                     setExistingUsernames(usernames);
                     setIsUserLoaded(true);
                 }
