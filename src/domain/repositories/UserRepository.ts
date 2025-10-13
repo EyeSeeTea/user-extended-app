@@ -4,12 +4,13 @@ import { PaginatedResponse } from "../entities/PaginatedResponse";
 import { Id, NamedRef } from "../entities/Ref";
 import { Stats } from "../entities/Stats";
 import { User } from "../entities/User";
+import { UserIdentifier } from "../entities/UserIdentifier";
 
 export interface UserRepository {
     getCurrent(): FutureData<User>;
     list(options: ListOptions): FutureData<PaginatedResponse<User>>;
     listAll(options: ListOptions): FutureData<User[]>;
-    listAllIds(options: ListOptions): FutureData<Id[]>;
+    listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]>;
     getByIds(ids: Id[]): FutureData<User[]>;
     save(users: User[]): FutureData<MetadataResponse>;
     updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
