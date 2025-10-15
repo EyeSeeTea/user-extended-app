@@ -593,10 +593,16 @@ export class UserD2ApiRepository implements UserRepository {
             twitter: user.twitter,
             lastUpdated: new Date(user.lastUpdated),
             created: new Date(user.created),
-            userGroups: user.userGroups,
+            userGroups: _(user.userGroups)
+                .orderBy(ug => ug.name)
+                .value(),
             username: userCredentials.username,
             apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
-            userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
+            userRoles:
+                _(userCredentials.userRoles)
+                    .map(userRole => ({ id: userRole.id, name: userRole.name }))
+                    .orderBy(ur => ur.name)
+                    .value() || [],
             lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
             status: userCredentials.disabled ? "Disabled" : "Active",
             disabled: userCredentials.disabled,

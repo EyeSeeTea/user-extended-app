@@ -127,6 +127,9 @@ msgstr "Colonnes à afficher dans le tableau"
 msgid "Column"
 msgstr "Colonne"
 
+msgid "Mandatory"
+msgstr ""
+
 msgid "Visible"
 msgstr "Visible"
 
@@ -523,6 +526,13 @@ msgstr "URL de l'API"
 
 msgid "Actions"
 msgstr ""
+
+msgid "Column settings have been successfully reset."
+msgstr ""
+
+#, fuzzy
+msgid "Reset Columns"
+msgstr "Colonnes"
 
 msgid "Last updated"
 msgstr "Dernière mise à jour"

@@ -75,18 +75,18 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
 });
 
 export function useGetUsersSimple() {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, currentUser } = useAppContext();
     const [users, setUsers] = React.useState<UserSimple[]>([]);
 
     React.useEffect(
         () =>
-            compositionRoot.users.getInOrgUnits().run(
+            compositionRoot.users.getInOrgUnits(currentUser).run(
                 users => {
                     setUsers(users);
                 },
                 error => console.error(error)
             ),
-        [compositionRoot.users]
+        [compositionRoot.users, currentUser]
     );
 
     return { users };

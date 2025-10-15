@@ -125,6 +125,9 @@ msgstr "الأعمدة المعروضة في الجدول"
 msgid "Column"
 msgstr "عمود"
 
+msgid "Mandatory"
+msgstr ""
+
 msgid "Visible"
 msgstr "مرئي"
 
@@ -508,6 +511,13 @@ msgstr "رابط API"
 
 msgid "Actions"
 msgstr ""
+
+msgid "Column settings have been successfully reset."
+msgstr ""
+
+#, fuzzy
+msgid "Reset Columns"
+msgstr "الأعمدة"
 
 msgid "Last updated"
 msgstr "آخر تحديث"
