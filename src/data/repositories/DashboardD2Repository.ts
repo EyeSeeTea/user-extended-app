@@ -34,28 +34,34 @@ export class DashboardD2Repository implements DashboardRepository {
             const usersOwnersIds = response.objects.map(dashboard => dashboard.sharing.owner);
             return this.getUsersByIds(usersOwnersIds).map(usersOwners => {
                 return {
-                    objects: this.buildDashboards(response.objects, usersOwners),
+                    objects: this.buildDashboards(response.objects, usersOwners, options.hideUsers ?? []),
                     pager: response.pager,
                 };
             });
         });
     }
 
-    private buildDashboards(d2Dashboards: D2ApiDashboard[], usersOwners: NamedRef[]): Dashboard[] {
+    private buildDashboards(
+        d2Dashboards: D2ApiDashboard[],
+        usersOwners: NamedRef[],
+        userIdsToExclude: Id[]
+    ): Dashboard[] {
         const notAvailableLabel = " - ";
         return d2Dashboards.map(d2Dashboard => {
             const ownerUser = usersOwners.find(user => user.id === d2Dashboard.sharing.owner);
+            const usersFromSharing = Object.values(d2Dashboard.sharing.users);
             return Dashboard.create({
                 id: d2Dashboard.id,
                 name: d2Dashboard.displayName,
                 description: d2Dashboard.displayDescription,
                 owner: { id: ownerUser?.id ?? notAvailableLabel, name: ownerUser?.name ?? notAvailableLabel },
-                users: _(d2Dashboard.sharing.users)
-                    .mapValues(user => ({
-                        id: user.id,
-                        name: user.displayName ?? notAvailableLabel,
-                    }))
-                    .orderBy(user => user.name)
+                users: _(usersFromSharing)
+                    .map(user => {
+                        if (userIdsToExclude.includes(user.id)) return undefined;
+
+                        return { id: user.id, name: user.displayName ?? notAvailableLabel };
+                    })
+                    .compact()
                     .value(),
             });
         });

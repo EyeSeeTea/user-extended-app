@@ -45,7 +45,7 @@ function generateTableConfig(): TableConfig<Dashboard> {
 }
 
 export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, currentUser } = useAppContext();
     const [filters, setFilters] = React.useState<GetDashboardOptions["filters"]>({ ownerUsersIds: undefined });
 
     const config = React.useMemo(() => {
@@ -65,10 +65,12 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
                     search: search,
                     filters: { ownerUsersIds: filters.ownerUsersIds },
                     sorting: { field: sorting.field, order: sorting.order },
+                    hideUsers: undefined,
+                    user: currentUser,
                 })
                 .toPromise();
         },
-        [compositionRoot.dashboards.get, filters]
+        [compositionRoot.dashboards.get, filters, currentUser]
     );
 
     const tableProps = useObjectsTable(config, getRows);

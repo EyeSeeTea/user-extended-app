@@ -1,10 +1,10 @@
 import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { FutureData } from "../../domain/entities/Future";
-import { CommonFilterParams, PaginatedResponse } from "../../domain/entities/PaginatedResponse";
+import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { UserRole } from "../../domain/entities/UserRole";
 import { apiToFuture } from "../../utils/futures";
-import { UserRoleRepository } from "../../domain/repositories/UserRoleRepository";
+import { GetUserRolesParams, UserRoleRepository } from "../../domain/repositories/UserRoleRepository";
 
 export class UserRoleD2Repository implements UserRoleRepository {
     constructor(private api: D2Api) {}
@@ -13,11 +13,7 @@ export class UserRoleD2Repository implements UserRoleRepository {
         return apiToFuture(
             this.api.models.userRoles
                 .get({
-                    fields: {
-                        id: true,
-                        displayName: true,
-                        description: true,
-                    },
+                    fields: { id: true, displayName: true, description: true },
                     paging: false,
                 })
                 .map(res =>
@@ -28,7 +24,7 @@ export class UserRoleD2Repository implements UserRoleRepository {
         );
     }
 
-    get(options: CommonFilterParams): FutureData<PaginatedResponse<UserRole>> {
+    get(options: GetUserRolesParams): FutureData<PaginatedResponse<UserRole>> {
         return apiToFuture(
             this.api.models.userRoles.get({
                 fields: { id: true, description: true, displayName: true, users: { id: true, displayName: true } },
@@ -40,17 +36,24 @@ export class UserRoleD2Repository implements UserRoleRepository {
             })
         ).map(response => {
             return {
-                objects: response.objects.map(d2Role => {
-                    return UserRole.create({
-                        id: d2Role.id,
-                        name: d2Role.displayName,
-                        description: d2Role.description,
-                        users: _(d2Role.users)
-                            .map(d2User => ({ id: d2User.id, name: d2User.displayName }))
-                            .orderBy(u => u.name)
-                            .value(),
-                    });
-                }),
+                objects: _(response.objects)
+                    .map(d2Role => {
+                        if (options.hideRoles?.includes(d2Role.id)) return undefined;
+                        return UserRole.create({
+                            id: d2Role.id,
+                            name: d2Role.displayName,
+                            description: d2Role.description,
+                            users: _(d2Role.users)
+                                .map(d2User => {
+                                    if (options.hideUsers?.includes(d2User.id)) return undefined;
+                                    return { id: d2User.id, name: d2User.displayName };
+                                })
+                                .compact()
+                                .value(),
+                        });
+                    })
+                    .compact()
+                    .value(),
                 pager: response.pager,
             };
         });

@@ -32,7 +32,7 @@ function generateTableConfig(): TableConfig<UserGroup> {
 
 export const UserGroupTable: React.FC<{}> = React.memo(() => {
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, currentUser } = useAppContext();
 
     const config = React.useMemo(() => {
         return generateTableConfig();
@@ -52,10 +52,13 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                     sorting: { field: sorting.field, order: sorting.order },
                     excludeUsersOutsideOrgUnits: true,
                     usersIds: selectedUsersIds,
+                    hideUsers: undefined,
+                    hideGroups: undefined,
+                    user: currentUser,
                 })
                 .toPromise();
         },
-        [compositionRoot.userGroups, selectedUsersIds]
+        [compositionRoot.userGroups, selectedUsersIds, currentUser]
     );
 
     const tableProps = useObjectsTable(config, getRows);
