@@ -7,6 +7,7 @@ import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { LocaleCode } from "../../domain/entities/UserProps";
 import { User } from "../../domain/entities/User";
+import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
@@ -143,20 +144,22 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    public listAllIds(options: ListOptions): FutureData<Id[]> {
+    public listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]> {
         const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
 
         return apiToFuture(
             this.api.models.users.get({
-                fields: { id: true },
+                fields: { id: true, userCredentials: { username: true } },
                 paging: false,
                 query: search !== "" ? search : undefined,
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
                 order: `${sorting.field}:${sorting.order}`,
             })
-        ).map(({ objects }) => objects.map(user => user.id));
+        ).map(({ objects }) =>
+            objects.map(user => new UserIdentifier({ id: user.id, username: user.userCredentials.username }))
+        );
     }
 
     public getByIds(ids: Id[]): FutureData<User[]> {
