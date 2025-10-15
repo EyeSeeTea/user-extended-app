@@ -29,13 +29,27 @@ export function useActionsAccessibleToCurrentUser(
                 const hasWhitelistAccess = hasAccessViaWhitelist(currentUser, permission);
 
                 return (users: User[]) => {
-                    if (hasWhitelistAccess) return true;
-                    return validateRuleAccess({
+                    const internalRules = permission.getInternalRules();
+                    const selectableRules = permission.getSelectableRules();
+
+                    const validInternalRules = validateRuleAccess({
                         currentUser,
-                        rules: permission.rules,
+                        rules: internalRules,
                         users,
                         currentUserOrgUnitIds,
                     });
+
+                    if (!validInternalRules) return false; // Internal rules are mandatory to validate
+                    if (hasWhitelistAccess) return true;
+
+                    const validSelectableRules = validateRuleAccess({
+                        currentUser,
+                        rules: selectableRules,
+                        users,
+                        currentUserOrgUnitIds,
+                    });
+
+                    return validSelectableRules;
                 };
             }),
         [actionsAccess, currentUser, currentUserOrgUnitIds]

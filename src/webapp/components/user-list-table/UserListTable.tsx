@@ -38,7 +38,7 @@ import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
 import {
     ActionType,
     OrgUnitActionType,
-    generateMessage,
+    formatUserList,
     getFirstThreeUserNames,
     UsersSelectedModal,
     RiskyActionType,
@@ -563,7 +563,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         return i18n.t("{{action}}: {{users}} {{remainingCount}}", {
             action: buildOrgUnitTitleByAction(actionType, ouCaptureI18n, ouOutputI18n, ouSearchI18n),
             users: getFirstThreeUserNames(users).join(", "),
-            remainingCount: generateMessage(users),
+            remainingCount: formatUserList(users),
             nsSeparator: false,
         });
     }, [actionType, users, ouCaptureI18n, ouOutputI18n, ouSearchI18n]);

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-09-23T17:00:48.255Z\n"
+"POT-Creation-Date: 2025-09-25T19:44:43.501Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -9,10 +9,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgid "Invalid response from server"
-msgstr ""
+msgstr "Respuesta inválida del servidor"
 
 msgid "Unknown error"
-msgstr ""
+msgstr "Error desconocido"
 
 msgid "ID"
 msgstr "ID"
@@ -81,7 +81,7 @@ msgid "Last modified by"
 msgstr "Última modificación hecha por"
 
 msgid "Open IDs must be unique"
-msgstr ""
+msgstr "Los Open IDs deben ser únicos"
 
 msgid "Not all users have emails"
 msgstr "No todos los usuarios tienen correo electrónico"
@@ -203,7 +203,7 @@ msgid "{{n}} warning(s) while importing file"
 msgstr "{{n}} advertencia(s) al importar el archivo"
 
 msgid "[... and {{n}} more warning(s) ...]"
-msgstr ""
+msgstr "[... y {{n}} advertencia(s) más ...]"
 
 msgid "Importing users"
 msgstr "Importando usuarios"
@@ -329,13 +329,23 @@ msgid "Show only active users"
 msgstr "Mostrar solo usuarios activos"
 
 msgid "Hide org units on advanced filters"
-msgstr ""
+msgstr "Ocultar unidades organizacionales en filtros avanzados"
 
 msgid "Hide users, user roles and user groups"
 msgstr "Ocultar usuarios, roles de usuario y grupos de usuario"
 
 msgid "Actions available for all users"
 msgstr "Acciones disponibles para todos los usuarios"
+
+msgid ""
+"All actions will be available for administrators (but still subject to the "
+"circumstances that need to be met for each action). Eg: 'Enable' action will "
+"not be available if selected users are already enabled."
+msgstr ""
+"Todas las acciones estarán disponibles para los administradores (pero aún "
+"sujetas a las circunstancias que deben cumplirse para cada acción). Por "
+"ejemplo: la acción 'Activar' no estará disponible si los usuarios "
+"seleccionados ya están activados."
 
 msgid "Access to Settings Section"
 msgstr "Acceso a la sección de configuración"
@@ -357,16 +367,16 @@ msgid "Public access (Everyone)"
 msgstr "Acceso público (Todos)"
 
 msgid "User has email address"
-msgstr ""
+msgstr "El usuario tiene dirección de correo electrónico"
 
 msgid "Only available for users assigned to users' organization unit and below"
-msgstr ""
+msgstr "Solo disponible para usuarios asignados a la unidad organizacional del usuario y niveles inferiores"
 
 msgid "Hidden"
-msgstr ""
+msgstr "Oculta"
 
 msgid "Only available if user has update access over the users"
-msgstr ""
+msgstr "Solo disponible si el usuario tiene acceso de actualización sobre los usuarios"
 
 #, fuzzy
 msgid "Only available for disabled users"
@@ -377,13 +387,47 @@ msgid "Only available for active users"
 msgstr "Acciones disponibles para todos los usuarios"
 
 msgid "Only available if user has delete access over the users"
-msgstr ""
+msgstr "Solo disponible si el usuario tiene acceso de eliminación sobre los usuarios"
 
 msgid "Only available if user has replicate authority on some owned role"
-msgstr ""
+msgstr "Solo disponible si el usuario tiene autoridad de replicación en algún rol propio"
+
+#, fuzzy
+msgid "Selected users have email address"
+msgstr "No todos los usuarios tienen correo electrónico"
+
+msgid "Selected users belong to at least one of users' organization units"
+msgstr "Los usuarios seleccionados pertenecen al menos a una de las unidades organizacionales del usuario"
+
+#, fuzzy
+msgid "User has update access"
+msgstr "Usuarios importados correctamente"
+
+#, fuzzy
+msgid "Selected users are disabled"
+msgstr "Replicar usuario desde tabla"
+
+#, fuzzy
+msgid "Selected users are active"
+msgstr "Seleccionar usuarios"
+
+msgid "User has delete access"
+msgstr "El usuario tiene acceso de eliminación"
+
+msgid "User has replicate authority"
+msgstr "El usuario tiene autoridad de replicación"
+
+msgid "criteria"
+msgstr "criterios"
+
+msgid "criterion"
+msgstr "criterio"
+
+msgid "The following {{label}} must always be satisfied: {{criterias}}"
+msgstr "Los siguientes {{label}} deben cumplirse siempre: {{criterias}}"
 
 msgid "[RULE] "
-msgstr ""
+msgstr "[REGLA] "
 
 msgid "Saving..."
 msgstr "Guardando..."
@@ -524,10 +568,10 @@ msgid "Last Modified By"
 msgstr "Última modificación hecha por"
 
 msgid "2FA"
-msgstr ""
+msgstr "2FA"
 
 msgid "External Auth"
-msgstr ""
+msgstr "Autenticación Externa"
 
 msgid "Details"
 msgstr "Ver detalles"
@@ -619,6 +663,12 @@ msgstr "restablecer las contraseñas de"
 msgid "Passwords have been reset"
 msgstr "Las contraseñas han sido restablecidas"
 
+msgid ""
+"An email will be sent to the users with instructions to reset their password."
+msgstr ""
+"Se enviará un correo electrónico a los usuarios con instrucciones para "
+"restablecer su contraseña."
+
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
 msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"
 
@@ -644,14 +694,14 @@ msgid "Set Password"
 msgstr "Contraseña"
 
 msgid "Password is required"
-msgstr ""
+msgstr "La contraseña es obligatoria"
 
 #, fuzzy
 msgid "Password must contain at least 8 characters"
 msgstr "La contraseña debe contener al menos un número"
 
 msgid "Password must not contain more than 34 characters"
-msgstr ""
+msgstr "La contraseña no debe contener más de 34 caracteres"
 
 #, fuzzy
 msgid "Password must contain at least one lowercase letter"
@@ -696,16 +746,16 @@ msgid "Please confirm your password"
 msgstr "Por favor proporcione una contraseña"
 
 msgid "Passwords do not match"
-msgstr ""
+msgstr "Las contraseñas no coinciden"
 
 msgid "Please ensure all password requirements are met and passwords match"
-msgstr ""
+msgstr "Por favor, asegúrese de que se cumplan todos los requisitos de contraseña y que las contraseñas coincidan"
 
 msgid "Password has been set successfully for {{username}}"
-msgstr ""
+msgstr "La contraseña se ha establecido correctamente para {{username}}"
 
 msgid "Failed to set password. Please try again."
-msgstr ""
+msgstr "Error al establecer la contraseña. Por favor, inténtelo de nuevo."
 
 msgid "Table exported: {{filename}}"
 msgstr "Tabla exportada: {{filename}}"
