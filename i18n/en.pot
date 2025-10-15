@@ -125,6 +125,9 @@ msgstr ""
 msgid "Column"
 msgstr ""
 
+msgid "Mandatory"
+msgstr ""
+
 msgid "Visible"
 msgstr ""
 
@@ -489,6 +492,12 @@ msgid "Database language"
 msgstr ""
 
 msgid "Api URL"
+msgstr ""
+
+msgid "Column settings have been successfully reset."
+msgstr ""
+
+msgid "Reset Columns"
 msgstr ""
 
 msgid "Last updated"

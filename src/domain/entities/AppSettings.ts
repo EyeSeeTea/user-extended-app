@@ -25,7 +25,7 @@ type AppSettingsAttr = {
     };
 };
 
-export type ColumnSettingValue = "visible" | "disabled" | "optional";
+export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
 export type ActionsPermissions = Record<UserAction, ActionPermission>;
 
