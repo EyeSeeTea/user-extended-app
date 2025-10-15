@@ -103,6 +103,9 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                 excludeUsersOutsideOrgUnits: true,
                 usersIds: selectedUsersIds,
                 pageSize: 100,
+                hideUsers: undefined,
+                hideGroups: undefined,
+                user: currentUser,
             }).then(userGroups => {
                 const fileName = getFilename({
                     name: "user-groups",
@@ -119,7 +122,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                 }
             });
         },
-        [compositionRoot, selectedUsersIds, tableProps.sorting]
+        [compositionRoot, selectedUsersIds, tableProps.sorting, currentUser]
     );
 
     return (
