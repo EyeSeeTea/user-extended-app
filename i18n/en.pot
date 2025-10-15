@@ -5,8 +5,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-02-15T16:06:38.749Z\n"
-"PO-Revision-Date: 2025-02-15T16:06:38.749Z\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"PO-Revision-Date: 2025-09-19T06:22:59.402Z\n"
+
+msgid "Invalid response from server"
+msgstr ""
+
+msgid "Unknown error"
+msgstr ""
 
 msgid "ID"
 msgstr ""
@@ -72,6 +78,12 @@ msgid "Created by"
 msgstr ""
 
 msgid "Last modified by"
+msgstr ""
+
+msgid "Open IDs must be unique"
+msgstr ""
+
+msgid "Not all users have emails"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"
@@ -155,6 +167,15 @@ msgstr ""
 msgid "OU Capture"
 msgstr ""
 
+msgid "Description"
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
+msgid "Users"
+msgstr ""
+
 msgid "Import/Export"
 msgstr ""
 
@@ -174,6 +195,9 @@ msgid "{{n}} invalid users found, check in-line errors in table"
 msgstr ""
 
 msgid "{{n}} warning(s) while importing file"
+msgstr ""
+
+msgid "[... and {{n}} more warning(s) ...]"
 msgstr ""
 
 msgid "Importing users"
@@ -254,9 +278,6 @@ msgstr ""
 msgid "Ok"
 msgstr ""
 
-msgid "Users"
-msgstr ""
-
 msgid "Summary"
 msgstr ""
 
@@ -287,13 +308,28 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
+msgid "Search users"
+msgstr ""
+
+msgid "Search user roles"
+msgstr ""
+
+msgid "Search user groups"
+msgstr ""
+
 msgid "Show feedback button"
 msgstr ""
 
-msgid "Show only users assigned to users' organisation units"
+msgid "Show only active users"
 msgstr ""
 
-msgid "Show only active users"
+msgid "Hide org units on advanced filters"
+msgstr ""
+
+msgid "Hide users, user roles and user groups"
+msgstr ""
+
+msgid "Actions available for all users"
 msgstr ""
 
 msgid "Access to Settings Section"
@@ -302,10 +338,43 @@ msgstr ""
 msgid "Changes on 'Who has access' to settings will be reflected after page reload"
 msgstr ""
 
-msgid "Saving..."
+msgid "Select user groups and rules"
 msgstr ""
 
-msgid "Settings"
+msgid "You can't hide more than 480 users"
+msgstr ""
+
+msgid "Public access (Everyone)"
+msgstr ""
+
+msgid "User has email address"
+msgstr ""
+
+msgid "Only available for users assigned to users' organization unit and below"
+msgstr ""
+
+msgid "Hidden"
+msgstr ""
+
+msgid "Only available if user has update access over the users"
+msgstr ""
+
+msgid "Only available for disabled users"
+msgstr ""
+
+msgid "Only available for active users"
+msgstr ""
+
+msgid "Only available if user has delete access over the users"
+msgstr ""
+
+msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+msgid "[RULE] "
+msgstr ""
+
+msgid "Saving..."
 msgstr ""
 
 msgid "Logger"
@@ -315,6 +384,9 @@ msgid "Columns"
 msgstr ""
 
 msgid "Permissions"
+msgstr ""
+
+msgid "Dashboards"
 msgstr ""
 
 msgid "Error saving user"
@@ -392,6 +464,51 @@ msgstr ""
 msgid "OU Search"
 msgstr ""
 
+msgid "Settings"
+msgstr ""
+
+msgid "Search by name or username..."
+msgstr ""
+
+msgid "Assign to organisation units capture"
+msgstr ""
+
+msgid "Assign to organisation units output"
+msgstr ""
+
+msgid "Assign to organisation units search"
+msgstr ""
+
+msgid "{{action}}: {{users}} {{remainingCount}}"
+msgstr ""
+
+msgid "And {{overflow}} more..."
+msgstr ""
+
+msgid "User ID"
+msgstr ""
+
+msgid "Data capture organisation units"
+msgstr ""
+
+msgid "Data view organisation units"
+msgstr ""
+
+msgid "Search organisation units"
+msgstr ""
+
+msgid "Created By"
+msgstr ""
+
+msgid "Last Modified By"
+msgstr ""
+
+msgid "2FA"
+msgstr ""
+
+msgid "External Auth"
+msgstr ""
+
 msgid "Details"
 msgstr ""
 
@@ -422,6 +539,9 @@ msgstr ""
 msgid "Reset password"
 msgstr ""
 
+msgid "Set password"
+msgstr ""
+
 msgid "Remove"
 msgstr ""
 
@@ -431,40 +551,49 @@ msgstr ""
 msgid "Replicate user from table"
 msgstr ""
 
-msgid "Search by name or username..."
+msgid "Loading users..."
 msgstr ""
 
-msgid "Assign to organisation units capture"
+msgid "Filter owners"
 msgstr ""
 
-msgid "Assign to organisation units output"
+msgid "Clear"
 msgstr ""
 
-msgid "Assign to organisation units search"
+msgid "Select users"
 msgstr ""
 
-msgid "{{action}}: {{users}} {{remainingCount}}"
+msgid "New Password"
 msgstr ""
 
-msgid "User ID"
+msgid "Confirm New Password"
 msgstr ""
 
-msgid "Data capture organisation units"
+msgid "Remove users"
 msgstr ""
 
-msgid "Data view organisation units"
+msgid "Users removed"
 msgstr ""
 
-msgid "Search organisation units"
+msgid "Disable users"
 msgstr ""
 
-msgid "Created By"
+msgid "Users disabled"
 msgstr ""
 
-msgid "Last Modified By"
+msgid "Enable users"
 msgstr ""
 
-msgid "And {{overflow}} more..."
+msgid "Users enabled"
+msgstr ""
+
+msgid "Reset passwords"
+msgstr ""
+
+msgid "reset the passwords for"
+msgstr ""
+
+msgid "Passwords have been reset"
 msgstr ""
 
 msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
@@ -479,6 +608,66 @@ msgid ""
 msgstr ""
 
 msgid "Confirm"
+msgstr ""
+
+msgid "Set password for {{username}}"
+msgstr ""
+
+msgid "Set Password"
+msgstr ""
+
+msgid "Password is required"
+msgstr ""
+
+msgid "Password must contain at least 8 characters"
+msgstr ""
+
+msgid "Password must not contain more than 34 characters"
+msgstr ""
+
+msgid "Password must contain at least one lowercase letter"
+msgstr ""
+
+msgid "Password must contain at least one UPPERCASE letter"
+msgstr ""
+
+msgid "Password must contain at least one digit (number)"
+msgstr ""
+
+msgid "Password must contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least 8 characters"
+msgstr ""
+
+msgid "Not contain more than 34 characters"
+msgstr ""
+
+msgid "Contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least one UPPERCASE character"
+msgstr ""
+
+msgid "Contain at least one lowercase character"
+msgstr ""
+
+msgid "Contain at least one digit (number)"
+msgstr ""
+
+msgid "Please confirm your password"
+msgstr ""
+
+msgid "Passwords do not match"
+msgstr ""
+
+msgid "Please ensure all password requirements are met and passwords match"
+msgstr ""
+
+msgid "Password has been set successfully for {{username}}"
+msgstr ""
+
+msgid "Failed to set password. Please try again."
 msgstr ""
 
 msgid "Table exported: {{filename}}"
@@ -575,8 +764,4 @@ msgid "Open in user management"
 msgstr ""
 
 msgid " and {{overflow}} more..."
-msgstr ""
-
-msgctxt "warnings"
-msgid "and_n_more"
 msgstr ""

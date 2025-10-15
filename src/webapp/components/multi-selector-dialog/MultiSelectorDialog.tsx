@@ -7,7 +7,7 @@ import { Future } from "../../../domain/entities/Future";
 import { NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
 import { UpdateStrategy } from "../../../domain/repositories/UserRepository";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import { ellipsizedList } from "../../utils/list";
 
@@ -122,13 +122,13 @@ const buildTransferOptions = (options: NamedRef[]): TransferOption[] => {
 
 const Container = styled.div`
     display: flex;
-    justify-content: right;
-    margin-bottom: 16px;
+    justify-content: end;
+    margin-block-end: 16px;
     align-items: center;
 `;
 
 const Label = styled.span`
-    margin-right: 16px;
+    margin-inline-end: 16px;
     font-weight: bold;
 `;
 

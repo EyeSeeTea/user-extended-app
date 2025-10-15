@@ -1,39 +1,25 @@
-import _ from "lodash";
 import { Struct } from "./generic/Struct";
-import { NamedRef } from "./Ref";
+import { Id, NamedRef } from "./Ref";
 
-export type Permission = {
+export type PermissionAttrs = {
     users: NamedRef[];
     userGroups: NamedRef[];
 };
 
-type PublicPermissionAttrs = Permission & {
-    publicAccess: AccessValue;
-};
-
-export class PublicPermission extends Struct<PublicPermissionAttrs>() {
-    updateUsers(users: NamedRef[]): PublicPermission {
-        return this._update({
-            users,
-            publicAccess: _.isEmpty(users) && _.isEmpty(this.userGroups) ? AccessValue.public() : AccessValue.private(),
-        });
-    }
-
-    updateUserGroups(userGroups: NamedRef[]): PublicPermission {
-        return this._update({
-            userGroups,
-            publicAccess: _.isEmpty(this.users) && _.isEmpty(userGroups) ? AccessValue.public() : AccessValue.private(),
-        });
+export class Permission extends Struct<PermissionAttrs>() {
+    isAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
+        return isPermissionAccessible(this, args);
     }
 }
 
-// Posibility of adding write access if needed in future
-class AccessValue extends Struct<{ read: boolean }>() {
-    static public() {
-        return new AccessValue({ read: true });
-    }
+/* Acts as a whitelist. If not present or permission users and userGroups are empty, then no access is granted */
+export function isPermissionAccessible(permission: PermissionAttrs, args: { userId: Id; userGroupIds: Id[] }): boolean {
+    const { userId, userGroupIds } = args;
 
-    static private() {
-        return new AccessValue({ read: false });
-    }
+    const userAccess = permission.users.some(u => u.id === userId);
+    const groupAccess = permission.userGroups.some(({ id: permissionUserGroupId }) =>
+        userGroupIds.includes(permissionUserGroupId)
+    );
+
+    return userAccess || groupAccess;
 }

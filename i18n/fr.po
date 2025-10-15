@@ -1,0 +1,816 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"POT-Creation-Date: 2025-09-19T06:22:59.402Z\n"
+"PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgid "Invalid response from server"
+msgstr ""
+
+msgid "Unknown error"
+msgstr ""
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "First name"
+msgstr "Prénom"
+
+msgid "Surname"
+msgstr "Nom de famille"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone number"
+msgstr "Numéro de téléphone"
+
+msgid "Updated"
+msgstr "Mis à jour"
+
+msgid "Last login"
+msgstr "Dernière connexion"
+
+msgid "API URL"
+msgstr "URL de l'API"
+
+msgid "Created"
+msgstr "Créé"
+
+msgid "Roles"
+msgstr "Rôles"
+
+msgid "Groups"
+msgstr "Groupes"
+
+msgid "OUCapture"
+msgstr "Unité d'organisation de saisie"
+
+msgid "OUOutput"
+msgstr "Unité d'organisation de sortie"
+
+msgid "OUSearch"
+msgstr "Unité d'organisation de recherche"
+
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Open ID"
+msgstr "Open ID"
+
+msgid "Created by"
+msgstr "Créé par"
+
+msgid "Last modified by"
+msgstr "Dernière modification par"
+
+msgid "Open IDs must be unique"
+msgstr ""
+
+msgid "Not all users have emails"
+msgstr "Tous les utilisateurs n'ont pas d'e-mail"
+
+msgid "Only admin user can edit logger settings"
+msgstr "Seul l'administrateur peut modifier les paramètres du journal"
+
+msgid "Copy to clipboard"
+msgstr "Copier dans le presse-papiers"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "User {{user}} replicated successfully {{n}} times"
+msgstr "Utilisateur {{user}} répliqué avec succès {{n}} fois"
+
+msgid "Error replicating user {{user}}: {{message}}"
+msgstr "Erreur lors de la réplication de l'utilisateur {{user}} : {{message}}"
+
+msgid "Replicate {{user}}"
+msgstr "Répliquer {{user}}"
+
+msgid "Replicate"
+msgstr "Répliquer"
+
+msgid "Value should be between {{min}} and {{max}}"
+msgstr "La valeur doit être comprise entre {{min}} et {{max}}"
+
+msgid "Username. Example for two users: admin.$index -> admin.1, admin.2"
+msgstr ""
+"Nom d'utilisateur. Exemple pour deux utilisateurs : admin.$index -> admin.1, "
+"admin.2"
+
+msgid "Replicate error"
+msgstr "Erreur de réplication"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Columns to show in table"
+msgstr "Colonnes à afficher dans le tableau"
+
+msgid "Column"
+msgstr "Colonne"
+
+msgid "Visible"
+msgstr "Visible"
+
+msgid "Optional"
+msgstr "Optionnel"
+
+msgid "Disable"
+msgstr "Désactivez"
+
+msgid "Copy in user: {{user}}"
+msgstr "Copier dans l'utilisateur : {{user}}"
+
+msgid "Select one toggle"
+msgstr "Sélectionnez un bouton"
+
+msgid "Select at least one user"
+msgstr "Sélectionnez au moins un utilisateur"
+
+msgid "Bulk update strategy: "
+msgstr "Stratégie de mise à jour en masse : "
+
+msgid "Merge"
+msgstr "Fusionner"
+
+msgid "Replace"
+msgstr "Remplacer"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "User Groups"
+msgstr "Groupes d'utilisateurs"
+
+msgid "OU Outputs"
+msgstr "Unités d'organisation de sortie"
+
+msgid "User Roles"
+msgstr "Rôles d'utilisateur"
+
+msgid "OU Capture"
+msgstr "Unité d'organisation de saisie"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Owner"
+msgstr "Propriétaire"
+
+msgid "Users"
+msgstr "Utilisateurs"
+
+msgid "Import/Export"
+msgstr "Importer/Exporter"
+
+msgid "Import"
+msgstr "Importer"
+
+msgid "Export to CSV"
+msgstr "Exporter en CSV"
+
+msgid "Export to JSON"
+msgstr "Exporter en JSON"
+
+msgid "Export empty template"
+msgstr "Exporter un modèle vide"
+
+msgid "{{n}} invalid users found, check in-line errors in table"
+msgstr ""
+"{{n}} utilisateurs invalides trouvés, vérifiez les erreurs dans le tableau"
+
+msgid "{{n}} warning(s) while importing file"
+msgstr "{{n}} avertissement(s) lors de l'importation du fichier"
+
+msgid "[... and {{n}} more warning(s) ...]"
+msgstr ""
+
+msgid "Importing users"
+msgstr "Importation des utilisateurs"
+
+msgid "Users imported successfully"
+msgstr "Utilisateurs importés avec succès"
+
+msgid "User already exists: {{id}}"
+msgstr "L'utilisateur existe déjà : {{id}}"
+
+msgid "Add user"
+msgstr "Ajouter un utilisateur"
+
+msgid "Overwrite existing users"
+msgstr "Écraser les utilisateurs existants"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Error on metadata action"
+msgstr "Erreur lors de l'action sur les métadonnées"
+
+msgid "Remove user"
+msgstr "Supprimer l'utilisateur"
+
+msgid "Duplicated username: {{username}}"
+msgstr "Nom d'utilisateur dupliqué : {{username}}"
+
+msgid "Please provide a username"
+msgstr "Veuillez fournir un nom d'utilisateur"
+
+msgid "User already exists"
+msgstr "L'utilisateur existe déjà"
+
+msgid "Please provide a valid email"
+msgstr "Veuillez fournir une adresse e-mail valide"
+
+msgid "Please provide a password"
+msgstr "Veuillez fournir un mot de passe"
+
+msgid "Password should contain at least one lowercase letter"
+msgstr "Le mot de passe doit contenir au moins une lettre minuscule"
+
+msgid "Password should contain at least one UPPERCASE letter"
+msgstr "Le mot de passe doit contenir au moins une lettre MAJUSCULE"
+
+msgid "Password should contain at least one number"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+msgid "Password should have at least one special character"
+msgstr "Le mot de passe doit contenir au moins un caractère spécial"
+
+msgid "Please provide a valid phone number"
+msgstr "Veuillez fournir un numéro de téléphone valide"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Deleted"
+msgstr "Supprimé"
+
+msgid "Ignored"
+msgstr "Ignoré"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Identifier"
+msgstr "Identifiant"
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Import Results"
+msgstr "Résultats de l'importation"
+
+msgid "Ok"
+msgstr "Ok"
+
+msgid "Summary"
+msgstr "Résumé"
+
+msgid "Messages"
+msgstr "Messages"
+
+msgid "JSON Response"
+msgstr "Réponse JSON"
+
+msgid "Saving users"
+msgstr "Enregistrement des utilisateurs"
+
+msgid "Update strategy: "
+msgstr "Stratégie de mise à jour : "
+
+msgid "Assign roles to {{usernames}}"
+msgstr "Assigner des rôles à {{usernames}}"
+
+msgid "Assign groups to {{usernames}}"
+msgstr "Assigner des groupes à {{usernames}}"
+
+msgid "Bulk update strategy: {{strategy}}"
+msgstr "Stratégie de mise à jour en masse : {{strategy}}"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "Help"
+msgstr "Aide"
+
+msgid "Search users"
+msgstr "Rechercher des utilisateurs"
+
+msgid "Search user roles"
+msgstr "Rechercher des rôles d'utilisateur"
+
+msgid "Search user groups"
+msgstr "Rechercher des groupes d'utilisateurs"
+
+msgid "Show feedback button"
+msgstr "Afficher le bouton de retour"
+
+msgid "Show only active users"
+msgstr "Afficher uniquement les utilisateurs actifs"
+
+msgid "Hide org units on advanced filters"
+msgstr ""
+
+msgid "Hide users, user roles and user groups"
+msgstr "Masquer les utilisateurs, les rôles et les groupes d'utilisateurs"
+
+msgid "Actions available for all users"
+msgstr "Actions disponibles pour tous les utilisateurs"
+
+msgid "Access to Settings Section"
+msgstr "Accès à la section des paramètres"
+
+msgid ""
+"Changes on 'Who has access' to settings will be reflected after page reload"
+msgstr ""
+"Les modifications sur 'Qui a accès' aux paramètres seront prises en compte "
+"après le rechargement de la page"
+
+#, fuzzy
+msgid "Select user groups and rules"
+msgstr "Sélectionner des groupes d'utilisateurs"
+
+msgid "You can't hide more than 480 users"
+msgstr "Vous ne pouvez pas masquer plus de 480 utilisateurs"
+
+msgid "Public access (Everyone)"
+msgstr "Accès public (Tout le monde)"
+
+msgid "User has email address"
+msgstr ""
+
+#, fuzzy
+msgid "Only available for users assigned to users' organization unit and below"
+msgstr ""
+"Afficher uniquement les utilisateurs assignés aux unités d'organisation des "
+"utilisateurs"
+
+msgid "Hidden"
+msgstr ""
+
+msgid "Only available if user has update access over the users"
+msgstr ""
+
+#, fuzzy
+msgid "Only available for disabled users"
+msgstr "Actions disponibles pour tous les utilisateurs"
+
+#, fuzzy
+msgid "Only available for active users"
+msgstr "Actions disponibles pour tous les utilisateurs"
+
+msgid "Only available if user has delete access over the users"
+msgstr ""
+
+msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+msgid "[RULE] "
+msgstr ""
+
+msgid "Saving..."
+msgstr "Enregistrement..."
+
+msgid "Logger"
+msgstr "Journal"
+
+msgid "Columns"
+msgstr "Colonnes"
+
+msgid "Permissions"
+msgstr "Permissions"
+
+msgid "Dashboards"
+msgstr "Tableaux de bord"
+
+msgid "Error saving user"
+msgstr "Erreur lors de l'enregistrement de l'utilisateur"
+
+msgid "General info"
+msgstr "Informations générales"
+
+msgid "Assignment"
+msgstr "Affectation"
+
+msgid "Other information"
+msgstr "Autres informations"
+
+msgid "Please provide a valid identifier"
+msgstr "Veuillez fournir un identifiant valide"
+
+msgid "Please provide a valid international phone number (+0123456789)"
+msgstr ""
+"Veuillez fournir un numéro de téléphone international valide (+0123456789)"
+
+msgid "First Name"
+msgstr "Prénom"
+
+msgid "Account expiration date"
+msgstr "Date d'expiration du compte"
+
+msgid "Phone Number"
+msgstr "Numéro de téléphone"
+
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+msgid "Facebook Messenger"
+msgstr "Facebook Messenger"
+
+msgid "Skype"
+msgstr "Skype"
+
+msgid "Telegram"
+msgstr "Telegram"
+
+msgid "Twitter"
+msgstr "Twitter"
+
+msgid "External authentication only (OpenID or LDAP)"
+msgstr "Authentification externe uniquement (OpenID ou LDAP)"
+
+msgid "Data Capture Organisation Units"
+msgstr "Unités d'organisation de saisie de données"
+
+msgid "Data View Organisation Units"
+msgstr "Unités d'organisation de visualisation des données"
+
+msgid "Search Organisation Units"
+msgstr "Unités d'organisation de recherche"
+
+msgid "LDAP identifier"
+msgstr "Identifiant LDAP"
+
+msgid "Interface language"
+msgstr "Langue de l'interface"
+
+msgid "Database language"
+msgstr "Langue de la base de données"
+
+msgid "Api URL"
+msgstr "URL de l'API"
+
+msgid "Last updated"
+msgstr "Dernière mise à jour"
+
+msgid "OU Output"
+msgstr "Unité d'organisation de sortie"
+
+msgid "OU Search"
+msgstr "Unité d'organisation de recherche"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Search by name or username..."
+msgstr "Rechercher par nom ou nom d'utilisateur..."
+
+msgid "Assign to organisation units capture"
+msgstr "Assigner aux unités d'organisation de saisie"
+
+msgid "Assign to organisation units output"
+msgstr "Assigner aux unités d'organisation de sortie"
+
+msgid "Assign to organisation units search"
+msgstr "Assigner aux unités d'organisation de recherche"
+
+msgid "{{action}}: {{users}} {{remainingCount}}"
+msgstr "{{action}} : {{users}} {{remainingCount}}"
+
+msgid "And {{overflow}} more..."
+msgstr "Et {{overflow}} de plus..."
+
+msgid "User ID"
+msgstr "ID utilisateur"
+
+msgid "Data capture organisation units"
+msgstr "Unités d'organisation de saisie de données"
+
+msgid "Data view organisation units"
+msgstr "Unités d'organisation de visualisation des données"
+
+msgid "Search organisation units"
+msgstr "Unités d'organisation de recherche"
+
+msgid "Created By"
+msgstr "Créé par"
+
+msgid "Last Modified By"
+msgstr "Dernière modification par"
+
+msgid "2FA"
+msgstr ""
+
+msgid "External Auth"
+msgstr ""
+
+msgid "Details"
+msgstr "Voir les détails"
+
+msgid "Edit"
+msgstr "Modifiez"
+
+msgid "Copy in user"
+msgstr "Copier vers l'utilisateur"
+
+msgid "Assign to data capture organisation units"
+msgstr "Assigner aux unités d'organisation de saisie de données"
+
+msgid "Assign to data view organisation units"
+msgstr "Assigner aux unités d'organisation de visualisation des données"
+
+msgid "Assign to search organisation units"
+msgstr "Assigner aux unités d'organisation de recherche"
+
+msgid "Assign roles"
+msgstr "Assigner des rôles"
+
+msgid "Assign groups"
+msgstr "Assigner des groupes"
+
+msgid "Enable"
+msgstr "Activez"
+
+msgid "Reset password"
+msgstr "Réinitialiser le mot de passe"
+
+#, fuzzy
+msgid "Set password"
+msgstr "Réinitialiser le mot de passe"
+
+msgid "Remove"
+msgstr "Supprimer"
+
+msgid "Replicate user from template"
+msgstr "Répliquer l'utilisateur à partir du modèle"
+
+msgid "Replicate user from table"
+msgstr "Répliquer l'utilisateur à partir du tableau"
+
+msgid "Loading users..."
+msgstr "Chargement des utilisateurs..."
+
+msgid "Filter owners"
+msgstr "Filtrer les propriétaires"
+
+msgid "Clear"
+msgstr "Effacer"
+
+msgid "Select users"
+msgstr "Sélectionner des utilisateurs"
+
+#, fuzzy
+msgid "New Password"
+msgstr "Mot de passe"
+
+msgid "Confirm New Password"
+msgstr ""
+
+msgid "Remove users"
+msgstr "Supprimer les utilisateurs"
+
+msgid "Users removed"
+msgstr "Utilisateurs supprimés"
+
+msgid "Disable users"
+msgstr "Désactiver les utilisateurs"
+
+msgid "Users disabled"
+msgstr "Utilisateurs désactivés"
+
+msgid "Enable users"
+msgstr "Activer les utilisateurs"
+
+msgid "Users enabled"
+msgstr "Utilisateurs activés"
+
+msgid "Reset passwords"
+msgstr "Réinitialiser les mots de passe"
+
+msgid "reset the passwords for"
+msgstr "réinitialiser les mots de passe pour"
+
+msgid "Passwords have been reset"
+msgstr "Les mots de passe ont été réinitialisés"
+
+msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
+msgstr "{{actionSuccess}}. {{users}} {{remainingCount}}"
+
+msgid "{{actionTitle}}"
+msgstr "{{actionTitle}}"
+
+msgid ""
+"Are you sure you want to {{actionDescription}} the selected users? {{users}} "
+"{{remainingCount}}"
+msgstr ""
+"Êtes-vous sûr de vouloir {{actionDescription}} les utilisateurs "
+"sélectionnés ? {{users}} {{remainingCount}}"
+
+msgid "Confirm"
+msgstr "Confirmer"
+
+#, fuzzy
+msgid "Set password for {{username}}"
+msgstr "Assigner des rôles à {{usernames}}"
+
+#, fuzzy
+msgid "Set Password"
+msgstr "Mot de passe"
+
+msgid "Password is required"
+msgstr ""
+
+#, fuzzy
+msgid "Password must contain at least 8 characters"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+msgid "Password must not contain more than 34 characters"
+msgstr ""
+
+#, fuzzy
+msgid "Password must contain at least one lowercase letter"
+msgstr "Le mot de passe doit contenir au moins une lettre minuscule"
+
+#, fuzzy
+msgid "Password must contain at least one UPPERCASE letter"
+msgstr "Le mot de passe doit contenir au moins une lettre MAJUSCULE"
+
+#, fuzzy
+msgid "Password must contain at least one digit (number)"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+#, fuzzy
+msgid "Password must contain at least one special character (non-alphanumeric)"
+msgstr "Le mot de passe doit contenir au moins un caractère spécial"
+
+msgid "Contain at least 8 characters"
+msgstr ""
+
+#, fuzzy
+msgid "Not contain more than 34 characters"
+msgstr "Vous ne pouvez pas masquer plus de 480 utilisateurs"
+
+#, fuzzy
+msgid "Contain at least one special character (non-alphanumeric)"
+msgstr "Le mot de passe doit contenir au moins un caractère spécial"
+
+#, fuzzy
+msgid "Contain at least one UPPERCASE character"
+msgstr "Le mot de passe doit contenir au moins une lettre MAJUSCULE"
+
+#, fuzzy
+msgid "Contain at least one lowercase character"
+msgstr "Le mot de passe doit contenir au moins une lettre minuscule"
+
+#, fuzzy
+msgid "Contain at least one digit (number)"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+#, fuzzy
+msgid "Please confirm your password"
+msgstr "Veuillez fournir un mot de passe"
+
+msgid "Passwords do not match"
+msgstr ""
+
+msgid "Please ensure all password requirements are met and passwords match"
+msgstr ""
+
+msgid "Password has been set successfully for {{username}}"
+msgstr ""
+
+msgid "Failed to set password. Please try again."
+msgstr ""
+
+msgid "Table exported: {{filename}}"
+msgstr "Tableau exporté : {{filename}}"
+
+msgid "Distributed under GNU GLPv3"
+msgstr "Distribué sous GNU GLPv3"
+
+msgid ""
+"User-Extended App is a DHIS2 Web Application that provides an easy and "
+"integrated way to perform common operations to DHIS2 users which would be "
+"burdensome to perform using the in-built DHIS2 User management application."
+msgstr ""
+"L'application User-Extended est une application web DHIS2 qui offre un moyen "
+"simple et intégré d'effectuer des opérations courantes sur les utilisateurs "
+"DHIS2, qui seraient fastidieuses à réaliser avec l'application de gestion "
+"des utilisateurs intégrée à DHIS2."
+
+msgid ""
+"This application has been funded by the the Norwegian Refugee Council (NRC), "
+"the WHO Global Malaria Programme, Samaritan’s Purse and Medecins Sans "
+"Frontières (MSF) to support countries in strengthening the collection and "
+"use of health data by using DHIS2. The application has been developed by "
+"[EyeSeeTea SL](http://eyeseetea.com). Source code, documentation and release "
+"notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea."
+"github.io/user-extended-app-blessed/)"
+msgstr ""
+"Cette application a été financée par le Conseil norvégien pour les réfugiés "
+"(NRC), le Programme mondial de lutte contre le paludisme de l'OMS, "
+"Samaritan’s Purse et Médecins Sans Frontières (MSF) pour soutenir les pays "
+"dans le renforcement de la collecte et de l'utilisation des données de santé "
+"via DHIS2. L'application a été développée par [EyeSeeTea SL](http://"
+"eyeseetea.com). Le code source, la documentation et les notes de version "
+"sont disponibles sur la [page du projet GitHub EyeSeetea](https://eyeseetea."
+"github.io/user-extended-app-blessed/)"
+
+msgid ""
+"If you wish to contribute to the development of User Extended App with new "
+"features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com)."
+msgstr ""
+"Si vous souhaitez contribuer au développement de User Extended App avec de "
+"nouvelles fonctionnalités, veuillez contacter [EyeSeeTea](mailto:"
+"hello@eyeseetea.com)."
+
+msgid "About User Extended App"
+msgstr "À propos de User Extended App"
+
+msgid "Samaritan's Purse"
+msgstr "Samaritan's Purse"
+
+msgid "World Health Organization"
+msgstr "Organisation mondiale de la santé"
+
+msgid "EyeSeeTea"
+msgstr "EyeSeeTea"
+
+msgid "Norwegian Refugee Council"
+msgstr "Conseil norvégien pour les réfugiés"
+
+msgid "MSF"
+msgstr "MSF"
+
+msgid "Settings saved"
+msgstr "Paramètres enregistrés"
+
+msgid "Enable Logger"
+msgstr "Activer le journal"
+
+msgid "Tracker Program"
+msgstr "Programme de suivi"
+
+msgid "Username Attribute"
+msgstr "Attribut du nom d'utilisateur"
+
+msgid "Program Stages"
+msgstr "Étapes du programme"
+
+msgid "Data Element File ID"
+msgstr "ID du fichier d'élément de données"
+
+msgid "Data Element DateTime"
+msgstr "Date et heure de l'élément de données"
+
+msgid "Edit users"
+msgstr "Modifier les utilisateurs"
+
+msgid "Column settings"
+msgstr "Paramètres des colonnes"
+
+msgid "Error saving users"
+msgstr "Erreur lors de l'enregistrement des utilisateurs"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Edit user"
+msgstr "Modifier l'utilisateur"
+
+msgid "New user"
+msgstr "Nouvel utilisateur"
+
+msgid "Network error"
+msgstr "Erreur réseau"
+
+msgid "Unable to load user {{id}}"
+msgstr "Impossible de charger l'utilisateur {{id}}"
+
+msgid "Open in user management"
+msgstr "Ouvrir dans la gestion des utilisateurs"
+
+msgid " and {{overflow}} more..."
+msgstr " et {{overflow}} de plus..."
+
+#, fuzzy
+#~ msgid "Password is valid"
+#~ msgstr "Mot de passe"

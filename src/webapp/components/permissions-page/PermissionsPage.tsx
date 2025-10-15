@@ -5,20 +5,43 @@ import { Sharing } from "@eyeseetea/d2-ui-components";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useSharingSettings } from "./useSharingSettings";
 import { usePermissionsPage } from "./usePermissionsPage";
-import i18n from "../../../locales";
+import { SharingActions } from "./SharingActions";
+import i18n from "../../../utils/i18n";
+import { HideEntities } from "./HideEntities";
 
-type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void };
+type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void; onClose: () => void };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
-    const { onSave } = props;
+    const { onSave, onClose } = props;
 
     const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings();
-    const { formState, updateFormState, onSaveSettings, showSharingSettings } = usePermissionsPage(onSave, permission);
+    const {
+        formState,
+        updateFormState,
+        onSaveSettings,
+        showSharingSettings,
+        actionsPermissions,
+        setActionsPermissions,
+        hideOptions,
+        updateHideOptions,
+    } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
 
+    //FIXME: onChange events should be useCallback
+
     return (
-        <Box component="section" padding={theme.spacing(0.25)}>
+        <Box component="section" padding={theme.spacing(0.25)} position="relative">
+            <div className="sticky-actions">
+                <DialogActions>
+                    <Button onClick={onSaveSettings} color="primary" variant="contained">
+                        {i18n.t("Save")}
+                    </Button>
+                    <Button onClick={onClose} color="secondary">
+                        {i18n.t("Close")}
+                    </Button>
+                </DialogActions>
+            </div>
             <Box display="flex" flexDirection="column" flexWrap="wrap" paddingX={theme.spacing(0.25)}>
                 <FormControlLabel
                     control={
@@ -33,22 +56,67 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={formState.usersOrgUnits}
-                            onChange={event => updateFormState(event.target.checked, "usersOrgUnits")}
-                        />
-                    }
-                    label={i18n.t("Show only users assigned to users' organisation units")}
-                />
-
-                <FormControlLabel
-                    control={
-                        <Switch
                             checked={formState.activeUsers}
                             onChange={event => updateFormState(event.target.checked, "activeUsers")}
                         />
                     }
                     label={i18n.t("Show only active users")}
                 />
+
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.showHideOrgUnits}
+                            onChange={event => updateFormState(event.target.checked, "showHideOrgUnits")}
+                        />
+                    }
+                    label={i18n.t("Hide org units on advanced filters")}
+                />
+
+                {/* Feature: Blacklist org units within advanced filters trees */}
+                {/* {formState.showHideOrgUnits && (
+                    <Box marginTop={1} marginBottom={3}>
+                        Placeholder for org units tree
+                    </Box>
+                )} */}
+
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.showHideOptions}
+                            onChange={event => updateFormState(event.target.checked, "showHideOptions")}
+                        />
+                    }
+                    label={i18n.t("Hide users, user roles and user groups")}
+                />
+
+                {formState.showHideOptions && (
+                    <Box marginTop={1} marginBottom={3}>
+                        <HideEntities
+                            selectedUsers={hideOptions.users}
+                            selectedUserGroups={hideOptions.userGroups}
+                            selectedUserRoles={hideOptions.userRoles}
+                            updateHideEntities={updateHideOptions}
+                        />
+                    </Box>
+                )}
+
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={formState.actionsArePublic}
+                            onChange={event => updateFormState(event.target.checked, "actionsArePublic")}
+                        />
+                    }
+                    label={i18n.t("Actions available for all users")}
+                />
+
+                {!formState.actionsArePublic && (
+                    <SharingActions
+                        actionsPermissions={actionsPermissions}
+                        setActionsPermissions={setActionsPermissions}
+                    />
+                )}
 
                 <FormControlLabel
                     control={
@@ -85,12 +153,6 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                     />
                 </Box>
             )}
-
-            <DialogActions>
-                <Button onClick={onSaveSettings} color="primary" variant="contained">
-                    {i18n.t("Save")}
-                </Button>
-            </DialogActions>
         </Box>
     );
 });

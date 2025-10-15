@@ -34,16 +34,38 @@ import { ResetUsersPasswordsUseCase } from "./domain/usecases/ResetUsersPassword
 import { SearchUsersAndUserGroupsUseCase } from "./domain/usecases/SearchUsersAndUserGroupsUseCase";
 import { UserSearchD2Repository } from "./data/repositories/UserSearchD2Repository";
 import { CheckCurrentUserCanAccessSettingsUseCase } from "./domain/usecases/CheckCurrentUserCanAccessSettingsUseCase";
+import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
+import { GetAllUserGroupsUseCase } from "./domain/usecases/GetAllUserGroupsUseCase";
+import { GetAllUserRolesUseCase } from "./domain/usecases/GetAllUserRolesUseCase";
+import { UserRoleD2Repository } from "./data/repositories/UserRoleD2Repository";
+import { GetDashboardsUseCase } from "./domain/usecases/GetDashboardsUseCase";
+import { DashboardD2Repository } from "./data/repositories/DashboardD2Repository";
+import { GetUserRolesUseCase } from "./domain/usecases/GetUserRolesUseCase";
+import { OrgUnitD2Repository } from "./data/repositories/OrgUnitD2Repository";
+import { GetUserGroupsUseCase } from "./domain/usecases/GetUserGroupsUseCase";
+import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
+import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
+import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettingsD2ConstantRepository";
+import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase";
+import { VerifyPasswordUseCase } from "./domain/usecases/VerifyPasswordUseCase";
 
-export function getCompositionRoot(instance: Instance) {
+export type SettingsStorageType = "dataStore" | "constants";
+
+export function getCompositionRoot(instance: Instance, storageType: SettingsStorageType) {
     const api = getD2APiFromInstance(instance);
     const instanceRepository = new InstanceD2ApiRepository(instance);
     const userRepository = new UserD2ApiRepository(instance);
     const metadataRepository = new MetadataD2ApiRepository(instance);
     const programRepository = new ProgramD2Repository(api);
     const loggerSettingsRepository = new LoggerSettingsD2Repository(instance);
-    const appSettingsRepository = new AppSettingsD2Repository(api);
+    const appSettingsRepository =
+        storageType === "dataStore" ? new AppSettingsD2Repository(api) : new AppSettingsD2ConstantRepository(api);
     const userAndUserGroupsSearchRepository = new UserSearchD2Repository(api);
+    const userGroupRepository = new UserGroupD2Repository(api);
+    const userRoleRepository = new UserRoleD2Repository(api);
+    const dashboardRepository = new DashboardD2Repository(api);
+    const orgUnitRepository = new OrgUnitD2Repository(api);
+    const userSimpleRepository = new UserSimpleD2Repository(api);
 
     return {
         logger: {
@@ -57,9 +79,9 @@ export function getCompositionRoot(instance: Instance) {
         }),
         users: getExecute({
             getCurrent: new GetCurrentUserUseCase(userRepository),
-            list: new ListUsersUseCase(userRepository),
+            list: new ListUsersUseCase(userRepository, appSettingsRepository),
             listAll: new ListAllUsersUseCase(userRepository),
-            listAllIds: new ListAllUserIdsUseCase(userRepository),
+            listAllIds: new ListAllUserIdsUseCase(userRepository, appSettingsRepository),
             get: new GetUsersByIdsUseCase(userRepository),
             save: new SaveUsersUseCase(userRepository),
             saveStatus: new SaveUserStatusUseCase(userRepository),
@@ -72,11 +94,22 @@ export function getCompositionRoot(instance: Instance) {
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
             resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
+            verifyPassword: new VerifyPasswordUseCase(userRepository),
+            setPassword: new SetUserPasswordUseCase(userRepository),
             searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
             checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
                 userRepository,
                 appSettingsRepository
             ),
+            getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository, appSettingsRepository),
+        }),
+        userGroups: getExecute({
+            getAll: new GetAllUserGroupsUseCase(userGroupRepository),
+            get: new GetUserGroupsUseCase(userGroupRepository, orgUnitRepository, appSettingsRepository),
+        }),
+        userRoles: getExecute({
+            get: new GetUserRolesUseCase(userRoleRepository, orgUnitRepository, appSettingsRepository),
+            getAll: new GetAllUserRolesUseCase(userRoleRepository),
         }),
         metadata: getExecute({
             list: new ListMetadataUseCase(metadataRepository),
@@ -85,6 +118,9 @@ export function getCompositionRoot(instance: Instance) {
         settings: {
             get: new GetAppSettingsUseCase(appSettingsRepository),
             save: new SaveAppSettingsUseCase(appSettingsRepository),
+        },
+        dashboards: {
+            get: new GetDashboardsUseCase(dashboardRepository, appSettingsRepository),
         },
     };
 }

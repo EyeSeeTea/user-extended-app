@@ -4,6 +4,7 @@ import { FutureData } from "../../domain/entities/Future";
 import { AppSettingsRepository } from "../../domain/repositories/AppSettingsRepository";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Instance } from "../entities/Instance";
+import { mergeAndAddRuntimeProps, removeRuntimeLogic } from "./common/appSettingsHelpers";
 
 export class AppSettingsD2Repository implements AppSettingsRepository {
     private dataStorage: DataStoreStorageClient;
@@ -18,14 +19,13 @@ export class AppSettingsD2Repository implements AppSettingsRepository {
     }
 
     save(appSettings: AppSettings): FutureData<AppSettings> {
-        return this.dataStorage.saveObject(this.settingsKey, appSettings).map(() => appSettings);
+        const settingsToSave = removeRuntimeLogic(appSettings);
+        return this.dataStorage.saveObject(this.settingsKey, settingsToSave).map(() => appSettings);
     }
 
     private getSettings() {
-        const emptySettings = AppSettings.emptySettings();
-
         return this.dataStorage
             .getObject<Partial<AppSettings>>(this.settingsKey)
-            .map(d2Response => (d2Response ? AppSettings.create({ ...emptySettings, ...d2Response }) : emptySettings));
+            .map(d2Response => mergeAndAddRuntimeProps(d2Response));
     }
 }

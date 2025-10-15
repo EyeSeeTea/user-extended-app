@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { Button, ButtonGroup, DialogActions, Typography } from "@material-ui/core";
 
-import { useUserColumns } from "../user-list-table/UserListTable";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { AppSettings, ColumnSettingValue, SettingsUserColumn } from "../../../domain/entities/AppSettings";
 import { Maybe } from "../../../types/utils";
+import { useUserColumns } from "../user-list-table/userColumns";
 
 type ColumnsSettingsPageProps = {
     appSettings: Maybe<AppSettings>;
@@ -24,14 +24,16 @@ export const ColumnsSettingsPage = React.memo((props: ColumnsSettingsPageProps) 
 
     return (
         <ColumnsSettingsContainer>
-            <DialogActions>
-                <Button variant="contained" color="primary" onClick={onSave}>
-                    {i18n.t("Save")}
-                </Button>
-                <Button color="secondary" onClick={onClose}>
-                    {i18n.t("Close")}
-                </Button>
-            </DialogActions>
+            <div className="sticky-actions">
+                <DialogActions>
+                    <Button variant="contained" color="primary" onClick={onSave}>
+                        {i18n.t("Save")}
+                    </Button>
+                    <Button color="secondary" onClick={onClose}>
+                        {i18n.t("Close")}
+                    </Button>
+                </DialogActions>
+            </div>
             {appSettings?.columns.map(column => {
                 return (
                     <ColumnSelector key={column.field} column={column} onClick={updateColumns} settings={appSettings} />

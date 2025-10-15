@@ -1,7 +1,9 @@
+import styled from "styled-components";
 import {
     ObjectsList,
     ObjectsTableProps,
     Pager,
+    TableAction,
     TableColumn,
     TableConfig,
     TablePagination,
@@ -10,16 +12,16 @@ import {
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
 import { Icon, Tooltip } from "@material-ui/core";
-import { Check, Tune } from "@material-ui/icons";
+import { Tune } from "@material-ui/icons";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { checkAccess, checkHasEmail, hasReplicateAuthority, User } from "../../../domain/entities/User";
+import { isSuperAdmin, User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
@@ -40,7 +42,7 @@ import {
     getFirstThreeUserNames,
     UsersSelectedModal,
     RiskyActionType,
-} from "../users-remove-modal/UsersSelectedModal";
+} from "../users-selected-modal/UsersSelectedModal";
 import { SettingsDialogModal, useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
 import Settings from "../../../legacy/models/settings";
 import { ImportExport, ImportResult } from "../import-export/ImportExport";
@@ -49,7 +51,11 @@ import { ImportTable } from "../import-export/ImportTable";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
-import styled from "styled-components";
+import { UserAction } from "../../../domain/entities/UserAction";
+import { UsersSetPasswordModal } from "../users-selected-modal/UsersSetPasswordModal";
+import { useUserColumns } from "./userColumns";
+import { getUserActionLabel } from "./userListTableHelpers";
+import { useActionsAccessibleToCurrentUser } from "./useActionsAccessibleToCurrentUser";
 
 function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -112,6 +118,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     reloadTableKey,
     onAction,
     filterOption,
+    onlyUsersOrgUnits,
 }) => {
     const { compositionRoot, currentUser } = useAppContext();
     const [reloadKey, reload] = useReload();
@@ -128,20 +135,23 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const { importSettings } = useImportSettings();
 
-    const enableReplicate = hasReplicateAuthority(currentUser);
     const snackbar = useSnackbar();
     const navigate = useNavigate();
     const userColumns = useUserColumns();
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
-    const { users: allUsers } = useGetAllUsers();
+    const { users: allUsers } = useGetAllUsers(onlyUsersOrgUnits);
     const { appSettings, setAppSettings } = useAppSettingsContext();
-    const { showOnlyUsersOrgUnits: onlyUsersOrgUnits, showOnlyActiveUsers: onlyActiveUsers } = appSettings;
+    const {
+        showOnlyActiveUsers: onlyActiveUsers,
+        hide: { users: hideUsers },
+    } = appSettings;
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
+    const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess);
+
     /* Pagination DHIS2 Bug */
-    const needsPatch =
-        onlyUsersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
+    const needsPatch = false;
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
@@ -190,6 +200,164 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         [compositionRoot, visibleColumns, onChangeVisibleColumns, snackbar]
     );
 
+    //TODO: start moving to useHook
+    const actions: TableAction<User>[] = useMemo(
+        () =>
+            [
+                {
+                    name: UserAction.DETAILS,
+                    text: getUserActionLabel(UserAction.DETAILS),
+                    multiple: false,
+                    primary: true,
+                },
+                {
+                    name: UserAction.EDIT,
+                    text: getUserActionLabel(UserAction.EDIT),
+                    icon: <Icon>edit</Icon>,
+                    multiple: true,
+                    onClick: editUsers,
+                },
+                {
+                    name: UserAction.COPY_IN_USER,
+                    text: getUserActionLabel(UserAction.COPY_IN_USER),
+                    icon: <Icon>content_copy</Icon>,
+                    multiple: false,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("copy_in_user");
+                    },
+                },
+                {
+                    name: UserAction.ASSIGN_TO_ORG_UNITS_CAPTURE,
+                    text: getUserActionLabel(UserAction.ASSIGN_TO_ORG_UNITS_CAPTURE),
+                    multiple: true,
+                    icon: <Icon>business</Icon>,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("assign_to_org_units_capture");
+                    },
+                },
+                {
+                    name: UserAction.ASSIGN_TO_ORG_UNITS_OUTPUT,
+                    text: getUserActionLabel(UserAction.ASSIGN_TO_ORG_UNITS_OUTPUT),
+                    multiple: true,
+                    icon: <Icon>business</Icon>,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("assign_to_org_units_output");
+                    },
+                },
+                {
+                    name: UserAction.ASSIGN_TO_ORG_UNITS_SEARCH,
+                    text: getUserActionLabel(UserAction.ASSIGN_TO_ORG_UNITS_SEARCH),
+                    multiple: true,
+                    icon: <Icon>business</Icon>,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("assign_to_org_units_search");
+                    },
+                },
+                {
+                    name: UserAction.ASSIGN_ROLES,
+                    text: getUserActionLabel(UserAction.ASSIGN_ROLES),
+                    multiple: true,
+                    icon: <Icon>assignment</Icon>,
+                    onClick: (users: string[]) =>
+                        openMultiSelectorDialog({
+                            type: "userRoles",
+                            ids: users,
+                            onClose: () => {
+                                openMultiSelectorDialog(undefined);
+                                reload();
+                            },
+                        }),
+                },
+                {
+                    name: UserAction.ASSIGN_GROUPS,
+                    text: getUserActionLabel(UserAction.ASSIGN_GROUPS),
+                    icon: <Icon>group_add</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) =>
+                        openMultiSelectorDialog({
+                            type: "userGroups",
+                            ids: users,
+                            onClose: () => {
+                                openMultiSelectorDialog(undefined);
+                                reload();
+                            },
+                        }),
+                },
+                {
+                    name: UserAction.ENABLE,
+                    text: getUserActionLabel(UserAction.ENABLE),
+                    icon: <Icon>playlist_add_check</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("enable");
+                    },
+                },
+                {
+                    name: UserAction.DISABLE,
+                    text: getUserActionLabel(UserAction.DISABLE),
+                    icon: <Icon>block</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("disable");
+                    },
+                },
+                {
+                    name: UserAction.RESET_PASSWORD,
+                    text: getUserActionLabel(UserAction.RESET_PASSWORD),
+                    icon: <Icon>lock</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("reset_password");
+                    },
+                },
+                {
+                    name: UserAction.SET_PASSWORD,
+                    text: getUserActionLabel(UserAction.SET_PASSWORD),
+                    icon: <Icon>enhanced_encryption</Icon>,
+                    multiple: false,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("set_password");
+                    },
+                },
+                {
+                    name: UserAction.REMOVE,
+                    text: getUserActionLabel(UserAction.REMOVE),
+                    icon: <Icon>delete</Icon>,
+                    multiple: true,
+                    onClick: (users: string[]) => {
+                        setSelectedUserIds(users);
+                        setActionType("remove");
+                    },
+                },
+                {
+                    name: UserAction.REPLICATE_USER_FROM_TEMPLATE,
+                    text: getUserActionLabel(UserAction.REPLICATE_USER_FROM_TEMPLATE),
+                    icon: <FileCopyIcon />,
+                    multiple: false,
+                    onClick: (users: string[]) => onAction(users, "replicate_template"),
+                },
+                {
+                    name: UserAction.REPLICATE_USER_FROM_TABLE,
+                    text: getUserActionLabel(UserAction.REPLICATE_USER_FROM_TABLE),
+                    icon: <Icon>toc</Icon>,
+                    multiple: false,
+                    onClick: (users: string[]) => onAction(users, "replicate_table"),
+                },
+            ].map(action => ({
+                ...action,
+                isActive: (users: User[]) => currentUserAccessibleActions[action.name](users),
+            })),
+        [currentUserAccessibleActions, editUsers, onAction, reload]
+    );
+
     const baseConfig = useMemo((): TableConfig<User> => {
         return {
             columns: generateColumnsFromSettings({ appSettings, columns: userColumns }),
@@ -209,158 +377,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 { name: "dataViewOrganisationUnits", text: i18n.t("OU Output") },
                 { name: "searchOrganisationsUnits", text: i18n.t("OU Search") },
             ],
-            actions: [
-                {
-                    name: "details",
-                    text: i18n.t("Details"),
-                    multiple: false,
-                    primary: true,
-                },
-                {
-                    name: "edit",
-                    text: i18n.t("Edit"),
-                    icon: <Icon>edit</Icon>,
-                    multiple: true,
-                    onClick: editUsers,
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "copy_in_user",
-                    text: i18n.t("Copy in user"),
-                    icon: <Icon>content_copy</Icon>,
-                    multiple: false,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("copy_in_user");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_to_org_units_capture",
-                    text: i18n.t("Assign to data capture organisation units"),
-                    multiple: true,
-                    icon: <Icon>business</Icon>,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("assign_to_org_units_capture");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_to_org_units_output",
-                    text: i18n.t("Assign to data view organisation units"),
-                    multiple: true,
-                    icon: <Icon>business</Icon>,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("assign_to_org_units_output");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_to_org_units_search",
-                    text: i18n.t("Assign to search organisation units"),
-                    multiple: true,
-                    icon: <Icon>business</Icon>,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("assign_to_org_units_search");
-                    },
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_roles",
-                    text: i18n.t("Assign roles"),
-                    multiple: true,
-                    icon: <Icon>assignment</Icon>,
-                    onClick: ids =>
-                        openMultiSelectorDialog({
-                            type: "userRoles",
-                            ids,
-                            onClose: () => {
-                                openMultiSelectorDialog(undefined);
-                                reload();
-                            },
-                        }),
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "assign_groups",
-                    text: i18n.t("Assign groups"),
-                    icon: <Icon>group_add</Icon>,
-                    multiple: true,
-                    onClick: ids =>
-                        openMultiSelectorDialog({
-                            type: "userGroups",
-                            ids,
-                            onClose: () => {
-                                openMultiSelectorDialog(undefined);
-                                reload();
-                            },
-                        }),
-                    isActive: checkAccess(["update"]),
-                },
-                {
-                    name: "enable",
-                    text: i18n.t("Enable"),
-                    icon: <Icon>playlist_add_check</Icon>,
-                    multiple: true,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("enable");
-                    },
-                    isActive: isStateActionVisible("enable"),
-                },
-                {
-                    name: "disable",
-                    text: i18n.t("Disable"),
-                    icon: <Icon>block</Icon>,
-                    multiple: true,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("disable");
-                    },
-                    isActive: isStateActionVisible("disable"),
-                },
-                {
-                    name: "reset_password",
-                    text: i18n.t("Reset password"),
-                    icon: <Icon>lock</Icon>,
-                    multiple: true,
-                    onClick: users => {
-                        setSelectedUserIds(users);
-                        setActionType("reset_password");
-                    },
-                    isActive: users => checkHasEmail(users),
-                },
-                {
-                    name: "remove",
-                    text: i18n.t("Remove"),
-                    icon: <Icon>delete</Icon>,
-                    multiple: true,
-                    onClick: userIds => {
-                        setSelectedUserIds(userIds);
-                        setActionType("remove");
-                    },
-                    isActive: checkAccess(["delete"]),
-                },
-                {
-                    name: "replicate_user_from_template",
-                    text: i18n.t("Replicate user from template"),
-                    icon: <FileCopyIcon />,
-                    multiple: false,
-                    onClick: users => onAction(users, "replicate_template"),
-                    isActive: () => enableReplicate,
-                },
-                {
-                    name: "replicate_user_from_table",
-                    text: i18n.t("Replicate user from table"),
-                    icon: <Icon>toc</Icon>,
-                    multiple: false,
-                    onClick: users => onAction(users, "replicate_table"),
-                    isActive: () => enableReplicate,
-                },
-            ],
+            actions: actions,
             globalActions: _.compact([
                 currentUserHasAccessToSettings && {
                     name: "open-settings",
@@ -389,16 +406,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // onActionButtonClick: () => navigate("/new"),
             onReorderColumns,
         };
-    }, [
-        appSettings,
-        userColumns,
-        editUsers,
-        onReorderColumns,
-        reload,
-        onAction,
-        enableReplicate,
-        currentUserHasAccessToSettings,
-    ]);
+    }, [appSettings, userColumns, actions, currentUserHasAccessToSettings, onReorderColumns]);
 
     const refreshRows = useCallback(
         async (
@@ -418,8 +426,9 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         filters,
                         canManage,
                         rootJunction,
-                        onlyUsersOrgUnits: onlyUsersOrgUnits,
+                        onlyUsersOrgUnits,
                         onlyActiveUsers: onlyActiveUsers,
+                        hideUsers: appSettings.hide.users,
                     })
                     .toPromise();
 
@@ -437,9 +446,18 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters,
                     canManage,
                     rootJunction,
-                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
+                    hideUsers: appSettings.hide.users,
                 })
+                .map(({ objects, pager }) => ({
+                    pager,
+                    objects: isSuperAdmin(currentUser)
+                        ? objects
+                        : objects.map(
+                              hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
+                          ),
+                }))
                 .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
         },
@@ -453,7 +471,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             rootJunction,
             onlyUsersOrgUnits,
             onlyActiveUsers,
+            appSettings.hide.users,
+            appSettings.hide.userRoles,
+            appSettings.hide.userGroups,
             needsPatch,
+            currentUser,
         ]
     );
 
@@ -466,12 +488,21 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     filters,
                     canManage,
                     rootJunction,
-                    onlyUsersOrgUnits: onlyUsersOrgUnits,
+                    onlyUsersOrgUnits,
                     onlyActiveUsers: onlyActiveUsers,
+                    hideUsers: appSettings.hide.users,
                 })
                 .toPromise();
         },
-        [compositionRoot.users, filters, canManage, rootJunction, onlyUsersOrgUnits, onlyActiveUsers]
+        [
+            compositionRoot.users,
+            filters,
+            canManage,
+            rootJunction,
+            onlyUsersOrgUnits,
+            onlyActiveUsers,
+            appSettings.hide.users,
+        ]
     );
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
@@ -488,7 +519,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             .value();
     }, [tableProps.columns, visibleColumns]);
 
-    const onSuccessUsersRemove = () => {
+    const onSuccessUsersAction = () => {
         onCleanSelectedUsers();
         reload();
     };
@@ -575,11 +606,21 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         <React.Fragment>
             {multiSelectorDialogProps && <MultiSelectorDialog {...multiSelectorDialogProps} />}
 
+            {actionType && actionType === "set_password" && selectedUsers && (
+                <UsersSetPasswordModal
+                    actionType={actionType}
+                    users={users}
+                    isOpen={users.length === 1}
+                    onSuccess={onSuccessUsersAction}
+                    onCancel={onCleanSelectedUsers}
+                />
+            )}
+
             {actionType && isActionTypeRisky(actionType) && selectedUsers && (
                 <UsersSelectedModal
                     users={users}
                     isOpen={users.length > 0}
-                    onSuccess={onSuccessUsersRemove}
+                    onSuccess={onSuccessUsersAction}
                     onCancel={onCleanSelectedUsers}
                     actionType={actionType}
                 />
@@ -620,7 +661,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         {importSettings && mappingColumns && (
                             <ImportExport
                                 columns={mappingColumns}
-                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers }}
+                                filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers, hideUsers }}
                                 onImport={showImportDialog}
                                 settings={importSettings}
                             />
@@ -638,85 +679,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     usersFromFile={importResult.users}
                     columns={importResult.columns}
                     warnings={importResult.warnings}
+                    onlyUsersOrgUnits={onlyUsersOrgUnits}
                 />
             )}
         </React.Fragment>
     );
 };
-
-export function useUserColumns() {
-    const columns = React.useMemo((): TableColumn<User>[] => {
-        return [
-            { name: "id", sortable: false, text: i18n.t("User ID"), hidden: true },
-            { name: "username", sortable: false, text: i18n.t("Username") },
-            { name: "firstName", sortable: true, text: i18n.t("First Name") },
-            { name: "surname", sortable: true, text: i18n.t("Surname") },
-            { name: "email", sortable: true, text: i18n.t("Email") },
-            { name: "phoneNumber", text: i18n.t("Phone number") },
-            { name: "openId", sortable: false, text: i18n.t("Open ID"), hidden: true },
-            { name: "created", sortable: true, text: i18n.t("Created"), hidden: true },
-            { name: "lastUpdated", sortable: true, text: i18n.t("Last updated"), hidden: true },
-            { name: "apiUrl", sortable: false, text: i18n.t("API URL"), hidden: true },
-            {
-                name: "userRoles",
-                sortable: false,
-                text: i18n.t("Roles"),
-                getValue: user => buildEllipsizedList(user.userRoles),
-                hidden: true,
-            },
-            {
-                name: "userGroups",
-                sortable: false,
-                text: i18n.t("Groups"),
-                getValue: user => buildEllipsizedList(user.userGroups),
-                hidden: true,
-            },
-            {
-                name: "organisationUnits",
-                sortable: false,
-                text: i18n.t("Data capture organisation units"),
-                getValue: user => buildEllipsizedList(user.organisationUnits),
-            },
-            {
-                name: "dataViewOrganisationUnits",
-                sortable: false,
-                text: i18n.t("Data view organisation units"),
-                getValue: user => buildEllipsizedList(user.dataViewOrganisationUnits),
-            },
-            {
-                name: "searchOrganisationsUnits",
-                sortable: false,
-                text: i18n.t("Search organisation units"),
-                getValue: user => buildEllipsizedList(user.searchOrganisationsUnits),
-            },
-            { name: "lastLogin", sortable: false, text: i18n.t("Last login") },
-            {
-                name: "status",
-                sortable: true,
-                text: i18n.t("Status"),
-            },
-            {
-                name: "disabled",
-                sortable: false,
-                text: i18n.t("Disabled"),
-                getValue: row => (row.disabled ? <Check /> : undefined),
-            },
-            {
-                name: "createdBy",
-                sortable: false,
-                text: i18n.t("Created By"),
-                getValue: row => row.createdBy?.username || "",
-            },
-            {
-                name: "lastModifiedBy",
-                sortable: false,
-                text: i18n.t("Last Modified By"),
-                getValue: row => row.lastModifiedBy?.username || "",
-            },
-        ];
-    }, []);
-    return columns;
-}
 
 function generateColumnsFromSettings(options: {
     appSettings: Maybe<AppSettings>;
@@ -737,12 +705,12 @@ function generateColumnsFromSettings(options: {
         .value();
 }
 
-function isStateActionVisible(action: string) {
-    const currentUserHasUpdateAccessOn = checkAccess(["update"]);
-    const requiredDisabledValue = action === "enable";
-
-    return (users: User[]) =>
-        currentUserHasUpdateAccessOn(users) && _(users).some(user => user.disabled === requiredDisabledValue);
+function hideUserRolesAndUserGroups(userRolesToHide: Id[], userGroupsToHide: Id[]): (user: User) => User {
+    return (user: User) => ({
+        ...user,
+        userRoles: user.userRoles.filter(role => !userRolesToHide.includes(role.id)),
+        userGroups: user.userGroups.filter(group => !userGroupsToHide.includes(group.id)),
+    });
 }
 
 export type UserActionName =
@@ -763,10 +731,11 @@ export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loadi
     reloadTableKey: number;
     onAction: (ids: string[], action: UserActionName) => void;
     filterOption: ListOptions;
-    usersOrgUnits: boolean;
+    onlyUsersOrgUnits: boolean;
 }
 
-function buildEllipsizedList(items: NamedRef[], limit = 3) {
+//FIMXE: move to another file
+export function buildEllipsizedList(items: NamedRef[], limit = 3) {
     const names = items.map(item => item.name);
     const overflow = items.length - limit;
     const hasOverflow = overflow > 0;

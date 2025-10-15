@@ -11,7 +11,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { VariableSizeGrid as Grid } from "react-window";
 import styled from "styled-components";
 import { defaultUser, User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { generateUid } from "../../../utils/uid";
 import { ColumnSelectorDialog } from "../../components/column-selector-dialog/ColumnSelectorDialog";
 import { ImportSummary } from "../../components/import-summary/ImportSummary";
@@ -83,7 +83,7 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
                 <IconButton
                     tooltip={i18n.t("Column settings")}
                     onClick={() => setColumnSelectorOpen(true)}
-                    style={{ float: "right" }}
+                    style={{ float: "inline-end" }}
                 >
                     <ViewColumn />
                 </IconButton>
@@ -235,7 +235,8 @@ const Container = styled(Paper)`
 `;
 
 const Item = styled.div`
-    margin: 4px 0;
+    margin-block: 4px;
+    margin-inline: 0;
     padding: 10px;
 `;
 

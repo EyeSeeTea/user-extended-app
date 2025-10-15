@@ -8,9 +8,19 @@ import { UserBulkEditPage } from "./user-bulk-edit/UserBulkEditPage";
 import { UserEditPage } from "./user-edit/UserEditPage";
 import { About } from "../components/about/About";
 import { AboutPage } from "./about/AboutPage";
+import { DashboardTable } from "../components/dashboard/DashboardTable";
+import { UserRoleTable } from "../components/user-role/UserRoleTable";
+import { UserGroupTable } from "../components/user-group-table/UserGroupTable";
+import { TabsMenu } from "../components/tabs-menu/TabsMenu";
+
+const TabWrapper = ({ children }: { children: React.ReactNode }) => (
+    <LegacyAppWrapper>
+        <TabsMenu>{children}</TabsMenu>
+    </LegacyAppWrapper>
+);
 
 export const Router: React.FC = React.memo(() => {
-    const { api } = useAppContext();
+    const { api, currentUser } = useAppContext();
 
     return (
         <HashRouter>
@@ -23,9 +33,36 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/"
                     element={
-                        <LegacyAppWrapper>
-                            <ListHybrid api={api} params={{ modelType: "users" }} />
-                        </LegacyAppWrapper>
+                        <TabWrapper>
+                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/dashboards"
+                    element={
+                        <TabWrapper>
+                            <DashboardTable />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/user-roles"
+                    element={
+                        <TabWrapper>
+                            <UserRoleTable />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/user-groups"
+                    element={
+                        <TabWrapper>
+                            <UserGroupTable />
+                        </TabWrapper>
                     }
                 />
             </Routes>
@@ -38,10 +75,10 @@ export const Router: React.FC = React.memo(() => {
 
 const IconsContainer = styled.div`
     align-items: center;
-    bottom: -3px;
+    inset-block-end: -3px;
     display: flex;
     gap: 1em;
     justify-content: center;
     position: fixed;
-    right: 80px;
+    inset-inline-end: 80px;
 `;

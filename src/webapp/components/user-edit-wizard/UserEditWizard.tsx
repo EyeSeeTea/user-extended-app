@@ -1,5 +1,5 @@
 import { Button, ButtonStrip, NoticeBox } from "@dhis2/ui";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { Paper, Step, StepLabel, Stepper } from "@material-ui/core";
 import { ArrowBack, ArrowForward } from "@material-ui/icons";
 import { FORM_ERROR } from "final-form";
@@ -180,7 +180,9 @@ const StyledStepLabel = styled(StepLabel)`
 `;
 
 const StyledStepper = styled(Stepper)`
-    padding: 20px 20px 35px;
+    padding-block-start: 20px;
+    padding-block-end: 35px;
+    padding-inline: 20px;
 `;
 
 const ButtonsRow = styled(ButtonStrip)`

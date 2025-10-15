@@ -6,7 +6,7 @@ import { User, UserColumns } from "../../domain/entities/User";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
 import { useAppContext } from "../contexts/app-context";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { AllowedExportFormat, ColumnMappingKeys } from "../../domain/usecases/ExportUsersUseCase";
 import FileSaver from "file-saver";
 import { OrgUnitKey } from "../../domain/entities/OrgUnit";
@@ -90,7 +90,7 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
     return { saveUsersOrgUnits };
 }
 
-export function useGetAllUsers() {
+export function useGetAllUsers(onlyUsersOrgUnits: boolean) {
     const { compositionRoot } = useAppContext();
     const { appSettings } = useAppSettingsContext();
     const [users, setUsers] = React.useState<User[]>();
@@ -99,8 +99,9 @@ export function useGetAllUsers() {
     React.useMemo(() => {
         compositionRoot.users
             .listAll({
-                onlyUsersOrgUnits: appSettings.showOnlyUsersOrgUnits,
+                onlyUsersOrgUnits: onlyUsersOrgUnits,
                 onlyActiveUsers: appSettings.showOnlyActiveUsers,
+                hideUsers: appSettings.hide.users,
             })
             .run(
                 allUsers => {
@@ -110,7 +111,7 @@ export function useGetAllUsers() {
                     snackbar.error(error);
                 }
             );
-    }, [appSettings.showOnlyActiveUsers, appSettings.showOnlyUsersOrgUnits, compositionRoot.users, snackbar]);
+    }, [appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits, compositionRoot.users, snackbar]);
 
     return { users };
 }

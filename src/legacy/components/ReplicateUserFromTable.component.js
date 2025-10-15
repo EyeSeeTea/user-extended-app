@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import LoadingMask from "../loading-mask/LoadingMask.component";
 import User from "../models/user";
 import snackActions from "../Snackbar/snack.actions";

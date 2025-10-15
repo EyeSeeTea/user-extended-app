@@ -38,14 +38,18 @@ export const SimpleMarkdownViewer: React.FC<{ className?: string; source: string
 
 export const MarkdownViewer = styled(SimpleMarkdownViewer)`
     color: white;
-    padding: 5px 20px 0 20px;
+    padding-block-start: 5px;
+    padding-block-end: 0;
+    padding-inline: 20px;
     text-align-last: ${props => (props.center ? "center" : "unset")};
 
     h1 {
         font-size: 32px;
         line-height: 47px;
         font-weight: 300;
-        margin: 0px 0px 30px 0px;
+        margin-block-start: 0px;
+        margin-block-end: 30px;
+        margin-inline: 0px;
     }
 
     p {
@@ -56,13 +60,13 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
     }
 
     img {
-        max-width: 100%;
+        max-inline-size: 100%;
         border-radius: 1em;
         user-drag: none;
     }
 
     video {
-        max-width: 100%;
+        max-inline-size: 100%;
         user-drag: none;
     }
 
@@ -79,7 +83,7 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
         list-style-type: none;
         font-size: 33px;
         font-weight: 100;
-        text-align: left;
+        text-align: start;
         user-select: none;
     }
 
@@ -89,15 +93,15 @@ export const MarkdownViewer = styled(SimpleMarkdownViewer)`
 
     details > summary::before {
         content: url(./img/note.svg);
-        margin-right: 20px;
-        top: 3px;
+        margin-inline-end: 20px;
+        inset-block-start: 3px;
         position: relative;
     }
 
     details > summary::after {
         content: "keyboard_arrow_down";
         font-size: 35px;
-        margin-left: 10px;
+        margin-inline-start: 10px;
         font-family: "Material Icons";
     }
 

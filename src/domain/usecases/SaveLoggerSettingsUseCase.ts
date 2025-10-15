@@ -1,4 +1,4 @@
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { Future, FutureData } from "../entities/Future";
 import { LoggerSettings } from "../entities/LoggerSettings";
 import { isSuperAdmin, User } from "../entities/User";

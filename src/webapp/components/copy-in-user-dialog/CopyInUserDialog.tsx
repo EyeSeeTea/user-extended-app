@@ -1,5 +1,5 @@
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import _ from "lodash";
 import { User } from "../../../domain/entities/User";
 import { Id } from "../../../domain/entities/Ref";
@@ -137,7 +137,7 @@ export type CopyInUserDialogProps = {
 
 const Container = styled.div`
     display: flex;
-    justify-content: right;
+    justify-content: end;
     margin-block-end: 1em;
     align-items: center;
 `;

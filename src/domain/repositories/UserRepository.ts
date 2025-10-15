@@ -1,7 +1,7 @@
 import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
 import { FutureData } from "../entities/Future";
 import { PaginatedResponse } from "../entities/PaginatedResponse";
-import { NamedRef } from "../entities/Ref";
+import { Id, NamedRef } from "../entities/Ref";
 import { Stats } from "../entities/Stats";
 import { User } from "../entities/User";
 
@@ -18,6 +18,7 @@ export interface UserRepository {
     saveColumns(columns: Array<keyof User>): FutureData<void>;
     remove(users: User[]): FutureData<Stats>;
     resetPasswords(users: User[]): FutureData<Stats>;
+    verifyPassword(password: string): FutureData<true>;
 }
 
 export interface ListOptions {
@@ -30,9 +31,10 @@ export interface ListOptions {
     rootJunction?: "AND" | "OR";
     onlyUsersOrgUnits: boolean;
     onlyActiveUsers: boolean;
+    hideUsers: Id[];
 }
 
-export type ListFilterType = "in" | "eq";
+export type ListFilterType = "in" | "eq" | "gt";
 export type ListFilters = Record<string, [ListFilterType, string[]]>;
 export type UpdateStrategy = "replace" | "merge";
 

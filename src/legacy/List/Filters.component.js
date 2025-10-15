@@ -14,6 +14,7 @@ import OrgUnitsSelectorFilter from "../components/OrgUnitsSelectorFilter";
 import listActions from "./list.actions";
 import listStore from "./list.store";
 import Dropdown from "../components/Dropdown.component";
+import { DEFAULT_SHOW_ONLY_ACTIVE_USERS } from "./List.component";
 
 export default class Filters extends React.Component {
     static contextTypes = {
@@ -25,6 +26,9 @@ export default class Filters extends React.Component {
         onlyActiveUsers: PropTypes.bool,
         areFiltersOverrided: PropTypes.bool,
         hideUsersCanManageFilter: PropTypes.bool,
+        onlyUsersOrgUnits: PropTypes.bool,
+        setOnlyUsersOrgUnits: PropTypes.func.isRequired,
+        isSuperAdmin: PropTypes.bool,
     };
 
     styles = {
@@ -80,9 +84,12 @@ export default class Filters extends React.Component {
             orgUnitsOutput: [],
             searchOrgUnits: [],
             userDisabled: this.props.onlyActiveUsers ? false : null,
+            twoFactorEnabled: null,
+            externalAuth: null,
             userRolesAll: [],
             userGroupsAll: [],
             rootJunction: this.props.areFiltersOverrided ? "AND" : "OR",
+            onlyUsersOrgUnits: this.props.onlyUsersOrgUnits,
         };
     }
 
@@ -92,6 +99,9 @@ export default class Filters extends React.Component {
         }
         if (prevProps.areFiltersOverrided !== this.props.areFiltersOverrided) {
             this.setState({ rootJunction: this.props.areFiltersOverrided ? "AND" : "OR" }, this.notifyParent);
+        }
+        if (prevProps.onlyUsersOrgUnits !== this.props.onlyUsersOrgUnits) {
+            this.setState({ onlyUsersOrgUnits: this.props.onlyUsersOrgUnits }, this.notifyParentOnlyUsersOrgUnits);
         }
     }
 
@@ -146,6 +156,8 @@ export default class Filters extends React.Component {
             userRoles,
             userGroups,
             userDisabled,
+            twoFactorEnabled,
+            externalAuth,
             orgUnits,
             orgUnitsOutput,
             searchOrgUnits,
@@ -160,6 +172,8 @@ export default class Filters extends React.Component {
             ...(rootJunction ? { rootJunction } : {}),
             filters: {
                 "userCredentials.disabled": userDisabled !== null ? ["eq", userDisabled] : undefined,
+                "userCredentials.twoFA": twoFactorEnabled !== null ? ["eq", twoFactorEnabled] : undefined,
+                "userCredentials.externalAuth": externalAuth !== null ? ["eq", externalAuth] : undefined,
                 "userCredentials.userRoles.id": inFilter(userRoles),
                 "userGroups.id": inFilter(userGroups),
                 "organisationUnits.id": inFilter(orgUnits.map(ou => ou.id)),
@@ -170,6 +184,7 @@ export default class Filters extends React.Component {
     };
 
     clearFilters = () => {
+        this.setState({ onlyUsersOrgUnits: DEFAULT_SHOW_ONLY_ACTIVE_USERS }, this.notifyParentOnlyUsersOrgUnits);
         this.setState(
             {
                 showOnlyManagedUsers: false,
@@ -177,6 +192,8 @@ export default class Filters extends React.Component {
                 userGroups: [],
                 userRoles: [],
                 userDisabled: this.props.onlyActiveUsers ? false : null,
+                twoFactorEnabled: null,
+                externalAuth: null,
                 orgUnits: [],
                 orgUnitsOutput: [],
                 searchOrgUnits: [],
@@ -186,15 +203,21 @@ export default class Filters extends React.Component {
         );
     };
 
+    notifyParentOnlyUsersOrgUnits = () => {
+        this.props.setOnlyUsersOrgUnits(this.state.onlyUsersOrgUnits);
+    };
+
     notifyParent = () => {
         const filterOptions = this.getFilterOptions();
         this.props.onChange(filterOptions);
     };
 
     _setFilter = (key, getter) => {
+        const notify = key === "onlyUsersOrgUnits" ? this.notifyParentOnlyUsersOrgUnits : this.notifyParent;
+
         return (...args) => {
             const newValue = getter ? getter(...args) : args[0];
-            this.setState({ [key]: newValue }, this.notifyParent);
+            this.setState({ [key]: newValue }, notify);
         };
     };
 
@@ -210,28 +233,35 @@ export default class Filters extends React.Component {
             orgUnitsOutput,
             searchOrgUnits,
             showOnlyManagedUsers,
+            onlyUsersOrgUnits,
             showExtendedFilters,
             rootJunction,
         } = this.state;
 
-        const { onlyActiveUsers, areFiltersOverrided, hideUsersCanManageFilter } = this.props;
+        const { isSuperAdmin, areFiltersOverrided, hideUsersCanManageFilter } = this.props;
 
         const { styles } = this;
 
         const isExtendedFiltering =
             showOnlyManagedUsers ||
+            onlyUsersOrgUnits ||
             userDisabled ||
             !_([userGroups, userRoles, orgUnits, orgUnitsOutput, searchOrgUnits]).every(_.isEmpty);
         const isFiltering = showOnlyManagedUsers || isExtendedFiltering;
         const filterIconColor = isExtendedFiltering ? "#ff9800" : undefined;
         const filterButtonColor = showExtendedFilters ? { backgroundColor: "#cdcdcd" } : undefined;
 
-        const dropdownOptions = [
+        const activeInactiveOptions = [
             { value: false, text: this.getTranslation("active") },
             { value: true, text: this.getTranslation("inactive") },
         ];
 
         const forcedFilterOptions = [{ value: false, text: this.getTranslation("filter_active_modified") }];
+
+        const enabledDisabledOptions = [
+            { value: true, text: this.getTranslation("enabled") },
+            { value: false, text: this.getTranslation("disabled") },
+        ];
 
         return (
             <div className="user-management-controls" style={styles.wrapper}>
@@ -258,7 +288,7 @@ export default class Filters extends React.Component {
                 >
                     <div style={{ padding: "0.5em", margin: "0.5em" }}>
                         <Box display="flex" alignItems="center" width="100%" marginBottom={1.5}>
-                            <Box display="flex" flexGrow={1}>
+                            <Box display="flex" flexGrow={1} flexDirection={"column"} gridRowGap="1em">
                                 {!hideUsersCanManageFilter && (
                                     <Checkbox
                                         className="control-checkbox"
@@ -267,7 +297,15 @@ export default class Filters extends React.Component {
                                         checked={showOnlyManagedUsers}
                                     />
                                 )}
+                                <Checkbox
+                                    className="control-checkbox"
+                                    label={this.getTranslation("only_users_assigned_to_org_unit")}
+                                    onCheck={this.setFilter("onlyUsersOrgUnits", this.checkboxHandler)}
+                                    checked={onlyUsersOrgUnits}
+                                />
                             </Box>
+                        </Box>
+                        <Box display="flex" justifyContent="flex-end">
                             <Box display="flex" gridColumnGap="1.5em">
                                 <span style={styles.filterBehavior}>
                                     {this.getTranslation("Filtering_behavior")}
@@ -309,11 +347,31 @@ export default class Filters extends React.Component {
                             <div className="user-management-control select-active-or-inactive">
                                 <Dropdown
                                     labelText={this.getTranslation("filter_active_inactive_users")}
-                                    options={onlyActiveUsers ? forcedFilterOptions : dropdownOptions}
+                                    options={!isSuperAdmin ? forcedFilterOptions : activeInactiveOptions}
                                     value={this.state.userDisabled}
                                     onChange={this.setFilter("userDisabled", this.dropdownHandler)}
                                     style={styles.dropdownStyles}
-                                    disabled={onlyActiveUsers}
+                                    disabled={!isSuperAdmin}
+                                />
+                            </div>
+
+                            <div className="user-management-control select-active-or-inactive">
+                                <Dropdown
+                                    labelText={this.getTranslation("filter_2fa_status")}
+                                    options={enabledDisabledOptions}
+                                    value={this.state.twoFactorEnabled}
+                                    onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
+                                    style={styles.dropdownStyles}
+                                />
+                            </div>
+
+                            <div className="user-management-control select-active-or-inactive">
+                                <Dropdown
+                                    labelText={this.getTranslation("filter_externalAuth_status")}
+                                    options={enabledDisabledOptions}
+                                    value={this.state.externalAuth}
+                                    onChange={this.setFilter("externalAuth", this.dropdownHandler)}
+                                    style={styles.dropdownStyles}
                                 />
                             </div>
 

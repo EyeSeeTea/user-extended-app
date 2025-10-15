@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { MarkdownViewer } from "../../components/markdown-viewer/MarkdownViewer";
 import { PageHeader } from "../../components/page-header/PageHeader";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 export const AboutPage: React.FC = React.memo(() => {
     const navigate = useNavigate();
@@ -59,13 +59,17 @@ const StyledLanding = styled.div`
         background-color: rgb(39, 102, 150);
         padding: 0px;
         border-radius: 18px;
-        margin: 1em 10px 20px 10px;
+        margin-block-start: 1em;
+        margin-block-end: 20px;
+        margin-inline: 10px;
         box-shadow: rgba(0, 0, 0, 0.14) 0px 8px 10px 1px, rgba(0, 0, 0, 0.12) 0px 3px 14px 2px,
             rgba(0, 0, 0, 0.2) 0px 5px 5px -3px;
     }
 
     ${MarkdownViewer} {
-        padding: 1rem 2.25rem 0 2.25rem;
+        padding-block-start: 1rem;
+        padding-block-end: 0;
+        padding-inline: 2.25rem;
         text-align-last: unset;
     }
 `;
@@ -74,8 +78,10 @@ const LogoWrapper = styled.div`
     display: flex;
     flex-wrap: wrap;
     row-gap: 2em;
-    margin: 0 1em;
-    padding: 3em 0;
+    margin-block: 0;
+    margin-inline: 1em;
+    padding-block: 3em;
+    padding-inline: 0;
     justify-content: center;
     div {
         display: flex;
@@ -89,5 +95,6 @@ interface LogoProps {
 
 const Logo = styled.img<LogoProps>`
     width: ${({ size }) => (size === "large" ? "250px" : "200px")};
-    margin: 0 50px;
+    margin-block: 0;
+    margin-inline: 50px;
 `;

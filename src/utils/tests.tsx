@@ -35,7 +35,7 @@ export function getTestContext() {
         d2: getTestD2(),
         currentUser: getTestUser(),
         config: getTestConfig(),
-        compositionRoot: getCompositionRoot(instance),
+        compositionRoot: getCompositionRoot(instance, "dataStore"),
     };
 
     return { api, context };
