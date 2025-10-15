@@ -476,9 +476,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 })
                 .map(({ objects, pager }) => ({
                     pager,
-                    objects: objects.map(
-                        hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
-                    ),
+                    objects: isSuperAdmin(currentUser)
+                        ? objects
+                        : objects.map(
+                              hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
+                          ),
                 }))
                 .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
                 .toPromise();
@@ -497,6 +499,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             appSettings.hide.userRoles,
             appSettings.hide.userGroups,
             needsPatch,
+            currentUser,
         ]
     );
 
