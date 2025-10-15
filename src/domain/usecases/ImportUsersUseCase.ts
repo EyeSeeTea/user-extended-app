@@ -6,6 +6,7 @@ import { UseCase } from "../../CompositionRoot";
 import { generateUid } from "../../utils/uid";
 import { User } from "../entities/User";
 import i18n from "../../locales";
+import { IMPORT_USERS_CHUNK_SIZE } from "../utils/limits";
 
 const columnNameFromPropertyMapping = {
     id: "ID",
@@ -32,27 +33,34 @@ export class ImportUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
-        const usernameList = users.map(user => user.username);
-        return Future.joinObj({
-            usersFromDB: this.userRepository.listAll({ filters: { "userCredentials.username": ["in", usernameList] } }),
-            currentUser: this.userRepository.getCurrent(),
-        }).flatMap(({ usersFromDB, currentUser }) => {
-            if (!User.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
+        // Global validations before chunking to avoid repeated checks and silent drops
+        if (!User.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
 
-            const hasRequiredFields = User.validateHasRequiredFields(users);
-            if (!hasRequiredFields)
-                return Future.error("All users must have at least one Organisation Unit, Role and Group");
+        const usernames = users.map(u => u.username);
+        const hasDuplicatedUsernames = _.uniq(usernames).length !== usernames.length;
+        if (hasDuplicatedUsernames) return Future.error(i18n.t("Usernames must be unique"));
 
-            const hasDuplicatedUsernames = _.uniq(usernameList).length !== usernameList.length;
-            if (hasDuplicatedUsernames) return Future.error("Usernames must be unique");
+        const hasRequiredFields = User.validateHasRequiredFields(users);
+        if (!hasRequiredFields)
+            return Future.error("All users must have at least one Organisation Unit, Role and Group");
 
-            try {
-                const mergedUsers = this.mergeUsers(users, usersFromDB, currentUser);
-                return this.saveUsers(mergedUsers);
-            } catch (error) {
-                return Future.error(i18n.t(`${(error as Error).message}`));
-            }
-        });
+        return this.userRepository
+            .getCurrent()
+            .flatMap(currentUser => {
+                return Future.sequential(
+                    _.chunk(users, IMPORT_USERS_CHUNK_SIZE).map(userChunk => {
+                        const usernameList = userChunk.map(user => user.username);
+
+                        return this.userRepository
+                            .listAll({ filters: { "userCredentials.username": ["in", usernameList] } })
+                            .flatMap(usersFromDB => {
+                                const mergedUsers = this.mergeUsers(userChunk, usersFromDB, currentUser);
+                                return this.saveUsers(mergedUsers);
+                            });
+                    })
+                );
+            })
+            .toVoid();
     }
 
     private mergeUsers(
@@ -64,7 +72,7 @@ export class ImportUsersUseCase implements UseCase {
         // Merge properties from usersFromDB into users
         return users.map((userFromImport): User => {
             const user = _.pick(userFromImport, Object.keys(columnNameFromPropertyMapping));
-            const dbUser = _.find(usersFromDBMap, userFromDB => userFromDB.username === user.username);
+            const dbUser = user.username ? usersFromDBMap[user.username] : undefined;
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
                 return User.createNewUser({

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-07-23T08:49:02.036Z\n"
-"PO-Revision-Date: 2025-07-23T08:49:02.036Z\n"
+"POT-Creation-Date: 2025-09-15T14:19:52.603Z\n"
+"PO-Revision-Date: 2025-09-15T14:19:52.603Z\n"
 
 msgid "ID"
 msgstr ""
@@ -75,6 +75,9 @@ msgid "Last modified by"
 msgstr ""
 
 msgid "Open IDs must be unique"
+msgstr ""
+
+msgid "Usernames must be unique"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"
@@ -239,25 +242,7 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-msgid "Replicate {{user}}"
-msgstr ""
-
-msgid "Replicating users"
-msgstr ""
-
-msgid "Users replicated successfully"
-msgstr ""
-
 msgid "Replicate"
-msgstr ""
-
-msgid "Replicate User"
-msgstr ""
-
-msgid "User {{user}} replicated successfully {{n}} times"
-msgstr ""
-
-msgid "Error replicating user {{user}}: {{message}}"
 msgstr ""
 
 msgid ""
@@ -265,40 +250,9 @@ msgid ""
 "placeholders can be used anywhere in the fields."
 msgstr ""
 
-msgid "Please ensure to copy the password and adhere to security guidelines"
-msgstr ""
-
-msgid "Value must be between 1 and 100"
-msgstr ""
-
-msgid "Username cannot start or end with a separator"
-msgstr ""
-
-msgid "Username cannot have two separators in a row"
-msgstr ""
-
-msgid "Password should contain at least one lowercase letter"
-msgstr ""
-
-msgid "Password should contain at least one UPPERCASE letter"
-msgstr ""
-
-msgid "Password should contain at least one number"
-msgstr ""
-
-msgid "Password should have at least one special character"
-msgstr ""
-
-msgid "Please enter a maximum of 255 characters"
-msgstr ""
-
-msgid "Please provide a username"
-msgstr ""
-
-msgid "Template will conflict with existing usernames"
-msgstr ""
-
-msgid "Please provide a password"
+msgid ""
+"Please ensure to copy the password and adhere to security guidelines. Using "
+"$index is optional."
 msgstr ""
 
 msgid "Settings"
@@ -323,6 +277,18 @@ msgid "Please provide a valid identifier"
 msgstr ""
 
 msgid "Please provide a valid email"
+msgstr ""
+
+msgid "Password should contain at least one lowercase letter"
+msgstr ""
+
+msgid "Password should contain at least one UPPERCASE letter"
+msgstr ""
+
+msgid "Password should contain at least one number"
+msgstr ""
+
+msgid "Password should have at least one special character"
 msgstr ""
 
 msgid "Please provide a valid phone number"
@@ -483,6 +449,21 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
+msgid "Replicate {{user}}"
+msgstr ""
+
+msgid "Replicating users"
+msgstr ""
+
+msgid "Users replicated successfully"
+msgstr ""
+
+msgid "Replicate User"
+msgstr ""
+
+msgid "User {{user}} replicated successfully {{n}} times"
+msgstr ""
+
 msgid "Saving..."
 msgstr ""
 
@@ -580,8 +561,4 @@ msgid "Open in user management"
 msgstr ""
 
 msgid " and {{overflow}} more..."
-msgstr ""
-
-msgctxt " - or @ as separators"
-msgid "Username can only include . "
 msgstr ""
