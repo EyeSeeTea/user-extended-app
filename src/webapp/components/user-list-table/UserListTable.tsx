@@ -11,7 +11,7 @@ import {
     useObjectsTable,
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
-import { Icon, Tooltip } from "@material-ui/core";
+import { Button, Icon, Tooltip } from "@material-ui/core";
 import { Tune } from "@material-ui/icons";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import _ from "lodash";
@@ -38,7 +38,7 @@ import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
 import {
     ActionType,
     OrgUnitActionType,
-    generateMessage,
+    formatUserList,
     getFirstThreeUserNames,
     UsersSelectedModal,
     RiskyActionType,
@@ -122,9 +122,9 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 }) => {
     const { compositionRoot, currentUser } = useAppContext();
     const [reloadKey, reload] = useReload();
+    const [columnsKey, reloadColumns] = useReload();
 
     const [multiSelectorDialogProps, openMultiSelectorDialog] = useState<MultiSelectorDialogProps>();
-    // const [visibleColumns, setVisibleColumns] = useState<Array<keyof User>>();
     const [mappingColumns, setMappingColumns] = useState<ColumnMappingKeys[]>();
     const [selectedUserIds, setSelectedUserIds] = useState<Id[]>([]);
     const [actionType, setActionType] = useState<ActionType>();
@@ -359,9 +359,32 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         [currentUserAccessibleActions, editUsers, onAction, reload]
     );
 
+    const resetColumnsToDefault = React.useCallback(() => {
+        return compositionRoot.users.resetColumns(appSettings).run(
+            columnsResponse => {
+                onChangeVisibleColumns(columnsResponse);
+                reloadColumns();
+                snackbar.success(i18n.t("Column settings have been successfully reset."));
+            },
+            error => snackbar.error(error)
+        );
+    }, [compositionRoot, appSettings, snackbar, onChangeVisibleColumns, reloadColumns]);
+
+    const columnsTable = React.useMemo(() => {
+        console.debug(columnsKey);
+        return generateColumnsFromSettings({ appSettings, columns: userColumns, user: currentUser });
+    }, [appSettings, userColumns, currentUser, columnsKey]);
+
     const baseConfig = useMemo((): TableConfig<User> => {
         return {
-            columns: generateColumnsFromSettings({ appSettings, columns: userColumns }),
+            childrenTransfer: (
+                <ResetColumnsContainer>
+                    <Button variant="contained" color="primary" onClick={resetColumnsToDefault}>
+                        {i18n.t("Reset Columns")}
+                    </Button>
+                </ResetColumnsContainer>
+            ),
+            columns: columnsTable,
             details: [
                 { name: "name", text: i18n.t("Name") },
                 { name: "username", text: i18n.t("Username") },
@@ -407,7 +430,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // onActionButtonClick: () => navigate("/new"),
             onReorderColumns,
         };
-    }, [appSettings, userColumns, actions, currentUserHasAccessToSettings, onReorderColumns]);
+    }, [actions, currentUserHasAccessToSettings, onReorderColumns, resetColumnsToDefault, columnsTable]);
 
     const refreshRows = useCallback(
         async (
@@ -543,7 +566,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         return i18n.t("{{action}}: {{users}} {{remainingCount}}", {
             action: buildOrgUnitTitleByAction(actionType, ouCaptureI18n, ouOutputI18n, ouSearchI18n),
             users: getFirstThreeUserNames(users).join(", "),
-            remainingCount: generateMessage(users),
+            remainingCount: formatUserList(users),
             nsSeparator: false,
         });
     }, [actionType, users, ouCaptureI18n, ouOutputI18n, ouSearchI18n]);
@@ -690,8 +713,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 function generateColumnsFromSettings(options: {
     appSettings: Maybe<AppSettings>;
     columns: TableColumn<User>[];
+    user: User;
 }): TableColumn<User>[] {
-    const { appSettings, columns } = options;
+    const { appSettings, columns, user } = options;
+
+    if (isSuperAdmin(user)) return columns;
+
     return _(columns)
         .map(column => {
             const currentColumn = appSettings?.columns.find(c => c.field === column.name);
@@ -699,7 +726,8 @@ function generateColumnsFromSettings(options: {
 
             return {
                 ...column,
-                hidden: currentColumn?.value !== "visible",
+                hidden: currentColumn?.value === "mandatory" || currentColumn?.value === "visible" ? false : true,
+                disabled: currentColumn?.value === "mandatory",
             };
         })
         .compact()
@@ -803,4 +831,8 @@ const PatchPaginationTableWrapper = styled.div<{ pagination: Partial<TablePagina
                 overflow: hidden;
             }`;
     }}
+`;
+
+export const ResetColumnsContainer = styled.div`
+    padding-block-start: 0.5em;
 `;
