@@ -202,7 +202,7 @@ export const useVisibleColumns = (props: UseVisibleColumnsProps) => {
     React.useEffect(
         () =>
             compositionRoot.users.getColumns().run(
-                columns => {
+                columnsInUserDataStore => {
                     const disableColumns = appSettings?.columns
                         .filter(column => column.value === "disabled")
                         .map(column => column.field);
@@ -212,11 +212,20 @@ export const useVisibleColumns = (props: UseVisibleColumnsProps) => {
                         .map(column => column.field)
                         .value();
 
-                    const columnsWithoutDisabled = columns.filter(column => !disableColumns?.includes(column));
-                    const visibleColumnsToShow =
-                        columnsWithoutDisabled.length === 0 ? visibleColumns : columnsWithoutDisabled;
-                    setVisibleColumns(visibleColumnsToShow);
-                    onChangeVisibleColumns(visibleColumnsToShow);
+                    const mandatoryColumns =
+                        appSettings?.columns
+                            .filter(column => column.value === "mandatory")
+                            .map(column => column.field) ?? [];
+
+                    const columnsWithoutDisabled = columnsInUserDataStore.filter(
+                        column => !disableColumns?.includes(column)
+                    );
+
+                    const visibleColumnsToShow = visibleColumns.concat(columnsWithoutDisabled);
+                    const allColumnsUser = mandatoryColumns.concat(visibleColumnsToShow ?? []);
+
+                    setVisibleColumns(allColumnsUser);
+                    onChangeVisibleColumns(allColumnsUser);
                 },
                 error => snackbar.error(error)
             ),

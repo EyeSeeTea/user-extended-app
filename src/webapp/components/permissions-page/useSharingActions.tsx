@@ -2,11 +2,11 @@ import _ from "lodash";
 import React from "react";
 import { DropdownItem, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
-import { SharingActionsProps } from "./SharingActions";
+import { SharingActionProps, SharingActionsProps } from "./SharingActions";
 import { UserGroup } from "../../../domain/entities/UserGroup";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import { getId, Id } from "../../../domain/entities/Ref";
-import { UserAction } from "../../../domain/entities/UserAction";
+import { UserAction, userActions } from "../../../domain/entities/UserAction";
 import {
     UserActionRule,
     getInternalRulesForAction,
@@ -15,6 +15,7 @@ import {
 } from "../../../domain/entities/UserActionRule";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import i18n from "../../../utils/i18n";
+import { Maybe } from "../../../types/utils";
 
 export function useSharingActions(props: SharingActionsProps) {
     const { actionsPermissions, setActionsPermissions } = props;
@@ -82,15 +83,23 @@ export function useSharingActions(props: SharingActionsProps) {
         );
     }, [allUserGroups]);
 
+    const sharingActionProps: SharingActionProps[] = React.useMemo(
+        () =>
+            userActions.map(action => ({
+                action,
+                items,
+                values: selectedValues[action],
+                onChange: setSelectedValuesByAction(action),
+                info: getInfoForAction(action),
+            })),
+        [items, setSelectedValuesByAction, selectedValues]
+    );
+
     React.useEffect(() => {
         return compositionRoot.userGroups.getAll().run(setUserGroups, snackbar.error);
     }, [compositionRoot.userGroups, snackbar.error]);
 
-    return {
-        items,
-        selectedValues,
-        setSelectedValues: setSelectedValuesByAction,
-    };
+    return sharingActionProps;
 }
 
 function buildPublicAccessItem(): DropdownItem {
@@ -119,6 +128,40 @@ function getRuleLabel(rule: UserActionRule): string {
         case UserActionRule.REPLICATE_AUTHORITY:
             return i18n.t("Only available if user has replicate authority on some owned role");
     }
+}
+
+function getRuleCriteriaLabel(rule: UserActionRule): string {
+    switch (rule) {
+        case UserActionRule.HAS_EMAIL:
+            return i18n.t("Selected users have email address");
+        case UserActionRule.USERS_WITHIN_LOGGED_USER_ORG_UNITS:
+            return i18n.t("Selected users belong to at least one of users' organization units");
+        case UserActionRule.HIDDEN:
+            return i18n.t("Hidden");
+        case UserActionRule.UPDATE_ACCESS:
+            return i18n.t("User has update access");
+        case UserActionRule.USER_IS_DISABLED:
+            return i18n.t("Selected users are disabled");
+        case UserActionRule.USER_IS_NOT_DISABLED:
+            return i18n.t("Selected users are active");
+        case UserActionRule.DELETE_ACCESS:
+            return i18n.t("User has delete access");
+        case UserActionRule.REPLICATE_AUTHORITY:
+            return i18n.t("User has replicate authority");
+    }
+}
+
+function getInfoForAction(action: UserAction): Maybe<string> {
+    const internalRules = getInternalRulesForAction(action);
+    if (_.isEmpty(internalRules)) return;
+    const isPlural = internalRules.length > 1;
+    const label = isPlural ? i18n.t("criteria") : i18n.t("criterion");
+    const criterias = internalRules.map(getRuleCriteriaLabel).join(", ");
+    return i18n.t("The following {{label}} must always be satisfied: {{criterias}}", {
+        label,
+        criterias,
+        nsSeparator: false,
+    });
 }
 
 function buildRuleItems(): DropdownItem[] {

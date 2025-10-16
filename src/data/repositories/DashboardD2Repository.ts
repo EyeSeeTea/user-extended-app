@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
 import { Dashboard } from "../../domain/entities/Dashboard";
 import { Future, FutureData } from "../../domain/entities/Future";
@@ -6,7 +7,6 @@ import { DashboardRepository, GetDashboardOptions } from "../../domain/repositor
 import { apiToFuture } from "../../utils/futures";
 import { NamedRef } from "@eyeseetea/d2-logger/domain/entities/Base";
 import { Id } from "../../domain/entities/Ref";
-import _ from "lodash";
 
 export class DashboardD2Repository implements DashboardRepository {
     constructor(private api: D2Api) {}
@@ -26,7 +26,7 @@ export class DashboardD2Repository implements DashboardRepository {
                 userGroups: userGroupsIds.length > 0 ? this.getUserGroupsByIds(userGroupsIds) : Future.success([]),
             }).map(({ usersOwners, userGroups }) => {
                 return {
-                    objects: this.buildDashboards(dashboards, usersOwners, userGroups),
+                    objects: this.buildDashboards(dashboards, usersOwners, userGroups, options.hideUsers ?? []),
                     pager: response.pager,
                 };
             });
@@ -90,7 +90,8 @@ export class DashboardD2Repository implements DashboardRepository {
     private buildDashboards(
         d2Dashboards: D2ApiDashboard[],
         usersOwners: NamedRef[],
-        userGroups: D2ApiUserGroup[]
+        userGroups: D2ApiUserGroup[],
+        userIdsToExclude: Id[]
     ): Dashboard[] {
         const notAvailableLabel = " - ";
 
@@ -116,10 +117,12 @@ export class DashboardD2Repository implements DashboardRepository {
                 name: d2Dashboard.displayName,
                 description: d2Dashboard.displayDescription,
                 owner: { id: ownerUser?.id ?? notAvailableLabel, name: ownerUser?.name ?? notAvailableLabel },
-                users: [...Object.values(d2Dashboard.sharing.users), ...usersFromUserGroups].map(user => ({
-                    id: user.id,
-                    name: user.displayName ?? notAvailableLabel,
-                })),
+                users: [...Object.values(d2Dashboard.sharing.users), ...usersFromUserGroups]
+                    .filter(user => !userIdsToExclude.includes(user.id))
+                    .map(user => ({
+                        id: user.id,
+                        name: user.displayName ?? notAvailableLabel,
+                    })),
             });
         });
     }

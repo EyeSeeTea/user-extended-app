@@ -2,11 +2,11 @@ import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Permission } from "./Permission";
 import { Id } from "./Ref";
-import { UserColumns } from "./User";
+import { isSuperAdmin, User, UserColumns } from "./User";
 import { UserAction, userActions } from "./UserAction";
 import { ActionPermission } from "./ActionPermission";
 import { fromPairs, getKeys } from "../../types/utils";
-import { defaultRules, getInternalRules, getInternalRulesForAction } from "./UserActionRule";
+import { defaultRules, getInternalRulesForAction } from "./UserActionRule";
 import { userColumns } from "./UserColumn";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
@@ -25,9 +25,10 @@ type AppSettingsAttr = {
     };
 };
 
-export type ColumnSettingValue = "visible" | "disabled" | "optional";
+export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
 export type ActionsPermissions = Record<UserAction, ActionPermission>;
+const defaultHideValues = { users: [], userGroups: [], userRoles: [], orgUnits: [] };
 
 export class AppSettings extends Struct<AppSettingsAttr>() {
     static defaultSettings(): AppSettings {
@@ -37,7 +38,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showFeedback: true,
             settingsAccess: emptyPermission,
             actionsAccess: defaultActions(),
-            hide: { users: [], userGroups: [], userRoles: [], orgUnits: [] },
+            hide: defaultHideValues,
         });
     }
 
@@ -70,6 +71,10 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
         return _.isEmpty(this.hide.users) && _.isEmpty(this.hide.userGroups) && _.isEmpty(this.hide.userRoles);
     }
 
+    validateUserAndBuild(user: User): AppSettings {
+        return isSuperAdmin(user) ? this._update({ hide: defaultHideValues }) : this;
+    }
+
     private static defaultColumns(): SettingsUserColumn[] {
         return userColumns.map(column => ({ field: column, value: "optional" })); //FIXME (Next PR #232): This is making all "optional" as default
     }
@@ -96,10 +101,8 @@ function instantiateActionsAccesses(): Record<UserAction, ActionPermission> {
 }
 
 export function removeInternalRules(actionsAccess: ActionsPermissions): ActionsPermissions {
-    const internalRules = getInternalRules();
-
     return _.mapValues(actionsAccess, permission => {
-        const filteredRules = permission.rules.filter(rule => !internalRules.includes(rule));
+        const filteredRules = permission.getSelectableRules();
         return permission.updateRules(filteredRules);
     });
 }
