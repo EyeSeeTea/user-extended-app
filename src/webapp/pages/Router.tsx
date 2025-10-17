@@ -20,7 +20,7 @@ const TabWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const Router: React.FC = React.memo(() => {
-    const { api } = useAppContext();
+    const { api, currentUser } = useAppContext();
 
     return (
         <HashRouter>
@@ -34,7 +34,7 @@ export const Router: React.FC = React.memo(() => {
                     path="/"
                     element={
                         <TabWrapper>
-                            <ListHybrid api={api} params={{ modelType: "users" }} />
+                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} />
                         </TabWrapper>
                     }
                 />

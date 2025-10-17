@@ -5,9 +5,10 @@ import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
-import { LocaleCode, User } from "../../domain/entities/User";
-import { UserLogic } from "../../domain/entities/UserLogic";
+import { User } from "../../domain/entities/User";
 import { ListFilters, ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
+import { LocaleCode } from "../../domain/entities/UserProps";
+import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
 import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
@@ -22,6 +23,7 @@ import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
 import { Codec, exactly, string } from "purify-ts";
 import i18n from "../../utils/i18n";
+import { GET_USERS_BY_IDS_CHUNK_SIZE, LIST_ALL_USERS_PAGE_SIZE } from "../../domain/utils/limits";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
@@ -41,7 +43,15 @@ export class UserD2ApiRepository implements UserRepository {
                     params: { user: user.username },
                 })
             ).map((response): User => {
-                return { ...user, uiLocale: response.keyUiLocale, dbLocale: response.keyDbLocale };
+                try {
+                    return User.createUser({
+                        ...user,
+                        uiLocale: response.keyUiLocale,
+                        dbLocale: response.keyDbLocale,
+                    });
+                } catch (error) {
+                    throw new Error(`Error setting locales for user ${user.id}: ${(error as Error).message}`);
+                }
             });
         });
 
@@ -68,14 +78,13 @@ export class UserD2ApiRepository implements UserRepository {
     private getLocaleValueByType(user: User, keyLocale: KeyLocale): string {
         switch (keyLocale) {
             case DB_LOCALE_KEY:
-                return UserLogic.setDefaultLanguage(user.dbLocale);
+                return User.setDefaultLanguage(user.dbLocale);
             case UI_LOCALE_KEY:
-                return UserLogic.setDefaultLanguage(user.uiLocale);
+                return User.setDefaultLanguage(user.uiLocale);
         }
     }
 
-    remove(users: User[]): FutureData<Stats> {
-        const ids = users.map(user => user.id);
+    remove(ids: Id[]): FutureData<Stats> {
         return chunkRequest(ids, userIds => {
             return apiToFuture<Dhis2Response>(
                 this.api.metadata.post({ users: userIds.map(id => ({ id: id })) }, { importStrategy: "DELETE" })
@@ -223,7 +232,26 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    public getByIds(ids: string[]): FutureData<User[]> {
+    public listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]> {
+        return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
+            return apiToFuture(
+                this.api.models.users.get({
+                    fields: { id: true, userCredentials: { username: true } },
+                    paging: false,
+                    ...this.createCommonListQueryParams(options),
+                })
+            ).map(({ objects }) => {
+                const filteredObjects = usersIdsToExclude
+                    ? objects.filter(user => !usersIdsToExclude.includes(user.id))
+                    : objects;
+                return filteredObjects.map(
+                    user => new UserIdentifier({ id: user.id, username: user.userCredentials.username })
+                );
+            });
+        });
+    }
+
+    public getByIds(ids: Id[]): FutureData<User[]> {
         if (ids.length === 0) return Future.success([]);
         return this.getUsersByIds(ids);
     }
@@ -251,7 +279,7 @@ export class UserD2ApiRepository implements UserRepository {
                     });
                 });
             },
-            50
+            GET_USERS_BY_IDS_CHUNK_SIZE
         );
 
         return $requests.map(_.flatten);
@@ -260,7 +288,11 @@ export class UserD2ApiRepository implements UserRepository {
     private addGroupsToUsers(users: User[], d2UsersWithGroups: D2UserGroupByKey): User[] {
         return users.map((user): User => {
             const userGroups = d2UsersWithGroups[user.id] || [];
-            return { ...user, userGroups: userGroups };
+            try {
+                return User.createUser({ ...user, userGroups: userGroups });
+            } catch (error) {
+                throw new Error(`Error adding groups to user ${user.id}: ${(error as Error).message}`);
+            }
         });
     }
 
@@ -341,17 +373,19 @@ export class UserD2ApiRepository implements UserRepository {
         state: { initialPage: number; users: User[] } = { initialPage: 1, users: [] }
     ): FutureData<User[]> {
         const { initialPage, users } = state;
-        return this.list({ ...options, pageSize: 100, page: initialPage }).flatMap(({ pager, objects }) => {
-            const newUsers = [...users, ...objects];
-            if (pager.page >= pager.pageCount) {
-                return Future.success(newUsers);
-            } else {
-                return this.listAll(options, {
-                    initialPage: initialPage + 1,
-                    users: newUsers,
-                });
+        return this.list({ ...options, pageSize: LIST_ALL_USERS_PAGE_SIZE, page: initialPage }).flatMap(
+            ({ pager, objects }) => {
+                const newUsers = [...users, ...objects];
+                if (pager.page >= pager.pageCount) {
+                    return Future.success(newUsers);
+                } else {
+                    return this.listAll(options, {
+                        initialPage: initialPage + 1,
+                        users: newUsers,
+                    });
+                }
             }
-        });
+        );
     }
 
     public save(usersToSave: User[]): FutureData<MetadataResponse> {
@@ -401,6 +435,11 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
+    public saveInChunks(users: User[], chunkSize: number): FutureData<void> {
+        const requests = _.chunk(users, chunkSize).map(usersChunk => this.save(usersChunk));
+        return Future.sequential(requests).toVoid();
+    }
+
     private getLogger(): FutureData<Maybe<D2LoggerMessage>> {
         return this.getCurrent().flatMap(currentUser => {
             const d2ApiTracker = new D2ApiLogger(this.api);
@@ -427,7 +466,7 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
-    public updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    public updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonRoles = _.intersectionBy(
                 ...storedUsers.map(user => user.userRoles.map(role => role)),
@@ -435,23 +474,27 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
-                    ...user,
-                    userRoles:
-                        strategy === "merge"
-                            ? _.uniqBy(
-                                  [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
-                                  ({ id }) => id
-                              )
-                            : update,
-                };
+                try {
+                    return User.createNewUser({
+                        ...user,
+                        userRoles:
+                            strategy === "merge"
+                                ? _.uniqBy(
+                                      [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
+                                      ({ id }) => id
+                                  )
+                                : update,
+                    });
+                } catch (error) {
+                    throw new Error(`Error updating roles for user ${user.id}: ${(error as Error).message}`);
+                }
             });
 
             return this.save(users);
         });
     }
 
-    public updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    public updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonGroups = _.intersectionBy(
                 ...storedUsers.map(user => user.userGroups.map(group => group)),
@@ -459,16 +502,20 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
-                    ...user,
-                    userGroups:
-                        strategy === "merge"
-                            ? _.uniqBy(
-                                  [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
-                                  ({ id }) => id
-                              )
-                            : update,
-                };
+                try {
+                    return User.createNewUser({
+                        ...user,
+                        userGroups:
+                            strategy === "merge"
+                                ? _.uniqBy(
+                                      [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
+                                      ({ id }) => id
+                                  )
+                                : update,
+                    });
+                } catch (error) {
+                    throw new Error(`Error updating groups for user ${user.id}: ${(error as Error).message}`);
+                }
             });
 
             return this.save(users);
@@ -579,48 +626,52 @@ export class UserD2ApiRepository implements UserRepository {
             .uniq()
             .value();
 
-        return {
-            id: user.id,
-            name: user.name,
-            firstName: user.firstName,
-            surname: user.surname,
-            email: user.email,
-            phoneNumber: user.phoneNumber,
-            whatsApp: user.whatsApp,
-            facebookMessenger: user.facebookMessenger,
-            skype: user.skype,
-            telegram: user.telegram,
-            twitter: user.twitter,
-            lastUpdated: new Date(user.lastUpdated),
-            created: new Date(user.created),
-            userGroups: _(user.userGroups)
-                .orderBy(ug => ug.name)
-                .value(),
-            username: userCredentials.username,
-            apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
-            userRoles:
-                _(userCredentials.userRoles)
-                    .map(userRole => ({ id: userRole.id, name: userRole.name }))
-                    .orderBy(ur => ur.name)
-                    .value() || [],
-            lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
-            status: userCredentials.disabled ? "Disabled" : "Active",
-            disabled: userCredentials.disabled,
-            organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
-            dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
-            searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
-            access: user.access,
-            openId: userCredentials.openId,
-            ldapId: userCredentials.ldapId,
-            externalAuth: userCredentials.externalAuth,
-            twoFactorEnabled: userCredentials.twoFA,
-            password: userCredentials.password,
-            accountExpiry: userCredentials.accountExpiry,
-            authorities,
-            dbLocale: "",
-            uiLocale: "",
-            ...this.getUserAuditFields(input),
-        };
+        try {
+            return User.createUser({
+                id: user.id,
+                name: user.name,
+                firstName: user.firstName,
+                surname: user.surname,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                whatsApp: user.whatsApp,
+                facebookMessenger: user.facebookMessenger,
+                skype: user.skype,
+                telegram: user.telegram,
+                twitter: user.twitter,
+                lastUpdated: new Date(user.lastUpdated),
+                created: new Date(user.created),
+                userGroups: _(user.userGroups)
+                    .orderBy(ug => ug.name)
+                    .value(),
+                username: userCredentials.username,
+                apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
+                userRoles:
+                    _(userCredentials.userRoles)
+                        .map(userRole => ({ id: userRole.id, name: userRole.name }))
+                        .orderBy(ur => ur.name)
+                        .value() || [],
+                lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
+                status: userCredentials.disabled ? "Disabled" : "Active",
+                disabled: userCredentials.disabled,
+                organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
+                dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
+                searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
+                access: user.access,
+                openId: userCredentials.openId,
+                ldapId: userCredentials.ldapId,
+                externalAuth: userCredentials.externalAuth,
+                twoFactorEnabled: userCredentials.twoFA,
+                password: userCredentials.password,
+                accountExpiry: userCredentials.accountExpiry,
+                authorities,
+                dbLocale: "",
+                uiLocale: "",
+                ...this.getUserAuditFields(input),
+            });
+        } catch (error) {
+            throw new Error(`Error processing user ${user.id}: ${(error as Error).message}`);
+        }
     }
 
     private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {
@@ -663,7 +714,7 @@ export class UserD2ApiRepository implements UserRepository {
                 externalAuth: input.externalAuth ?? "",
                 password: input.password ?? "",
                 accountExpiry: input.accountExpiry ?? "",
-                twoFA: input.twoFactorEnabled ?? "",
+                twoFA: input.twoFactorEnabled ?? false,
                 ...this.getApiAuditFields(input),
             },
             ...this.getApiAuditFields(input),
@@ -735,12 +786,12 @@ const fields = {
         userRoles: { id: true, name: true, authorities: true },
         lastLogin: true,
         disabled: true,
+        twoFA: true,
         openId: true,
         ldapId: true,
         externalAuth: true,
         password: true,
         accountExpiry: true,
-        twoFA: true,
     },
 } as const;
 

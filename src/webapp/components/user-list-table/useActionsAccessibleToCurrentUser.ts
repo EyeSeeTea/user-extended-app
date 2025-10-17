@@ -3,7 +3,6 @@ import _ from "lodash";
 import { ActionsPermissions } from "../../../domain/entities/AppSettings";
 import {
     isSuperAdmin,
-    User,
     allUsersHaveEmail,
     allUsersHaveAllSpecifiedAccesses,
     allUsersAreDisabled,
@@ -11,14 +10,16 @@ import {
     hasReplicateAuthority,
     userOrgUnitIds,
     allUsersBelongToAtLeastOneOrgUnit,
-} from "../../../domain/entities/User";
+} from "../../../domain/entities/UserProps";
 import { getId, Id } from "../../../domain/entities/Ref";
 import { UserAction } from "../../../domain/entities/UserAction";
 import { UserActionRule } from "../../../domain/entities/UserActionRule";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
+import { UserProps } from "../../../domain/entities/UserProps";
+import { User } from "../../../domain/entities/User";
 
 export function useActionsAccessibleToCurrentUser(
-    currentUser: User,
+    currentUser: UserProps,
     actionsAccess: ActionsPermissions
 ): Record<UserAction, ActionAccessibleValidator> {
     const currentUserOrgUnitIds = React.useMemo(() => userOrgUnitIds(currentUser), [currentUser]);
@@ -58,7 +59,7 @@ export function useActionsAccessibleToCurrentUser(
     return actionAccessMap;
 }
 
-function hasAccessViaWhitelist(currentUser: User, permission: ActionPermission) {
+function hasAccessViaWhitelist(currentUser: UserProps, permission: ActionPermission) {
     return (
         isSuperAdmin(currentUser) ||
         permission.isAccessibleViaWhitelist({
@@ -69,7 +70,7 @@ function hasAccessViaWhitelist(currentUser: User, permission: ActionPermission) 
 }
 
 function validateRuleAccess(args: {
-    currentUser: User;
+    currentUser: UserProps;
     rules: UserActionRule[];
     users: User[];
     currentUserOrgUnitIds: Id[];

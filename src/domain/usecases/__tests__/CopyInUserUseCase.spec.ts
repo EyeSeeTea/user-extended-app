@@ -5,7 +5,6 @@ import { mock, instance, when, verify, anything, deepEqual } from "ts-mockito";
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 import { sourceUser, targetUser } from "./data/user";
 import { Future } from "../../entities/Future";
-import { MetadataResponse } from "@eyeseetea/d2-api/api";
 
 let userRepositoryMock: UserD2ApiRepository;
 let copyInUserUseCase: CopyInUserUseCase;
@@ -23,7 +22,7 @@ describe("CopyInUserUseCase", () => {
         await copyInUserUseCase.execute(options).runAsync();
 
         verify(userRepositoryMock.getByIds(options.selectedUsersIds)).once();
-        verify(userRepositoryMock.save(deepEqual([expectedUser]))).once();
+        verify(userRepositoryMock.saveInChunks(deepEqual([expectedUser]), anything())).once();
     });
 
     it("should replace users properties with source user properties based on options", async () => {
@@ -33,7 +32,7 @@ describe("CopyInUserUseCase", () => {
         await copyInUserUseCase.execute(options).runAsync();
 
         verify(userRepositoryMock.getByIds(options.selectedUsersIds)).once();
-        verify(userRepositoryMock.save(deepEqual([expectedUser]))).once();
+        verify(userRepositoryMock.saveInChunks(deepEqual([expectedUser]), anything())).once();
     });
 });
 
@@ -41,7 +40,7 @@ function givenAOptionsToReplace(): CopyInUserOptions {
     const selectedUsersIds = [targetUser.id];
 
     when(userRepositoryMock.getByIds(selectedUsersIds)).thenReturn(Future.success([targetUser]));
-    when(userRepositoryMock.save(anything())).thenReturn(Future.success({ status: "OK" } as MetadataResponse));
+    when(userRepositoryMock.saveInChunks(anything(), anything())).thenReturn(Future.success(undefined));
 
     return {
         user: sourceUser,
@@ -60,7 +59,7 @@ function givenAOptionsToMerge(): CopyInUserOptions {
     const selectedUsersIds = [targetUser.id];
 
     when(userRepositoryMock.getByIds(selectedUsersIds)).thenReturn(Future.success([targetUser]));
-    when(userRepositoryMock.save(anything())).thenReturn(Future.success({ status: "OK" } as MetadataResponse));
+    when(userRepositoryMock.saveInChunks(anything(), anything())).thenReturn(Future.success(undefined));
 
     return {
         user: sourceUser,
@@ -76,17 +75,17 @@ function givenAOptionsToMerge(): CopyInUserOptions {
 }
 
 function givenAExpectedReplacedUser(): User {
-    return {
+    return User.createNewUser({
         ...targetUser,
         userGroups: sourceUser.userGroups,
         userRoles: sourceUser.userRoles,
-    };
+    });
 }
 
 function givenAExpectedMergedUser(): User {
-    return {
+    return User.createNewUser({
         ...targetUser,
         userGroups: _.unionWith(targetUser.userGroups, sourceUser.userGroups, _.isEqual),
         userRoles: _.unionWith(targetUser.userRoles, sourceUser.userRoles, _.isEqual),
-    };
+    });
 }

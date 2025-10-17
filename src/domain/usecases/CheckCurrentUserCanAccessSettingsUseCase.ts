@@ -1,8 +1,8 @@
 import { UserRepository } from "../repositories/UserRepository";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
 import { Future, FutureData } from "../entities/Future";
-import { isSuperAdmin } from "../entities/User";
 import { getId } from "../entities/Ref";
+import { isSuperAdmin } from "../entities/UserProps";
 
 export class CheckCurrentUserCanAccessSettingsUseCase {
     constructor(private userRepository: UserRepository, private appSettingsRepository: AppSettingsRepository) {}

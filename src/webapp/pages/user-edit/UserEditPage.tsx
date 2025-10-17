@@ -6,7 +6,7 @@ import _ from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { defaultUser, User } from "../../../domain/entities/User";
+import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
 import i18n from "../../../utils/i18n";
 import { generateUid } from "../../../utils/uid";
 import { PageHeader } from "../../components/page-header/PageHeader";
@@ -32,13 +32,13 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
     const snackbar = useSnackbar();
     const goBack = useGoBack();
 
-    const [user, setUser] = useState<User>(location.state?.user);
+    const [user, setUser] = useState<UserProps>(location.state?.user);
 
     const isValidEdit = id !== undefined || location.state?.user !== undefined;
     const title = type === "edit" && isValidEdit ? i18n.t("Edit user") : i18n.t("New user");
 
     const saveUser = useCallback(
-        async (user: User) => {
+        async (user: UserProps) => {
             const { data = [], error } = await compositionRoot.users.save([user]).runAsync();
             if (error || _.some(data, ({ status }) => status === "ERROR")) {
                 return error ?? i18n.t("Network error");
@@ -56,7 +56,7 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
     useEffect(() => {
         if (user !== undefined) return;
         else if (id === undefined) {
-            setUser({ ...defaultUser, id: generateUid() });
+            setUser({ ...defaultUserProps, id: generateUid() });
             return;
         }
 

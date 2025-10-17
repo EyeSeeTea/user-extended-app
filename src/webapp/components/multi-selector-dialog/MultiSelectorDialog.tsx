@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Future } from "../../../domain/entities/Future";
 import { NamedRef } from "../../../domain/entities/Ref";
-import { User } from "../../../domain/entities/User";
+import { UserProps } from "../../../domain/entities/UserProps";
 import { UpdateStrategy } from "../../../domain/repositories/UserRepository";
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
@@ -16,7 +16,7 @@ export const MultiSelectorDialog: React.FC<MultiSelectorDialogProps> = ({ type, 
     const snackbar = useSnackbar();
     const loading = useLoading();
 
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<UserProps[]>([]);
     const [items, setItems] = useState<NamedRef[]>([]);
     const [selected, setSelected] = useState<string[]>([]);
     const [updateStrategy, setUpdateStrategy] = useState<UpdateStrategy>("merge");
@@ -108,7 +108,7 @@ export const MultiSelectorDialog: React.FC<MultiSelectorDialogProps> = ({ type, 
     );
 };
 
-const getTitle = (type: "userRoles" | "userGroups", users: User[]): string => {
+const getTitle = (type: "userRoles" | "userGroups", users: UserProps[]): string => {
     const usernames = ellipsizedList(users.map(user => user.username));
 
     return type === "userRoles"

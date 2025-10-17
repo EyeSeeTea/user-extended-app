@@ -2,12 +2,13 @@ import _ from "lodash";
 import { Struct } from "./generic/Struct";
 import { Permission } from "./Permission";
 import { Id } from "./Ref";
-import { isSuperAdmin, User, UserColumns } from "./User";
+import { UserColumns } from "./User";
 import { UserAction, userActions } from "./UserAction";
 import { ActionPermission } from "./ActionPermission";
 import { fromPairs, getKeys } from "../../types/utils";
 import { defaultRules, getInternalRulesForAction } from "./UserActionRule";
 import { userColumns } from "./UserColumn";
+import { isSuperAdmin, UserProps } from "./UserProps";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
 
@@ -71,7 +72,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
         return _.isEmpty(this.hide.users) && _.isEmpty(this.hide.userGroups) && _.isEmpty(this.hide.userRoles);
     }
 
-    validateUserAndBuild(user: User): AppSettings {
+    validateUserAndBuild(user: UserProps): AppSettings {
         return isSuperAdmin(user) ? this._update({ hide: defaultHideValues }) : this;
     }
 

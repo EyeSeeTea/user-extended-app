@@ -9,10 +9,10 @@ import { GetInstanceLocalesUseCase } from "./domain/usecases/GetInstanceLocalesU
 import { GetInstanceVersionUseCase } from "./domain/usecases/GetInstanceVersionUseCase";
 import { GetOrgUnitPathsUseCase } from "./domain/usecases/GetOrgUnitPathsUseCase";
 import { GetUsersByIdsUseCase } from "./domain/usecases/GetUsersByIdsUseCase";
-import { ListAllUserIdsUseCase } from "./domain/usecases/ListAllUserIdsUseCase";
 import { ListMetadataUseCase } from "./domain/usecases/ListMetadataUseCase";
 import { ListUsersUseCase } from "./domain/usecases/ListUsersUseCase";
 import { ListAllUsersUseCase } from "./domain/usecases/ListAllUsersUseCase";
+import { ListAllUserIdentifiersUseCase } from "./domain/usecases/ListAllUserIdentifiersUseCase";
 import { RemoveUsersUseCase } from "./domain/usecases/RemoveUsersUseCase";
 import { SaveColumnsUseCase } from "./domain/usecases/SaveColumnsUseCase";
 import { SaveUserOrgUnitUseCase } from "./domain/usecases/SaveUserOrgUnitUseCase";
@@ -49,6 +49,7 @@ import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettings
 import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase";
 import { VerifyPasswordUseCase } from "./domain/usecases/VerifyPasswordUseCase";
 import { ResetColumnsUserCase } from "./domain/usecases/ResetColumnsUserCase";
+import { ReplicateFromTemplateUseCase } from "./domain/usecases/ReplicateFromTemplateUseCase";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -82,7 +83,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             getCurrent: new GetCurrentUserUseCase(userRepository),
             list: new ListUsersUseCase(userRepository, appSettingsRepository),
             listAll: new ListAllUsersUseCase(userRepository),
-            listAllIds: new ListAllUserIdsUseCase(userRepository, appSettingsRepository),
+            listAllIdentifiers: new ListAllUserIdentifiersUseCase(userRepository, appSettingsRepository),
             get: new GetUsersByIdsUseCase(userRepository),
             save: new SaveUsersUseCase(userRepository),
             saveStatus: new SaveUserStatusUseCase(userRepository),
@@ -104,6 +105,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             ),
             getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository, appSettingsRepository),
             resetColumns: new ResetColumnsUserCase(userRepository),
+            replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
         }),
         userGroups: getExecute({
             getAll: new GetAllUserGroupsUseCase(userGroupRepository),
@@ -112,6 +114,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         userRoles: getExecute({
             get: new GetUserRolesUseCase(userRoleRepository, orgUnitRepository, appSettingsRepository),
             getAll: new GetAllUserRolesUseCase(userRoleRepository),
+            replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
         }),
         metadata: getExecute({
             list: new ListMetadataUseCase(metadataRepository),

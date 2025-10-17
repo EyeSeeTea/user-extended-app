@@ -4,21 +4,29 @@ import ViewColumnIcon from "material-ui/svg-icons/action/view-column";
 import PropTypes from "prop-types";
 import React from "react";
 import { UserListTable } from "../../webapp/components/user-list-table/UserListTable";
-import ReplicateUserFromTable from "../components/ReplicateUserFromTable.component";
-import ReplicateUserFromTemplate from "../components/ReplicateUserFromTemplate.component";
+import ReplicateUserFromTable from "../../webapp/components/replicate/ReplicateUserFromTable";
+import ReplicateUserFromTemplate from "../../webapp/components/replicate/ReplicateUserFromTemplate";
 import Settings from "../models/settings";
 import snackActions from "../Snackbar/snack.actions";
 import Filters from "./Filters.component";
 import { useAppSettingsContext } from "../../webapp/contexts/AppSettingsProvider";
+import { isSuperAdmin } from "../../domain/entities/UserProps";
 
 const initialSorting = ["name", "asc"];
 
 export const DEFAULT_SHOW_ONLY_ACTIVE_USERS = true;
 
 const ListHybridWrapper = props => {
+    const { currentUser } = props.params;
     const { appSettings } = useAppSettingsContext();
 
-    return <ListHybrid {...props} onlyActiveUsers={appSettings.showOnlyActiveUsers} />;
+    return (
+        <ListHybrid
+            {...props}
+            isSuperAdmin={isSuperAdmin(currentUser)}
+            onlyActiveUsers={appSettings.showOnlyActiveUsers}
+        />
+    );
 };
 
 export { ListHybridWrapper as ListHybrid };
@@ -177,6 +185,7 @@ class ListHybrid extends React.Component {
                     onRequestClose={this.onReplicateDialogClose}
                     settings={this.state.settings}
                     api={this.props.api}
+                    onlyUsersOrgUnits={this.state.onlyUsersOrgUnits}
                 />
             );
         } else {
@@ -228,9 +237,9 @@ class ListHybrid extends React.Component {
 
     render() {
         const { replicateUser, listFilterOptions, onlyUsersOrgUnits } = this.state;
-        const { onlyActiveUsers } = this.props;
+        const { onlyActiveUsers, isSuperAdmin } = this.props;
 
-        const areFiltersOverrided = onlyActiveUsers;
+        const areFiltersOverrided = isSuperAdmin ? false : onlyActiveUsers;
         const hideUsersCanManageFilter = onlyActiveUsers && onlyUsersOrgUnits;
 
         return (
@@ -255,6 +264,7 @@ class ListHybrid extends React.Component {
                                 showSearch={false}
                                 api={this.props.api}
                                 onlyActiveUsers={onlyActiveUsers}
+                                isSuperAdmin={isSuperAdmin}
                                 areFiltersOverrided={areFiltersOverrided}
                                 hideUsersCanManageFilter={hideUsersCanManageFilter}
                                 onlyUsersOrgUnits={onlyUsersOrgUnits}

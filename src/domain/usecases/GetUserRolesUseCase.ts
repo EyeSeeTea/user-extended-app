@@ -1,7 +1,7 @@
 import { AppSettings } from "../entities/AppSettings";
 import { Future, FutureData } from "../entities/Future";
 import { CommonFilterParams, PaginatedResponse } from "../entities/PaginatedResponse";
-import { User } from "../entities/User";
+import { UserProps } from "../entities/UserProps";
 import { UserRole } from "../entities/UserRole";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
@@ -43,4 +43,4 @@ export class GetUserRolesUseCase {
     }
 }
 
-export type GetUsersCommonOptions = CommonFilterParams & { excludeUsersOutsideOrgUnits: boolean; user: User };
+export type GetUsersCommonOptions = CommonFilterParams & { excludeUsersOutsideOrgUnits: boolean; user: UserProps };

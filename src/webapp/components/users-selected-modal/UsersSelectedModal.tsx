@@ -99,7 +99,7 @@ export const UsersSelectedModal: React.FC<UsersSelectedModalProps> = ({
     const onSave = () => {
         loading.show();
         if (actionType === "remove") {
-            compositionRoot.users.remove(users).run(() => {
+            compositionRoot.users.remove(users.map(user => user.id)).run(() => {
                 onSuccessAction();
             }, onErrorAction);
         } else if (actionType === "disable" || actionType === "enable") {

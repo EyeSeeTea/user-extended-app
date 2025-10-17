@@ -38,7 +38,7 @@ export function useUsersSetPasswordModal(props: UseUsersSetPasswordModalProps) {
         }
 
         setIsLoading(true);
-        const updatedUser = { ...user, password };
+        const updatedUser = user.updatePassword(password);
 
         compositionRoot.users.setPassword(updatedUser).run(
             () => {

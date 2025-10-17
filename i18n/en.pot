@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-10-11T03:08:13.109Z\n"
-"PO-Revision-Date: 2025-10-11T03:08:13.109Z\n"
+"POT-Creation-Date: 2025-10-17T17:58:15.755Z\n"
+"PO-Revision-Date: 2025-10-17T17:58:15.755Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -83,6 +83,9 @@ msgstr ""
 msgid "Open IDs must be unique"
 msgstr ""
 
+msgid "Usernames must be unique"
+msgstr ""
+
 msgid "Not all users have emails"
 msgstr ""
 
@@ -93,27 +96,6 @@ msgid "Copy to clipboard"
 msgstr ""
 
 msgid "Close"
-msgstr ""
-
-msgid "User {{user}} replicated successfully {{n}} times"
-msgstr ""
-
-msgid "Error replicating user {{user}}: {{message}}"
-msgstr ""
-
-msgid "Replicate {{user}}"
-msgstr ""
-
-msgid "Replicate"
-msgstr ""
-
-msgid "Value should be between {{min}} and {{max}}"
-msgstr ""
-
-msgid "Username. Example for two users: admin.$index -> admin.1, admin.2"
-msgstr ""
-
-msgid "Replicate error"
 msgstr ""
 
 msgid "Save"
@@ -230,31 +212,7 @@ msgstr ""
 msgid "Duplicated username: {{username}}"
 msgstr ""
 
-msgid "Please provide a username"
-msgstr ""
-
 msgid "User already exists"
-msgstr ""
-
-msgid "Please provide a valid email"
-msgstr ""
-
-msgid "Please provide a password"
-msgstr ""
-
-msgid "Password should contain at least one lowercase letter"
-msgstr ""
-
-msgid "Password should contain at least one UPPERCASE letter"
-msgstr ""
-
-msgid "Password should contain at least one number"
-msgstr ""
-
-msgid "Password should have at least one special character"
-msgstr ""
-
-msgid "Please provide a valid phone number"
 msgstr ""
 
 msgid "Type"
@@ -413,6 +371,19 @@ msgstr ""
 msgid "[RULE] "
 msgstr ""
 
+msgid "Replicate"
+msgstr ""
+
+msgid ""
+"Using $index is optional if only one replica is created. Multiple $index "
+"placeholders can be used anywhere in the fields."
+msgstr ""
+
+msgid ""
+"Please ensure to copy the password and adhere to security guidelines. Using "
+"$index is optional."
+msgstr ""
+
 msgid "Saving..."
 msgstr ""
 
@@ -441,6 +412,24 @@ msgid "Other information"
 msgstr ""
 
 msgid "Please provide a valid identifier"
+msgstr ""
+
+msgid "Please provide a valid email"
+msgstr ""
+
+msgid "Password should contain at least one lowercase letter"
+msgstr ""
+
+msgid "Password should contain at least one UPPERCASE letter"
+msgstr ""
+
+msgid "Password should contain at least one number"
+msgstr ""
+
+msgid "Password should have at least one special character"
+msgstr ""
+
+msgid "Please provide a valid phone number"
 msgstr ""
 
 msgid "Please provide a valid international phone number (+0123456789)"
@@ -611,6 +600,20 @@ msgstr ""
 msgid "Select users"
 msgstr ""
 
+msgid "Users {{action}}. {{users}} {{remainingCount}}"
+msgstr ""
+
+msgid "{{action}} users"
+msgstr ""
+
+msgid ""
+"Are you sure you want to {{action}} the selected users? {{users}} "
+"{{remainingCount}}"
+msgstr ""
+
+msgid "Confirm"
+msgstr ""
+
 msgid "New Password"
 msgstr ""
 
@@ -655,9 +658,6 @@ msgstr ""
 msgid ""
 "Are you sure you want to {{actionDescription}} the selected users? "
 "{{users}} {{remainingCount}}"
-msgstr ""
-
-msgid "Confirm"
 msgstr ""
 
 msgid "Set password for {{username}}"
@@ -718,6 +718,27 @@ msgid "Password has been set successfully for {{username}}"
 msgstr ""
 
 msgid "Failed to set password. Please try again."
+msgstr ""
+
+msgid "Replicate {{user}}"
+msgstr ""
+
+msgid "Replicating users"
+msgstr ""
+
+msgid "Users replicated successfully"
+msgstr ""
+
+msgid "Replicate User"
+msgstr ""
+
+msgid "User {{user}} replicated successfully {{n}} times"
+msgstr ""
+
+msgid "Error replicating user {{user}}: {{message}}"
+msgstr ""
+
+msgid "Error in template: {{message}}"
 msgstr ""
 
 msgid "Table exported: {{filename}}"

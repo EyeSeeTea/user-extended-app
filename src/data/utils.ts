@@ -1,13 +1,14 @@
 import { MetadataResponse } from "@eyeseetea/d2-api/api";
 import _ from "lodash";
 import { Future, FutureData } from "../domain/entities/Future";
+import { DEFAULT_CHUNK_SIZE } from "../domain/utils/limits";
 import { Id } from "../domain/entities/Ref";
 import { ApiUser } from "./repositories/UserD2ApiRepository";
 
 export function chunkRequest<Res>(
     ids: Id[],
     mapper: (idsGroup: Id[]) => FutureData<Res[]>,
-    chunkSize = 100
+    chunkSize = DEFAULT_CHUNK_SIZE
 ): FutureData<Res[]> {
     return Future.flatten(
         _.chunk(ids, chunkSize).map(idsC => {

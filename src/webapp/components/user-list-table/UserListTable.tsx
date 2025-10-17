@@ -18,8 +18,9 @@ import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
-import { isSuperAdmin, User } from "../../../domain/entities/User";
+import { User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
+import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
@@ -149,10 +150,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
 
     const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess);
-
-    /* Pagination DHIS2 Bug */
-    const needsPatch =
-        onlyUsersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
@@ -444,7 +441,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // SEE: src/legacy/models/userList.js LINE 29+
             if (canManage === "true") {
                 const userIdList = await compositionRoot.users
-                    .listAllIds({
+                    .listAllIdentifiers({
                         search,
                         sorting,
                         filters,
@@ -454,7 +451,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                         onlyActiveUsers: onlyActiveUsers,
                         hideUsers: appSettings.hide.users,
                     })
-                    .toPromise();
+                    .toPromise()
+                    .then(userIdentifiers => userIdentifiers.map(user => user.id));
 
                 if (userIdList) {
                     filters["id"] = ["in", userIdList];
@@ -482,7 +480,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                               hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
                           ),
                 }))
-                .map(paginatedReponse => patchPaginatedReponseIfNeeded(needsPatch, paginatedReponse))
+                .map(paginatedReponse => patchPaginatedReponseIfNeeded(false, paginatedReponse))
                 .toPromise();
         },
         [
@@ -498,7 +496,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             appSettings.hide.users,
             appSettings.hide.userRoles,
             appSettings.hide.userGroups,
-            needsPatch,
             currentUser,
         ]
     );
@@ -506,7 +503,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const refreshAllIds = useCallback(
         (search: string, sorting: TableSorting<User>): Promise<string[]> => {
             return compositionRoot.users
-                .listAllIds({
+                .listAllIdentifiers({
                     search,
                     sorting,
                     filters,
@@ -516,7 +513,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     onlyActiveUsers: onlyActiveUsers,
                     hideUsers: appSettings.hide.users,
                 })
-                .toPromise();
+                .toPromise()
+                .then(userIdentifiers => userIdentifiers.map(user => user.id));
         },
         [
             compositionRoot.users,
@@ -675,10 +673,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />
             )}
 
-            <PatchPaginationTableWrapper
-                className={needsPatch ? "patched" : undefined}
-                pagination={tableProps.pagination}
-            >
+            <PatchPaginationTableWrapper pagination={tableProps.pagination}>
                 <ObjectsList<User> {...tableProps} columns={columnsToShow}>
                     {children}
                     <div className="user-management-control pagination" style={{ order: 11 }}>
@@ -713,7 +708,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 function generateColumnsFromSettings(options: {
     appSettings: Maybe<AppSettings>;
     columns: TableColumn<User>[];
-    user: User;
+    user: UserProps;
 }): TableColumn<User>[] {
     const { appSettings, columns, user } = options;
 
@@ -735,11 +730,12 @@ function generateColumnsFromSettings(options: {
 }
 
 function hideUserRolesAndUserGroups(userRolesToHide: Id[], userGroupsToHide: Id[]): (user: User) => User {
-    return (user: User) => ({
-        ...user,
-        userRoles: user.userRoles.filter(role => !userRolesToHide.includes(role.id)),
-        userGroups: user.userGroups.filter(group => !userGroupsToHide.includes(group.id)),
-    });
+    return (user: User) =>
+        User.createUser({
+            ...user,
+            userRoles: user.userRoles.filter(role => !userRolesToHide.includes(role.id)),
+            userGroups: user.userGroups.filter(group => !userGroupsToHide.includes(group.id)),
+        });
 }
 
 export type UserActionName =

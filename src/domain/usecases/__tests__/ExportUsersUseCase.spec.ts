@@ -1,4 +1,5 @@
 import { instance, mock, when, verify, deepEqual } from "ts-mockito";
+import { UserProps } from "../../entities/UserProps";
 import { User } from "../../entities/User";
 import { ExportUsersUseCase, ExportUsersUseCaseOptions } from "../ExportUsersUseCase";
 import { Future } from "../../entities/Future";
@@ -14,6 +15,10 @@ import {
 
 let userRepositoryMock: UserD2ApiRepository;
 let exportUsersUseCase: ExportUsersUseCase;
+
+// NOTE: Needed to avoid the timing mismatch between the usecase execution and expectedFilename generation.
+jest.useFakeTimers();
+jest.setSystemTime(new Date("2024-01-01T12:00:00Z"));
 
 describe("ExportUsersUseCase", () => {
     beforeEach(() => {
@@ -88,7 +93,7 @@ const filterOptions = {
 };
 
 function givenUsersToExport(): void {
-    const users = [userToExport as User];
+    const users = [userToExport as UserProps];
     when(
         userRepositoryMock.listAll(
             deepEqual({
@@ -97,7 +102,7 @@ function givenUsersToExport(): void {
                 hideUsers: [],
             })
         )
-    ).thenReturn(Future.success(users));
+    ).thenReturn(Future.success(users.map(u => User.createNewUser(u))));
 }
 
 /**

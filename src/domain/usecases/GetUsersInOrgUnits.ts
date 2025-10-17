@@ -1,5 +1,5 @@
 import { FutureData } from "../entities/Future";
-import { User } from "../entities/User";
+import { UserProps } from "../entities/UserProps";
 import { UserSimple } from "../entities/UserSimple";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
@@ -13,7 +13,7 @@ export class GetUsersInOrgUnits {
         private appSettings: AppSettingsRepository
     ) {}
 
-    execute(user: User): FutureData<UserSimple[]> {
+    execute(user: UserProps): FutureData<UserSimple[]> {
         return getAppSettings(this.appSettings, user).flatMap(appSettings => {
             return this.orgUnitRepository.getWithUsers().flatMap(orgUnits => {
                 const usersIds = orgUnits.flatMap(orgUnit => orgUnit.users ?? []);

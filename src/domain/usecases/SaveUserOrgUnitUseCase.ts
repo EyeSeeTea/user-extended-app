@@ -1,6 +1,7 @@
 import _ from "lodash";
 
-import { FutureData } from "../entities/Future";
+import i18n from "../../locales";
+import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { UpdateStrategy, UserRepository } from "../repositories/UserRepository";
 import { Id } from "../entities/Ref";
@@ -10,15 +11,19 @@ export class SaveUserOrgUnitUseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute(options: SaveUserOrgUnitOptions): FutureData<void> {
-        const usersToSave = this.applyOrgUnitsToUsers(options);
-        return this.saveUsers(usersToSave);
+        try {
+            const usersToSave = this.applyOrgUnitsToUsers(options);
+            return this.saveUsers(usersToSave);
+        } catch (error) {
+            return Future.error(i18n.t(`${(error as Error).message}`));
+        }
     }
 
     private applyOrgUnitsToUsers(options: SaveUserOrgUnitOptions): User[] {
         return options.users.map(user => {
             const orgUnits = this.getOrgUnits(options, this.getOrgUnitFromType(user, options));
             const userOrgUnits = this.buildUserWithOrgUnits(options.orgUnitType, orgUnits);
-            return { ...user, ...userOrgUnits };
+            return User.createNewUser({ ...user, ...userOrgUnits });
         });
     }
 
