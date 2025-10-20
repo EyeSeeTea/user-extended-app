@@ -7,6 +7,7 @@ import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { LocaleCode } from "../../domain/entities/UserProps";
 import { User } from "../../domain/entities/User";
+import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
@@ -20,6 +21,7 @@ import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getDiffUserIdsByGroup, getErrorFromResponse } from "../utils";
+import { GET_USERS_BY_IDS_CHUNK_SIZE, LIST_ALL_USERS_PAGE_SIZE } from "../../domain/utils/limits";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
@@ -144,20 +146,22 @@ export class UserD2ApiRepository implements UserRepository {
         ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
     }
 
-    public listAllIds(options: ListOptions): FutureData<Id[]> {
+    public listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]> {
         const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
 
         return apiToFuture(
             this.api.models.users.get({
-                fields: { id: true },
+                fields: { id: true, userCredentials: { username: true } },
                 paging: false,
                 query: search !== "" ? search : undefined,
                 canManage: canManage === "true" ? "true" : undefined,
                 filter: otherFilters,
                 order: `${sorting.field}:${sorting.order}`,
             })
-        ).map(({ objects }) => objects.map(user => user.id));
+        ).map(({ objects }) =>
+            objects.map(user => new UserIdentifier({ id: user.id, username: user.userCredentials.username }))
+        );
     }
 
     public getByIds(ids: Id[]): FutureData<User[]> {
@@ -188,7 +192,7 @@ export class UserD2ApiRepository implements UserRepository {
                     });
                 });
             },
-            50
+            GET_USERS_BY_IDS_CHUNK_SIZE
         );
 
         return $requests.map(_.flatten);
@@ -274,17 +278,19 @@ export class UserD2ApiRepository implements UserRepository {
         state: { initialPage: number; users: User[] } = { initialPage: 1, users: [] }
     ): FutureData<User[]> {
         const { initialPage, users } = state;
-        return this.list({ ...options, pageSize: 100, page: initialPage }).flatMap(({ pager, objects }) => {
-            const newUsers = [...users, ...objects];
-            if (pager.page >= pager.pageCount) {
-                return Future.success(newUsers);
-            } else {
-                return this.listAll(options, {
-                    initialPage: initialPage + 1,
-                    users: newUsers,
-                });
+        return this.list({ ...options, pageSize: LIST_ALL_USERS_PAGE_SIZE, page: initialPage }).flatMap(
+            ({ pager, objects }) => {
+                const newUsers = [...users, ...objects];
+                if (pager.page >= pager.pageCount) {
+                    return Future.success(newUsers);
+                } else {
+                    return this.listAll(options, {
+                        initialPage: initialPage + 1,
+                        users: newUsers,
+                    });
+                }
             }
-        });
+        );
     }
 
     public save(usersToSave: User[]): FutureData<MetadataResponse> {
@@ -327,6 +333,11 @@ export class UserD2ApiRepository implements UserRepository {
                     });
             });
         });
+    }
+
+    public saveInChunks(users: User[], chunkSize: number): FutureData<void> {
+        const requests = _.chunk(users, chunkSize).map(usersChunk => this.save(usersChunk));
+        return Future.sequential(requests).toVoid();
     }
 
     private getLogger(): FutureData<Maybe<D2LoggerMessage>> {

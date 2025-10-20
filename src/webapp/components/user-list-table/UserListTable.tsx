@@ -372,14 +372,15 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // SEE: src/legacy/models/userList.js LINE 29+
             if (canManage === "true") {
                 const userIdList = await compositionRoot.users
-                    .listAllIds({
+                    .listAllIdentifiers({
                         search,
                         sorting,
                         filters,
                         canManage,
                         rootJunction,
                     })
-                    .toPromise();
+                    .toPromise()
+                    .then(userIdentifiers => userIdentifiers.map(user => user.id));
 
                 if (userIdList) {
                     filters["id"] = ["in", userIdList];
@@ -404,13 +405,14 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const refreshAllIds = useCallback(
         (search: string, sorting: TableSorting<User>): Promise<string[]> => {
             return compositionRoot.users
-                .listAllIds({
+                .listAllIdentifiers({
                     search,
                     sorting,
                     filters,
                     canManage,
                 })
-                .toPromise();
+                .toPromise()
+                .then(userIdentifiers => userIdentifiers.map(user => user.id));
         },
         [compositionRoot, filters, canManage]
     );

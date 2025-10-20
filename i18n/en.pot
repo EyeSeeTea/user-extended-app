@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-09-15T12:21:48.861Z\n"
-"PO-Revision-Date: 2025-09-15T12:21:48.861Z\n"
+"POT-Creation-Date: 2025-09-15T14:19:52.603Z\n"
+"PO-Revision-Date: 2025-09-15T14:19:52.603Z\n"
 
 msgid "ID"
 msgstr ""
@@ -75,6 +75,9 @@ msgid "Last modified by"
 msgstr ""
 
 msgid "Open IDs must be unique"
+msgstr ""
+
+msgid "Usernames must be unique"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"

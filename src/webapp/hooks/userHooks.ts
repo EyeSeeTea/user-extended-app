@@ -2,6 +2,7 @@ import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Id } from "../../domain/entities/Ref";
 import { User } from "../../domain/entities/User";
+import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
 import { useAppContext } from "../contexts/app-context";
@@ -98,6 +99,25 @@ export function useGetAllUsers() {
     }, [compositionRoot, snackbar]);
 
     return { users };
+}
+
+export function useGetAllUserIdentifiers() {
+    const { compositionRoot } = useAppContext();
+    const [userIdentifiers, setUserIdentifiers] = React.useState<UserIdentifier[]>([]);
+    const snackbar = useSnackbar();
+
+    React.useMemo(() => {
+        compositionRoot.users.listAllIdentifiers({}).run(
+            allUserIdentifiers => {
+                setUserIdentifiers(allUserIdentifiers);
+            },
+            error => {
+                snackbar.error(error);
+            }
+        );
+    }, [compositionRoot, snackbar]);
+
+    return { userIdentifiers };
 }
 
 export function useCopyInUser(props: UseCopyInUserProps) {
