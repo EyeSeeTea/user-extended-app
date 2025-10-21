@@ -1,4 +1,4 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { D2Api } from "../../types/d2-api";
 import { UserSearchRepository } from "../../domain/repositories/UserSearchRepository";
 import { UserSearch } from "../../domain/entities/UserSearch";
 import { FutureData } from "../../domain/entities/Future";

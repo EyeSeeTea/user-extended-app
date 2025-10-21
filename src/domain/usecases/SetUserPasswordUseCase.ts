@@ -1,4 +1,4 @@
-import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
+import { MetadataResponse } from "../../types/d2-api";
 import { FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";

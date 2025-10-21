@@ -12,7 +12,7 @@ import { getKeys, Maybe } from "../../../types/utils";
 //FIXME (NOT URGENT): shouldn't be a Maybe if Request result is compared with Codec.
 // Partial, as new props can be added on next releases.
 export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>): AppSettings {
-    const emptySettings = AppSettings.defaultSettings();
+    const emptySettings = AppSettings.defaultSettings(appSettings ? "active" : "inactive");
     if (!appSettings) return emptySettings;
 
     const settingsAccess = appSettings.settingsAccess
@@ -39,7 +39,7 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
  that could be already saved.
  */
 function migrateNewerActions(actionsAccess: ActionsPermissions): ActionsPermissions {
-    const newActionsAccess = AppSettings.defaultSettings().actionsAccess;
+    const newActionsAccess = AppSettings.defaultSettings("active").actionsAccess;
 
     const newerActions = getKeys(newActionsAccess);
     const currentActions = getKeys(actionsAccess);

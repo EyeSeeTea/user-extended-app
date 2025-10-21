@@ -4,7 +4,7 @@ import { Future, FutureData } from "../entities/Future";
 import { UserProps } from "../entities/UserProps";
 import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";
-import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
+import { MetadataResponse } from "../../types/d2-api";
 
 export class SaveUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}

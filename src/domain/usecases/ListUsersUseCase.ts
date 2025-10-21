@@ -15,7 +15,7 @@ export class ListUsersUseCase implements UseCase {
     public execute(options: ListOptions): FutureData<{ pager: Pager; objects: User[] }> {
         return this.userRepository.getCurrent().flatMap(currentUser => {
             return getAppSettings(this.appSettingsRepository, currentUser).flatMap(appSettings => {
-                if ((appSettings.showOnlyActiveUsers || options.onlyUsersOrgUnits) && options.rootJunction === "OR") {
+                if (appSettings.isActive && appSettings.showOnlyActiveUsers && options.rootJunction === "OR") {
                     return this.getActiveUsers(options, appSettings);
                 } else {
                     return this.userRepository.list({

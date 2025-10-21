@@ -24,7 +24,10 @@ type AppSettingsAttr = {
         userRoles: Id[];
         orgUnits: Id[];
     };
+    status: AppSettingStatus;
 };
+
+type AppSettingStatus = "active" | "inactive";
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
@@ -32,7 +35,7 @@ export type ActionsPermissions = Record<UserAction, ActionPermission>;
 const defaultHideValues = { users: [], userGroups: [], userRoles: [], orgUnits: [] };
 
 export class AppSettings extends Struct<AppSettingsAttr>() {
-    static defaultSettings(): AppSettings {
+    static defaultSettings(status: AppSettingStatus): AppSettings {
         return this.create({
             columns: this.defaultColumns(),
             showOnlyActiveUsers: false,
@@ -40,7 +43,16 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             settingsAccess: emptyPermission,
             actionsAccess: defaultActions(),
             hide: defaultHideValues,
+            status: status,
         });
+    }
+
+    get isActive(): boolean {
+        return this.status === "active";
+    }
+
+    updateStatus(status: AppSettingStatus): AppSettings {
+        return this._update({ status });
     }
 
     updateColumns(columns: SettingsUserColumn[]): AppSettings {

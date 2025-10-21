@@ -1,4 +1,4 @@
-import { D2Api, D2UserSchema, MetadataResponse, SelectedPick } from "@eyeseetea/d2-api/2.36";
+import { D2Api, D2UserSchema, MetadataResponse, SelectedPick } from "../../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
@@ -779,7 +779,14 @@ const fields = {
     organisationUnits: orgUnitsFields,
     dataViewOrganisationUnits: orgUnitsFields,
     teiSearchOrganisationUnits: orgUnitsFields,
-    access: true,
+    access: {
+        manage: true,
+        externalize: true,
+        write: true,
+        read: true,
+        update: true,
+        delete: true,
+    },
     userCredentials: {
         id: true,
         username: true,

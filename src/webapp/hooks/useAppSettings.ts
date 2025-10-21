@@ -6,7 +6,7 @@ import { useAppContext } from "../contexts/app-context";
 
 export function useAppSettings() {
     const { compositionRoot } = useAppContext();
-    const [appSettings, setAppSettings] = React.useState<AppSettings>(AppSettings.defaultSettings());
+    const [appSettings, setAppSettings] = React.useState<AppSettings>(AppSettings.defaultSettings("inactive"));
     const [hasLoaded, setHasLoaded] = React.useState(false);
     const snackbar = useSnackbar();
 

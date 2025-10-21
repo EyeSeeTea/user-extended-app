@@ -29,6 +29,7 @@ export default class Filters extends React.Component {
         onlyUsersOrgUnits: PropTypes.bool,
         setOnlyUsersOrgUnits: PropTypes.func.isRequired,
         isSuperAdmin: PropTypes.bool,
+        isSettingInactive: PropTypes.bool,
     };
 
     styles = {
@@ -221,6 +222,23 @@ export default class Filters extends React.Component {
         };
     };
 
+    _getActiveDropdownStatus = (isSuperAdmin, isSettingInactive, areFiltersOverrided) => {
+        const activeInactiveOptions = [
+            { value: false, text: this.getTranslation("active") },
+            { value: true, text: this.getTranslation("inactive") },
+        ];
+
+        const forcedFilterOptions = [{ value: false, text: this.getTranslation("filter_active_modified") }];
+
+        if (isSuperAdmin || isSettingInactive) {
+            return { activeInactiveDisabled: false, activeInactiveOptions: activeInactiveOptions };
+        } else if (areFiltersOverrided) {
+            return { activeInactiveDisabled: true, activeInactiveOptions: forcedFilterOptions };
+        } else {
+            return { activeInactiveDisabled: false, activeInactiveOptions: activeInactiveOptions };
+        }
+    };
+
     checkboxHandler = (ev, isChecked) => isChecked;
     dropdownHandler = ev => ev.target.value;
 
@@ -238,7 +256,7 @@ export default class Filters extends React.Component {
             rootJunction,
         } = this.state;
 
-        const { isSuperAdmin, areFiltersOverrided, hideUsersCanManageFilter } = this.props;
+        const { isSuperAdmin, areFiltersOverrided, hideUsersCanManageFilter, isSettingInactive } = this.props;
 
         const { styles } = this;
 
@@ -251,12 +269,11 @@ export default class Filters extends React.Component {
         const filterIconColor = isExtendedFiltering ? "#ff9800" : undefined;
         const filterButtonColor = showExtendedFilters ? { backgroundColor: "#cdcdcd" } : undefined;
 
-        const activeInactiveOptions = [
-            { value: false, text: this.getTranslation("active") },
-            { value: true, text: this.getTranslation("inactive") },
-        ];
-
-        const forcedFilterOptions = [{ value: false, text: this.getTranslation("filter_active_modified") }];
+        const { activeInactiveOptions, activeInactiveDisabled } = this._getActiveDropdownStatus(
+            isSuperAdmin,
+            isSettingInactive,
+            areFiltersOverrided
+        );
 
         const enabledDisabledOptions = [
             { value: true, text: this.getTranslation("enabled") },
@@ -347,11 +364,11 @@ export default class Filters extends React.Component {
                             <div className="user-management-control select-active-or-inactive">
                                 <Dropdown
                                     labelText={this.getTranslation("filter_active_inactive_users")}
-                                    options={!isSuperAdmin ? forcedFilterOptions : activeInactiveOptions}
+                                    options={activeInactiveOptions}
                                     value={this.state.userDisabled}
                                     onChange={this.setFilter("userDisabled", this.dropdownHandler)}
                                     style={styles.dropdownStyles}
-                                    isabled={!isSuperAdmin}
+                                    disabled={activeInactiveDisabled}
                                 />
                             </div>
 

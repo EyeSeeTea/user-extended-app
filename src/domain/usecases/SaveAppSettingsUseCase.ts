@@ -6,7 +6,8 @@ export class SaveAppSettingsUseCase {
     constructor(private appSettingsRepository: AppSettingsRepository) {}
 
     execute(options: SaveAppSettingsOptions): FutureData<AppSettings> {
-        return this.appSettingsRepository.save(options.appSettings);
+        const settingsWithStatus = options.appSettings.updateStatus("active");
+        return this.appSettingsRepository.save(settingsWithStatus);
     }
 }
 

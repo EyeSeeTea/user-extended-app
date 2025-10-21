@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
+import { MetadataResponse } from "../../types/d2-api";
 
 import { generateUid } from "../../utils/uid";
 import { ReplicateTemplate } from "../entities/ReplicateTemplate";
