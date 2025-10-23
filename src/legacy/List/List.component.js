@@ -252,7 +252,7 @@ class ListHybrid extends React.Component {
                             openSettings={this._openSettings}
                             filters={this.state.filters?.filters}
                             canManage={this.state?.canManage}
-                            rootJunction={areFiltersOverrided ? "AND" : this.state.filters?.rootJunction}
+                            rootJunction={this.state.filters?.rootJunction}
                             onChangeVisibleColumns={this._updateVisibleColumns}
                             onChangeSearch={this._updateQuery}
                             reloadTableKey={this.state.reloadTableKey}

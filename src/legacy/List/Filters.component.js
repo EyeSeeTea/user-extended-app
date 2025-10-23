@@ -344,7 +344,6 @@ export default class Filters extends React.Component {
                                             {
                                                 label: this.getTranslation("OR"),
                                                 value: "OR",
-                                                disabled: areFiltersOverrided,
                                             },
                                             {
                                                 label: this.getTranslation("AND"),
@@ -353,7 +352,6 @@ export default class Filters extends React.Component {
                                         ]}
                                         selected={rootJunction}
                                         onChange={({ value }) => {
-                                            if (areFiltersOverrided) return;
                                             this.setState({ rootJunction: value ?? "OR" }, this.notifyParent);
                                         }}
                                     />
