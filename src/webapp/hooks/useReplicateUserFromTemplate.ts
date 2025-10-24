@@ -3,7 +3,7 @@ import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { FormState } from "final-form";
 import _ from "lodash";
 
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { useAppContext } from "../contexts/app-context";
 import { Id } from "../../domain/entities/Ref";
 import { User } from "../../domain/entities/User";
@@ -66,23 +66,23 @@ export const useReplicateUserFromTemplate = (
         setIsUserLoaded(false);
 
         const userFuture = compositionRoot.users.get([userToReplicateId]);
-        const usernamesFuture = compositionRoot.users.listAll({});
+        const identifiersFuture = compositionRoot.users.listAllIdentifiers({});
 
         Future.joinObj({
             user: userFuture,
-            allUsers: usernamesFuture,
+            allIdentifiers: identifiersFuture,
         }).run(
-            ({ user: [user], allUsers }) => {
+            ({ user: [user], allIdentifiers }) => {
                 if (!user) {
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
                     try {
-                        setUserToReplicate(User.createNew(user).getOrThrow());
+                        setUserToReplicate(User.createExisted(user).getOrThrow());
                     } catch (error) {
                         loading.show(false);
                         handleUsersError(`User has invalid properties: ${(error as Error).message}`);
                     }
-                    const usernames = allUsers.map(u => u.username);
+                    const usernames = allIdentifiers.map(u => u.username);
                     setExistingUsernames(usernames);
                     setIsUserLoaded(true);
                 }
@@ -152,6 +152,7 @@ export const useReplicateUserFromTemplate = (
                             i18n.t("Error replicating user {{user}}: {{message}}", {
                                 user: userToReplicate.username,
                                 message: error,
+                                nsSeparator: false,
                             })
                         );
                     }
@@ -161,7 +162,8 @@ export const useReplicateUserFromTemplate = (
                     loading.hide();
                     snackbar.error(
                         i18n.t("Error in template: {{message}}", {
-                            message: (error as Error).message,
+                            message: error.message,
+                            nsSeparator: false,
                         })
                     );
                 } else {
@@ -170,6 +172,7 @@ export const useReplicateUserFromTemplate = (
                         i18n.t("Error replicating user {{user}}: {{message}}", {
                             user: userToReplicate.username,
                             message: error,
+                            nsSeparator: false,
                         })
                     );
                 }

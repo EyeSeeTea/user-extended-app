@@ -1,11 +1,10 @@
 import _ from "lodash";
 import { FontIcon, RaisedButton } from "material-ui";
 
-import React, { useState, useEffect, useCallback, SetStateAction, ComponentType } from "react";
+import React, { useState, useEffect, useCallback, ComponentType } from "react";
 
 import InfoDialog from "../../../legacy/components/InfoDialog";
 import i18n from "../../../utils/i18n";
-import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import {
     TableRow,
@@ -35,7 +34,7 @@ import { OrgUnitSelectorFF } from "../user-form/components/OrgUnitSelectorFF";
 import { PreviewInputFF } from "../form/fields/PreviewInputFF";
 import styled from "styled-components";
 import { FormFieldProps } from "../form/fields/FormField";
-import { useGetAllUsers } from "../../hooks/userHooks";
+import { useGetAllUserIdentifiers } from "../../hooks/userHooks";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportUser } from "../../../domain/entities/ImportUser";
@@ -43,6 +42,7 @@ import { Username } from "../../../domain/value-objects/Username";
 import { Password } from "../../../domain/value-objects/Password";
 import { Email } from "../../../domain/value-objects/Email";
 import { validateRequired } from "../../../domain/utils/validations";
+import { UserIdentifier } from "../../../domain/entities/UserIdentifier";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
     id: "ID",
@@ -102,7 +102,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         onSubmit: customOnSubmit,
     } = props;
     const [users, setUsers] = useState<UserProps[]>(usersFromFile);
-    const [existingUsers, setExistingUsers] = React.useState<Record<string, UserProps>>({});
+    const [existingUserIdentifiers, setExistingUserIdentifiers] = React.useState<UserIdentifier[]>([]);
     const [existingUsersNames, setExistingUsersNames] = React.useState<string[]>([]);
 
     const [infoDialog, setInfoDialog] = React.useState<{ response: string }>();
@@ -127,31 +127,23 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const loading = useLoading();
 
-    const { users: allUsers } = useGetAllUsers();
+    const { userIdentifiers } = useGetAllUserIdentifiers();
     useEffect(() => {
-        const getUsername = (user: UserProps | ApiUser): string => {
-            if ("userCredentials" in user) {
-                return user.userCredentials.username;
-            } else {
-                return user.username;
-            }
-        };
         loading.show(true);
 
         const fetchData = () => {
             setIsLoading(true);
-            if (!allUsers) {
+            if (!userIdentifiers) {
                 return;
             }
-            const existingUsersMapped = _.keyBy(allUsers, getUsername) as Record<string, UserProps>;
-            setExistingUsers(existingUsersMapped as unknown as SetStateAction<Record<string, UserProps>>);
-            setExistingUsersNames(allUsers.map((user: UserProps) => getUsername(user)));
+            setExistingUserIdentifiers(userIdentifiers);
+            setExistingUsersNames(userIdentifiers.map(user => user.username));
             setIsLoading(false);
             loading.reset();
         };
 
         fetchData();
-    }, [allUsers, loading]);
+    }, [userIdentifiers, loading]);
 
     const existingUserInTable = useCallback(
         (newUsers: UserProps[]) => {
@@ -276,7 +268,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     const renderTableRow = useCallback(
         (user: UserProps, rowIndex: number, users: UserProps[]) => {
             const currentUsername = users[rowIndex]?.username || user.username;
-            const existingUser = existingUsers[currentUsername];
+            const existingUser = existingUserIdentifiers.find(u => u.username === currentUsername);
             const chipTitle = existingUser
                 ? i18n.t("User already exists: {{id}}", { id: existingUser.id, nsSeparator: false })
                 : "";
@@ -305,7 +297,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                 </StyledTableRow>
             );
         },
-        [columns, existingUsers, existingUsersNames, allowOverwrite]
+        [columns, existingUserIdentifiers, existingUsersNames, allowOverwrite]
     );
 
     const updateFormState = ({ values: { users: updatedUsers }, errors }: FormState<{ users: UserProps[] }>) => {

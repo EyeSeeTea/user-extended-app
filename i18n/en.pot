@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-10-08T08:11:20.992Z\n"
-"PO-Revision-Date: 2025-10-08T08:11:20.992Z\n"
+"POT-Creation-Date: 2025-10-24T00:40:55.273Z\n"
+"PO-Revision-Date: 2025-10-24T00:40:55.273Z\n"
 
 msgid "ID"
 msgstr ""
@@ -75,6 +75,9 @@ msgid "Last modified by"
 msgstr ""
 
 msgid "Open IDs must be unique"
+msgstr ""
+
+msgid "Usernames must be unique"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"
@@ -459,6 +462,12 @@ msgid "Replicate User"
 msgstr ""
 
 msgid "User {{user}} replicated successfully {{n}} times"
+msgstr ""
+
+msgid "Error replicating user {{user}}: {{message}}"
+msgstr ""
+
+msgid "Error in template: {{message}}"
 msgstr ""
 
 msgid "Saving..."
