@@ -80,21 +80,21 @@ function givenOptionsToMerge(): SaveUserOrgUnitOptions {
 
 function givenExpectedUsersReplaced(): User[] {
     return selectedUsers.map(user =>
-        User.createNewUser({
+        User.createExisted({
             ...user,
             organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
-        })
+        }).getOrThrow()
     );
 }
 
 function givenExpectedUsersMerged(): User[] {
     return selectedUsers.map(user =>
-        User.createNewUser({
+        User.createExisted({
             ...user,
             organisationUnits: _(selectedOrgUnits)
                 .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))
                 .unionBy(user.organisationUnits, "id")
                 .value(),
-        })
+        }).getOrThrow()
     );
 }

@@ -81,8 +81,8 @@ export const defaultUserProps: UserProps = {
     createdBy: { id: "", username: "" },
     lastModifiedBy: { id: "", username: "" },
     accountExpiry: undefined,
-    uiLocale: "",
-    dbLocale: "",
+    uiLocale: "en",
+    dbLocale: "en",
 };
 export interface AccessPermissions {
     read: boolean;

@@ -24,11 +24,16 @@ export class CopyInUserUseCase {
     }
 
     private replaceAccessElementsKeys(targetUser: User, sourceUser: User, properties: AccessElementsKeys[]): User {
-        try {
-            return User.createNewUser({ ...targetUser, ..._.pick(sourceUser, properties) });
-        } catch (error) {
-            throw new Error(`Error replacing user properties: ${(error as Error).message}`);
-        }
+        const userResult = targetUser.update({ ..._.pick(sourceUser, properties) });
+
+        return userResult.match({
+            success: user => {
+                return user;
+            },
+            error: errors => {
+                throw new Error(`Error replacing user properties: ${errors.join(", ")}`);
+            },
+        });
     }
 
     private mergeAccessElementsKeys(targetUser: User, sourceUser: User, properties: AccessElementsKeys[]): User {

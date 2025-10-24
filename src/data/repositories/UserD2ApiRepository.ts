@@ -21,6 +21,8 @@ import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
+import { getLanguage } from "../../domain/utils/getLanguage";
+import { validationErrorsToString } from "../../domain/utils/validationErrorsToString";
 import { GET_USERS_BY_IDS_CHUNK_SIZE, LIST_ALL_USERS_PAGE_SIZE } from "../../domain/utils/limits";
 
 export class UserD2ApiRepository implements UserRepository {
@@ -32,6 +34,8 @@ export class UserD2ApiRepository implements UserRepository {
         this.userStorage = new DataStoreStorageClient("user", instance);
     }
 
+    // TODO: this method should be in a different use case
+    // retrieve users, update them
     private getLocales(users: User[]): FutureData<User[]> {
         const $requests = users.map((user): FutureData<User> => {
             return apiToFuture(
@@ -41,15 +45,22 @@ export class UserD2ApiRepository implements UserRepository {
                     params: { user: user.username },
                 })
             ).map((response): User => {
-                try {
-                    return User.createUser({
-                        ...user,
-                        uiLocale: response.keyUiLocale,
-                        dbLocale: response.keyDbLocale,
-                    });
-                } catch (error) {
-                    throw new Error(`Error setting locales for user ${user.id}: ${(error as Error).message}`);
-                }
+                const userResult = User.createExisted({
+                    ...user,
+                    uiLocale: response.keyUiLocale,
+                    dbLocale: response.keyDbLocale,
+                });
+
+                return userResult.match({
+                    success: user => {
+                        return user;
+                    },
+                    error: errors => {
+                        throw new Error(
+                            `Error setting locales for user ${user.id}: ${validationErrorsToString(errors)}`
+                        );
+                    },
+                });
             });
         });
 
@@ -76,9 +87,9 @@ export class UserD2ApiRepository implements UserRepository {
     private getLocaleValueByType(user: User, keyLocale: KeyLocale): string {
         switch (keyLocale) {
             case DB_LOCALE_KEY:
-                return User.setDefaultLanguage(user.dbLocale);
+                return getLanguage(user.dbLocale);
             case UI_LOCALE_KEY:
-                return User.setDefaultLanguage(user.uiLocale);
+                return getLanguage(user.uiLocale);
         }
     }
 
@@ -200,11 +211,17 @@ export class UserD2ApiRepository implements UserRepository {
     private addGroupsToUsers(users: User[], d2UsersWithGroups: D2UserGroupByKey): User[] {
         return users.map((user): User => {
             const userGroups = d2UsersWithGroups[user.id] || [];
-            try {
-                return User.createUser({ ...user, userGroups: userGroups });
-            } catch (error) {
-                throw new Error(`Error adding groups to user ${user.id}: ${(error as Error).message}`);
-            }
+
+            const userResult = User.createExisted({ ...user, userGroups: userGroups });
+
+            return userResult.match({
+                success: user => {
+                    return user;
+                },
+                error: errors => {
+                    throw new Error(`Error adding groups to user ${user.id}: ${validationErrorsToString(errors)}`);
+                },
+            });
         });
     }
 
@@ -365,6 +382,8 @@ export class UserD2ApiRepository implements UserRepository {
         };
     }
 
+    //TODO: this method should be an use case or part of a existed use case because contains application business rules
+    // retrieve users, update them and save them again
     public updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonRoles = _.intersectionBy(
@@ -373,26 +392,35 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                try {
-                    return User.createNewUser({
-                        ...user,
-                        userRoles:
-                            strategy === "merge"
-                                ? _.uniqBy(
-                                      [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
-                                      ({ id }) => id
-                                  )
-                                : update,
-                    });
-                } catch (error) {
-                    throw new Error(`Error updating roles for user ${user.id}: ${(error as Error).message}`);
-                }
+                const userResult = User.createNew({
+                    ...user,
+                    userRoles:
+                        strategy === "merge"
+                            ? _.uniqBy(
+                                  [..._.differenceBy(user.userRoles, commonRoles, ({ id }) => id), ...update],
+                                  ({ id }) => id
+                              )
+                            : update,
+                });
+
+                return userResult.match({
+                    success: user => {
+                        return user;
+                    },
+                    error: errors => {
+                        throw new Error(
+                            `Error updating roles for user ${user.id}: ${validationErrorsToString(errors)}`
+                        );
+                    },
+                });
             });
 
             return this.save(users);
         });
     }
 
+    //TODO: this method should be an use case or part of a existed use case because contains application business rules
+    // retrieve users, update them and save them again
     public updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonGroups = _.intersectionBy(
@@ -401,20 +429,25 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                try {
-                    return User.createNewUser({
-                        ...user,
-                        userGroups:
-                            strategy === "merge"
-                                ? _.uniqBy(
-                                      [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
-                                      ({ id }) => id
-                                  )
-                                : update,
-                    });
-                } catch (error) {
-                    throw new Error(`Error updating groups for user ${user.id}: ${(error as Error).message}`);
-                }
+                const userResult = User.createNew({
+                    ...user,
+                    userGroups:
+                        strategy === "merge"
+                            ? _.uniqBy(
+                                  [..._.differenceBy(user.userGroups, commonGroups, ({ id }) => id), ...update],
+                                  ({ id }) => id
+                              )
+                            : update,
+                });
+
+                return userResult.match({
+                    success: user => {
+                        return user;
+                    },
+                    error: errors => {
+                        throw new Error(`Error creating user ${user.id}: ${validationErrorsToString(errors)}`);
+                    },
+                });
             });
 
             return this.save(users);
@@ -525,46 +558,51 @@ export class UserD2ApiRepository implements UserRepository {
             .uniq()
             .value();
 
-        try {
-            return User.createUser({
-                id: user.id,
-                name: user.name,
-                firstName: user.firstName,
-                surname: user.surname,
-                email: user.email,
-                phoneNumber: user.phoneNumber,
-                whatsApp: user.whatsApp,
-                facebookMessenger: user.facebookMessenger,
-                skype: user.skype,
-                telegram: user.telegram,
-                twitter: user.twitter,
-                lastUpdated: new Date(user.lastUpdated),
-                created: new Date(user.created),
-                userGroups: user.userGroups,
-                username: userCredentials.username,
-                apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
-                userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
-                lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
-                status: userCredentials.disabled ? "Disabled" : "Active",
-                disabled: userCredentials.disabled,
-                organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
-                dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
-                searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
-                access: user.access,
-                openId: userCredentials.openId,
-                ldapId: userCredentials.ldapId,
-                externalAuth: userCredentials.externalAuth,
-                twoFactorEnabled: userCredentials.twoFA,
-                password: userCredentials.password,
-                accountExpiry: userCredentials.accountExpiry,
-                authorities,
-                dbLocale: "",
-                uiLocale: "",
-                ...this.getUserAuditFields(input),
-            });
-        } catch (error) {
-            throw new Error(`Error processing user ${user.id}: ${(error as Error).message}`);
-        }
+        const userResult = User.createExisted({
+            id: user.id,
+            name: user.name,
+            firstName: user.firstName,
+            surname: user.surname,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            whatsApp: user.whatsApp,
+            facebookMessenger: user.facebookMessenger,
+            skype: user.skype,
+            telegram: user.telegram,
+            twitter: user.twitter,
+            lastUpdated: new Date(user.lastUpdated),
+            created: new Date(user.created),
+            userGroups: user.userGroups,
+            username: userCredentials.username,
+            apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
+            userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
+            lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
+            status: userCredentials.disabled ? "Disabled" : "Active",
+            disabled: userCredentials.disabled,
+            organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
+            dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
+            searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
+            access: user.access,
+            openId: userCredentials.openId,
+            ldapId: userCredentials.ldapId,
+            externalAuth: userCredentials.externalAuth,
+            twoFactorEnabled: userCredentials.twoFA,
+            password: userCredentials.password,
+            accountExpiry: userCredentials.accountExpiry,
+            authorities,
+            dbLocale: "",
+            uiLocale: "",
+            ...this.getUserAuditFields(input),
+        });
+
+        return userResult.match({
+            success: user => {
+                return user;
+            },
+            error: errors => {
+                throw new Error(`Error processing user ${user.id}: ${validationErrorsToString(errors)}`);
+            },
+        });
     }
 
     private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {

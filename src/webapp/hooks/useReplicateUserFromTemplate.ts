@@ -3,7 +3,7 @@ import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { FormState } from "final-form";
 import _ from "lodash";
 
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { useAppContext } from "../contexts/app-context";
 import { Id } from "../../domain/entities/Ref";
 import { User } from "../../domain/entities/User";
@@ -13,6 +13,7 @@ import {
     ReplicateTemplateProps,
     ReplicateTemplateValidationError,
 } from "../../domain/entities/ReplicateTemplate";
+import { Password } from "../../domain/value-objects/Password";
 
 export interface UseReplicateUserFromTemplateReturn {
     userToReplicate: User | undefined;
@@ -44,7 +45,7 @@ export const useReplicateUserFromTemplate = (
     const snackbar = useSnackbar();
 
     const randomPasswordBase = React.useMemo(() => {
-        return User.generateRandomPassword();
+        return Password.generate().value;
     }, []);
 
     const initialValues = React.useMemo(() => {
@@ -76,7 +77,7 @@ export const useReplicateUserFromTemplate = (
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
                     try {
-                        setUserToReplicate(User.createNewUser(user));
+                        setUserToReplicate(User.createExisted(user).getOrThrow());
                     } catch (error) {
                         loading.show(false);
                         handleUsersError(`User has invalid properties: ${(error as Error).message}`);
@@ -151,6 +152,7 @@ export const useReplicateUserFromTemplate = (
                             i18n.t("Error replicating user {{user}}: {{message}}", {
                                 user: userToReplicate.username,
                                 message: error,
+                                nsSeparator: false,
                             })
                         );
                     }
@@ -160,7 +162,8 @@ export const useReplicateUserFromTemplate = (
                     loading.hide();
                     snackbar.error(
                         i18n.t("Error in template: {{message}}", {
-                            message: (error as Error).message,
+                            message: error.message,
+                            nsSeparator: false,
                         })
                     );
                 } else {
@@ -168,7 +171,8 @@ export const useReplicateUserFromTemplate = (
                     snackbar.error(
                         i18n.t("Error replicating user {{user}}: {{message}}", {
                             user: userToReplicate.username,
-                            message: error,
+                            message: String(error),
+                            nsSeparator: false,
                         })
                     );
                 }
