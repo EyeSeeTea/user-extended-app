@@ -8,11 +8,11 @@ import { useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
 import i18n from "../../../utils/i18n";
-import { generateUid } from "../../../utils/uid";
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { UserEditWizard } from "../../components/user-edit-wizard/UserEditWizard";
 import { useAppContext } from "../../contexts/app-context";
 import { useGoBack } from "../../hooks/useGoBack";
+import { generateUid } from "../../../utils/uid";
 
 export interface UserEditPageParams {
     id?: string;

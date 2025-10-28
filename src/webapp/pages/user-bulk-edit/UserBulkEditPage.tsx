@@ -12,7 +12,6 @@ import { VariableSizeGrid as Grid } from "react-window";
 import styled from "styled-components";
 import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
 import i18n from "../../../utils/i18n";
-import { generateUid } from "../../../utils/uid";
 import { ColumnSelectorDialog } from "../../components/column-selector-dialog/ColumnSelectorDialog";
 import { ImportSummary } from "../../components/import-summary/ImportSummary";
 import { PageHeader } from "../../components/page-header/PageHeader";
@@ -64,7 +63,6 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
     const addRow = useCallback(() => {
         const newUser = {
             ...defaultUserProps,
-            id: generateUid(),
             username: "",
             password: `District123$`,
         };

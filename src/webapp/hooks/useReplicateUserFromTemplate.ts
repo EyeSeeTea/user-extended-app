@@ -14,6 +14,7 @@ import {
     ReplicateTemplateValidationError,
 } from "../../domain/entities/ReplicateTemplate";
 import { useAppSettings } from "./useAppSettings";
+import { Password } from "../../domain/value-objects/Password";
 
 export interface UseReplicateUserFromTemplateReturn {
     userToReplicate: User | undefined;
@@ -46,7 +47,7 @@ export const useReplicateUserFromTemplate = (
     const snackbar = useSnackbar();
 
     const randomPasswordBase = React.useMemo(() => {
-        return User.generateRandomPassword();
+        return Password.generate().value;
     }, []);
 
     const initialValues = React.useMemo(() => {
@@ -82,7 +83,7 @@ export const useReplicateUserFromTemplate = (
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
                     try {
-                        setUserToReplicate(User.createNewUser(user));
+                        setUserToReplicate(User.createExisted(user).getOrThrow());
                     } catch (error) {
                         loading.show(false);
                         handleUsersError(`User has invalid properties: ${(error as Error).message}`);

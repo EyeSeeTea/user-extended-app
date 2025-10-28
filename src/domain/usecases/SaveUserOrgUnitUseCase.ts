@@ -23,7 +23,7 @@ export class SaveUserOrgUnitUseCase {
         return options.users.map(user => {
             const orgUnits = this.getOrgUnits(options, this.getOrgUnitFromType(user, options));
             const userOrgUnits = this.buildUserWithOrgUnits(options.orgUnitType, orgUnits);
-            return User.createNewUser({ ...user, ...userOrgUnits });
+            return user.update({ ...userOrgUnits }).getOrThrow();
         });
     }
 

@@ -4,7 +4,6 @@ import { FontIcon, RaisedButton } from "material-ui";
 import React, { useState, useEffect, useCallback, ComponentType } from "react";
 
 import InfoDialog from "../../../legacy/components/InfoDialog";
-import { generateUid } from "../../../utils/uid";
 import i18n from "../../../utils/i18n";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import {
@@ -39,7 +38,10 @@ import { useGetAllUserIdentifiers } from "../../hooks/userHooks";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportUser } from "../../../domain/entities/ImportUser";
-import { User } from "../../../domain/entities/User";
+import { Username } from "../../../domain/value-objects/Username";
+import { Password } from "../../../domain/value-objects/Password";
+import { Email } from "../../../domain/value-objects/Email";
+import { validateRequired } from "../../../domain/utils/validations";
 import { UserIdentifier } from "../../../domain/entities/UserIdentifier";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
@@ -119,7 +121,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
     const [areUsersValid, setAreUsersValid] = React.useState(false);
 
     const randomPassword = React.useMemo(() => {
-        return User.generateRandomPassword();
+        return Password.generate().value;
     }, []);
 
     const { compositionRoot } = useAppContext();
@@ -236,7 +238,6 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         (currentUsers: UserProps[]) => {
             const newUser: UserProps = {
                 ...defaultUserProps,
-                id: generateUid(),
                 username: "",
                 password: randomPassword,
                 userRoles: [],
@@ -257,7 +258,6 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                     ...templateUser,
                     username: makeUsername(index),
                     password: randomPassword,
-                    id: generateUid(),
                 };
                 setUsers(currentUsers.concat(newUser));
             }
@@ -609,10 +609,14 @@ const useValidations = (
                     if (isExistingUser) {
                         return i18n.t("User already exists");
                     }
-                    const usernameValidationError = User.validateUsername(value);
-                    if (usernameValidationError) {
-                        return i18n.t(usernameValidationError);
+
+                    const usernameResult = Username.create(value);
+
+                    if (usernameResult.isError()) {
+                        const error = usernameResult.value.error[0] || "";
+                        return i18n.t(error);
                     }
+
                     return undefined;
                 },
             };
@@ -620,9 +624,13 @@ const useValidations = (
         case "email":
             return {
                 validation: (value: string) => {
-                    const emailValidationError = User.validateEmail(value);
-                    if (emailValidationError) {
-                        return i18n.t(emailValidationError);
+                    if (value) {
+                        const emailResult = Email.create(value);
+
+                        if (emailResult.isError()) {
+                            const error = emailResult.value.error[0] || "";
+                            return i18n.t(error);
+                        }
                     }
                     return undefined;
                 },
@@ -630,10 +638,13 @@ const useValidations = (
         case "password":
             return {
                 validation: (value: string) => {
-                    const passwordValidationError = User.validatePassword(value, isExistingUser && !value);
-                    if (passwordValidationError) {
-                        return i18n.t(passwordValidationError);
+                    const passwordResult = Password.create(value, isExistingUser);
+
+                    if (passwordResult.isError()) {
+                        const error = passwordResult.value.error[0] || "";
+                        return i18n.t(error);
                     }
+
                     return undefined;
                 },
             };
@@ -645,7 +656,10 @@ const useValidations = (
                 validation: (value: string[]) => {
                     // Make the field name singular for the error message
                     const fieldName = field.slice(0, -1);
-                    const arrayFieldValidationResult = User.validateRequiredArrayField(value, fieldName);
+                    const arrayFieldValidationResult = validateRequired(
+                        value,
+                        `Please select at least one ${fieldName}`
+                    );
                     if (arrayFieldValidationResult) {
                         return i18n.t(arrayFieldValidationResult);
                     }
@@ -656,7 +670,7 @@ const useValidations = (
         case "surname":
             return {
                 validation: (value: string) => {
-                    const fieldValidationError = User.validateRequiredStringField(value, field);
+                    const fieldValidationError = validateRequired(value, `${field} is required`);
                     if (fieldValidationError) {
                         return i18n.t(fieldValidationError);
                     }

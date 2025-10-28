@@ -3,9 +3,10 @@ import { Future, FutureData } from "../entities/Future";
 import { UserProps, defaultUserProps } from "../entities/UserProps";
 import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
-import { generateUid } from "../../utils/uid";
 import i18n from "../../utils/i18n";
 import { User } from "../entities/User";
+import { getLanguage } from "../utils/getLanguage";
+import { isUniqueOpenId } from "../utils/isUniqueOpenId";
 import { IMPORT_USERS_CHUNK_SIZE } from "../utils/limits";
 
 const columnNameFromPropertyMapping = {
@@ -34,15 +35,11 @@ export class ImportUsersUseCase implements UseCase {
 
     public execute({ users }: ImportUsersUseCaseOptions): FutureData<void> {
         // Global validations before chunking to avoid repeated checks and silent drops
-        if (!User.validateUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
+        if (!isUniqueOpenId(users)) return Future.error(i18n.t("Open IDs must be unique"));
 
         const usernames = users.map(u => u.username);
         const hasDuplicatedUsernames = _.uniq(usernames).length !== usernames.length;
         if (hasDuplicatedUsernames) return Future.error(i18n.t("Usernames must be unique"));
-
-        const hasRequiredFields = User.validateHasRequiredFields(users);
-        if (!hasRequiredFields)
-            return Future.error("All users must have at least one Organisation Unit, Role and Group");
 
         return this.userRepository
             .getCurrent()
@@ -80,25 +77,24 @@ export class ImportUsersUseCase implements UseCase {
             const dbUser = user.username ? usersFromDBMap[user.username] : undefined;
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
-                return User.createNewUser({
+                return User.createNew({
                     ...dbUser,
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
                     lastModifiedBy: { id, username },
-                    dbLocale: User.setDefaultLanguage(dbUser.dbLocale),
-                    uiLocale: User.setDefaultLanguage(dbUser.uiLocale),
-                });
+                    dbLocale: dbUser.dbLocale,
+                    uiLocale: dbUser.uiLocale,
+                }).getOrThrow();
             }
-            return User.createNewUser({
+            return User.createNew({
                 ...defaultUserProps,
                 ...user,
-                id: generateUid(),
                 name: `${user.firstName} ${user.surname}`,
                 createdBy: { id, username },
                 lastModifiedBy: { id, username },
-                dbLocale: User.setDefaultLanguage(user.dbLocale),
-                uiLocale: User.setDefaultLanguage(user.uiLocale),
-            });
+                dbLocale: getLanguage(user.dbLocale),
+                uiLocale: getLanguage(user.uiLocale),
+            }).getOrThrow();
         });
     }
 

@@ -102,7 +102,7 @@ function givenUsersToExport(): void {
                 hideUsers: [],
             })
         )
-    ).thenReturn(Future.success(users.map(u => User.createNewUser(u))));
+    ).thenReturn(Future.success(users.map(u => User.createExisted(u).getOrThrow())));
 }
 
 /**
