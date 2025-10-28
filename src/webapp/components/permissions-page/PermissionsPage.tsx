@@ -42,7 +42,13 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                     </Button>
                 </DialogActions>
             </div>
-            <Box display="flex" flexDirection="column" flexWrap="wrap" paddingX={theme.spacing(0.25)}>
+            <Box
+                display="flex"
+                flexDirection="column"
+                flexWrap="wrap"
+                paddingX={theme.spacing(0.25)}
+                maxWidth="calc(85% - 1em)"
+            >
                 <FormControlLabel
                     control={
                         <Switch
