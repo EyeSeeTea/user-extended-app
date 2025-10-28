@@ -731,11 +731,11 @@ function generateColumnsFromSettings(options: {
 
 function hideUserRolesAndUserGroups(userRolesToHide: Id[], userGroupsToHide: Id[]): (user: User) => User {
     return (user: User) =>
-        User.createUser({
+        User.createNew({
             ...user,
             userRoles: user.userRoles.filter(role => !userRolesToHide.includes(role.id)),
             userGroups: user.userGroups.filter(group => !userGroupsToHide.includes(group.id)),
-        });
+        }).getOrThrow();
 }
 
 export type UserActionName =

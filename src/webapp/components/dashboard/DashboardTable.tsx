@@ -11,6 +11,7 @@ import { Dashboard } from "../../../domain/entities/Dashboard";
 import { GetDashboardOptions } from "../../../domain/repositories/DashboardRepository";
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
+import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { FilteredUser, UsersFilters } from "../users-filter/UsersFilters";
 
 type DashboardTableProps = {};
@@ -37,6 +38,7 @@ function generateTableConfig(): TableConfig<Dashboard> {
                 name: "users",
                 text: i18n.t("Users"),
                 sortable: false,
+                getValue: dashboard => buildEllipsizedList(dashboard.users),
             },
         ],
         initialSorting: { field: "name", order: "asc" },

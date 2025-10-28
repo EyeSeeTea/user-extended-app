@@ -7,6 +7,7 @@ import { DashboardRepository, GetDashboardOptions } from "../../domain/repositor
 import { apiToFuture } from "../../utils/futures";
 import { NamedRef } from "@eyeseetea/d2-logger/domain/entities/Base";
 import { Id } from "../../domain/entities/Ref";
+import { not } from "rxjs/internal-compatibility";
 
 export class DashboardD2Repository implements DashboardRepository {
     constructor(private api: D2Api) {}
@@ -100,30 +101,53 @@ export class DashboardD2Repository implements DashboardRepository {
 
             const sharedUserGroups = Object.values(d2Dashboard.sharing.userGroups).map(ug => ug.id);
 
-            const usersFromUserGroups = userGroups
-                .filter(userGroup => sharedUserGroups.includes(userGroup.id))
-                .map(userGroup =>
-                    userGroup.users.map(user => ({
-                        id: user.id,
-                        displayName: user.displayName
-                            ? `${user.displayName} (${userGroup.displayName})`
-                            : notAvailableLabel,
-                    }))
-                )
-                .flat();
+            const users = this.buildUsersFromDashboardAndGroups(
+                Object.values(d2Dashboard.sharing.users),
+                userGroups.filter(ug => sharedUserGroups.includes(ug.id))
+            );
 
             return Dashboard.create({
                 id: d2Dashboard.id,
                 name: d2Dashboard.displayName,
                 description: d2Dashboard.displayDescription,
                 owner: { id: ownerUser?.id ?? notAvailableLabel, name: ownerUser?.name ?? notAvailableLabel },
-                users: [...Object.values(d2Dashboard.sharing.users), ...usersFromUserGroups]
+                users: _(users)
                     .filter(user => !userIdsToExclude.includes(user.id))
-                    .map(user => ({
-                        id: user.id,
-                        name: user.displayName ?? notAvailableLabel,
-                    })),
+                    .map(user => ({ id: user.id, name: user.name }))
+                    .sortBy(user => user.name)
+                    .value(),
             });
+        });
+    }
+
+    private buildUsersFromDashboardAndGroups(
+        users: Array<{ id: Id; displayName?: string }>,
+        userGroups: D2ApiUserGroup[]
+    ): Dashboard["users"] {
+        const notAvailableLabel = " - ";
+
+        const usersInGroups = userGroups.flatMap(group =>
+            group.users.map(user => ({ ...user, groups: [group.displayName] }))
+        );
+
+        const usersInDashboard = users.map(user => ({ ...user, groups: [] }));
+
+        const allUsers = [...usersInDashboard, ...usersInGroups];
+
+        const groupedById = _(allUsers)
+            .groupBy(user => user.id)
+            .value();
+
+        return Object.values(groupedById).map(userEntries => {
+            const base = userEntries[0];
+            const groupNames = _.uniq(userEntries.flatMap(u => u.groups ?? []));
+
+            const userNameToDisplay = base.displayName ? base.displayName : notAvailableLabel;
+
+            const displayName =
+                groupNames.length > 0 ? `${userNameToDisplay} (${groupNames.join(", ")})` : userNameToDisplay;
+
+            return { id: base.id, name: displayName };
         });
     }
 }
