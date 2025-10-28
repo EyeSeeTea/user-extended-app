@@ -114,19 +114,19 @@ export default class SettingsDialog extends React.Component {
 
         return (
             <div style={{ padding: 10, margin: 10 }}>
+                <section style={{ display: "flex", gap: "1em", justifyContent: "flex-end" }}>
+                    <Button variant="contained" color="primary" disabled={!saveIsEnabled} onClick={this.save}>
+                        {i18n.t("Save")}
+                    </Button>
+                    <Button onClick={this.cancel}>{i18n.t("Close")}</Button>
+                </section>
+
                 <FormBuilder
                     validateOnRender={false}
                     fields={this.getFields("importExport")}
                     onUpdateFormStatus={status => _.defer(this.onUpdateFormStatus, "importExport", status)}
                     onUpdateField={this.onUpdateField}
                 />
-
-                <section style={{ display: "flex", gap: "1em" }}>
-                    <Button variant="contained" color="primary" disabled={!saveIsEnabled} onClick={this.save}>
-                        {i18n.t("Save")}
-                    </Button>
-                    <Button onClick={this.cancel}>{i18n.t("Close")}</Button>
-                </section>
             </div>
         );
     }
