@@ -7,7 +7,6 @@ import { DashboardRepository, GetDashboardOptions } from "../../domain/repositor
 import { apiToFuture } from "../../utils/futures";
 import { NamedRef } from "@eyeseetea/d2-logger/domain/entities/Base";
 import { Id } from "../../domain/entities/Ref";
-import { not } from "rxjs/internal-compatibility";
 
 export class DashboardD2Repository implements DashboardRepository {
     constructor(private api: D2Api) {}
@@ -94,8 +93,6 @@ export class DashboardD2Repository implements DashboardRepository {
         userGroups: D2ApiUserGroup[],
         userIdsToExclude: Id[]
     ): Dashboard[] {
-        const notAvailableLabel = " - ";
-
         return d2Dashboards.map(d2Dashboard => {
             const ownerUser = usersOwners.find(user => user.id === d2Dashboard.sharing.owner);
 
@@ -124,13 +121,11 @@ export class DashboardD2Repository implements DashboardRepository {
         users: Array<{ id: Id; displayName?: string }>,
         userGroups: D2ApiUserGroup[]
     ): Dashboard["users"] {
-        const notAvailableLabel = " - ";
-
         const usersInGroups = userGroups.flatMap(group =>
-            group.users.map(user => ({ ...user, groups: [group.displayName] }))
+            group.users.map(user => ({ ...user, groupNames: [group.displayName] }))
         );
 
-        const usersInDashboard = users.map(user => ({ ...user, groups: [] }));
+        const usersInDashboard = users.map(user => ({ ...user, groupNames: [] }));
 
         const allUsers = [...usersInDashboard, ...usersInGroups];
 
@@ -140,7 +135,7 @@ export class DashboardD2Repository implements DashboardRepository {
 
         return Object.values(groupedById).map(userEntries => {
             const base = userEntries[0];
-            const groupNames = _.uniq(userEntries.flatMap(u => u.groups ?? []));
+            const groupNames = _.uniq(userEntries.flatMap(u => u.groupNames));
 
             const userNameToDisplay = base.displayName ? base.displayName : notAvailableLabel;
 
@@ -168,3 +163,5 @@ type D2ApiUserGroup = {
     displayName: string;
     users: Array<{ id: Id; displayName?: string }>;
 };
+
+const notAvailableLabel = " - ";
