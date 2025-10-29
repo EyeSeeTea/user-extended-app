@@ -34,7 +34,7 @@ function generateTableConfig(): TableConfig<UserGroup> {
             },
         ],
         initialSorting: { field: "name", order: "asc" },
-        paginationOptions: { pageSizeInitialValue: 10, pageSizeOptions: [10, 25, 50] },
+        paginationOptions: { pageSizeInitialValue: 25, pageSizeOptions: [10, 25, 50] },
     };
 }
 
