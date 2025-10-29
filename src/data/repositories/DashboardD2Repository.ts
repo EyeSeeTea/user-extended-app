@@ -26,7 +26,13 @@ export class DashboardD2Repository implements DashboardRepository {
                 userGroups: userGroupsIds.length > 0 ? this.getUserGroupsByIds(userGroupsIds) : Future.success([]),
             }).map(({ usersOwners, userGroups }) => {
                 return {
-                    objects: this.buildDashboards(dashboards, usersOwners, userGroups, options.hideUsers ?? []),
+                    objects: this.buildDashboards(
+                        dashboards,
+                        usersOwners,
+                        userGroups,
+                        options.hideUsers ?? [],
+                        options.hideGroups ?? []
+                    ),
                     pager: response.pager,
                 };
             });
@@ -91,12 +97,15 @@ export class DashboardD2Repository implements DashboardRepository {
         d2Dashboards: D2ApiDashboard[],
         usersOwners: NamedRef[],
         userGroups: D2ApiUserGroup[],
-        userIdsToExclude: Id[]
+        userIdsToExclude: Id[],
+        groupIdsToExclude: Id[]
     ): Dashboard[] {
         return d2Dashboards.map(d2Dashboard => {
             const ownerUser = usersOwners.find(user => user.id === d2Dashboard.sharing.owner);
 
-            const sharedUserGroups = Object.values(d2Dashboard.sharing.userGroups).map(ug => ug.id);
+            const sharedUserGroups = Object.values(d2Dashboard.sharing.userGroups)
+                .filter(ug => !groupIdsToExclude.includes(ug.id))
+                .map(ug => ug.id);
 
             const users = this.buildUsersFromDashboardAndGroups(
                 Object.values(d2Dashboard.sharing.users),

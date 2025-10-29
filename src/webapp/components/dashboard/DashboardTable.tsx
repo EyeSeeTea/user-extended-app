@@ -68,6 +68,7 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
                     filters: { ownerUsersIds: filters.ownerUsersIds },
                     sorting: { field: sorting.field, order: sorting.order },
                     hideUsers: undefined,
+                    hideGroups: undefined,
                     user: currentUser,
                 })
                 .toPromise();

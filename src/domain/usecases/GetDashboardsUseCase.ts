@@ -13,7 +13,11 @@ export class GetDashboardsUseCase {
 
     execute(options: GetDashboardOptions): FutureData<PaginatedResponse<Dashboard>> {
         return getAppSettings(this.appSettingsRepository, options.user).flatMap(appSettings => {
-            return this.dashboardRepository.get({ ...options, hideUsers: appSettings.hide.users });
+            return this.dashboardRepository.get({
+                ...options,
+                hideUsers: appSettings.hide.users,
+                hideGroups: appSettings.hide.userGroups,
+            });
         });
     }
 }

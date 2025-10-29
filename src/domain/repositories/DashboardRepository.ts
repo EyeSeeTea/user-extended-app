@@ -12,5 +12,6 @@ export interface DashboardRepository {
 export type GetDashboardOptions = CommonFilterParams & {
     filters: { ownerUsersIds?: Id[] };
     hideUsers: Maybe<Id[]>;
+    hideGroups: Maybe<Id[]>;
     user: UserProps;
 };
