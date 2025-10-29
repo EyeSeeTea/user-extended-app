@@ -1,11 +1,5 @@
 import { Either } from "../entities/Either";
-import {
-    validateLengthMax,
-    validateLengthMin,
-    validateNotRegexp,
-    validateRegexp,
-    validateRequired,
-} from "../utils/validations";
+import { validateLengthMax, validateLengthMin, validateNotRegexp, validateRequired } from "../utils/validations";
 import { ValueObject } from "./ValueObject";
 
 export interface UsernameProps {
