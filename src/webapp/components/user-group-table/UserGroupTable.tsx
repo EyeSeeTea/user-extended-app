@@ -8,7 +8,7 @@ import { Pager } from "../../../domain/entities/PaginatedResponse";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { UserGroup } from "../../../domain/entities/UserGroup";
 import { Id } from "../../../domain/entities/Ref";
-import { FilteredUser, UsersFilters } from "../users-filter/UsersFilters";
+import { UsersFilters, UsersFiltersProps } from "../users-filter/UsersFilters";
 import ExportIcon from "@material-ui/icons/ArrowDownward";
 import { PopoverList } from "../popover-list/PopoverList";
 import { getFilename } from "../../utils/file";
@@ -40,6 +40,7 @@ function generateTableConfig(): TableConfig<UserGroup> {
 
 export const UserGroupTable: React.FC<{}> = React.memo(() => {
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
+    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
     const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
 
@@ -75,7 +76,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                     pageSize: pageSize,
                     search: search,
                     sorting: { field: sorting.field, order: sorting.order },
-                    excludeUsersOutsideOrgUnits: true,
+                    excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
                     usersIds: selectedUsersIds,
                     hideUsers: undefined,
                     hideGroups: undefined,
@@ -83,13 +84,14 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                 })
                 .toPromise();
         },
-        [compositionRoot.userGroups, selectedUsersIds, currentUser]
+        [compositionRoot.userGroups, selectedUsersIds, currentUser, excludeUsersOrgUnit]
     );
 
     const tableProps = useObjectsTable(config, getRows);
 
-    const updateFilters = React.useCallback((filters: { users: FilteredUser[] }) => {
+    const updateFilters = React.useCallback<UsersFiltersProps["onFilterChange"]>(filters => {
         setSelectedUsersIds(filters.users.length > 0 ? filters.users.map(user => user.value) : undefined);
+        setExcludeUsersOrgUnit(filters.excludeOutsideOrgUnit);
     }, []);
 
     const exportRecords = React.useCallback(
@@ -127,7 +129,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
 
     return (
         <ObjectsList {...tableProps}>
-            <UsersFilters onFilterChange={updateFilters} />
+            <UsersFilters onFilterChange={updateFilters} showFilterModal showUsersModal />
             <div className={classes.popoverContainer}>
                 <PopoverList title={i18n.t("Actions")} items={items} onItemClick={exportRecords} />
             </div>

@@ -5,6 +5,7 @@ import { ObjectsList, TableConfig, TablePagination, TableSorting, useObjectsTabl
 import { useAppContext } from "../../contexts/app-context";
 import { Pager } from "../../../domain/entities/PaginatedResponse";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
+import { UsersFilters, UsersFiltersProps } from "../users-filter/UsersFilters";
 
 function generateTableConfig(): TableConfig<UserRole> {
     return {
@@ -33,6 +34,7 @@ function generateTableConfig(): TableConfig<UserRole> {
 
 export const UserRoleTable: React.FC<{}> = React.memo(() => {
     const { compositionRoot, currentUser } = useAppContext();
+    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
 
     const config = React.useMemo(() => {
         return generateTableConfig();
@@ -50,15 +52,23 @@ export const UserRoleTable: React.FC<{}> = React.memo(() => {
                     pageSize: pageSize,
                     search: search,
                     sorting: { field: sorting.field, order: sorting.order },
-                    excludeUsersOutsideOrgUnits: true,
+                    excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
                     user: currentUser,
                 })
                 .toPromise();
         },
-        [compositionRoot.userRoles, currentUser]
+        [compositionRoot.userRoles, currentUser, excludeUsersOrgUnit]
     );
 
     const tableProps = useObjectsTable(config, getRows);
 
-    return <ObjectsList {...tableProps}></ObjectsList>;
+    const updateFilters = React.useCallback<UsersFiltersProps["onFilterChange"]>(filters => {
+        setExcludeUsersOrgUnit(filters.excludeOutsideOrgUnit);
+    }, []);
+
+    return (
+        <ObjectsList {...tableProps}>
+            <UsersFilters onFilterChange={updateFilters} showFilterModal />
+        </ObjectsList>
+    );
 });

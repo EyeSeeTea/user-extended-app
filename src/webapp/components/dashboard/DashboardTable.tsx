@@ -84,7 +84,7 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
 
     return (
         <ObjectsList {...tableProps}>
-            <UsersFilters onFilterChange={updateFilters} />
+            <UsersFilters showUsersModal onFilterChange={updateFilters} />
         </ObjectsList>
     );
 });
