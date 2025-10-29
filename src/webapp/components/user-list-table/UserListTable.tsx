@@ -20,18 +20,18 @@ import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
 import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
-import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
+import { isSuperAdmin } from "../../../domain/entities/UserProps";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
 import {
+    useColumnsPreferences,
     useCopyInUser,
     useGetAllUsers,
     useGetUsersByIds,
     useSaveUsersOrgUnits,
-    useVisibleColumns,
 } from "../../hooks/userHooks";
 import { MultiSelectorDialog, MultiSelectorDialogProps } from "../multi-selector-dialog/MultiSelectorDialog";
 import { OrgUnitDialogSelector } from "../orgunit-dialog-selector/OrgUnitDialogSelector";
@@ -57,6 +57,7 @@ import { UsersSetPasswordModal } from "../users-selected-modal/UsersSetPasswordM
 import { useUserColumns } from "./userColumns";
 import { getUserActionLabel } from "./userListTableHelpers";
 import { useActionsAccessibleToCurrentUser } from "./useActionsAccessibleToCurrentUser";
+import { Column } from "../../../domain/entities/UserColumn";
 
 function convertActionToOrgUnitType(action: OrgUnitActionType): SaveUserOrgUnitOptions["orgUnitType"] {
     switch (action) {
@@ -147,7 +148,12 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         showOnlyActiveUsers: onlyActiveUsers,
         hide: { users: hideUsers },
     } = appSettings;
-    const { visibleColumns } = useVisibleColumns({ appSettings, onChangeVisibleColumns });
+    const { columnsPreferences } = useColumnsPreferences({
+        columnsKey,
+        appSettings,
+        user: currentUser,
+        onChangeVisibleColumns,
+    });
 
     const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess);
 
@@ -187,15 +193,33 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const onReorderColumns = useCallback(
         (columns: ColumnMappingKeys[]) => {
-            if (!visibleColumns || !columns.length) return;
-            onChangeVisibleColumns(columns);
+            if (!columnsPreferences || !columns.length) return;
+
+            const indexes = _(columns)
+                .map((columnName, idx) => [columnName, idx] as [string, number])
+                .fromPairs()
+                .value();
+
+            const columnsToSave = columnsPreferences.map(col => {
+                // TODO: improve types to use the same one from entity UserColumn
+                // @ts-expect-error
+                const isVisible = columns.includes(col.fieldName);
+                return Column.build({
+                    fieldName: col.fieldName,
+                    state: isVisible ? "selected" : "unselected",
+                    position: isVisible ? indexes[col.fieldName] ?? 0 : -1,
+                }).getOrThrow();
+            });
+
+            onChangeVisibleColumns(columnsToSave.map(col => col.fieldName));
             setMappingColumns(columns);
-            compositionRoot.users.saveColumns(columns).run(
+
+            compositionRoot.users.saveColumns(columnsToSave).run(
                 () => {},
                 error => snackbar.error(error)
             );
         },
-        [compositionRoot, visibleColumns, onChangeVisibleColumns, snackbar]
+        [compositionRoot, columnsPreferences, onChangeVisibleColumns, snackbar]
     );
 
     //TODO: start moving to useHook
@@ -368,9 +392,20 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     }, [compositionRoot, appSettings, snackbar, onChangeVisibleColumns, reloadColumns]);
 
     const columnsTable = React.useMemo(() => {
-        console.debug(columnsKey);
-        return generateColumnsFromSettings({ appSettings, columns: userColumns, user: currentUser });
-    }, [appSettings, userColumns, currentUser, columnsKey]);
+        return _(columnsPreferences)
+            .map((columnPreference): Maybe<TableColumn<User>> => {
+                const columnDefinition = userColumns.find(col => col.name === columnPreference.fieldName);
+                if (!columnDefinition) return undefined;
+
+                return {
+                    ...columnDefinition,
+                    disabled: isSuperAdmin(currentUser) ? false : columnPreference.state === "selected-disabled",
+                    hidden: columnPreference.state === "unselected",
+                };
+            })
+            .compact()
+            .value();
+    }, [columnsPreferences, userColumns, currentUser]);
 
     const baseConfig = useMemo((): TableConfig<User> => {
         return {
@@ -529,18 +564,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
 
-    const columnsToShow = useMemo<TableColumn<User>[]>(() => {
-        const indexes = _(visibleColumns)
-            .map((columnName, idx) => [columnName, idx] as [string, number])
-            .fromPairs()
-            .value();
-
-        return _(tableProps.columns)
-            .map(column => ({ ...column, hidden: !visibleColumns?.includes(column.name) }))
-            .sortBy(column => indexes[column.name] || 0)
-            .value();
-    }, [tableProps.columns, visibleColumns]);
-
     const onSuccessUsersAction = () => {
         onCleanSelectedUsers();
         reload();
@@ -674,7 +697,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             )}
 
             <PatchPaginationTableWrapper pagination={tableProps.pagination}>
-                <ObjectsList<User> {...tableProps} columns={columnsToShow}>
+                <ObjectsList<User> {...tableProps}>
                     {children}
                     <div className="user-management-control pagination" style={{ order: 11 }}>
                         {importSettings && mappingColumns && (
@@ -704,30 +727,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         </React.Fragment>
     );
 };
-
-function generateColumnsFromSettings(options: {
-    appSettings: Maybe<AppSettings>;
-    columns: TableColumn<User>[];
-    user: UserProps;
-}): TableColumn<User>[] {
-    const { appSettings, columns, user } = options;
-
-    if (isSuperAdmin(user)) return columns;
-
-    return _(columns)
-        .map(column => {
-            const currentColumn = appSettings?.columns.find(c => c.field === column.name);
-            if (currentColumn?.value === "disabled") return undefined;
-
-            return {
-                ...column,
-                hidden: currentColumn?.value === "mandatory" || currentColumn?.value === "visible" ? false : true,
-                disabled: currentColumn?.value === "mandatory",
-            };
-        })
-        .compact()
-        .value();
-}
 
 function hideUserRolesAndUserGroups(userRolesToHide: Id[], userGroupsToHide: Id[]): (user: User) => User {
     return (user: User) =>

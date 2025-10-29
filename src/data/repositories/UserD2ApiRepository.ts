@@ -560,9 +560,9 @@ export class UserD2ApiRepository implements UserRepository {
             Namespaces.VISIBLE_COLUMNS,
             defaultColumns
         );
-        return $request.flatMap(columns => {
+        return $request.map(columns => {
             const result = columns.length ? columns : defaultColumns;
-            return Future.success(result);
+            return result;
         });
     }
 
@@ -843,7 +843,7 @@ const fields = {
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
 export type ApiUserWithAudit = ApiUser & { userCredentials: ApiUser["userCredentials"] & D2UserAudit } & D2UserAudit;
 
-const defaultColumns: Array<keyof User> = [
+export const defaultColumns: Array<keyof User> = [
     "username",
     "firstName",
     "surname",

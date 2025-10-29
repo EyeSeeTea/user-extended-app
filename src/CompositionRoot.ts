@@ -3,7 +3,6 @@ import { InstanceD2ApiRepository } from "./data/repositories/InstanceD2ApiReposi
 import { MetadataD2ApiRepository } from "./data/repositories/MetadataD2ApiRepository";
 import { UserD2ApiRepository } from "./data/repositories/UserD2ApiRepository";
 import { ExportUsersUseCase } from "./domain/usecases/ExportUsersUseCase";
-import { GetColumnsUseCase } from "./domain/usecases/GetColumnsUseCase";
 import { GetCurrentUserUseCase } from "./domain/usecases/GetCurrentUserUseCase";
 import { GetInstanceLocalesUseCase } from "./domain/usecases/GetInstanceLocalesUseCase";
 import { GetInstanceVersionUseCase } from "./domain/usecases/GetInstanceVersionUseCase";
@@ -14,7 +13,6 @@ import { ListUsersUseCase } from "./domain/usecases/ListUsersUseCase";
 import { ListAllUsersUseCase } from "./domain/usecases/ListAllUsersUseCase";
 import { ListAllUserIdentifiersUseCase } from "./domain/usecases/ListAllUserIdentifiersUseCase";
 import { RemoveUsersUseCase } from "./domain/usecases/RemoveUsersUseCase";
-import { SaveColumnsUseCase } from "./domain/usecases/SaveColumnsUseCase";
 import { SaveUserOrgUnitUseCase } from "./domain/usecases/SaveUserOrgUnitUseCase";
 import { SaveUserStatusUseCase } from "./domain/usecases/SaveUserStatusUseCase";
 import { SaveUsersUseCase } from "./domain/usecases/SaveUsersUseCase";
@@ -50,6 +48,9 @@ import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase
 import { VerifyPasswordUseCase } from "./domain/usecases/VerifyPasswordUseCase";
 import { ResetColumnsUserCase } from "./domain/usecases/ResetColumnsUserCase";
 import { ReplicateFromTemplateUseCase } from "./domain/usecases/ReplicateFromTemplateUseCase";
+import { GetColumnsPreferencesUseCase } from "./domain/usecases/GetColumnsPreferencesUseCase";
+import { UserColumnD2Repository } from "./data/repositories/UserColumnD2Repository";
+import { SaveColumnsPreferenceUseCase } from "./domain/usecases/SaveColumnsPreferenceUseCase";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -68,6 +69,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
     const dashboardRepository = new DashboardD2Repository(api);
     const orgUnitRepository = new OrgUnitD2Repository(api);
     const userSimpleRepository = new UserSimpleD2Repository(api);
+    const userColumnRepository = new UserColumnD2Repository(instance);
 
     return {
         logger: {
@@ -88,8 +90,8 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             save: new SaveUsersUseCase(userRepository),
             saveStatus: new SaveUserStatusUseCase(userRepository),
             updateProp: new UpdateUserPropUseCase(userRepository),
-            getColumns: new GetColumnsUseCase(userRepository),
-            saveColumns: new SaveColumnsUseCase(userRepository),
+            getColumns: new GetColumnsPreferencesUseCase(userColumnRepository, appSettingsRepository),
+            saveColumns: new SaveColumnsPreferenceUseCase(userColumnRepository),
             remove: new RemoveUsersUseCase(userRepository),
             saveOrgUnits: new SaveUserOrgUnitUseCase(userRepository),
             export: new ExportUsersUseCase(userRepository),
@@ -104,7 +106,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
                 appSettingsRepository
             ),
             getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository, appSettingsRepository),
-            resetColumns: new ResetColumnsUserCase(userRepository),
+            resetColumns: new ResetColumnsUserCase(userColumnRepository),
             replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
         }),
         userGroups: getExecute({

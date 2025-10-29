@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Id } from "../../domain/entities/Ref";
@@ -14,6 +13,8 @@ import { OrgUnitKey } from "../../domain/entities/OrgUnit";
 import { AppSettings } from "../../domain/entities/AppSettings";
 import { Maybe } from "../../types/utils";
 import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
+import { Column } from "../../domain/entities/UserColumn";
+import { UserProps } from "../../domain/entities/UserProps";
 
 type UseSaveUsersOrgUnitsProps = { onSuccess: () => void };
 type UseExportUsersProps = {
@@ -27,7 +28,9 @@ type UseCopyInUserProps = { onSuccess: () => void };
 
 type UseVisibleColumnsProps = {
     appSettings: Maybe<AppSettings>;
+    user: UserProps;
     onChangeVisibleColumns: (columns: UserColumns[]) => void;
+    columnsKey: string;
 };
 
 export function useGetUsersByIds(ids: Id[]) {
@@ -218,46 +221,24 @@ export const useExportUsers = (props: UseExportUsersProps) => {
     };
 };
 
-export const useVisibleColumns = (props: UseVisibleColumnsProps) => {
-    const { appSettings, onChangeVisibleColumns } = props;
+export const useColumnsPreferences = (props: UseVisibleColumnsProps) => {
+    const { columnsKey, appSettings, user, onChangeVisibleColumns } = props;
 
-    const [visibleColumns, setVisibleColumns] = React.useState<UserColumns[]>();
+    const [columnsPreferences, setColumnsPreferences] = React.useState<Column[]>();
 
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
 
-    React.useEffect(
-        () =>
-            compositionRoot.users.getColumns().run(
-                columnsInUserDataStore => {
-                    const disableColumns = appSettings?.columns
-                        .filter(column => column.value === "disabled")
-                        .map(column => column.field);
+    React.useEffect(() => {
+        console.debug("Loading columns preferences for key:", columnsKey);
+        return compositionRoot.users.getColumns(user).run(
+            columnsPreferences => {
+                setColumnsPreferences(columnsPreferences);
+                onChangeVisibleColumns(columnsPreferences.map(col => col.fieldName));
+            },
+            error => snackbar.error(error)
+        );
+    }, [appSettings?.columns, compositionRoot, snackbar, user, onChangeVisibleColumns, columnsKey]);
 
-                    const visibleColumns = _(appSettings?.columns)
-                        .filter(column => column.value === "visible")
-                        .map(column => column.field)
-                        .value();
-
-                    const mandatoryColumns =
-                        appSettings?.columns
-                            .filter(column => column.value === "mandatory")
-                            .map(column => column.field) ?? [];
-
-                    const columnsWithoutDisabled = columnsInUserDataStore.filter(
-                        column => !disableColumns?.includes(column)
-                    );
-
-                    const visibleColumnsToShow = visibleColumns.concat(columnsWithoutDisabled);
-                    const allColumnsUser = mandatoryColumns.concat(visibleColumnsToShow ?? []);
-
-                    setVisibleColumns(allColumnsUser);
-                    onChangeVisibleColumns(allColumnsUser);
-                },
-                error => snackbar.error(error)
-            ),
-        [appSettings?.columns, compositionRoot, snackbar, onChangeVisibleColumns]
-    );
-
-    return { visibleColumns };
+    return { columnsPreferences };
 };

@@ -6,6 +6,7 @@ export type Namespace = typeof Namespaces[keyof typeof Namespaces];
 export const Namespaces = {
     VISIBLE_COLUMNS: "visible-columns",
     LOGGER: "LOGGER",
+    COLUMNS_PREFERENCE: "columns-preference",
 };
 
 export const NamespaceProperties: Record<Namespace, string[]> = {
