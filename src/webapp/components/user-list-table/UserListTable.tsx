@@ -731,7 +731,7 @@ function generateColumnsFromSettings(options: {
 
 function hideUserRolesAndUserGroups(userRolesToHide: Id[], userGroupsToHide: Id[]): (user: User) => User {
     return (user: User) =>
-        User.createNew({
+        User.createExisted({
             ...user,
             userRoles: user.userRoles.filter(role => !userRolesToHide.includes(role.id)),
             userGroups: user.userGroups.filter(group => !userGroupsToHide.includes(group.id)),

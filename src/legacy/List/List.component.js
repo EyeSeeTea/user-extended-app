@@ -26,6 +26,7 @@ const ListHybridWrapper = props => {
             isSuperAdmin={isSuperAdmin(currentUser)}
             onlyActiveUsers={appSettings.showOnlyActiveUsers}
             isSettingInactive={appSettings.status === "inactive"}
+            appSettings={appSettings}
         />
     );
 };
@@ -238,7 +239,7 @@ class ListHybrid extends React.Component {
 
     render() {
         const { replicateUser, listFilterOptions, onlyUsersOrgUnits } = this.state;
-        const { onlyActiveUsers, isSuperAdmin, isSettingInactive } = this.props;
+        const { appSettings, onlyActiveUsers, isSuperAdmin, isSettingInactive } = this.props;
 
         const areFiltersOverrided = isSuperAdmin ? false : onlyActiveUsers;
         const hideUsersCanManageFilter = onlyActiveUsers && onlyUsersOrgUnits;
@@ -271,6 +272,7 @@ class ListHybrid extends React.Component {
                                 onlyUsersOrgUnits={onlyUsersOrgUnits}
                                 setOnlyUsersOrgUnits={this._onOnlyUsersOrgUnitsChange}
                                 isSettingInactive={isSettingInactive}
+                                appSettings={appSettings}
                             />
                         </UserListTable>
                     </div>

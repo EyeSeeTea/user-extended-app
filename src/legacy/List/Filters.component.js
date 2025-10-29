@@ -30,6 +30,7 @@ export default class Filters extends React.Component {
         setOnlyUsersOrgUnits: PropTypes.func.isRequired,
         isSuperAdmin: PropTypes.bool,
         isSettingInactive: PropTypes.bool,
+        appSettings: PropTypes.object,
     };
 
     styles = {
@@ -121,17 +122,26 @@ export default class Filters extends React.Component {
     componentDidMount = () => {
         listActions.loadUserRoles.next();
         listActions.loadUserGroups.next();
+        const { isSuperAdmin, appSettings } = this.props;
         const toOptions = objs => objs.toArray().map(obj => ({ value: obj.id, text: obj.displayName }));
 
         this.registerDisposable(
             listStore.listRolesSubject.subscribe(userRoles => {
-                this.setState({ userRolesAll: toOptions(userRoles) });
+                const rolesToExclude = appSettings.hide.userRoles;
+                const userRolesToShow = isSuperAdmin
+                    ? toOptions(userRoles)
+                    : toOptions(userRoles).filter(userRole => !rolesToExclude.includes(userRole.value));
+                this.setState({ userRolesAll: userRolesToShow });
             })
         );
 
         this.registerDisposable(
             listStore.listGroupsSubject.subscribe(userGroups => {
-                this.setState({ userGroupsAll: toOptions(userGroups) });
+                const groupsToExclude = appSettings.hide.userGroups;
+                const userGroupsAll = isSuperAdmin
+                    ? toOptions(userGroups)
+                    : toOptions(userGroups).filter(userGroup => !groupsToExclude.includes(userGroup.value));
+                this.setState({ userGroupsAll: userGroupsAll });
             })
         );
     };

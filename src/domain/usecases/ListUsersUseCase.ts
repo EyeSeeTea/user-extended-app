@@ -43,6 +43,14 @@ export class ListUsersUseCase implements UseCase {
             .compact()
             .value();
 
+        if (otherFilters.length === 0) {
+            return this.userRepository.list({
+                ...options,
+                onlyActiveUsers: false,
+                hideUsers: appSettings.hide.users,
+            });
+        }
+
         const disabledFilter = options.filters ? options.filters["userCredentials.disabled"] : undefined;
 
         const baseFilters: Record<string, [ListFilterType, string[]]> = {
@@ -56,7 +64,7 @@ export class ListUsersUseCase implements UseCase {
                     [filter.fieldName]: filter.values,
                 },
                 hideUsers: appSettings.hide.users,
-                onlyActiveUsers: false,
+                onlyActiveUsers: options.onlyActiveUsers,
                 onlyUsersOrgUnits: options.onlyUsersOrgUnits,
                 rootJunction: "AND",
                 search: options.search,
