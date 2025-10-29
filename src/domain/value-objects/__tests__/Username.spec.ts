@@ -268,7 +268,12 @@ describe("Username value object", () => {
             });
         });
 
-        describe("character validation", () => {
+        /* 
+           In the USERS app they have this validation rule, but the API allows these characters
+           and since we have already existing users that use them, we cannot apply this validation
+           so I'm skipping it for future reference
+        */
+        describe.skip("character validation", () => {
             it("should return error when username contains invalid characters", () => {
                 const result = Username.create("john#doe");
 

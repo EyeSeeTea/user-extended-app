@@ -24,11 +24,9 @@ export class Username extends ValueObject<UsernameProps> {
 
         const startError = validateNotRegexp(value, /^[._@-]|[._@-]$/, "Username cannot start or end with a separator");
         const doubleError = validateNotRegexp(value, /([._@-]){2,}/, "Username cannot have two separators in a row");
-        /* 
-           In the USERS app they have this validation rule, but the API allows these characters
-           and since we have users that already use them, we cannot apply this validation
-           so I'm leaving it commented out for future reference
-        */
+
+        // Check Username.spec.ts ("character validation") for further explanation
+        // about why this validation is skipped
 
         // const charError = validateRegexp(
         //     value,
