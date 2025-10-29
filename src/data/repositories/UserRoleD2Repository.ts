@@ -28,7 +28,7 @@ export class UserRoleD2Repository implements UserRoleRepository {
         return apiToFuture(
             this.api.models.userRoles.get({
                 fields: { id: true, description: true, displayName: true, users: { id: true, displayName: true } },
-                filter: { name: { like: options.search }, description: { like: options.search } },
+                filter: { name: { ilike: options.search }, description: { ilike: options.search } },
                 rootJunction: "OR",
                 page: options.page,
                 pageSize: options.pageSize,

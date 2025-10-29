@@ -60,8 +60,8 @@ export class DashboardD2Repository implements DashboardRepository {
                 pageSize: options.pageSize,
                 order: `${options.sorting.field}:${options.sorting.order}`,
                 filter: {
-                    name: { like: options.search },
-                    description: { like: options.search },
+                    name: { ilike: options.search },
+                    description: { ilike: options.search },
                     "sharing.owner": { in: options.filters.ownerUsersIds },
                 },
                 rootJunction: "OR",

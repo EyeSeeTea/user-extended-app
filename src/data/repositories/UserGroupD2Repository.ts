@@ -26,7 +26,7 @@ export class UserGroupD2Repository implements UserGroupRepository {
             this.api.models.userGroups.get({
                 fields: { id: true, displayName: true, users: { id: true, displayName: true } },
                 filter: {
-                    name: { like: options.search },
+                    name: { ilike: options.search },
                     "users.id": { in: options.usersIds ?? undefined },
                     id: { "!in": options.hideGroups ?? undefined },
                 },
