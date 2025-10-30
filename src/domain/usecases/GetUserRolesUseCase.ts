@@ -4,7 +4,7 @@ import { CommonFilterParams, PaginatedResponse } from "../entities/PaginatedResp
 import { UserProps } from "../entities/UserProps";
 import { UserRole } from "../entities/UserRole";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
-import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
+import { UserRepository } from "../repositories/UserRepository";
 import { UserRoleRepository } from "../repositories/UserRoleRepository";
 import { getAppSettings } from "./common/settings";
 import { excludeUsers } from "./common/utils";
@@ -12,16 +12,16 @@ import { excludeUsers } from "./common/utils";
 export class GetUserRolesUseCase {
     constructor(
         private userRoleRepository: UserRoleRepository,
-        private orgUnitRepository: OrgUnitRepository,
-        private appSettingsRepository: AppSettingsRepository
+        private appSettingsRepository: AppSettingsRepository,
+        private userRepository: UserRepository
     ) {}
 
     execute(options: GetUsersCommonOptions): FutureData<PaginatedResponse<UserRole>> {
         return getAppSettings(this.appSettingsRepository, options.user).flatMap(appSettings => {
             if (!options.excludeUsersOutsideOrgUnits) return this.getRoles(options, appSettings);
 
-            return this.getOrgUnitsAndRoles(options, appSettings).map(({ orgUnits, rolesPaginated }) => {
-                const usersRolesWithFilteredUsers = excludeUsers(orgUnits, rolesPaginated.objects);
+            return this.getOrgUnitsAndRoles(options, appSettings).map(({ usersInMyOrgUnit, rolesPaginated }) => {
+                const usersRolesWithFilteredUsers = excludeUsers(usersInMyOrgUnit, rolesPaginated.objects);
                 return { ...rolesPaginated, objects: usersRolesWithFilteredUsers };
             });
         });
@@ -29,7 +29,7 @@ export class GetUserRolesUseCase {
 
     private getOrgUnitsAndRoles(options: CommonFilterParams, appSettings: AppSettings) {
         return Future.joinObj({
-            orgUnits: this.orgUnitRepository.getWithUsers(),
+            usersInMyOrgUnit: this.userRepository.getInMyOrgUnit(),
             rolesPaginated: this.getRoles(options, appSettings),
         });
     }

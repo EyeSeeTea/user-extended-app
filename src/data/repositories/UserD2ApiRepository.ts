@@ -785,6 +785,19 @@ export class UserD2ApiRepository implements UserRepository {
             })
         );
     }
+
+    public getInMyOrgUnit(): FutureData<UserIdentifier[]> {
+        return apiToFuture(
+            this.api.models.users.get({
+                fields: { id: true, displayName: true },
+                paging: false,
+                userOrgUnits: "true",
+                includeChildren: "true",
+            })
+        ).map(({ objects }) => {
+            return objects.map(user => new UserIdentifier({ id: user.id, username: user.displayName }));
+        });
+    }
 }
 
 const verifyPasswordResponseCodec = Codec.interface({

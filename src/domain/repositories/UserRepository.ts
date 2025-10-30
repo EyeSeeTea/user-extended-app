@@ -21,6 +21,7 @@ export interface UserRepository {
     resetPasswords(users: User[]): FutureData<Stats>;
     verifyPassword(password: string): FutureData<true>;
     remove(ids: Id[]): FutureData<Stats>;
+    getInMyOrgUnit(): FutureData<UserIdentifier[]>;
 }
 
 export interface ListOptions {

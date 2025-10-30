@@ -111,10 +111,10 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         }),
         userGroups: getExecute({
             getAll: new GetAllUserGroupsUseCase(userGroupRepository),
-            get: new GetUserGroupsUseCase(userGroupRepository, orgUnitRepository, appSettingsRepository),
+            get: new GetUserGroupsUseCase(userGroupRepository, appSettingsRepository, userRepository),
         }),
         userRoles: getExecute({
-            get: new GetUserRolesUseCase(userRoleRepository, orgUnitRepository, appSettingsRepository),
+            get: new GetUserRolesUseCase(userRoleRepository, appSettingsRepository, userRepository),
             getAll: new GetAllUserRolesUseCase(userRoleRepository),
             replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
         }),

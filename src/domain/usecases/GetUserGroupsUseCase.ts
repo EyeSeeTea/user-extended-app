@@ -3,24 +3,24 @@ import { Future, FutureData } from "../entities/Future";
 import { PaginatedResponse } from "../entities/PaginatedResponse";
 import { UserGroup } from "../entities/UserGroup";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
-import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { GetUsersGroupsOptions, UserGroupRepository } from "../repositories/UserGroupRepository";
+import { UserRepository } from "../repositories/UserRepository";
 import { getAppSettings } from "./common/settings";
 import { excludeUsers } from "./common/utils";
 
 export class GetUserGroupsUseCase {
     constructor(
         private userGroupRepository: UserGroupRepository,
-        private orgUnitRepository: OrgUnitRepository,
-        private appSettingsRepository: AppSettingsRepository
+        private appSettingsRepository: AppSettingsRepository,
+        private userRepository: UserRepository
     ) {}
 
     execute(options: GetUsersGroupsOptions): FutureData<PaginatedResponse<UserGroup>> {
         return getAppSettings(this.appSettingsRepository, options.user).flatMap(appSettings => {
             if (!options.excludeUsersOutsideOrgUnits) return this.getGroups(options, appSettings);
 
-            return this.getOrgUnitsAndGroups(options, appSettings).map(({ orgUnits, groupsPaginated }) => {
-                const groupsWithOutUsers = excludeUsers<UserGroup>(orgUnits, groupsPaginated.objects);
+            return this.getOrgUnitsAndGroups(options, appSettings).map(({ usersInMyOrgUnit, groupsPaginated }) => {
+                const groupsWithOutUsers = excludeUsers<UserGroup>(usersInMyOrgUnit, groupsPaginated.objects);
                 return { ...groupsPaginated, objects: groupsWithOutUsers };
             });
         });
@@ -28,7 +28,7 @@ export class GetUserGroupsUseCase {
 
     private getOrgUnitsAndGroups(options: GetUsersGroupsOptions, appSettings: AppSettings) {
         return Future.joinObj({
-            orgUnits: this.orgUnitRepository.getWithUsers(),
+            usersInMyOrgUnit: this.userRepository.getInMyOrgUnit(),
             groupsPaginated: this.getGroups(options, appSettings),
         });
     }

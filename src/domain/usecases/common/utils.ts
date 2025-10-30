@@ -1,12 +1,12 @@
 import _ from "lodash";
-import { OrgUnit } from "../../entities/OrgUnit";
+import { UserIdentifier } from "../../entities/UserIdentifier";
 
 export function excludeUsers<T extends { excludedUsers(userIds: string[]): T }>(
-    orgUnits: OrgUnit[],
+    users: UserIdentifier[],
     entities: T[]
 ): T[] {
-    const usersIds = _(orgUnits)
-        .flatMap(orgUnit => orgUnit.users)
+    const usersIds = _(users)
+        .map(user => user.id)
         .compact()
         .uniq()
         .value();

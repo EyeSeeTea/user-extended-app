@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-10-28T13:58:48.365Z\n"
-"PO-Revision-Date: 2025-10-28T13:58:48.365Z\n"
+"POT-Creation-Date: 2025-10-29T23:51:20.213Z\n"
+"PO-Revision-Date: 2025-10-29T23:51:20.213Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -598,6 +598,12 @@ msgid "Clear"
 msgstr ""
 
 msgid "Select users"
+msgstr ""
+
+msgid "Filters"
+msgstr ""
+
+msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Users {{action}}. {{users}} {{remainingCount}}"

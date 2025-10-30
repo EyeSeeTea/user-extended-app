@@ -113,7 +113,7 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                                         onChange={e => setExcludeOrgUnit(e.target.checked)}
                                     />
                                 }
-                                label={i18n.t("Show only users assigned to my organization unit")}
+                                label={i18n.t("Show only users assigned to my organization unit and below")}
                             />
                         </div>
                     </ConfirmationDialog>
