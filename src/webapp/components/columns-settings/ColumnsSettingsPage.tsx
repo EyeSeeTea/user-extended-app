@@ -55,10 +55,10 @@ export const ColumnSelector = React.memo((props: ColumnSelectorProps) => {
 
     const buttonStates = React.useMemo((): Array<{ value: ColumnSettingValue; label: string }> => {
         return [
-            { value: "mandatory", label: i18n.t("Mandatory") },
-            { value: "visible", label: i18n.t("Visible") },
-            { value: "optional", label: i18n.t("Optional") },
             { value: "disabled", label: i18n.t("Disable") },
+            { value: "optional", label: i18n.t("Optional") },
+            { value: "visible", label: i18n.t("Visible") },
+            { value: "mandatory", label: i18n.t("Mandatory") },
         ];
     }, []);
 
