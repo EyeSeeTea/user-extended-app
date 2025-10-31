@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-10-29T23:51:20.213Z\n"
-"PO-Revision-Date: 2025-10-29T23:51:20.213Z\n"
+"POT-Creation-Date: 2025-10-31T01:33:21.762Z\n"
+"PO-Revision-Date: 2025-10-31T01:33:21.762Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -107,16 +107,16 @@ msgstr ""
 msgid "Column"
 msgstr ""
 
-msgid "Mandatory"
-msgstr ""
-
-msgid "Visible"
+msgid "Disable"
 msgstr ""
 
 msgid "Optional"
 msgstr ""
 
-msgid "Disable"
+msgid "Visible"
+msgstr ""
+
+msgid "Mandatory"
 msgstr ""
 
 msgid "Copy in user: {{user}}"
@@ -284,7 +284,7 @@ msgstr ""
 msgid "Show only active users"
 msgstr ""
 
-msgid "Hide org units on advanced filters"
+msgid "Configure custom root org. units on advanced filters"
 msgstr ""
 
 msgid "Hide users, user roles and user groups"

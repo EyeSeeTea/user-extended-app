@@ -266,7 +266,8 @@ export default class Filters extends React.Component {
             rootJunction,
         } = this.state;
 
-        const { isSuperAdmin, areFiltersOverrided, hideUsersCanManageFilter, isSettingInactive } = this.props;
+        const { appSettings, isSuperAdmin, areFiltersOverrided, hideUsersCanManageFilter, isSettingInactive } =
+            this.props;
 
         const { styles } = this;
 
@@ -289,6 +290,11 @@ export default class Filters extends React.Component {
             { value: true, text: this.getTranslation("enabled") },
             { value: false, text: this.getTranslation("disabled") },
         ];
+
+        const rootIds =
+            appSettings.showCustomRootOrgUnits && !isSuperAdmin && appSettings.rootOrgUnitIds.length > 0
+                ? appSettings.rootOrgUnitIds
+                : undefined;
 
         return (
             <div className="user-management-controls" style={styles.wrapper}>
@@ -429,6 +435,7 @@ export default class Filters extends React.Component {
                                     selected={this.state.orgUnits}
                                     onChange={this.setFilter("orgUnits")}
                                     styles={styles.filterStyles}
+                                    rootIds={rootIds}
                                 />
                             </div>
 
@@ -439,6 +446,7 @@ export default class Filters extends React.Component {
                                     selected={this.state.orgUnitsOutput}
                                     onChange={this.setFilter("orgUnitsOutput")}
                                     styles={styles.filterStyles}
+                                    rootIds={rootIds}
                                 />
                             </div>
 
@@ -449,6 +457,7 @@ export default class Filters extends React.Component {
                                     selected={this.state.searchOrgUnits}
                                     onChange={this.setFilter("searchOrgUnits")}
                                     styles={styles.filterStyles}
+                                    rootIds={rootIds}
                                 />
                             </div>
                         </div>

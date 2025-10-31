@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-10-29T23:51:20.213Z\n"
+"POT-Creation-Date: 2025-10-31T01:33:21.762Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -108,17 +108,17 @@ msgstr "Colonnes à afficher dans le tableau"
 msgid "Column"
 msgstr "Colonne"
 
-msgid "Mandatory"
-msgstr ""
-
-msgid "Visible"
-msgstr "Visible"
+msgid "Disable"
+msgstr "Désactivez"
 
 msgid "Optional"
 msgstr "Optionnel"
 
-msgid "Disable"
-msgstr "Désactivez"
+msgid "Visible"
+msgstr "Visible"
+
+msgid "Mandatory"
+msgstr ""
 
 msgid "Copy in user: {{user}}"
 msgstr "Copier dans l'utilisateur : {{user}}"
@@ -286,7 +286,8 @@ msgstr "Afficher le bouton de retour"
 msgid "Show only active users"
 msgstr "Afficher uniquement les utilisateurs actifs"
 
-msgid "Hide org units on advanced filters"
+#, fuzzy
+msgid "Configure custom root org. units on advanced filters"
 msgstr "Masquer les unités d'organisation dans les filtres avancés"
 
 msgid "Hide users, user roles and user groups"

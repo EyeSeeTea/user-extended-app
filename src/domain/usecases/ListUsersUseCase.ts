@@ -66,7 +66,6 @@ export class ListUsersUseCase implements UseCase {
                 hideUsers: appSettings.hide.users,
                 onlyActiveUsers: options.onlyActiveUsers,
                 onlyUsersOrgUnits: options.onlyUsersOrgUnits,
-                rootJunction: "AND",
                 search: options.search,
                 canManage: options.canManage,
             });

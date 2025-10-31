@@ -10,7 +10,6 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
 
     const showSharingSettings = !_.isEmpty(permission.users) || !_.isEmpty(permission.userGroups);
     const showHideOptions = !appSettings.isHideUserRelatedConfigurationEmpty();
-    const showHideOrgUnits = !appSettings.isHideOrgUnitsEmpty();
 
     const [formState, setForm] = React.useState<FormType>({
         activeUsers: appSettings.showOnlyActiveUsers,
@@ -18,14 +17,14 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         showSharingSettings: showSharingSettings,
         actionsArePublic: appSettings.areAllActionsPublic(),
         showHideOptions: showHideOptions,
-        showHideOrgUnits: showHideOrgUnits,
+        showCustomRootOrgUnits: appSettings.showCustomRootOrgUnits,
     });
 
     const [actionsPermissions, setActionsPermissions] = React.useState(appSettings.actionsAccess);
     const [usersToHide, setUsersToHide] = React.useState(appSettings.hide.users);
     const [userGroupsToHide, setUserGroupsToHide] = React.useState(appSettings.hide.userGroups);
     const [userRolesToHide, setUserRolesToHide] = React.useState(appSettings.hide.userRoles);
-    const [orgUnitsToHide, _setOrgUnitsToHide] = React.useState(appSettings.hide.orgUnits);
+    const [rootOrgUnitIds, _setRootOrgUnitIds] = React.useState(appSettings.rootOrgUnitIds);
 
     const updateHideOptions = React.useCallback(
         (hideOptions: Partial<{ users: Id[]; userGroups: Id[]; userRoles: Id[] }>) => {
@@ -37,6 +36,14 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         },
         []
     );
+
+    const updateCustomRootOrgUnitSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        updateFormState(event.target.checked, "showCustomRootOrgUnits");
+    };
+
+    const updateRootOrgUnitIds = (orgUnitIds: Id[]) => {
+        _setRootOrgUnitIds(orgUnitIds);
+    };
 
     const updateFormState = (value: boolean, field: keyof FormType) => {
         setForm(prev => ({ ...prev, [field]: value }));
@@ -54,8 +61,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                     users: formState.showHideOptions ? usersToHide : [],
                     userGroups: formState.showHideOptions ? userGroupsToHide : [],
                     userRoles: formState.showHideOptions ? userRolesToHide : [],
-                    orgUnits: formState.showHideOrgUnits ? orgUnitsToHide : [],
                 },
+                showCustomRootOrgUnits: formState.showCustomRootOrgUnits,
+                rootOrgUnitIds: rootOrgUnitIds,
             })
         );
     }, [
@@ -64,14 +72,14 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.activeUsers,
         formState.feedbackButton,
         formState.showHideOptions,
-        formState.showHideOrgUnits,
+        formState.showCustomRootOrgUnits,
         formState.actionsArePublic,
         permission,
         actionsPermissions,
         usersToHide,
         userGroupsToHide,
         userRolesToHide,
-        orgUnitsToHide,
+        rootOrgUnitIds,
     ]);
 
     return {
@@ -81,12 +89,15 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         showSharingSettings,
         actionsPermissions,
         setActionsPermissions,
+        rootOrgUnitIds,
         hideOptions: {
             users: usersToHide,
             userGroups: userGroupsToHide,
             userRoles: userRolesToHide,
         },
         updateHideOptions,
+        updateRootOrgUnitIds,
+        updateCustomRootOrgUnitSwitch,
     };
 };
 
@@ -96,5 +107,5 @@ type FormType = {
     showSharingSettings: boolean;
     actionsArePublic: boolean;
     showHideOptions: boolean;
-    showHideOrgUnits: boolean;
+    showCustomRootOrgUnits: boolean;
 };

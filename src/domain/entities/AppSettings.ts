@@ -18,11 +18,12 @@ type AppSettingsAttr = {
     showFeedback: boolean;
     settingsAccess: Permission;
     actionsAccess: ActionsPermissions;
+    showCustomRootOrgUnits: boolean;
+    rootOrgUnitIds: Id[];
     hide: {
         users: Id[];
         userGroups: Id[];
         userRoles: Id[];
-        orgUnits: Id[];
     };
     status: AppSettingStatus;
 };
@@ -44,6 +45,8 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             actionsAccess: defaultActions(),
             hide: defaultHideValues,
             status: status,
+            rootOrgUnitIds: [],
+            showCustomRootOrgUnits: false,
         });
     }
 
@@ -77,7 +80,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
     }
 
     isHideOrgUnitsEmpty(): boolean {
-        return _.isEmpty(this.hide.orgUnits);
+        return _.isEmpty(this.rootOrgUnitIds);
     }
 
     isHideUserRelatedConfigurationEmpty(): boolean {

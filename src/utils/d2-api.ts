@@ -25,8 +25,8 @@ export const orgUnitListParams = {
 };
 
 export const orgUnitControls = {
-    filterByLevel: true,
-    filterByGroup: true,
+    filterByLevel: false,
+    filterByGroup: false,
     filterByProgram: false,
     selectAll: false,
 };

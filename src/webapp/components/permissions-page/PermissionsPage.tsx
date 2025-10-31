@@ -8,6 +8,7 @@ import { usePermissionsPage } from "./usePermissionsPage";
 import { SharingActions } from "./SharingActions";
 import i18n from "../../../utils/i18n";
 import { HideEntities } from "./HideEntities";
+import { OrgUnitSelectorModal } from "../org-unit-selector-modal/OrgUnitSelectorModal";
 
 type PermissionsPageProps = { onSave: (appSettings: AppSettings) => void; onClose: () => void };
 
@@ -24,11 +25,12 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         setActionsPermissions,
         hideOptions,
         updateHideOptions,
+        updateRootOrgUnitIds,
+        rootOrgUnitIds,
+        updateCustomRootOrgUnitSwitch,
     } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
-
-    //FIXME: onChange events should be useCallback
 
     return (
         <Box component="section" padding={theme.spacing(0.25)} position="relative">
@@ -71,20 +73,16 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
 
                 <FormControlLabel
                     control={
-                        <Switch
-                            checked={formState.showHideOrgUnits}
-                            onChange={event => updateFormState(event.target.checked, "showHideOrgUnits")}
-                        />
+                        <Switch checked={formState.showCustomRootOrgUnits} onChange={updateCustomRootOrgUnitSwitch} />
                     }
-                    label={i18n.t("Hide org units on advanced filters")}
+                    label={i18n.t("Configure custom root org. units on advanced filters")}
                 />
 
-                {/* Feature: Blacklist org units within advanced filters trees */}
-                {/* {formState.showHideOrgUnits && (
+                {formState.showCustomRootOrgUnits && (
                     <Box marginTop={1} marginBottom={3}>
-                        Placeholder for org units tree
+                        <OrgUnitSelectorModal onSave={updateRootOrgUnitIds} orgUnitIds={rootOrgUnitIds} />
                     </Box>
-                )} */}
+                )}
 
                 <FormControlLabel
                     control={
