@@ -58,7 +58,12 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                 {showUsersModal && (
                     <DropdownForm label={!users ? i18n.t("Loading users...") : i18n.t("Filter owners")}>
                         <Select value="value" onOpen={openSharingDialog} open={false}>
-                            <MenuItem value="value">{currentUsers.map(user => user.text).join(", ")}</MenuItem>
+                            <MenuItem value="value">
+                                {formatUsersDisplay(
+                                    currentUsers.map(user => user.text),
+                                    3
+                                )}
+                            </MenuItem>
                         </Select>
                     </DropdownForm>
                 )}
@@ -147,3 +152,16 @@ export const Container = styled.div`
     display: flex;
     align-items: center;
 `;
+
+function formatUsersDisplay(values: string[], maxVisible = 3): string {
+    if (values.length === 0) return "";
+    if (values.length <= maxVisible) {
+        return values.join(", ");
+    }
+
+    const visibleUsers = values.slice(0, maxVisible);
+    const remainingCount = values.length - maxVisible;
+    const visibleNames = visibleUsers.join(", ");
+
+    return `${visibleNames} and ${remainingCount} more`;
+}
