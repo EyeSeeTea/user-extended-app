@@ -25,10 +25,15 @@ export class UserRoleD2Repository implements UserRoleRepository {
     }
 
     get(options: GetUserRolesParams): FutureData<PaginatedResponse<UserRole>> {
+        const userIdsToFilters = options.userIds && options.userIds.length > 0 ? options.userIds : undefined;
         return apiToFuture(
             this.api.models.userRoles.get({
                 fields: { id: true, description: true, displayName: true, users: { id: true, displayName: true } },
-                filter: { name: { ilike: options.search }, description: { ilike: options.search } },
+                filter: {
+                    name: { ilike: options.search },
+                    description: { ilike: options.search },
+                    "users.id": { in: userIdsToFilters },
+                },
                 rootJunction: "OR",
                 page: options.page,
                 pageSize: options.pageSize,
@@ -49,6 +54,7 @@ export class UserRoleD2Repository implements UserRoleRepository {
                                     return { id: d2User.id, name: d2User.displayName };
                                 })
                                 .compact()
+                                .sortBy(user => user.name)
                                 .value(),
                         });
                     })

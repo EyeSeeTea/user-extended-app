@@ -9,26 +9,42 @@ import { UserSimple } from "../../../domain/entities/UserSimple";
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import styled from "styled-components";
+import { DashboardOwner } from "../../../domain/entities/DashboardOwner";
 
 export type UsersFiltersProps = {
-    onFilterChange: (filters: { users: FilteredUser[]; excludeOutsideOrgUnit: boolean }) => void;
-    showFilterModal?: boolean;
-    showUsersModal?: boolean;
+    onFilterChange: (filters: {
+        users: FilteredUser[];
+        excludeOutsideOrgUnit: boolean;
+        owners: FilteredUser[];
+    }) => void;
+    showUserFilter?: boolean;
+    showOwnerFilter?: boolean;
+    showOrgUnitFilter?: boolean;
+    filterUserLabel?: string;
 };
 
 export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
-    const { onFilterChange, showUsersModal, showFilterModal } = props;
-    const [showSharing, setShowSharing] = React.useState(false);
+    const { onFilterChange, showUserFilter, showOwnerFilter, showOrgUnitFilter, filterUserLabel = "" } = props;
+    const [showUserFilterModal, setShowUserFilterModal] = React.useState(false);
+    const [showOwnerFilterModal, setShowOwnerFilterModal] = React.useState(false);
     const [openFilterDialog, setOpenFilterDialog] = React.useState(false);
     const [excludeOrgUnit, setExcludeOrgUnit] = React.useState(true);
     const [ids, selectedIds] = React.useState<Id[]>([]);
-    const { users } = useGetUsersSimple();
+    const [ownerIds, selectedOwnerIds] = React.useState<Id[]>([]);
+    const { users } = useGetUsersSimple({ enabled: showUserFilter ?? false });
+    const { owners } = useGetDashboardOwners({ enabled: showOwnerFilter ?? false });
 
-    const openSharingDialog = React.useCallback(() => {
+    const openUserFilterModal = React.useCallback(() => {
         if (users && users?.length > 0) {
-            setShowSharing(true);
+            setShowUserFilterModal(true);
         }
     }, [users]);
+
+    const openOwnerFilterModal = React.useCallback(() => {
+        if (owners && owners?.length > 0) {
+            setShowOwnerFilterModal(true);
+        }
+    }, [owners]);
 
     const usersItem = React.useMemo(() => {
         if (!users) return [];
@@ -37,113 +53,165 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
         });
     }, [users]);
 
+    const ownersItem = React.useMemo(() => {
+        return owners.map(owner => {
+            return { text: owner.name, value: owner.id };
+        });
+    }, [owners]);
+
     const currentUsers = React.useMemo(() => {
         return ids.length > 0 ? usersItem.filter(user => ids.includes(user.value)) : [];
     }, [ids, usersItem]);
 
+    const currentOwners = React.useMemo(() => {
+        return ownerIds.length > 0 ? ownersItem.filter(owner => ownerIds.includes(owner.value)) : [];
+    }, [ownerIds, ownersItem]);
+
     const updateSelectedUsers = React.useCallback(() => {
-        setShowSharing(false);
+        setShowUserFilterModal(false);
         const currentUsers = ids.length > 0 ? usersItem.filter(user => ids.includes(user.value)) : [];
-        onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit });
-    }, [onFilterChange, usersItem, ids, excludeOrgUnit]);
+        onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit, owners: currentOwners });
+    }, [onFilterChange, usersItem, ids, excludeOrgUnit, currentOwners]);
 
     const updateExcludeOrgUnit = React.useCallback(() => {
-        onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit });
+        onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit, owners: currentOwners });
         setOpenFilterDialog(false);
-    }, [onFilterChange, currentUsers, excludeOrgUnit]);
+    }, [onFilterChange, currentUsers, excludeOrgUnit, currentOwners]);
+
+    const updateSelectedOwners = React.useCallback(() => {
+        setShowOwnerFilterModal(false);
+        const currentOwners = ownerIds.length > 0 ? ownersItem.filter(owner => ownerIds.includes(owner.value)) : [];
+        onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit, owners: currentOwners });
+    }, [onFilterChange, ownersItem, ownerIds, excludeOrgUnit, currentUsers]);
 
     return (
         <Container>
-            <div>
-                {showUsersModal && (
-                    <DropdownForm label={!users ? i18n.t("Loading users...") : i18n.t("Filter owners")}>
-                        <Select value="value" onOpen={openSharingDialog} open={false}>
-                            <MenuItem value="value">
-                                {formatUsersDisplay(
-                                    currentUsers.map(user => user.text),
-                                    3
-                                )}
-                            </MenuItem>
-                        </Select>
-                    </DropdownForm>
-                )}
-
-                {showSharing && (
-                    <ConfirmationDialog
-                        cancelText={i18n.t("Clear")}
-                        saveText={i18n.t("Save")}
-                        onSave={updateSelectedUsers}
-                        open={showSharing}
-                        onCancel={() => {
-                            setShowSharing(false);
-                            selectedIds([]);
-                            onFilterChange({ users: [], excludeOutsideOrgUnit: excludeOrgUnit });
-                        }}
-                        maxWidth="lg"
-                        title={i18n.t("Select users")}
-                    >
-                        <MultiSelector
-                            d2={{}}
-                            onChange={selectedIds}
-                            options={usersItem}
-                            selected={ids}
-                            searchFilterLabel={i18n.t("Search")}
+            <IconButton aria-label={i18n.t("Filters")} onClick={() => setOpenFilterDialog(true)}>
+                <FilterIcon />
+            </IconButton>
+            <ConfirmationDialog
+                saveText={i18n.t("Close")}
+                onSave={updateExcludeOrgUnit}
+                open={openFilterDialog}
+                maxWidth="lg"
+                title={i18n.t("Filters")}
+            >
+                <FilterRowContainer>
+                    {showOrgUnitFilter && (
+                        <FormControlLabel
+                            control={
+                                <Switch checked={excludeOrgUnit} onChange={e => setExcludeOrgUnit(e.target.checked)} />
+                            }
+                            label={i18n.t("Show only users assigned to my organization unit and below")}
                         />
-                    </ConfirmationDialog>
-                )}
-            </div>
+                    )}
 
-            {showFilterModal && (
-                <>
-                    <IconButton aria-label={i18n.t("Filters")} onClick={() => setOpenFilterDialog(true)}>
-                        <FilterIcon />
-                    </IconButton>
-                    <ConfirmationDialog
-                        cancelText={i18n.t("Close")}
-                        saveText={i18n.t("Save")}
-                        onSave={updateExcludeOrgUnit}
-                        open={openFilterDialog}
-                        onCancel={() => {
-                            setOpenFilterDialog(false);
-                            onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit });
-                        }}
-                        maxWidth="lg"
-                        title={i18n.t("Filters")}
-                    >
-                        <div>
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={excludeOrgUnit}
-                                        onChange={e => setExcludeOrgUnit(e.target.checked)}
-                                    />
-                                }
-                                label={i18n.t("Show only users assigned to my organization unit and below")}
-                            />
-                        </div>
-                    </ConfirmationDialog>
-                </>
-            )}
+                    <div>
+                        {showUserFilter && (
+                            <DropdownForm label={!users ? i18n.t("Loading...") : filterUserLabel}>
+                                <Select value="value" onOpen={openUserFilterModal} open={false}>
+                                    <MenuItem value="value">
+                                        {formatItemsDisplay(currentUsers.map(user => user.text))}
+                                    </MenuItem>
+                                </Select>
+                            </DropdownForm>
+                        )}
+
+                        {showUserFilterModal && (
+                            <ConfirmationDialog
+                                cancelText={i18n.t("Clear")}
+                                saveText={i18n.t("Save")}
+                                onSave={updateSelectedUsers}
+                                open={showUserFilterModal}
+                                onCancel={() => {
+                                    setShowUserFilterModal(false);
+                                    selectedIds([]);
+                                    onFilterChange({ users: [], excludeOutsideOrgUnit: excludeOrgUnit, owners: [] });
+                                }}
+                                maxWidth="lg"
+                                title={i18n.t("Select users")}
+                            >
+                                <MultiSelector
+                                    d2={{}}
+                                    onChange={selectedIds}
+                                    options={usersItem}
+                                    selected={ids}
+                                    searchFilterLabel={i18n.t("Search")}
+                                />
+                            </ConfirmationDialog>
+                        )}
+                    </div>
+
+                    <div>
+                        {showOwnerFilter && (
+                            <DropdownForm label={i18n.t("Owners")}>
+                                <Select value="value" onOpen={openOwnerFilterModal} open={false}>
+                                    <MenuItem value="value">
+                                        {formatItemsDisplay(currentOwners.map(owner => owner.text))}
+                                    </MenuItem>
+                                </Select>
+                            </DropdownForm>
+                        )}
+
+                        {showOwnerFilterModal && (
+                            <ConfirmationDialog
+                                cancelText={i18n.t("Clear")}
+                                saveText={i18n.t("Save")}
+                                onSave={updateSelectedOwners}
+                                open={showOwnerFilterModal}
+                                onCancel={() => {
+                                    setShowOwnerFilterModal(false);
+                                    selectedOwnerIds([]);
+                                    onFilterChange({ users: [], excludeOutsideOrgUnit: excludeOrgUnit, owners: [] });
+                                }}
+                                maxWidth="lg"
+                                title={i18n.t("Select owners")}
+                            >
+                                <MultiSelector
+                                    d2={{}}
+                                    onChange={selectedOwnerIds}
+                                    options={ownersItem}
+                                    selected={ownerIds}
+                                    searchFilterLabel={i18n.t("Search")}
+                                />
+                            </ConfirmationDialog>
+                        )}
+                    </div>
+                </FilterRowContainer>
+            </ConfirmationDialog>
         </Container>
     );
 });
 
-export function useGetUsersSimple() {
+export function useGetUsersSimple(props: { enabled: boolean }) {
+    const { enabled } = props;
     const { compositionRoot, currentUser } = useAppContext();
     const [users, setUsers] = React.useState<UserSimple[]>([]);
 
-    React.useEffect(
-        () =>
-            compositionRoot.users.getInOrgUnits(currentUser).run(
-                users => {
-                    setUsers(users);
-                },
-                error => console.error(error)
-            ),
-        [compositionRoot.users, currentUser]
-    );
+    React.useEffect(() => {
+        if (!enabled) return;
+        return compositionRoot.users.getInOrgUnits(currentUser).run(
+            users => {
+                setUsers(users);
+            },
+            error => console.error(error)
+        );
+    }, [compositionRoot.users, currentUser, enabled]);
 
     return { users };
+}
+
+export function useGetDashboardOwners(props: { enabled: boolean }) {
+    const { enabled } = props;
+    const { compositionRoot, currentUser } = useAppContext();
+    const [owners, setOwners] = React.useState<DashboardOwner[]>([]);
+
+    React.useEffect(() => {
+        if (!enabled) return;
+        return compositionRoot.dashboards.getOwners.execute().run(setOwners, error => console.error(error));
+    }, [compositionRoot.dashboards, currentUser, enabled]);
+
+    return { owners };
 }
 
 export type FilteredUser = { value: Id; text: string };
@@ -153,15 +221,22 @@ export const Container = styled.div`
     align-items: center;
 `;
 
-function formatUsersDisplay(values: string[], maxVisible = 3): string {
+export const FilterRowContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+`;
+
+function formatItemsDisplay(values: string[], maxVisible = 3): string {
+    const separator = ", ";
     if (values.length === 0) return "";
     if (values.length <= maxVisible) {
-        return values.join(", ");
+        return values.join(separator);
     }
 
-    const visibleUsers = values.slice(0, maxVisible);
+    const visibleItems = values.slice(0, maxVisible);
     const remainingCount = values.length - maxVisible;
-    const visibleNames = visibleUsers.join(", ");
+    const visibleNames = visibleItems.join(separator);
 
-    return `${visibleNames} and ${remainingCount} more`;
+    return i18n.t(`${visibleNames} and ${remainingCount} more`);
 }

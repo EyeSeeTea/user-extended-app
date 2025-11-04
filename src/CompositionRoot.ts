@@ -51,6 +51,8 @@ import { ReplicateFromTemplateUseCase } from "./domain/usecases/ReplicateFromTem
 import { GetColumnsPreferencesUseCase } from "./domain/usecases/GetColumnsPreferencesUseCase";
 import { UserColumnD2Repository } from "./data/repositories/UserColumnD2Repository";
 import { SaveColumnsPreferenceUseCase } from "./domain/usecases/SaveColumnsPreferenceUseCase";
+import { GetDashboardOwnersUseCase } from "./domain/usecases/GetDashboardOwnersUseCase";
+import { DashboardOwnerD2Repository } from "./data/repositories/DashboardOwnerD2Repository";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -70,6 +72,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
     const orgUnitRepository = new OrgUnitD2Repository(api);
     const userSimpleRepository = new UserSimpleD2Repository(api);
     const userColumnRepository = new UserColumnD2Repository(instance);
+    const dashboardOwnerRepository = new DashboardOwnerD2Repository(api);
 
     return {
         logger: {
@@ -128,6 +131,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         },
         dashboards: {
             get: new GetDashboardsUseCase(dashboardRepository, appSettingsRepository),
+            getOwners: new GetDashboardOwnersUseCase(dashboardOwnerRepository),
         },
     };
 }

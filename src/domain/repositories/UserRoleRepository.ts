@@ -9,4 +9,8 @@ export interface UserRoleRepository {
     get(options: GetUserRolesParams): FutureData<PaginatedResponse<UserRole>>;
 }
 
-export type GetUserRolesParams = CommonFilterParams & { hideRoles: Maybe<Id[]>; hideUsers: Maybe<Id[]> };
+export type GetUserRolesParams = CommonFilterParams & {
+    hideRoles: Maybe<Id[]>;
+    hideUsers: Maybe<Id[]>;
+    userIds: Maybe<Id[]>;
+};

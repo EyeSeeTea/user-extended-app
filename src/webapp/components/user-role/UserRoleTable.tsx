@@ -6,6 +6,7 @@ import { useAppContext } from "../../contexts/app-context";
 import { Pager } from "../../../domain/entities/PaginatedResponse";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { UsersFilters, UsersFiltersProps } from "../users-filter/UsersFilters";
+import { Id } from "../../../domain/entities/Ref";
 
 function generateTableConfig(): TableConfig<UserRole> {
     return {
@@ -34,6 +35,7 @@ function generateTableConfig(): TableConfig<UserRole> {
 
 export const UserRoleTable: React.FC<{}> = React.memo(() => {
     const { compositionRoot, currentUser } = useAppContext();
+    const [userIds, setUserIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
 
     const config = React.useMemo(() => {
@@ -54,21 +56,28 @@ export const UserRoleTable: React.FC<{}> = React.memo(() => {
                     sorting: { field: sorting.field, order: sorting.order },
                     excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
                     user: currentUser,
+                    userIds: userIds,
                 })
                 .toPromise();
         },
-        [compositionRoot.userRoles, currentUser, excludeUsersOrgUnit]
+        [compositionRoot.userRoles, currentUser, excludeUsersOrgUnit, userIds]
     );
 
     const tableProps = useObjectsTable(config, getRows);
 
     const updateFilters = React.useCallback<UsersFiltersProps["onFilterChange"]>(filters => {
         setExcludeUsersOrgUnit(filters.excludeOutsideOrgUnit);
+        setUserIds(filters.users.map(user => user.value));
     }, []);
 
     return (
         <ObjectsList {...tableProps}>
-            <UsersFilters onFilterChange={updateFilters} showFilterModal />
+            <UsersFilters
+                onFilterChange={updateFilters}
+                showOrgUnitFilter
+                showUserFilter
+                filterUserLabel={i18n.t("Filter users")}
+            />
         </ObjectsList>
     );
 });

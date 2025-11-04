@@ -78,13 +78,13 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
 
     const tableProps = useObjectsTable(config, getRows);
 
-    const updateFilters = React.useCallback((filters: { users: FilteredUser[] }) => {
-        setFilters({ ownerUsersIds: filters.users.length ? filters.users.map(user => user.value) : undefined });
+    const updateFilters = React.useCallback((filters: { owners: FilteredUser[] }) => {
+        setFilters({ ownerUsersIds: filters.owners.length ? filters.owners.map(user => user.value) : undefined });
     }, []);
 
     return (
         <ObjectsList {...tableProps}>
-            <UsersFilters showUsersModal onFilterChange={updateFilters} />
+            <UsersFilters showOwnerFilter onFilterChange={updateFilters} />
         </ObjectsList>
     );
 });

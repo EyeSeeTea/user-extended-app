@@ -22,14 +22,16 @@ export class UserGroupD2Repository implements UserGroupRepository {
     }
 
     get(options: GetUsersGroupsOptions): FutureData<PaginatedResponse<UserGroup>> {
+        const groupsToHide = options.hideGroups ? options.hideGroups : [];
         return apiToFuture(
             this.api.models.userGroups.get({
                 fields: { id: true, displayName: true, users: { id: true, displayName: true } },
                 filter: {
                     name: { ilike: options.search },
                     "users.id": { in: options.usersIds ?? undefined },
-                    id: { "!in": options.hideGroups ?? undefined },
+                    id: { "!in": groupsToHide.length > 0 ? groupsToHide : undefined },
                 },
+                rootJunction: "OR",
                 page: options.page,
                 pageSize: options.pageSize,
                 order: `${options.sorting.field}:${options.sorting.order}`,
@@ -46,6 +48,7 @@ export class UserGroupD2Repository implements UserGroupRepository {
                                 return { id: d2User.id, name: d2User.displayName };
                             })
                             .compact()
+                            .sortBy(user => user.name)
                             .value(),
                     });
                 }),

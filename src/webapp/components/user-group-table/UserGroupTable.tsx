@@ -129,7 +129,12 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
 
     return (
         <ObjectsList {...tableProps}>
-            <UsersFilters onFilterChange={updateFilters} showFilterModal showUsersModal />
+            <UsersFilters
+                onFilterChange={updateFilters}
+                showUserFilter
+                showOrgUnitFilter
+                filterUserLabel={i18n.t("Filter users")}
+            />
             <div className={classes.popoverContainer}>
                 <PopoverList title={i18n.t("Actions")} items={items} onItemClick={exportRecords} />
             </div>

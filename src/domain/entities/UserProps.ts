@@ -96,6 +96,7 @@ export interface AccessPermissions {
 }
 
 export const isSuperAdmin = (user: UserProps): boolean => {
+    // return false;
     return user.authorities.includes("ALL");
 };
 

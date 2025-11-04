@@ -156,7 +156,7 @@ export class DashboardD2Repository implements DashboardRepository {
     }
 }
 
-type D2ApiDashboard = {
+export type D2ApiDashboard = {
     id: Id;
     displayName: string;
     displayDescription: string;
