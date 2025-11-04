@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-10-31T01:33:21.762Z\n"
+"POT-Creation-Date: 2025-11-04T01:07:32.874Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -513,6 +513,9 @@ msgstr "Langue de la base de données"
 msgid "Api URL"
 msgstr "URL de l'API"
 
+msgid "Filter users"
+msgstr ""
+
 msgid "Actions"
 msgstr ""
 
@@ -620,11 +623,14 @@ msgstr "Répliquer l'utilisateur à partir du modèle"
 msgid "Replicate user from table"
 msgstr "Répliquer l'utilisateur à partir du tableau"
 
-msgid "Loading users..."
-msgstr "Chargement des utilisateurs..."
+msgid "Filters"
+msgstr "Filtrer"
 
-msgid "Filter owners"
-msgstr "Filtrer les propriétaires"
+msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
+msgid "Loading..."
+msgstr ""
 
 msgid "Clear"
 msgstr "Effacer"
@@ -632,21 +638,18 @@ msgstr "Effacer"
 msgid "Select users"
 msgstr "Sélectionner des utilisateurs"
 
-msgid "Filters"
-msgstr "Filtrer"
-
-msgid "Show only users assigned to my organization unit and below"
+msgid "Owners"
 msgstr ""
 
-#, fuzzy
+msgid "Select owners"
+msgstr ""
+
 msgid "Users {{action}}. {{users}} {{remainingCount}}"
-msgstr "{{action}} : {{users}} {{remainingCount}}"
+msgstr ""
 
-#, fuzzy
 msgid "{{action}} users"
-msgstr "{{actionTitle}}"
+msgstr ""
 
-#, fuzzy
 msgid ""
 "Are you sure you want to {{action}} the selected users? {{users}} "
 "{{remainingCount}}"

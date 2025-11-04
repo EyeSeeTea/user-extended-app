@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-10-31T01:33:21.762Z\n"
+"POT-Creation-Date: 2025-11-04T01:07:32.874Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -496,6 +496,9 @@ msgstr "Idioma de la base de datos"
 msgid "Api URL"
 msgstr "URL de la API"
 
+msgid "Filter users"
+msgstr "Filtrar usuarios"
+
 msgid "Actions"
 msgstr ""
 
@@ -601,11 +604,14 @@ msgstr "Replicar usuario desde plantilla"
 msgid "Replicate user from table"
 msgstr "Replicar usuario desde tabla"
 
-msgid "Loading users..."
-msgstr "Cargando usuarios..."
+msgid "Filters"
+msgstr "Filtrar"
 
-msgid "Filter owners"
-msgstr "Filtrar propietarios"
+msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
+msgid "Loading..."
+msgstr "Cargando..."
 
 msgid "Clear"
 msgstr "Limpiar"
@@ -613,19 +619,17 @@ msgstr "Limpiar"
 msgid "Select users"
 msgstr "Seleccionar usuarios"
 
-msgid "Filters"
-msgstr "Filtrar"
-
-msgid "Show only users assigned to my organization unit and below"
+msgid "Owners"
 msgstr ""
 
-#, fuzzy
-msgid "Users {{action}}. {{users}} {{remainingCount}}"
-msgstr "{{action}}: {{users}} {{remainingCount}}"
+msgid "Select owners"
+msgstr ""
 
-#, fuzzy
+msgid "Users {{action}}. {{users}} {{remainingCount}}"
+msgstr ""
+
 msgid "{{action}} users"
-msgstr "Guardando usuarios"
+msgstr ""
 
 #, fuzzy
 msgid ""

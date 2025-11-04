@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-10-31T01:33:21.762Z\n"
-"PO-Revision-Date: 2025-10-31T01:33:21.762Z\n"
+"POT-Creation-Date: 2025-11-04T01:07:32.874Z\n"
+"PO-Revision-Date: 2025-11-04T01:07:32.874Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -483,6 +483,9 @@ msgstr ""
 msgid "Api URL"
 msgstr ""
 
+msgid "Filter users"
+msgstr ""
+
 msgid "Actions"
 msgstr ""
 
@@ -588,10 +591,13 @@ msgstr ""
 msgid "Replicate user from table"
 msgstr ""
 
-msgid "Loading users..."
+msgid "Filters"
 msgstr ""
 
-msgid "Filter owners"
+msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
+msgid "Loading..."
 msgstr ""
 
 msgid "Clear"
@@ -600,10 +606,10 @@ msgstr ""
 msgid "Select users"
 msgstr ""
 
-msgid "Filters"
+msgid "Owners"
 msgstr ""
 
-msgid "Show only users assigned to my organization unit and below"
+msgid "Select owners"
 msgstr ""
 
 msgid "Users {{action}}. {{users}} {{remainingCount}}"
