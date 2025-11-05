@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-11-04T01:07:32.874Z\n"
-"PO-Revision-Date: 2025-11-04T01:07:32.874Z\n"
+"POT-Creation-Date: 2025-11-05T22:17:23.299Z\n"
+"PO-Revision-Date: 2025-11-05T22:17:23.299Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -152,13 +152,34 @@ msgstr ""
 msgid "OU Capture"
 msgstr ""
 
+msgid "Owners: {{owners}}"
+msgstr ""
+
+msgid "Users: {{users}}"
+msgstr ""
+
+msgid "Filters"
+msgstr ""
+
+msgid "Owners"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Select owners"
+msgstr ""
+
+msgid "Users"
+msgstr ""
+
+msgid "Select users"
+msgstr ""
+
 msgid "Description"
 msgstr ""
 
 msgid "Owner"
-msgstr ""
-
-msgid "Users"
 msgstr ""
 
 msgid "Import/Export"
@@ -591,25 +612,10 @@ msgstr ""
 msgid "Replicate user from table"
 msgstr ""
 
-msgid "Filters"
-msgstr ""
-
 msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Loading..."
-msgstr ""
-
-msgid "Clear"
-msgstr ""
-
-msgid "Select users"
-msgstr ""
-
-msgid "Owners"
-msgstr ""
-
-msgid "Select owners"
 msgstr ""
 
 msgid "Users {{action}}. {{users}} {{remainingCount}}"

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-11-04T01:07:32.874Z\n"
+"POT-Creation-Date: 2025-11-05T22:17:23.299Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -153,14 +153,35 @@ msgstr "Funções de utilizador"
 msgid "OU Capture"
 msgstr "Unidade Organizacional de Recolha"
 
+msgid "Owners: {{owners}}"
+msgstr ""
+
+msgid "Users: {{users}}"
+msgstr ""
+
+msgid "Filters"
+msgstr ""
+
+msgid "Owners"
+msgstr ""
+
+msgid "Clear"
+msgstr "Limpar"
+
+msgid "Select owners"
+msgstr ""
+
+msgid "Users"
+msgstr ""
+
+msgid "Select users"
+msgstr ""
+
 msgid "Description"
 msgstr "Descrição"
 
 msgid "Owner"
 msgstr "Proprietário"
-
-msgid "Users"
-msgstr "Utilizadores"
 
 msgid "Import/Export"
 msgstr "Importar/Exportar"
@@ -621,26 +642,10 @@ msgstr "Replicar utilizador a partir do modelo"
 msgid "Replicate user from table"
 msgstr "Replicar utilizador a partir da tabela"
 
-#, fuzzy
-msgid "Filters"
-msgstr "Filtrar proprietários"
-
 msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Loading..."
-msgstr ""
-
-msgid "Clear"
-msgstr "Limpar"
-
-msgid "Select users"
-msgstr "Selecionar utilizadores"
-
-msgid "Owners"
-msgstr ""
-
-msgid "Select owners"
 msgstr ""
 
 msgid "Users {{action}}. {{users}} {{remainingCount}}"

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-11-04T01:07:32.874Z\n"
+"POT-Creation-Date: 2025-11-05T22:17:23.299Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -152,14 +152,35 @@ msgstr "Roles de usuario"
 msgid "OU Capture"
 msgstr "Unidad Organizativa de Captura"
 
+msgid "Owners: {{owners}}"
+msgstr ""
+
+msgid "Users: {{users}}"
+msgstr "Usuarios: {{users}}"
+
+msgid "Filters"
+msgstr "Filtros"
+
+msgid "Owners"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Select owners"
+msgstr ""
+
+msgid "Users"
+msgstr "Usuarios"
+
+msgid "Select users"
+msgstr "Seleccionar usuarios"
+
 msgid "Description"
 msgstr "Descripción"
 
 msgid "Owner"
 msgstr "Propietario"
-
-msgid "Users"
-msgstr "Usuarios"
 
 msgid "Import/Export"
 msgstr "Importar/Exportar"
@@ -269,17 +290,14 @@ msgstr "Volver"
 msgid "Help"
 msgstr "Ayuda"
 
-#, fuzzy
 msgid "Search users"
-msgstr "Seleccionar usuarios"
+msgstr "Buscar usuarios"
 
-#, fuzzy
 msgid "Search user roles"
-msgstr "Seleccionar usuarios"
+msgstr "Buscar roles"
 
-#, fuzzy
 msgid "Search user groups"
-msgstr "Grupos de usuarios"
+msgstr "Buscar grupos"
 
 msgid "Show feedback button"
 msgstr ""
@@ -309,9 +327,8 @@ msgid ""
 "Changes on 'Who has access' to settings will be reflected after page reload"
 msgstr ""
 
-#, fuzzy
 msgid "Select user groups and rules"
-msgstr "Replicar usuario desde tabla"
+msgstr "Seleccionar grupos y roles"
 
 msgid "You can't hide more than 480 users"
 msgstr ""
@@ -343,24 +360,20 @@ msgstr ""
 msgid "Only available if user has replicate authority on some owned role"
 msgstr ""
 
-#, fuzzy
 msgid "Selected users have email address"
 msgstr "No todos los usuarios tienen correo electrónico"
 
 msgid "Selected users belong to at least one of users' organization units"
 msgstr ""
 
-#, fuzzy
 msgid "User has update access"
-msgstr "Usuarios replicados correctamente"
+msgstr ""
 
-#, fuzzy
 msgid "Selected users are disabled"
-msgstr "Replicar usuario desde tabla"
+msgstr "Los usuarios seleccionados están desactivados"
 
-#, fuzzy
 msgid "Selected users are active"
-msgstr "Seleccionar usuarios"
+msgstr "Los usuarios seleccionados están activos"
 
 #, fuzzy
 msgid "User has delete access"
@@ -604,26 +617,11 @@ msgstr "Replicar usuario desde plantilla"
 msgid "Replicate user from table"
 msgstr "Replicar usuario desde tabla"
 
-msgid "Filters"
-msgstr "Filtrar"
-
 msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Loading..."
 msgstr "Cargando..."
-
-msgid "Clear"
-msgstr "Limpiar"
-
-msgid "Select users"
-msgstr "Seleccionar usuarios"
-
-msgid "Owners"
-msgstr ""
-
-msgid "Select owners"
-msgstr ""
 
 msgid "Users {{action}}. {{users}} {{remainingCount}}"
 msgstr ""
