@@ -1,8 +1,8 @@
 import { Dashboard } from "../entities/Dashboard";
 import { FutureData } from "../entities/Future";
-import { PaginatedResponse } from "../entities/PaginatedResponse";
+import { UserProps } from "../entities/UserProps";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
-import { DashboardRepository, GetDashboardOptions } from "../repositories/DashboardRepository";
+import { DashboardRepository } from "../repositories/DashboardRepository";
 import { getAppSettings } from "./common/settings";
 
 export class GetDashboardsUseCase {
@@ -11,13 +11,16 @@ export class GetDashboardsUseCase {
         private appSettingsRepository: AppSettingsRepository
     ) {}
 
-    execute(options: GetDashboardOptions): FutureData<PaginatedResponse<Dashboard>> {
+    execute(options: UseCaseOptions): FutureData<Dashboard[]> {
         return getAppSettings(this.appSettingsRepository, options.user).flatMap(appSettings => {
-            return this.dashboardRepository.get({
-                ...options,
+            return this.dashboardRepository.getAll({
                 hideUsers: appSettings.hide.users,
                 hideGroups: appSettings.hide.userGroups,
             });
         });
     }
 }
+
+type UseCaseOptions = {
+    user: UserProps;
+};

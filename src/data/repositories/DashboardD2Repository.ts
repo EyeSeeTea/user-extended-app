@@ -7,9 +7,34 @@ import { DashboardRepository, GetDashboardOptions } from "../../domain/repositor
 import { apiToFuture } from "../../utils/futures";
 import { NamedRef } from "@eyeseetea/d2-logger/domain/entities/Base";
 import { Id } from "../../domain/entities/Ref";
+import { Maybe } from "../../types/utils";
 
 export class DashboardD2Repository implements DashboardRepository {
     constructor(private api: D2Api) {}
+
+    getAll(options: { hideUsers: Maybe<Id[]>; hideGroups: Maybe<Id[]> }): FutureData<Dashboard[]> {
+        return this.getAllDashboards({ initialPage: 1, pageSize: 100 }).flatMap(d2Dashboards => {
+            const usersOwnersIds = d2Dashboards.map(dashboard => dashboard.sharing.owner);
+            const userGroupsIds = _(
+                d2Dashboards.flatMap(dashboard => Object.values(dashboard.sharing.userGroups).map(ug => ug.id))
+            )
+                .uniq()
+                .value();
+
+            return Future.joinObj({
+                usersOwners: this.getUsersByIds(usersOwnersIds),
+                userGroups: userGroupsIds.length > 0 ? this.getUserGroupsByIds(userGroupsIds) : Future.success([]),
+            }).map(({ usersOwners, userGroups }) => {
+                return this.buildDashboards(
+                    d2Dashboards,
+                    usersOwners,
+                    userGroups,
+                    options.hideUsers ?? [],
+                    options.hideGroups ?? []
+                );
+            });
+        });
+    }
 
     get(options: GetDashboardOptions): FutureData<PaginatedResponse<Dashboard>> {
         return this.getDashboards(options).flatMap(response => {
@@ -39,7 +64,37 @@ export class DashboardD2Repository implements DashboardRepository {
         });
     }
 
+    private getAllDashboards(options: { initialPage: number; pageSize: number }): FutureData<D2ApiDashboard[]> {
+        const { initialPage, pageSize } = options;
+
+        const fetchByPage = (page: number): FutureData<D2ApiDashboard[]> => {
+            return this.getDashboards({
+                page,
+                pageSize,
+                hideGroups: undefined,
+                hideUsers: undefined,
+                search: "",
+                sorting: { field: "name", order: "asc" },
+                filters: { ownerUsersIds: undefined },
+            }).flatMap(response => {
+                const dashboards = response.objects;
+                if (response.pager.page < response.pager.pageCount) {
+                    return fetchByPage(page + 1).map(nextDashboards => dashboards.concat(nextDashboards));
+                } else {
+                    return Future.success(dashboards);
+                }
+            });
+        };
+
+        return fetchByPage(initialPage);
+    }
+
     private getDashboards(options: GetDashboardOptions): FutureData<{ objects: D2ApiDashboard[]; pager: Pager }> {
+        const ownerIds =
+            options.filters.ownerUsersIds && options.filters.ownerUsersIds.length > 0
+                ? options.filters.ownerUsersIds
+                : undefined;
+
         return apiToFuture(
             this.api.models.dashboards.get({
                 fields: {
@@ -62,9 +117,8 @@ export class DashboardD2Repository implements DashboardRepository {
                 filter: {
                     name: { ilike: options.search },
                     description: { ilike: options.search },
-                    "sharing.owner": { in: options.filters.ownerUsersIds },
+                    "sharing.owner": { in: ownerIds },
                 },
-                rootJunction: "OR",
             })
         );
     }
@@ -115,7 +169,7 @@ export class DashboardD2Repository implements DashboardRepository {
             return Dashboard.create({
                 id: d2Dashboard.id,
                 name: d2Dashboard.displayName,
-                description: d2Dashboard.displayDescription,
+                description: d2Dashboard.displayDescription ?? "",
                 owner: { id: ownerUser?.id ?? notAvailableLabel, name: ownerUser?.name ?? notAvailableLabel },
                 users: _(users)
                     .filter(user => !userIdsToExclude.includes(user.id))
