@@ -11,16 +11,22 @@ import styled from "styled-components";
 import { FilterButton } from "../filter-button/FilterButton";
 
 export type UsersFiltersProps = {
-    onFilterChange: (filters: { users: FilteredUser[]; excludeOutsideOrgUnit: boolean }) => void;
+    onFilterChange: (filters: {
+        users: FilteredUser[];
+        excludeOutsideOrgUnit: boolean;
+        filterEmptyUsers: boolean;
+    }) => void;
     showUserFilter?: boolean;
     showOwnerFilter?: boolean;
     showOrgUnitFilter?: boolean;
     filterUserLabel?: string;
+    showEmptyUsers?: boolean;
 };
 
 export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
-    const { onFilterChange, showUserFilter, showOrgUnitFilter, filterUserLabel = "" } = props;
+    const { onFilterChange, showUserFilter, showOrgUnitFilter, filterUserLabel = "", showEmptyUsers } = props;
 
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(false);
     const [showUserFilterModal, setShowUserFilterModal] = React.useState(false);
     const [openFilterDialog, setOpenFilterDialog] = React.useState(false);
     const [excludeOrgUnit, setExcludeOrgUnit] = React.useState(true);
@@ -47,13 +53,21 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
     const updateSelectedUsers = React.useCallback(() => {
         setShowUserFilterModal(false);
         const currentUsers = ids.length > 0 ? usersItem.filter(user => ids.includes(user.value)) : [];
-        onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit });
-    }, [onFilterChange, usersItem, ids, excludeOrgUnit]);
+        onFilterChange({
+            users: currentUsers,
+            excludeOutsideOrgUnit: excludeOrgUnit,
+            filterEmptyUsers: filterEmptyUsers,
+        });
+    }, [onFilterChange, usersItem, ids, excludeOrgUnit, filterEmptyUsers]);
 
     const updateExcludeOrgUnit = React.useCallback(() => {
-        onFilterChange({ users: currentUsers, excludeOutsideOrgUnit: excludeOrgUnit });
+        onFilterChange({
+            users: currentUsers,
+            excludeOutsideOrgUnit: excludeOrgUnit,
+            filterEmptyUsers: filterEmptyUsers,
+        });
         setOpenFilterDialog(false);
-    }, [onFilterChange, currentUsers, excludeOrgUnit]);
+    }, [onFilterChange, currentUsers, excludeOrgUnit, filterEmptyUsers]);
 
     const orgUnitLabel = i18n.t("Show only users assigned to my organization unit and below");
 
@@ -93,6 +107,18 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                         />
                     )}
 
+                    {showEmptyUsers && (
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={filterEmptyUsers}
+                                    onChange={e => setFilterEmptyUsers(e.target.checked)}
+                                />
+                            }
+                            label={i18n.t("Hide not applicable user groups")}
+                        />
+                    )}
+
                     <div>
                         {showUserFilter && (
                             <DropdownForm label={!users ? i18n.t("Loading...") : filterUserLabel}>
@@ -113,7 +139,11 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                                 onCancel={() => {
                                     setShowUserFilterModal(false);
                                     selectedIds([]);
-                                    onFilterChange({ users: [], excludeOutsideOrgUnit: excludeOrgUnit });
+                                    onFilterChange({
+                                        users: [],
+                                        excludeOutsideOrgUnit: excludeOrgUnit,
+                                        filterEmptyUsers: filterEmptyUsers,
+                                    });
                                 }}
                                 maxWidth="lg"
                                 title={i18n.t("Select users")}

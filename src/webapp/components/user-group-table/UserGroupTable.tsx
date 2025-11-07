@@ -42,6 +42,7 @@ function generateTableConfig(): TableConfig<UserGroup> {
 export const UserGroupTable: React.FC<{}> = React.memo(() => {
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(false);
     const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
 
@@ -83,9 +84,17 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                     hideGroups: undefined,
                     user: currentUser,
                 })
-                .toPromise();
+                .toPromise()
+                .then(response => {
+                    return {
+                        objects: filterEmptyUsers
+                            ? response.objects.filter(group => group.users.length > 0)
+                            : response.objects,
+                        pager: response.pager,
+                    };
+                });
         },
-        [compositionRoot.userGroups, selectedUsersIds, currentUser, excludeUsersOrgUnit]
+        [compositionRoot.userGroups, selectedUsersIds, currentUser, excludeUsersOrgUnit, filterEmptyUsers]
     );
 
     const tableProps = useObjectsTable(config, getRows);
@@ -93,6 +102,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
     const updateFilters = React.useCallback<UsersFiltersProps["onFilterChange"]>(filters => {
         setSelectedUsersIds(filters.users.length > 0 ? filters.users.map(user => user.value) : undefined);
         setExcludeUsersOrgUnit(filters.excludeOutsideOrgUnit);
+        setFilterEmptyUsers(filters.filterEmptyUsers);
     }, []);
 
     const exportRecords = React.useCallback(
@@ -135,6 +145,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                 showUserFilter
                 showOrgUnitFilter
                 filterUserLabel={i18n.t("Filter users")}
+                showEmptyUsers
             />
             <div className={classes.popoverContainer}>
                 <PopoverList title={i18n.t("Actions")} items={items} onItemClick={exportRecords} />
