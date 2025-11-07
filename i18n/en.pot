@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-11-05T22:17:23.299Z\n"
-"PO-Revision-Date: 2025-11-05T22:17:23.299Z\n"
+"POT-Creation-Date: 2025-11-07T17:46:18.713Z\n"
+"PO-Revision-Date: 2025-11-07T17:46:18.713Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -613,6 +613,9 @@ msgid "Replicate user from table"
 msgstr ""
 
 msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
+msgid "Hide not applicable user groups"
 msgstr ""
 
 msgid "Loading..."
