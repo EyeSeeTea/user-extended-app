@@ -19,6 +19,7 @@ import { makeStyles } from "@material-ui/core";
 
 function generateTableConfig(): TableConfig<UserGroup> {
     return {
+        allowEmptyColumns: false,
         actions: [],
         columns: [
             {

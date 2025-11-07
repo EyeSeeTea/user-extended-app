@@ -10,6 +10,7 @@ import { Id } from "../../../domain/entities/Ref";
 
 function generateTableConfig(): TableConfig<UserRole> {
     return {
+        allowEmptyColumns: false,
         actions: [],
         columns: [
             {

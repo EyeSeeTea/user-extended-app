@@ -21,6 +21,7 @@ type DashboardTableProps = {};
 
 function generateTableConfig(): TableConfig<Dashboard> {
     return {
+        allowEmptyColumns: false,
         actions: [],
         columns: [
             {
