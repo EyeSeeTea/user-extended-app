@@ -319,10 +319,10 @@ export class UserD2ApiRepository implements UserRepository {
                 logger?.log({ users: buildUserWithoutPassword(usersToSend as ApiUser[]) });
                 return apiToFuture(this.api.metadata.post({ users: usersToSend }))
                     .flatMap(data => {
-                        return Future.joinObj({
-                            saveLocales: this.saveLocales(usersToSave),
-                            saveGroupsStats: this.updateUserGroups(users, existingUsers, logger),
-                        }).map(() => {
+                        return Future.sequential([
+                            this.updateUserGroups(users, existingUsers, logger),
+                            this.saveLocales(usersToSave),
+                        ]).map(() => {
                             logger?.log(data);
                             return data;
                         });
@@ -494,7 +494,7 @@ export class UserD2ApiRepository implements UserRepository {
             return this.buildGroupsToSave(userGroup, action);
         });
 
-        return Future.parallel($requests, { maxConcurrency: 5 }).map(() => undefined);
+        return Future.sequential($requests).toVoid();
     }
 
     private buildUsersByGroupId(users: ApiUser[]): D2UserGroupByKey {
