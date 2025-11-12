@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { MetadataResponse } from "../../types/d2-api";
 
-import { generateUid } from "../../utils/uid";
 import { ReplicateTemplate } from "../entities/ReplicateTemplate";
 
 import { UseCase } from "../../CompositionRoot";
@@ -15,16 +14,15 @@ export class ReplicateFromTemplateUseCase implements UseCase {
         try {
             const newUsers: User[] = _.times(parseInt(replicateTemplate.replicateCount), index => {
                 const adjustedIndex = index + 1;
-                return User.createNewUser({
+                return User.createNew({
                     ...sourceUser,
-                    id: generateUid(),
                     username: ReplicateTemplate.getFromTemplate(replicateTemplate.usernameTemplate, adjustedIndex),
                     password: ReplicateTemplate.getFromTemplate(replicateTemplate.passwordTemplate, adjustedIndex),
                     externalAuth: false,
                     twoFactorEnabled: false,
                     openId: "",
                     ldapId: "",
-                });
+                }).getOrThrow();
             });
 
             return this.userRepository.save(newUsers);

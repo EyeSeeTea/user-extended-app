@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Struct } from "./generic/Struct";
-import { User } from "./User";
+import { Username } from "../value-objects/Username";
+import { Password } from "../value-objects/Password";
 
 export type ReplicateTemplateProps = {
     replicateCount: string;
@@ -74,9 +75,10 @@ export class ReplicateTemplate extends Struct<ReplicateTemplateProps>() {
             return "User already exists";
         }
 
-        const usernameValidationError = User.validateUsername(this.getFromTemplate(value, count));
-        if (usernameValidationError) {
-            return usernameValidationError;
+        const usernameResult = Username.create(this.getFromTemplate(value, count));
+
+        if (usernameResult.isError()) {
+            return usernameResult.value.error.join(", ");
         }
 
         const usernameTemplate = _.times(count, index => this.getFromTemplate(value, index + 1));
@@ -88,14 +90,10 @@ export class ReplicateTemplate extends Struct<ReplicateTemplateProps>() {
     }
 
     static validatePasswordTemplate(value: string): string | undefined {
-        if (!value) {
-            return "Please provide a password";
-        }
+        const passwordResult = Password.create(this.getFromTemplate(value, this.minCount), false);
 
-        // minCount is used to avoid having a mix of valid and invalid passwords
-        const validPasswordError = User.validatePassword(this.getFromTemplate(value, this.minCount), false);
-        if (validPasswordError) {
-            return validPasswordError;
+        if (passwordResult.isError()) {
+            return passwordResult.value.error.join(", ");
         }
 
         return undefined;

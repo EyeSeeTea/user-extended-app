@@ -5,7 +5,6 @@ import { useAppContext } from "../contexts/app-context";
 import { UserProps, defaultUserProps } from "../../domain/entities/UserProps";
 import { User } from "../../domain/entities/User";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
-import { generateUid } from "../../utils/uid";
 
 export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose: () => void) {
     const { compositionRoot } = useAppContext();
@@ -49,9 +48,8 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
 
             try {
                 const newUsers: User[] = users.map(tableUser => {
-                    return User.createNewUser({
+                    return User.createNew({
                         ...userToReplicate,
-                        id: generateUid(),
                         username: tableUser.username,
                         password: tableUser.password,
                         firstName: tableUser.firstName,
@@ -65,7 +63,7 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
                         twoFactorEnabled: false,
                         openId: "",
                         ldapId: "",
-                    });
+                    }).getOrThrow();
                 });
 
                 return compositionRoot.users.import({ users: newUsers }).run(
