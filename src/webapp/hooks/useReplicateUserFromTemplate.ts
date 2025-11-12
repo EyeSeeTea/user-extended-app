@@ -169,11 +169,10 @@ export const useReplicateUserFromTemplate = (
                     );
                 } else {
                     loading.hide();
-                    const errorMessage = (error as Error).message;
                     snackbar.error(
                         i18n.t("Error replicating user {{user}}: {{message}}", {
                             user: userToReplicate.username,
-                            message: errorMessage,
+                            message: String(error),
                             nsSeparator: false,
                         })
                     );
