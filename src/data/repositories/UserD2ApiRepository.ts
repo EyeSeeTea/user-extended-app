@@ -265,7 +265,6 @@ export class UserD2ApiRepository implements UserRepository {
             this.api.models.users.get({
                 fields: {
                     ...fields,
-                    $owner: true,
                     userCredentials: { ...fields.userCredentials, $all: true },
                 },
                 page,
