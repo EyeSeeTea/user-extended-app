@@ -19,15 +19,13 @@ export class User extends Struct<UserProps>() {
     }
 
     update(props: Partial<UserProps>): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser({ ...this, ...props }, false);
+        return User.validateAndCreateUser({ ...this, ...props }, true);
     }
 
     /** Validates the user properties.
      * @param props The user properties to validate.
      * @param isExistingUser Whether the user is an existing user (true) or a new user (false).
-     * Used to determine if password is required.
-     * @param skipSourceErrors Whether to skip validation of organisationUnits, userRoles, userGroups fields.
-     * Used when loading existing users from the server that may have missing fields.
+     * Used to determine if password is required and to skip validation of organisationUnits, userRoles, userGroups fields.
      * @returns Either containing validation errors or user.
      */
     private static validateAndCreateUser(
