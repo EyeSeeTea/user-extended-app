@@ -9,7 +9,7 @@ export class SaveUserStatusUseCase implements UseCase {
     public execute(users: User[], options: SaveUserStatusOptions): FutureData<void> {
         try {
             const usersToUpdate = users.map(user => {
-                return User.createExisted({ ...user, disabled: options.disabled }).getOrThrow();
+                return options.disabled ? user.disable().getOrThrow() : user.enable().getOrThrow();
             });
             return this.userRepository.save(usersToUpdate).toVoid();
         } catch (error) {

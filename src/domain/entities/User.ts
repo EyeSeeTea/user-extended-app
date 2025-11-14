@@ -18,8 +18,17 @@ export class User extends Struct<UserProps>() {
         return User.validateAndCreateUser(props, true);
     }
 
+    // TODO: remove generic update method and use specific methods only
     update(props: Partial<UserProps>): Either<ValidationError<User>[], User> {
         return User.validateAndCreateUser({ ...this, ...props }, true);
+    }
+
+    enable(): Either<ValidationError<User>[], User> {
+        return this.update({ disabled: false });
+    }
+
+    disable(): Either<ValidationError<User>[], User> {
+        return this.update({ disabled: true });
     }
 
     /** Validates the user properties.
