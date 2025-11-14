@@ -265,7 +265,8 @@ export class UserD2ApiRepository implements UserRepository {
             this.api.models.users.get({
                 fields: {
                     ...fields,
-                    userCredentials: { ...fields.userCredentials, $all: true },
+                    ...ownerFields,
+                    userCredentials: { ...fields.userCredentials, passwordLastUpdated: true, $all: true },
                 },
                 page,
                 pageSize,
@@ -747,6 +748,22 @@ const fields = {
         password: true,
         accountExpiry: true,
     },
+} as const;
+
+const ownerFields = {
+    createdBy: { id: true, code: true, name: true, displayName: true, username: true },
+    lastUpdatedBy: { id: true, code: true, name: true, displayName: true, username: true },
+    username: true,
+    externalAuth: true,
+    cogsDimensionConstraints: true,
+    catDimensionConstraints: true,
+    lastLogin: true,
+    passwordLastUpdated: true,
+    selfRegistered: true,
+    invitation: true,
+    disabled: true,
+    attributeValues: true,
+    userRoles: { id: true },
 } as const;
 
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
