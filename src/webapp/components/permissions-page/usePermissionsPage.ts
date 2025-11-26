@@ -18,6 +18,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         actionsArePublic: appSettings.areAllActionsPublic(),
         showHideOptions: showHideOptions,
         showCustomRootOrgUnits: appSettings.showCustomRootOrgUnits,
+        showOnlyUsersInTheirOrgUnits: appSettings.showOnlyUsersInTheirOrgUnits,
     });
 
     const [actionsPermissions, setActionsPermissions] = React.useState(appSettings.actionsAccess);
@@ -64,6 +65,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 },
                 showCustomRootOrgUnits: formState.showCustomRootOrgUnits,
                 rootOrgUnitIds: rootOrgUnitIds,
+                showOnlyUsersInTheirOrgUnits: formState.showOnlyUsersInTheirOrgUnits,
             })
         );
     }, [
@@ -74,6 +76,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.showHideOptions,
         formState.showCustomRootOrgUnits,
         formState.actionsArePublic,
+        formState.showOnlyUsersInTheirOrgUnits,
         permission,
         actionsPermissions,
         usersToHide,
@@ -108,4 +111,5 @@ type FormType = {
     actionsArePublic: boolean;
     showHideOptions: boolean;
     showCustomRootOrgUnits: boolean;
+    showOnlyUsersInTheirOrgUnits: boolean;
 };

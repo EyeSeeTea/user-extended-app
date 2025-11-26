@@ -19,6 +19,7 @@ type AppSettingsAttr = {
     settingsAccess: Permission;
     actionsAccess: ActionsPermissions;
     showCustomRootOrgUnits: boolean;
+    showOnlyUsersInTheirOrgUnits: boolean;
     rootOrgUnitIds: Id[];
     hide: {
         users: Id[];
@@ -47,6 +48,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             status: status,
             rootOrgUnitIds: [],
             showCustomRootOrgUnits: false,
+            showOnlyUsersInTheirOrgUnits: false,
         });
     }
 

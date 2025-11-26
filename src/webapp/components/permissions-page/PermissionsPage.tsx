@@ -73,6 +73,16 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
 
                 <FormControlLabel
                     control={
+                        <Switch
+                            checked={formState.showOnlyUsersInTheirOrgUnits}
+                            onChange={event => updateFormState(event.target.checked, "showOnlyUsersInTheirOrgUnits")}
+                        />
+                    }
+                    label={i18n.t("Show only users assigned to users organisation units")}
+                />
+
+                <FormControlLabel
+                    control={
                         <Switch checked={formState.showCustomRootOrgUnits} onChange={updateCustomRootOrgUnitSwitch} />
                     }
                     label={i18n.t("Configure custom root org. units on advanced filters")}

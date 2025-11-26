@@ -269,7 +269,7 @@ class ListHybrid extends React.Component {
                                 isSuperAdmin={isSuperAdmin}
                                 areFiltersOverrided={areFiltersOverrided}
                                 hideUsersCanManageFilter={hideUsersCanManageFilter}
-                                onlyUsersOrgUnits={onlyUsersOrgUnits}
+                                onlyUsersOrgUnits={appSettings.showOnlyUsersInTheirOrgUnits}
                                 setOnlyUsersOrgUnits={this._onOnlyUsersOrgUnitsChange}
                                 isSettingInactive={isSettingInactive}
                                 appSettings={appSettings}
