@@ -1,8 +1,7 @@
 import _ from "lodash";
 import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
 import { SegmentedControl } from "@dhis2/ui";
-import { Box } from "@material-ui/core";
-import Checkbox from "material-ui/Checkbox/Checkbox";
+import { Box, FormControlLabel, Switch } from "@material-ui/core";
 import IconButton from "material-ui/IconButton";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import FilterListIcon from "material-ui/svg-icons/content/filter-list";
@@ -249,7 +248,7 @@ export default class Filters extends React.Component {
         }
     };
 
-    checkboxHandler = (ev, isChecked) => isChecked;
+    checkboxHandler = ev => ev.target.checked;
     dropdownHandler = ev => ev.target.value;
 
     render() {
@@ -323,18 +322,24 @@ export default class Filters extends React.Component {
                         <Box display="flex" alignItems="center" width="100%" marginBottom={1.5}>
                             <Box display="flex" flexGrow={1} flexDirection={"column"} gridRowGap="1em">
                                 {!hideUsersCanManageFilter && (
-                                    <Checkbox
-                                        className="control-checkbox"
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={showOnlyManagedUsers}
+                                                onChange={this.setFilter("showOnlyManagedUsers", this.checkboxHandler)}
+                                            />
+                                        }
                                         label={this.getTranslation("display_only_users_can_manage")}
-                                        onCheck={this.setFilter("showOnlyManagedUsers", this.checkboxHandler)}
-                                        checked={showOnlyManagedUsers}
                                     />
                                 )}
-                                <Checkbox
-                                    className="control-checkbox"
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={onlyUsersOrgUnits}
+                                            onChange={this.setFilter("onlyUsersOrgUnits", this.checkboxHandler)}
+                                        />
+                                    }
                                     label={this.getTranslation("only_users_assigned_to_org_unit")}
-                                    onCheck={this.setFilter("onlyUsersOrgUnits", this.checkboxHandler)}
-                                    checked={onlyUsersOrgUnits}
                                 />
                             </Box>
                         </Box>
