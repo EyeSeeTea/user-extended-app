@@ -26,7 +26,7 @@ export type UsersFiltersProps = {
 export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
     const { onFilterChange, showUserFilter, showOrgUnitFilter, filterUserLabel = "", showEmptyUsers } = props;
 
-    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(false);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
     const [showUserFilterModal, setShowUserFilterModal] = React.useState(false);
     const [openFilterDialog, setOpenFilterDialog] = React.useState(false);
     const [excludeOrgUnit, setExcludeOrgUnit] = React.useState(true);
