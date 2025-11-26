@@ -83,13 +83,12 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                     hideUsers: undefined,
                     hideGroups: undefined,
                     user: currentUser,
+                    hideEmptyUsers: filterEmptyUsers,
                 })
                 .toPromise()
                 .then(response => {
                     return {
-                        objects: filterEmptyUsers
-                            ? response.objects.filter(group => group.users.length > 0)
-                            : response.objects,
+                        objects: response.objects,
                         pager: response.pager,
                     };
                 });
@@ -119,6 +118,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                 hideUsers: undefined,
                 hideGroups: undefined,
                 user: currentUser,
+                hideEmptyUsers: filterEmptyUsers,
             }).then(userGroups => {
                 const fileName = getFilename({
                     name: "user-groups",
@@ -135,7 +135,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
                 }
             });
         },
-        [compositionRoot, selectedUsersIds, tableProps.sorting, currentUser]
+        [compositionRoot, selectedUsersIds, tableProps.sorting, currentUser, filterEmptyUsers]
     );
 
     return (

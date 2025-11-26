@@ -33,6 +33,7 @@ export class UserRoleD2Repository implements UserRoleRepository {
                     name: { ilike: options.search },
                     description: { ilike: options.search },
                     "users.id": { in: userIdsToFilters },
+                    id: options.hideRoles && options.hideRoles.length > 0 ? { "!in": options.hideRoles } : undefined,
                 },
                 rootJunction: "OR",
                 page: options.page,
@@ -43,7 +44,6 @@ export class UserRoleD2Repository implements UserRoleRepository {
             return {
                 objects: _(response.objects)
                     .map(d2Role => {
-                        if (options.hideRoles?.includes(d2Role.id)) return undefined;
                         return UserRole.create({
                             id: d2Role.id,
                             name: d2Role.displayName,

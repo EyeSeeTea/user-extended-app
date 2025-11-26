@@ -30,6 +30,7 @@ export class UserGroupD2Repository implements UserGroupRepository {
                     name: { ilike: options.search },
                     "users.id": { in: options.usersIds ?? undefined },
                     id: { "!in": groupsToHide.length > 0 ? groupsToHide : undefined },
+                    users: options.hideEmptyUsers ? { gt: "0" } : undefined,
                 },
                 rootJunction: "OR",
                 page: options.page,

@@ -16,4 +16,5 @@ export type GetUsersGroupsOptions = CommonFilterParams & {
     hideUsers: Maybe<Id[]>;
     hideGroups: Maybe<Id[]>;
     user: UserProps;
+    hideEmptyUsers: boolean;
 };
