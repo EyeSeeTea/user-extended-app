@@ -145,7 +145,7 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                                         filterEmptyUsers: filterEmptyUsers,
                                     });
                                 }}
-                                maxWidth="lg"
+                                fullWidth
                                 title={i18n.t("Select users")}
                             >
                                 <MultiSelector

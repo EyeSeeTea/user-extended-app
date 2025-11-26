@@ -129,7 +129,7 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                                     selectedOwnerIds([]);
                                     onFilterChange({ users: [], owners: [] });
                                 }}
-                                maxWidth="lg"
+                                fullWidth
                                 title={i18n.t("Select owners")}
                             >
                                 <MultiSelector
