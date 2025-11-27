@@ -42,7 +42,7 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
     const usersItem = React.useMemo(() => {
         if (!users) return [];
         return users.map(user => {
-            return { text: user.fullDescription, value: user.id };
+            return { text: user.fullUserName, value: user.id };
         });
     }, [users]);
 
@@ -94,7 +94,6 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                 saveText={i18n.t("Close")}
                 onSave={updateExcludeOrgUnit}
                 open={openFilterDialog}
-                maxWidth="lg"
                 title={i18n.t("Filters")}
             >
                 <FilterRowContainer>
@@ -145,8 +144,9 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                                         filterEmptyUsers: filterEmptyUsers,
                                     });
                                 }}
-                                fullWidth
                                 title={i18n.t("Select users")}
+                                fullWidth
+                                maxWidth="md"
                             >
                                 <MultiSelector
                                     onChange={selectedIds}

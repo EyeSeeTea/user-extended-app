@@ -105,7 +105,6 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                 saveText={i18n.t("Close")}
                 onSave={updateExcludeOrgUnit}
                 open={openFilterDialog}
-                maxWidth="lg"
                 title={i18n.t("Filters")}
             >
                 <FilterRowContainer>
@@ -130,6 +129,7 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                                     onFilterChange({ users: [], owners: [] });
                                 }}
                                 fullWidth
+                                maxWidth="md"
                                 title={i18n.t("Select owners")}
                             >
                                 <MultiSelector
@@ -162,7 +162,8 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                                     selectedIds([]);
                                     onFilterChange({ users: [], owners: [] });
                                 }}
-                                maxWidth="lg"
+                                fullWidth
+                                maxWidth="md"
                                 title={i18n.t("Select users")}
                             >
                                 <MultiSelector

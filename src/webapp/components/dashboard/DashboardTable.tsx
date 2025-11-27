@@ -119,14 +119,14 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
 
     const dashboardOwners = React.useMemo(() => {
         return _(dashboards)
-            .map(dashboard => ({ id: dashboard.owner.id, name: dashboard.owner.name }))
+            .map(dashboard => ({ id: dashboard.owner.id, name: dashboard.owner.fullUserName }))
             .uniqBy(dashboard => dashboard.id)
             .value();
     }, [dashboards]);
 
     const dashboardUsers = React.useMemo(() => {
         return _(dashboards)
-            .flatMap(dashboard => dashboard.users)
+            .flatMap(dashboard => dashboard.users.map(user => ({ id: user.id, name: user.fullUserName })))
             .uniqBy(user => user.id)
             .value();
     }, [dashboards]);

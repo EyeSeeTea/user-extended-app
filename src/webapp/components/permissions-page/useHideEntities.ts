@@ -34,7 +34,7 @@ export function useHideEntities(props: HideEntitiesProps) {
             userRoles: compositionRoot.userRoles.getAll(),
             userGroups: compositionRoot.userGroups.getAll(),
         }).run(({ users, userRoles, userGroups }) => {
-            setUsers(users);
+            setUsers(users.map(user => ({ id: user.id, name: `${user.name} (${user.username})` })));
             setUserRoles(userRoles);
             setUserGroups(userGroups);
             setLoading(false);

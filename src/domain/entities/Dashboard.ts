@@ -1,12 +1,13 @@
 import { Struct } from "./generic/Struct";
-import { Id, NamedRef } from "./Ref";
+import { Id } from "./Ref";
+import { UserSimple } from "./UserSimple";
 
 export type DashboardAttrs = {
     id: Id;
     name: string;
     description: string;
-    owner: NamedRef;
-    users: NamedRef[];
+    owner: UserSimple;
+    users: UserSimple[];
 };
 
 export class Dashboard extends Struct<DashboardAttrs>() {}
