@@ -88,7 +88,7 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
             <FilterButton
                 tooltipLabel={selectedFiltersText}
                 onClick={() => setOpenFilterDialog(true)}
-                buttonActive={selectedFiltersText.length > 0}
+                buttonActive={selectedFiltersText.length > 0 || excludeOrgUnit || filterEmptyUsers}
             />
             <ConfirmationDialog
                 saveText={i18n.t("Close")}

@@ -17,7 +17,7 @@ import { GetUsersGroupsOptions } from "../../../domain/repositories/UserGroupRep
 import { CompositionRoot } from "../../../CompositionRoot";
 import { makeStyles } from "@material-ui/core";
 
-function generateTableConfig(): TableConfig<UserGroup> {
+function generateTableConfig(currentPageSize: number): TableConfig<UserGroup> {
     return {
         allowEmptyColumns: false,
         actions: [],
@@ -35,11 +35,12 @@ function generateTableConfig(): TableConfig<UserGroup> {
             },
         ],
         initialSorting: { field: "name", order: "asc" },
-        paginationOptions: { pageSizeInitialValue: 25, pageSizeOptions: [10, 25, 50] },
+        paginationOptions: { pageSizeInitialValue: currentPageSize, pageSizeOptions: [10, 25, 50] },
     };
 }
 
 export const UserGroupTable: React.FC<{}> = React.memo(() => {
+    const [currentPageSize, setCurrentPageSize] = React.useState(25);
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
     const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
@@ -63,8 +64,8 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
     );
 
     const config = React.useMemo(() => {
-        return generateTableConfig();
-    }, []);
+        return generateTableConfig(currentPageSize);
+    }, [currentPageSize]);
 
     const getRows = React.useCallback(
         (
@@ -72,6 +73,7 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
             { page, pageSize }: TablePagination,
             sorting: TableSorting<UserGroup>
         ): Promise<{ objects: UserGroup[]; pager: Pager }> => {
+            setCurrentPageSize(pageSize);
             return compositionRoot.userGroups
                 .get({
                     page: page,
