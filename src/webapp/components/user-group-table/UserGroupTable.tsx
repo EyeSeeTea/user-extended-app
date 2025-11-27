@@ -42,7 +42,7 @@ function generateTableConfig(): TableConfig<UserGroup> {
 export const UserGroupTable: React.FC<{}> = React.memo(() => {
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
-    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(false);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
     const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
 
