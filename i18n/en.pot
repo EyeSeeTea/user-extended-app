@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-11-26T21:34:31.328Z\n"
-"PO-Revision-Date: 2025-11-26T21:34:31.328Z\n"
+"POT-Creation-Date: 2025-11-27T02:30:35.475Z\n"
+"PO-Revision-Date: 2025-11-27T02:30:35.475Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -528,9 +528,6 @@ msgstr ""
 msgid "OU Search"
 msgstr ""
 
-msgid "Settings"
-msgstr ""
-
 msgid "Search by name or username..."
 msgstr ""
 
@@ -544,6 +541,9 @@ msgid "Assign to organisation units search"
 msgstr ""
 
 msgid "{{action}}: {{users}} {{remainingCount}}"
+msgstr ""
+
+msgid "Settings"
 msgstr ""
 
 msgid "And {{overflow}} more..."

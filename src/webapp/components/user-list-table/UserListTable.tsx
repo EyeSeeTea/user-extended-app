@@ -11,9 +11,9 @@ import {
     useObjectsTable,
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
-import { Button, Icon, Tooltip } from "@material-ui/core";
-import { Tune } from "@material-ui/icons";
+import { Button, Icon, Tooltip, IconButton } from "@material-ui/core";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
+import BuildIcon from "@material-ui/icons/Build";
 import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -435,14 +435,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 { name: "searchOrganisationsUnits", text: i18n.t("OU Search") },
             ],
             actions: actions,
-            globalActions: _.compact([
-                currentUserHasAccessToSettings && {
-                    name: "open-settings",
-                    text: i18n.t("Settings"),
-                    icon: <Tune />,
-                    onClick: () => setShowSettings(true),
-                },
-            ]),
             // TODO: Bug in ObjectsList
             initialSorting: {
                 field: "firstName",
@@ -463,7 +455,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             // onActionButtonClick: () => navigate("/new"),
             onReorderColumns,
         };
-    }, [actions, currentUserHasAccessToSettings, onReorderColumns, resetColumnsToDefault, columnsTable]);
+    }, [actions, onReorderColumns, resetColumnsToDefault, columnsTable]);
 
     const refreshRows = useCallback(
         async (
@@ -650,6 +642,17 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     return (
         <React.Fragment>
+            {currentUserHasAccessToSettings && (
+                <Tooltip title={i18n.t("Settings")}>
+                    <IconButton
+                        style={{ marginInlineStart: "auto" }}
+                        onClick={() => setShowSettings(true)}
+                        aria-label={i18n.t("Settings")}
+                    >
+                        <BuildIcon />
+                    </IconButton>
+                </Tooltip>
+            )}
             {multiSelectorDialogProps && <MultiSelectorDialog {...multiSelectorDialogProps} />}
 
             {actionType && actionType === "set_password" && selectedUsers && (
