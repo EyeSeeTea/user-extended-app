@@ -124,9 +124,10 @@ export class DashboardD2Repository implements DashboardRepository {
     }
 
     private getUsersByIds(ids: string[]): FutureData<NamedRef[]> {
+        const uniqueIds = _.uniq(ids);
         return apiToFuture(
             this.api.models.users.get({
-                filter: { id: { in: ids } },
+                filter: { id: { in: uniqueIds } },
                 fields: { id: true, displayName: true },
                 paging: false,
             })
@@ -136,9 +137,10 @@ export class DashboardD2Repository implements DashboardRepository {
     }
 
     private getUserGroupsByIds(ids: string[]): FutureData<D2ApiUserGroup[]> {
+        const uniqueIds = _.uniq(ids);
         return apiToFuture(
             this.api.models.userGroups.get({
-                filter: { id: { in: ids } },
+                filter: { id: { in: uniqueIds } },
                 fields: { id: true, displayName: true, users: { id: true, displayName: true } },
                 paging: false,
             })
