@@ -706,6 +706,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     <div className="user-management-control pagination" style={{ order: 11 }}>
                         {importSettings && mappingColumns && (
                             <ImportExport
+                                appSettings={appSettings}
                                 columns={mappingColumns}
                                 filterOptions={{ ...filterOption, onlyUsersOrgUnits, onlyActiveUsers, hideUsers }}
                                 onImport={showImportDialog}

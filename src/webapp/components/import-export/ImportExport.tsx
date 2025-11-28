@@ -12,18 +12,22 @@ import { useSnackbar, useLoading } from "@eyeseetea/d2-ui-components";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { useExportUsers } from "../../hooks/userHooks";
 import Settings from "../../../legacy/models/settings";
-import { UserProps } from "../../../domain/entities/UserProps";
+import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
 import { Columns } from "./ImportTable";
 import { ImportUser } from "../../../domain/entities/ImportUser";
 import { ListOptions } from "../../../domain/repositories/UserRepository";
+import { AppSettings } from "../../../domain/entities/AppSettings";
 
 export const ImportExport: React.FC<ImportExportProps> = props => {
-    const { d2 } = useAppContext();
-    const { columns, filterOptions, onImport, settings } = props;
+    const { d2, currentUser } = useAppContext();
+    const { appSettings, columns, filterOptions, onImport, settings } = props;
+    const { uiUserActionsAccess } = appSettings;
     const snackbar = useSnackbar();
     const loading = useLoading();
     const [isMenuOpen, setMenuOpen] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+
+    const isAdmin = isSuperAdmin(currentUser);
 
     const openMenu = (event: React.MouseEvent<HTMLElement>) => {
         setMenuOpen(true);
@@ -86,15 +90,22 @@ export const ImportExport: React.FC<ImportExportProps> = props => {
                 onClose={closeMenu}
             >
                 <Menu>
-                    <MenuItem leftIcon={<ImportIcon />} onClick={importFromFile}>
-                        {i18n.t("Import")}
-                    </MenuItem>
-                    <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToCSV}>
-                        {i18n.t("Export to CSV")}
-                    </MenuItem>
-                    <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToJSON}>
-                        {i18n.t("Export to JSON")}
-                    </MenuItem>
+                    {(isAdmin || uiUserActionsAccess.import.visible) && (
+                        <MenuItem leftIcon={<ImportIcon />} onClick={importFromFile}>
+                            {i18n.t("Import")}
+                        </MenuItem>
+                    )}
+                    {(isAdmin || uiUserActionsAccess.exportCsv.visible) && (
+                        <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToCSV}>
+                            {i18n.t("Export to CSV")}
+                        </MenuItem>
+                    )}
+                    {(isAdmin || uiUserActionsAccess.exportJson.visible) && (
+                        <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToJSON}>
+                            {i18n.t("Export to JSON")}
+                        </MenuItem>
+                    )}
+
                     <MenuItem leftIcon={<ExportIcon />} onClick={exportEmptyTemplate}>
                         {i18n.t("Export empty template")}
                     </MenuItem>
@@ -109,6 +120,7 @@ export type ImportExportProps = {
     filterOptions: ListOptions;
     onImport: (result: ImportResult) => void;
     settings: Settings;
+    appSettings: AppSettings;
 };
 
 export type ImportResult = { columns: Columns[]; users: UserProps[]; success: boolean; warnings: string[] };

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-11-27T02:30:35.475Z\n"
+"POT-Creation-Date: 2025-11-28T00:23:50.119Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -13,6 +13,39 @@ msgstr "Resposta inválida do servidor"
 
 msgid "Unknown error"
 msgstr "Erro desconhecido"
+
+msgid "Show \"Filter by active/inactive users\""
+msgstr ""
+
+msgid "Show \"Filter by enabled/disabled 2FA\""
+msgstr ""
+
+msgid "Show \"Filter by enabled/disabled external authentication\""
+msgstr ""
+
+msgid "Show \"Filter by role\""
+msgstr ""
+
+msgid "Show \"Filter by Groups\""
+msgstr ""
+
+msgid "Show \"Filter by organization units capture\""
+msgstr ""
+
+msgid "Show \"Filter by organization units output\""
+msgstr ""
+
+msgid "Show \"Filter by organization units search\""
+msgstr ""
+
+msgid "Show Import Users"
+msgstr ""
+
+msgid "Show Export to JSON"
+msgstr ""
+
+msgid "Show Export to CSV"
+msgstr ""
 
 msgid "ID"
 msgstr "ID"

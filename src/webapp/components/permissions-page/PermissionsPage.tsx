@@ -1,8 +1,8 @@
 import React from "react";
-import { Box, Button, DialogActions, FormControlLabel, Switch, useTheme } from "@material-ui/core";
+import { Box, Button, DialogActions, FormControlLabel, Switch, Typography, useTheme } from "@material-ui/core";
 import { InfoOutlined as InfoOutlinedIcon } from "@material-ui/icons";
 import { Sharing } from "@eyeseetea/d2-ui-components";
-import { AppSettings } from "../../../domain/entities/AppSettings";
+import { AppSettings, UI_USER_ACTION_LIST } from "../../../domain/entities/AppSettings";
 import { useSharingSettings } from "./useSharingSettings";
 import { usePermissionsPage } from "./usePermissionsPage";
 import { SharingActions } from "./SharingActions";
@@ -28,6 +28,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         updateRootOrgUnitIds,
         rootOrgUnitIds,
         updateCustomRootOrgUnitSwitch,
+        updateUiActionsAccess,
     } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
@@ -169,6 +170,22 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                         </Box>
                     }
                 />
+
+                <Box marginTop={2} marginBottom={2} display="flex" flexDirection="column" gridRowGap={theme.spacing(1)}>
+                    <Typography variant="h6">{i18n.t("Show/Hide User Actions")}</Typography>
+                    {UI_USER_ACTION_LIST.map(action => (
+                        <FormControlLabel
+                            key={action.code}
+                            control={
+                                <Switch
+                                    checked={formState.uiUserActionsAccess[action.code].visible}
+                                    onChange={event => updateUiActionsAccess(action.code, event.target.checked)}
+                                />
+                            }
+                            label={action.label}
+                        />
+                    ))}
+                </Box>
             </Box>
 
             {formState.showSharingSettings && (

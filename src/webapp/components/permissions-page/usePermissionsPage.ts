@@ -1,6 +1,6 @@
 import _ from "lodash";
 import React from "react";
-import { AppSettings, markAllActionsPublic } from "../../../domain/entities/AppSettings";
+import { AppSettings, markAllActionsPublic, UIUserActionType } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 import { Id } from "../../../domain/entities/Ref";
@@ -19,6 +19,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         showHideOptions: showHideOptions,
         showCustomRootOrgUnits: appSettings.showCustomRootOrgUnits,
         showOnlyUsersInTheirOrgUnits: appSettings.showOnlyUsersInTheirOrgUnits,
+        uiUserActionsAccess: appSettings.uiUserActionsAccess,
     });
 
     const [actionsPermissions, setActionsPermissions] = React.useState(appSettings.actionsAccess);
@@ -50,6 +51,13 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         setForm(prev => ({ ...prev, [field]: value }));
     };
 
+    const updateUiActionsAccess = (actionCode: UIUserActionType, value: boolean) => {
+        setForm(prev => ({
+            ...prev,
+            uiUserActionsAccess: { ...prev.uiUserActionsAccess, [actionCode]: { visible: value } },
+        }));
+    };
+
     const onSaveSettings = React.useCallback(() => {
         onSave(
             AppSettings.create({
@@ -66,6 +74,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 showCustomRootOrgUnits: formState.showCustomRootOrgUnits,
                 rootOrgUnitIds: rootOrgUnitIds,
                 showOnlyUsersInTheirOrgUnits: formState.showOnlyUsersInTheirOrgUnits,
+                uiUserActionsAccess: formState.uiUserActionsAccess,
             })
         );
     }, [
@@ -77,6 +86,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.showCustomRootOrgUnits,
         formState.actionsArePublic,
         formState.showOnlyUsersInTheirOrgUnits,
+        formState.uiUserActionsAccess,
         permission,
         actionsPermissions,
         usersToHide,
@@ -101,6 +111,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         updateHideOptions,
         updateRootOrgUnitIds,
         updateCustomRootOrgUnitSwitch,
+        updateUiActionsAccess,
     };
 };
 
@@ -112,4 +123,5 @@ type FormType = {
     showHideOptions: boolean;
     showCustomRootOrgUnits: boolean;
     showOnlyUsersInTheirOrgUnits: boolean;
+    uiUserActionsAccess: Record<UIUserActionType, { visible: boolean }>;
 };

@@ -9,8 +9,58 @@ import { fromPairs, getKeys } from "../../types/utils";
 import { defaultRules, getInternalRulesForAction } from "./UserActionRule";
 import { userColumns } from "./UserColumn";
 import { isSuperAdmin, UserProps } from "./UserProps";
+import i18n from "../../utils/i18n";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
+
+export const UI_USER_ACTION_LIST = [
+    {
+        code: "filterActive",
+        label: i18n.t('Show "Filter by active/inactive users"'),
+    },
+    {
+        code: "filterTwoFactorAuth",
+        label: i18n.t('Show "Filter by enabled/disabled 2FA"'),
+    },
+    {
+        code: "filterExternalAuth",
+        label: i18n.t('Show "Filter by enabled/disabled external authentication"'),
+    },
+    {
+        code: "filterRoles",
+        label: i18n.t('Show "Filter by role"'),
+    },
+    {
+        code: "filterUserGroups",
+        label: i18n.t('Show "Filter by Groups"'),
+    },
+    {
+        code: "filterOrgUnits",
+        label: i18n.t('Show "Filter by organization units capture"'),
+    },
+    {
+        code: "filterOrgUnitsView",
+        label: i18n.t('Show "Filter by organization units output"'),
+    },
+    {
+        code: "filterOrgUnitsSearch",
+        label: i18n.t('Show "Filter by organization units search"'),
+    },
+    {
+        code: "import",
+        label: i18n.t("Show Import Users"),
+    },
+    {
+        code: "exportJson",
+        label: i18n.t("Show Export to JSON"),
+    },
+    {
+        code: "exportCsv",
+        label: i18n.t("Show Export to CSV"),
+    },
+] as const;
+
+export type UIUserActionType = typeof UI_USER_ACTION_LIST[number]["code"];
 
 type AppSettingsAttr = {
     columns: SettingsUserColumn[];
@@ -27,9 +77,11 @@ type AppSettingsAttr = {
         userRoles: Id[];
     };
     status: AppSettingStatus;
+    uiUserActionsAccess: UserUiActionAccess;
 };
 
 type AppSettingStatus = "active" | "inactive";
+type UserUiActionAccess = Record<UIUserActionType, { visible: boolean }>;
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
@@ -49,6 +101,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             rootOrgUnitIds: [],
             showCustomRootOrgUnits: false,
             showOnlyUsersInTheirOrgUnits: false,
+            uiUserActionsAccess: this.defaultUiActions(),
         });
     }
 
@@ -94,7 +147,23 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
     }
 
     private static defaultColumns(): SettingsUserColumn[] {
-        return userColumns.map(column => ({ field: column, value: "optional" })); //FIXME (Next PR #232): This is making all "optional" as default
+        return userColumns.map(column => ({ field: column, value: "optional" }));
+    }
+
+    private static defaultUiActions(): AppSettingsAttr["uiUserActionsAccess"] {
+        return {
+            filterActive: { visible: true },
+            filterTwoFactorAuth: { visible: true },
+            filterExternalAuth: { visible: true },
+            filterRoles: { visible: true },
+            filterUserGroups: { visible: true },
+            filterOrgUnits: { visible: true },
+            filterOrgUnitsView: { visible: true },
+            filterOrgUnitsSearch: { visible: true },
+            import: { visible: true },
+            exportJson: { visible: true },
+            exportCsv: { visible: true },
+        };
     }
 }
 
