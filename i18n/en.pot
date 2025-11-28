@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-11-28T00:23:50.119Z\n"
-"PO-Revision-Date: 2025-11-28T00:23:50.119Z\n"
+"POT-Creation-Date: 2025-11-28T01:13:04.752Z\n"
+"PO-Revision-Date: 2025-11-28T01:13:04.752Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -191,6 +191,9 @@ msgstr ""
 msgid "Users: {{users}}"
 msgstr ""
 
+msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
 msgid "Filters"
 msgstr ""
 
@@ -360,6 +363,9 @@ msgid "Access to Settings Section"
 msgstr ""
 
 msgid "Changes on 'Who has access' to settings will be reflected after page reload"
+msgstr ""
+
+msgid "Show/Hide User Actions"
 msgstr ""
 
 msgid "Select user groups and rules"
@@ -646,9 +652,6 @@ msgid "Replicate user from template"
 msgstr ""
 
 msgid "Replicate user from table"
-msgstr ""
-
-msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Hide not applicable user groups"

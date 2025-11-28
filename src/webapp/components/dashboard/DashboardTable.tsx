@@ -52,26 +52,33 @@ function generateTableConfig(): TableConfig<Dashboard> {
 
 export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
     const { compositionRoot, currentUser } = useAppContext();
-    const [filters, setFilters] = React.useState<{ ownerUsersIds?: Id[]; userIds?: Id[] }>({
+    const [filters, setFilters] = React.useState<{
+        ownerUsersIds?: Id[];
+        userIds?: Id[];
+        excludeUsersOutsideOrgUnits: boolean;
+    }>({
         ownerUsersIds: undefined,
         userIds: undefined,
+        excludeUsersOutsideOrgUnits: true,
     });
     const [dashboards, setDashboards] = React.useState<Dashboard[]>([]);
     const [loading, setLoading] = React.useState(false);
 
     React.useEffect(() => {
         setLoading(true);
-        return compositionRoot.dashboards.get.execute({ user: currentUser }).run(
-            dashboards => {
-                setLoading(false);
-                setDashboards(dashboards);
-            },
-            error => {
-                console.error(error);
-                setLoading(false);
-            }
-        );
-    }, [currentUser, compositionRoot.dashboards.get]);
+        return compositionRoot.dashboards.get
+            .execute({ excludeUsersOutsideOrgUnits: filters.excludeUsersOutsideOrgUnits, user: currentUser })
+            .run(
+                dashboards => {
+                    setLoading(false);
+                    setDashboards(dashboards);
+                },
+                error => {
+                    console.error(error);
+                    setLoading(false);
+                }
+            );
+    }, [currentUser, compositionRoot.dashboards.get, filters.excludeUsersOutsideOrgUnits]);
 
     const config = React.useMemo(() => {
         return generateTableConfig();
@@ -110,12 +117,16 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
 
     const tableProps = useObjectsTable(config, getRows);
 
-    const updateFilters = React.useCallback((filters: { owners: FilteredUser[]; users: FilteredUser[] }) => {
-        setFilters({
-            ownerUsersIds: filters.owners.length ? filters.owners.map(user => user.value) : undefined,
-            userIds: filters.users.length ? filters.users.map(user => user.value) : undefined,
-        });
-    }, []);
+    const updateFilters = React.useCallback(
+        (filters: { owners: FilteredUser[]; users: FilteredUser[]; excludeUsersOutsideOrgUnits: boolean }) => {
+            setFilters({
+                ownerUsersIds: filters.owners.length ? filters.owners.map(user => user.value) : undefined,
+                userIds: filters.users.length ? filters.users.map(user => user.value) : undefined,
+                excludeUsersOutsideOrgUnits: filters.excludeUsersOutsideOrgUnits,
+            });
+        },
+        []
+    );
 
     const dashboardOwners = React.useMemo(() => {
         return _(dashboards)

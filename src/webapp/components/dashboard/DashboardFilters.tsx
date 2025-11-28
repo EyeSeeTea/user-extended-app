@@ -1,7 +1,7 @@
 import React from "react";
 import { ConfirmationDialog, MultiSelector } from "@eyeseetea/d2-ui-components";
 import { DropdownForm } from "@eyeseetea/d2-ui-components/dropdown/GenericDropdown";
-import { Select, MenuItem } from "@material-ui/core";
+import { Select, MenuItem, FormControlLabel, Switch } from "@material-ui/core";
 
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import i18n from "../../../utils/i18n";
@@ -10,7 +10,11 @@ import { formatItemsDisplay } from "../users-filter/UsersFilters";
 import { FilterButton } from "../filter-button/FilterButton";
 
 export type DashboardsFiltersProps = {
-    onFilterChange: (filters: { users: FilteredUser[]; owners: FilteredUser[] }) => void;
+    onFilterChange: (filters: {
+        users: FilteredUser[];
+        owners: FilteredUser[];
+        excludeUsersOutsideOrgUnits: boolean;
+    }) => void;
     owners: NamedRef[];
     users: NamedRef[];
 };
@@ -21,6 +25,7 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
     const [showUserFilterModal, setShowUserFilterModal] = React.useState(false);
     const [showOwnerFilterModal, setShowOwnerFilterModal] = React.useState(false);
     const [openFilterDialog, setOpenFilterDialog] = React.useState(false);
+    const [excludeUsersOutsideOrgUnits, setExcludeUsersOutsideOrgUnits] = React.useState(true);
     const [ids, selectedIds] = React.useState<Id[]>([]);
     const [ownerIds, selectedOwnerIds] = React.useState<Id[]>([]);
 
@@ -60,19 +65,19 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
     const updateSelectedUsers = React.useCallback(() => {
         setShowUserFilterModal(false);
         const currentUsers = ids.length > 0 ? usersItem.filter(user => ids.includes(user.value)) : [];
-        onFilterChange({ users: currentUsers, owners: currentOwners });
-    }, [onFilterChange, usersItem, ids, currentOwners]);
+        onFilterChange({ users: currentUsers, owners: currentOwners, excludeUsersOutsideOrgUnits });
+    }, [onFilterChange, usersItem, ids, currentOwners, excludeUsersOutsideOrgUnits]);
 
     const updateExcludeOrgUnit = React.useCallback(() => {
-        onFilterChange({ users: currentUsers, owners: currentOwners });
+        onFilterChange({ users: currentUsers, owners: currentOwners, excludeUsersOutsideOrgUnits });
         setOpenFilterDialog(false);
-    }, [onFilterChange, currentUsers, currentOwners]);
+    }, [onFilterChange, currentUsers, currentOwners, excludeUsersOutsideOrgUnits]);
 
     const updateSelectedOwners = React.useCallback(() => {
         setShowOwnerFilterModal(false);
         const currentOwners = ownerIds.length > 0 ? ownersItem.filter(owner => ownerIds.includes(owner.value)) : [];
-        onFilterChange({ users: currentUsers, owners: currentOwners });
-    }, [onFilterChange, ownersItem, ownerIds, currentUsers]);
+        onFilterChange({ users: currentUsers, owners: currentOwners, excludeUsersOutsideOrgUnits });
+    }, [onFilterChange, ownersItem, ownerIds, currentUsers, excludeUsersOutsideOrgUnits]);
 
     const selectedFiltersText = React.useMemo(() => {
         const ownerFilter =
@@ -94,12 +99,14 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
         return [ownerFilter, userFilter].filter(Boolean).join("; ");
     }, [currentOwners, currentUsers]);
 
+    const orgUnitLabel = i18n.t("Show only users assigned to my organization unit and below");
+
     return (
         <Container>
             <FilterButton
                 tooltipLabel={selectedFiltersText}
                 onClick={() => setOpenFilterDialog(true)}
-                buttonActive={selectedFiltersText.length > 0}
+                buttonActive={selectedFiltersText.length > 0 || excludeUsersOutsideOrgUnits}
             />
             <ConfirmationDialog
                 saveText={i18n.t("Close")}
@@ -108,6 +115,15 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                 title={i18n.t("Filters")}
             >
                 <FilterRowContainer>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={excludeUsersOutsideOrgUnits}
+                                onChange={e => setExcludeUsersOutsideOrgUnits(e.target.checked)}
+                            />
+                        }
+                        label={orgUnitLabel}
+                    />
                     <div>
                         <DropdownForm label={i18n.t("Owners")}>
                             <Select value="value" onOpen={openOwnerFilterModal} open={false}>
@@ -126,7 +142,7 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                                 onCancel={() => {
                                     setShowOwnerFilterModal(false);
                                     selectedOwnerIds([]);
-                                    onFilterChange({ users: [], owners: [] });
+                                    onFilterChange({ users: [], owners: [], excludeUsersOutsideOrgUnits: true });
                                 }}
                                 fullWidth
                                 maxWidth="md"
@@ -160,7 +176,7 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                                 onCancel={() => {
                                     setShowUserFilterModal(false);
                                     selectedIds([]);
-                                    onFilterChange({ users: [], owners: [] });
+                                    onFilterChange({ users: [], owners: [], excludeUsersOutsideOrgUnits: true });
                                 }}
                                 fullWidth
                                 maxWidth="md"

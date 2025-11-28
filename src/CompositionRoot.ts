@@ -127,7 +127,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             save: new SaveAppSettingsUseCase(appSettingsRepository),
         },
         dashboards: {
-            get: new GetDashboardsUseCase(dashboardRepository, appSettingsRepository),
+            get: new GetDashboardsUseCase(dashboardRepository, appSettingsRepository, userRepository),
         },
     };
 }
