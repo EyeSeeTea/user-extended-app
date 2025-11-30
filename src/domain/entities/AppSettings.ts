@@ -10,6 +10,7 @@ import { defaultRules, getInternalRulesForAction } from "./UserActionRule";
 import { userColumns } from "./UserColumn";
 import { isSuperAdmin, UserProps } from "./UserProps";
 import i18n from "../../utils/i18n";
+import { roleColumns, RoleColumnType } from "./RoleColumn";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
 
@@ -78,6 +79,7 @@ type AppSettingsAttr = {
     };
     status: AppSettingStatus;
     uiUserActionsAccess: UserUiActionAccess;
+    roleColumns: SettingsRoleColumn[];
 };
 
 type AppSettingStatus = "active" | "inactive";
@@ -85,6 +87,7 @@ type UserUiActionAccess = Record<UIUserActionType, { visible: boolean }>;
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
+export type SettingsRoleColumn = { field: RoleColumnType; value: ColumnSettingValue };
 export type ActionsPermissions = Record<UserAction, ActionPermission>;
 const defaultHideValues = { users: [], userGroups: [], userRoles: [], orgUnits: [] };
 
@@ -102,6 +105,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showCustomRootOrgUnits: false,
             showOnlyUsersInTheirOrgUnits: false,
             uiUserActionsAccess: this.defaultUiActions(),
+            roleColumns: this.defaultRoleColumns(),
         });
     }
 
@@ -117,11 +121,22 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
         return this._update({ columns });
     }
 
+    updateRoleColumns(columns: SettingsRoleColumn[]): AppSettings {
+        return this._update({ roleColumns: columns });
+    }
+
     updateColumnField(columnToUpdate: UserColumns, value: ColumnSettingValue): SettingsUserColumn[] {
         return this.columns.map(column => {
             if (column.field === columnToUpdate) {
                 return { ...column, value };
             }
+            return column;
+        });
+    }
+
+    updateRoleColumnField(columnToUpdate: RoleColumnType, value: ColumnSettingValue): SettingsRoleColumn[] {
+        return this.roleColumns.map(column => {
+            if (column.field === columnToUpdate) return { ...column, value };
             return column;
         });
     }
@@ -148,6 +163,10 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     private static defaultColumns(): SettingsUserColumn[] {
         return userColumns.map(column => ({ field: column, value: "optional" }));
+    }
+
+    private static defaultRoleColumns(): SettingsRoleColumn[] {
+        return roleColumns.map(column => ({ field: column, value: "optional" }));
     }
 
     private static defaultUiActions(): AppSettingsAttr["uiUserActionsAccess"] {

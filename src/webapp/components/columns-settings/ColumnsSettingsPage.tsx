@@ -3,22 +3,28 @@ import styled from "styled-components";
 import { Button, ButtonGroup, DialogActions, Typography } from "@material-ui/core";
 
 import i18n from "../../../utils/i18n";
-import { AppSettings, ColumnSettingValue, SettingsUserColumn } from "../../../domain/entities/AppSettings";
-import { Maybe } from "../../../types/utils";
-import { useUserColumns } from "../user-list-table/userColumns";
+import { ColumnSettingValue, SettingsUserColumn, SettingsRoleColumn } from "../../../domain/entities/AppSettings";
 
-type ColumnsSettingsPageProps = {
-    appSettings: Maybe<AppSettings>;
-    onUpdateColumns: (columns: SettingsUserColumn[]) => void;
+type ColumnConfig = SettingsUserColumn | SettingsRoleColumn;
+
+type ColumnsSettingsPageProps<T extends ColumnConfig> = {
+    columns: T[];
+    columnsMetadata: Array<{ name: string; text: string }>;
+    onUpdateColumns: (columns: T[]) => void;
     onClose: () => void;
     onSave: () => void;
 };
 
-export const ColumnsSettingsPage = React.memo((props: ColumnsSettingsPageProps) => {
-    const { appSettings, onClose, onSave, onUpdateColumns } = props;
+export const ColumnsSettingsPage = <T extends ColumnConfig>(props: ColumnsSettingsPageProps<T>) => {
+    const { columns, columnsMetadata, onClose, onSave, onUpdateColumns } = props;
 
-    const updateColumns = (columnToUpdate: SettingsUserColumn, value: ColumnSettingValue) => {
-        const newColumns = appSettings?.updateColumnField(columnToUpdate.field, value) || [];
+    const updateColumns = (columnToUpdate: T, value: ColumnSettingValue) => {
+        const newColumns = columns.map(column => {
+            if (column.field === columnToUpdate.field) {
+                return { ...column, value };
+            }
+            return column;
+        }) as T[];
         onUpdateColumns(newColumns);
     };
 
@@ -34,24 +40,30 @@ export const ColumnsSettingsPage = React.memo((props: ColumnsSettingsPageProps) 
                     </Button>
                 </DialogActions>
             </div>
-            {appSettings?.columns.map(column => {
+            {columns.map(column => {
                 return (
-                    <ColumnSelector key={column.field} column={column} onClick={updateColumns} settings={appSettings} />
+                    <ColumnSelector
+                        key={column.field}
+                        column={column}
+                        onClick={updateColumns}
+                        columns={columns}
+                        columnsMetadata={columnsMetadata}
+                    />
                 );
             })}
         </ColumnsSettingsContainer>
     );
-});
-
-type ColumnSelectorProps = {
-    settings: Maybe<AppSettings>;
-    column: SettingsUserColumn;
-    onClick: (columnToUpdate: SettingsUserColumn, value: ColumnSettingValue) => void;
 };
 
-export const ColumnSelector = React.memo((props: ColumnSelectorProps) => {
-    const { column, settings, onClick } = props;
-    const userColumns = useUserColumns();
+type ColumnSelectorProps<T extends ColumnConfig> = {
+    columns: T[];
+    columnsMetadata: Array<{ name: string; text: string }>;
+    column: T;
+    onClick: (columnToUpdate: T, value: ColumnSettingValue) => void;
+};
+
+export const ColumnSelector = <T extends ColumnConfig>(props: ColumnSelectorProps<T>) => {
+    const { column, columns, columnsMetadata, onClick } = props;
 
     const buttonStates = React.useMemo((): Array<{ value: ColumnSettingValue; label: string }> => {
         return [
@@ -62,8 +74,8 @@ export const ColumnSelector = React.memo((props: ColumnSelectorProps) => {
         ];
     }, []);
 
-    const isActive = (column: SettingsUserColumn, value: ColumnSettingValue) => {
-        const currentValue = settings?.columns.find(c => c.field === column.field);
+    const isActive = (column: T, value: ColumnSettingValue) => {
+        const currentValue = columns.find(c => c.field === column.field);
 
         if (value === "visible") return currentValue?.value === "visible";
         if (value === "disabled") return currentValue?.value === "disabled";
@@ -71,7 +83,7 @@ export const ColumnSelector = React.memo((props: ColumnSelectorProps) => {
         return currentValue === undefined || currentValue?.value === "optional";
     };
 
-    const columnText = userColumns.find(c => c.name === column.field)?.text;
+    const columnText = columnsMetadata.find(c => c.name === column.field)?.text;
 
     return (
         <Container key={column.field}>
@@ -92,7 +104,7 @@ export const ColumnSelector = React.memo((props: ColumnSelectorProps) => {
             </ButtonGroup>
         </Container>
     );
-});
+};
 
 const ColumnsSettingsContainer = styled.section`
     padding: 2em;

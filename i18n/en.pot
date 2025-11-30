@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-11-28T01:13:04.752Z\n"
-"PO-Revision-Date: 2025-11-28T01:13:04.752Z\n"
+"POT-Creation-Date: 2025-11-30T17:55:38.025Z\n"
+"PO-Revision-Date: 2025-11-30T17:55:38.025Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -453,10 +453,13 @@ msgstr ""
 msgid "Logger"
 msgstr ""
 
-msgid "Columns"
+msgid "User Columns"
 msgstr ""
 
 msgid "Permissions"
+msgstr ""
+
+msgid "Role Columns"
 msgstr ""
 
 msgid "Dashboards"
@@ -580,9 +583,6 @@ msgid "Assign to organisation units search"
 msgstr ""
 
 msgid "{{action}}: {{users}} {{remainingCount}}"
-msgstr ""
-
-msgid "Settings"
 msgstr ""
 
 msgid "And {{overflow}} more..."

@@ -7,6 +7,7 @@ export const Namespaces = {
     VISIBLE_COLUMNS: "visible-columns",
     LOGGER: "LOGGER",
     COLUMNS_PREFERENCE: "columns-preference",
+    ROLE_COLUMNS_PREFERENCE: "role-columns-preference",
 };
 
 export const NamespaceProperties: Record<Namespace, string[]> = {

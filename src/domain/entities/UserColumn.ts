@@ -47,22 +47,6 @@ export class Column extends Struct<ColumnAttrs>() {
         return Either.success(this.create(attrs));
     }
 
-    public static getDefaultColumns(): Column[] {
-        const defaultColumns: Array<keyof User> = [
-            "username",
-            "firstName",
-            "surname",
-            "email",
-            "organisationUnits",
-            "lastLogin",
-            "disabled",
-        ];
-
-        return defaultColumns.map((columnId, index) =>
-            Column.build({ fieldName: columnId, state: "selected", position: index }).getOrThrow()
-        );
-    }
-
     private static validateAndGetErrors(attrs: ColumnAttrs): ValidationError<Column>[] {
         const idError = validateRequired(attrs.fieldName, "Column id is required");
         const stateError = validateRequired(attrs.state, "Column state is required");

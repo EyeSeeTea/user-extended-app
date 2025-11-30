@@ -7,12 +7,13 @@ import SettingsDialog from "../../../legacy/components/SettingsDialog.component"
 import { LoggerSettingsPage } from "../../pages/log-settings/LoggerSettingsPage";
 import { Maybe } from "../../../types/utils";
 import { ColumnsSettingsPage } from "../columns-settings/ColumnsSettingsPage";
-import { AppSettings, SettingsUserColumn } from "../../../domain/entities/AppSettings";
+import { AppSettings, SettingsUserColumn, SettingsRoleColumn } from "../../../domain/entities/AppSettings";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { PermissionsPage } from "../permissions-page/PermissionsPage";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
+import { useUserColumns } from "../user-list-table/userColumns";
 
-type SettingsOption = "import" | "logger" | "columns" | "permissions";
+type SettingsOption = "import" | "logger" | "columns" | "permissions" | "role-columns" | "user-permissions";
 
 type SettingsDialogModalProps = {
     onCloseAppSettings: (appSettings: AppSettings) => void;
@@ -37,6 +38,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     const [selectedTab, setSelectedTab] = React.useState<SettingsOption>("import");
     const { importSettings } = useImportSettings();
     const { appSettings, save, setAppSettings } = useAppSettingsContext();
+    const userColumns = useUserColumns();
 
     const loading = useLoading();
     const snackbar = useSnackbar();
@@ -71,6 +73,23 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
         [appSettings, setAppSettings]
     );
 
+    const updateRoleColumns = React.useCallback(
+        (columns: SettingsRoleColumn[]) => {
+            const updatedSettings = appSettings.updateRoleColumns(columns);
+            setAppSettings(updatedSettings);
+        },
+        [appSettings, setAppSettings]
+    );
+
+    const roleColumnsMetadata = React.useMemo(
+        () => [
+            { name: "name", text: i18n.t("Name") },
+            { name: "description", text: i18n.t("Description") },
+            { name: "users", text: i18n.t("Users") },
+        ],
+        []
+    );
+
     const saveSettings = React.useCallback(() => {
         onSaveData(appSettings);
     }, [appSettings, onSaveData]);
@@ -88,14 +107,27 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
             case "columns":
                 return (
                     <ColumnsSettingsPage
-                        appSettings={appSettings}
+                        columns={appSettings.columns}
+                        columnsMetadata={userColumns}
                         onUpdateColumns={updateColumns}
                         onClose={closeDialog}
                         onSave={saveSettings}
                     />
                 );
+            case "user-permissions":
+                return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="users" />;
+            case "role-columns":
+                return (
+                    <ColumnsSettingsPage
+                        columns={appSettings.roleColumns}
+                        columnsMetadata={roleColumnsMetadata}
+                        onUpdateColumns={updateRoleColumns}
+                        onClose={closeDialog}
+                        onSave={saveSettings}
+                    />
+                );
             case "permissions":
-                return <PermissionsPage onSave={onSaveData} onClose={closeDialog} />;
+                return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="global" />;
         }
     };
 
@@ -104,8 +136,10 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
             <Tabs value={selectedTab} onChange={(_event, value) => onChangeTab(value)}>
                 <Tab label={i18n.t("Import")} value="import" />
                 <Tab label={i18n.t("Logger")} value="logger" />
-                <Tab label={i18n.t("Columns")} value="columns" />
                 <Tab label={i18n.t("Permissions")} value="permissions" />
+                <Tab label={i18n.t("User Permissions")} value="user-permissions" />
+                <Tab label={i18n.t("User Columns")} value="columns" />
+                <Tab label={i18n.t("Role Columns")} value="role-columns" />
             </Tabs>
 
             {renderSelectedTab(selectedTab)}

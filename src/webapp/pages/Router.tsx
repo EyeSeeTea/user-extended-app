@@ -20,7 +20,12 @@ const TabWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const Router: React.FC = React.memo(() => {
-    const { api, currentUser } = useAppContext();
+    const { api, currentUser, compositionRoot } = useAppContext();
+    const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
+
+    React.useEffect(() => {
+        compositionRoot.users.checkCurrentUserCanAccessSettings().run(setCurrentUserHasAccessToSettings, console.error);
+    }, [compositionRoot.users]);
 
     return (
         <HashRouter>
@@ -34,7 +39,10 @@ export const Router: React.FC = React.memo(() => {
                     path="/"
                     element={
                         <TabWrapper>
-                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} />
+                            <ListHybrid
+                                api={api}
+                                params={{ modelType: "users", currentUser, currentUserHasAccessToSettings }}
+                            />
                         </TabWrapper>
                     }
                 />
