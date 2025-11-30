@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-11-28T00:23:50.119Z\n"
+"POT-Creation-Date: 2025-11-30T18:15:07.447Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -15,10 +15,10 @@ msgid "Unknown error"
 msgstr "خطأ غير معروف"
 
 msgid "Show \"Filter by active/inactive users\""
-"" msgstr
+msgstr ""
 
 msgid "Show \"Filter by enabled/disabled 2FA\""
-"" msgstr
+msgstr ""
 
 msgid "Show \"Filter by enabled/disabled external authentication\""
 msgstr ""
@@ -192,6 +192,9 @@ msgstr ""
 msgid "Users: {{users}}"
 msgstr ""
 
+msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
 msgid "Filters"
 msgstr ""
 
@@ -336,15 +339,22 @@ msgstr "بحث مجموعات المستخدم"
 msgid "Show feedback button"
 msgstr "إظهار زر الملاحظات"
 
+msgid "Configure custom root org. units on advanced filters"
+msgstr ة"
+
+msgid "Access to Settings Section"
+msgstr ""
+
+msgid ""
+"Changes on 'Who has access' to settings will be reflected after page reload"
+msgstr ""
+"سيتم تطبيق تغييرات 'من لديه حق الوصول' إلى الإعدادات بعد إعادة تحميل الصفحة"
+
 msgid "Show only active users"
 msgstr "إظهار المستخدمين النشطين فقط"
 
 msgid "Show only users assigned to users organisation units"
 msgstr ""
-
-#, fuzzy
-msgid "Configure custom root org. units on advanced filters"
-msgstr "إخفاء الوحدات التنظيمية في المرشحات المتقدمة"
 
 msgid "Hide users, user roles and user groups"
 msgstr "إخفاء المستخدمين وأدوار المستخدم ومجموعات المستخدم"
@@ -361,13 +371,8 @@ msgstr ""
 "استيفاؤها لكل إجراء). مثال: إجراء 'تفعيل' لن يكون متاحاً إذا كان المستخدمون "
 "المحددون مفعلين بالفعل."
 
-msgid "Access to Settings Section"
-msgstr "الوصول إلى قسم الإعدادات"
-
-msgid ""
-"Changes on 'Who has access' to settings will be reflected after page reload"
+msgid "Show/Hide User Actions"
 msgstr ""
-"سيتم تطبيق تغييرات 'من لديه حق الوصول' إلى الإعدادات بعد إعادة تحميل الصفحة"
 
 #, fuzzy
 msgid "Select user groups and rules"
@@ -464,11 +469,17 @@ msgstr "جارٍ الحفظ..."
 msgid "Logger"
 msgstr "السجل"
 
-msgid "Columns"
-msgstr "الأعمدة"
-
 msgid "Permissions"
 msgstr "الصلاحيات"
+
+msgid "User Permissions"
+msgstr ""
+
+msgid "User Columns"
+msgstr ""
+
+msgid "Role Columns"
+msgstr ""
 
 msgid "Dashboards"
 msgstr "لوحات المعلومات"
@@ -594,9 +605,6 @@ msgstr "تعيين إلى وحدات تنظيم البحث"
 msgid "{{action}}: {{users}} {{remainingCount}}"
 msgstr "{{action}}: {{users}} {{remainingCount}}"
 
-msgid "Settings"
-msgstr "الإعدادات"
-
 msgid "And {{overflow}} more..."
 msgstr "و{{overflow}} المزيد..."
 
@@ -666,9 +674,6 @@ msgstr "تكرار المستخدم من القالب"
 
 msgid "Replicate user from table"
 msgstr "تكرار المستخدم من الجدول"
-
-msgid "Show only users assigned to my organization unit and below"
-msgstr ""
 
 msgid "Hide not applicable user groups"
 msgstr ""
@@ -948,6 +953,12 @@ msgstr "فتح في إدارة المستخدمين"
 
 msgid " and {{overflow}} more..."
 msgstr " و{{overflow}} المزيد..."
+
+#~ msgid "Columns"
+#~ msgstr "الأعمدة"
+
+#~ msgid "Settings"
+#~ msgstr "الإعدادات"
 
 #~ msgid "Value should be between {{min}} and {{max}}"
 #~ msgstr "يجب أن تكون القيمة بين {{min}} و {{max}}"

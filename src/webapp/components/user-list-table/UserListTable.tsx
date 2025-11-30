@@ -43,12 +43,11 @@ import {
     UsersSelectedModal,
     RiskyActionType,
 } from "../users-selected-modal/UsersSelectedModal";
-import { SettingsDialogModal, useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
+import { useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
 import Settings from "../../../legacy/models/settings";
 import { ImportExport, ImportResult } from "../import-export/ImportExport";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
-import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
 import { UserAction } from "../../../domain/entities/UserAction";
@@ -109,7 +108,6 @@ function buildOrgUnitTitleByAction(
 }
 
 export const UserListTable: React.FC<UserListTableProps> = ({
-    openSettings,
     onChangeVisibleColumns,
     onChangeSearch,
     filters,
@@ -129,10 +127,8 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [mappingColumns, setMappingColumns] = useState<ColumnMappingKeys[]>();
     const [selectedUserIds, setSelectedUserIds] = useState<Id[]>([]);
     const [actionType, setActionType] = useState<ActionType>();
-    const [showSettings, setShowSettings] = React.useState(false);
     const [showImportModal, setShowImportModal] = React.useState(false);
     const [importResult, setImportResult] = React.useState<ImportResult>();
-    const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
 
     const { importSettings } = useImportSettings();
 
@@ -142,7 +138,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
     const { users: allUsers } = useGetAllUsers(onlyUsersOrgUnits);
-    const { appSettings, setAppSettings } = useAppSettingsContext();
+    const { appSettings } = useAppSettingsContext();
     const {
         showOnlyActiveUsers: onlyActiveUsers,
         hide: { users: hideUsers },
@@ -598,16 +594,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         [actionType, selectedUser, copyInUser]
     );
 
-    const onSettingsClose = React.useCallback(
-        (settings: Maybe<Settings>) => {
-            setShowSettings(false);
-            if (settings) {
-                openSettings(settings);
-            }
-        },
-        [openSettings]
-    );
-
     const closeImportModal = React.useCallback(
         (options: { reloadTable: boolean }) => {
             if (options.reloadTable) {
@@ -622,20 +608,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         setImportResult(importResult);
         setShowImportModal(true);
     }, []);
-
-    const updateAppSettings = React.useCallback(
-        (appSettings: AppSettings) => {
-            setShowSettings(false);
-            setAppSettings(appSettings);
-        },
-        [setAppSettings]
-    );
-
-    React.useEffect(() => {
-        compositionRoot.users
-            .checkCurrentUserCanAccessSettings()
-            .run(setCurrentUserHasAccessToSettings, snackbar.error);
-    }, [compositionRoot.users, snackbar.error]);
 
     const selectedUsers = users && users.length > 0;
 
@@ -682,10 +654,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     onSave={onSaveCopyInUser}
                     visible
                 />
-            )}
-
-            {showSettings && currentUserHasAccessToSettings && (
-                <SettingsDialogModal onClose={onSettingsClose} onCloseAppSettings={updateAppSettings} />
             )}
 
             <PatchPaginationTableWrapper pagination={tableProps.pagination}>
