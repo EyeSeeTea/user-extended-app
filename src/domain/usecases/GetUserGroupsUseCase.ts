@@ -1,9 +1,9 @@
 import { AppSettings } from "../entities/AppSettings";
 import { Future, FutureData } from "../entities/Future";
-import { PaginatedResponse } from "../entities/PaginatedResponse";
 import { UserGroup } from "../entities/UserGroup";
+import { UserProps } from "../entities/UserProps";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
-import { GetUsersGroupsOptions, UserGroupRepository } from "../repositories/UserGroupRepository";
+import { UserGroupRepository } from "../repositories/UserGroupRepository";
 import { UserRepository } from "../repositories/UserRepository";
 import { getAppSettings } from "./common/settings";
 import { excludeUsers } from "./common/utils";
@@ -15,30 +15,26 @@ export class GetUserGroupsUseCase {
         private userRepository: UserRepository
     ) {}
 
-    execute(options: GetUsersGroupsOptions): FutureData<PaginatedResponse<UserGroup>> {
+    execute(options: { user: UserProps; excludeUsersOutsideOrgUnits: boolean }): FutureData<UserGroup[]> {
         return getAppSettings(this.appSettingsRepository, options.user).flatMap(appSettings => {
-            if (!options.excludeUsersOutsideOrgUnits) return this.getGroups(options, appSettings);
+            if (!options.excludeUsersOutsideOrgUnits) return this.getGroups(appSettings);
 
-            return this.getOrgUnitsAndGroups(options, appSettings).map(({ usersInMyOrgUnit, groupsPaginated }) => {
-                const groupsWithOutUsers = excludeUsers<UserGroup>(usersInMyOrgUnit, groupsPaginated.objects);
-                return { ...groupsPaginated, objects: groupsWithOutUsers };
+            return this.getOrgUnitsAndGroups(appSettings).map(({ usersInMyOrgUnit, groups }) => {
+                const groupsWithOutUsers = excludeUsers(usersInMyOrgUnit, groups);
+                return groupsWithOutUsers;
             });
         });
     }
 
-    private getOrgUnitsAndGroups(options: GetUsersGroupsOptions, appSettings: AppSettings) {
+    private getOrgUnitsAndGroups(appSettings: AppSettings) {
         return Future.joinObj({
             usersInMyOrgUnit: this.userRepository.getInMyOrgUnit(),
-            groupsPaginated: this.getGroups(options, appSettings),
+            groups: this.getGroups(appSettings),
         });
     }
 
-    private getGroups(
-        options: GetUsersGroupsOptions,
-        appSettings: AppSettings
-    ): FutureData<PaginatedResponse<UserGroup>> {
-        return this.userGroupRepository.get({
-            ...options,
+    private getGroups(appSettings: AppSettings): FutureData<UserGroup[]> {
+        return this.userGroupRepository.getAllBy({
             hideUsers: appSettings.hide.users,
             hideGroups: appSettings.hide.userGroups,
         });

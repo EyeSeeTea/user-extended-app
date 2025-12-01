@@ -1,3 +1,4 @@
+import _ from "lodash";
 import React from "react";
 import i18n from "../../../utils/i18n";
 import FileSaver from "file-saver";
@@ -13,9 +14,9 @@ import ExportIcon from "@material-ui/icons/ArrowDownward";
 import { PopoverList } from "../popover-list/PopoverList";
 import { getFilename } from "../../utils/file";
 
-import { GetUsersGroupsOptions } from "../../../domain/repositories/UserGroupRepository";
-import { CompositionRoot } from "../../../CompositionRoot";
 import { makeStyles } from "@material-ui/core";
+import { UserProps } from "../../../domain/entities/UserProps";
+import { Maybe } from "../../../types/utils";
 
 function generateTableConfig(currentPageSize: number): TableConfig<UserGroup> {
     return {
@@ -44,8 +45,9 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
     const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
-    const { compositionRoot, currentUser } = useAppContext();
+    const { currentUser } = useAppContext();
     const classes = useStyles();
+    const { userGroups } = useGetAllUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
 
     const items = React.useMemo(
         () => [
@@ -74,28 +76,18 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
             sorting: TableSorting<UserGroup>
         ): Promise<{ objects: UserGroup[]; pager: Pager }> => {
             setCurrentPageSize(pageSize);
-            return compositionRoot.userGroups
-                .get({
-                    page: page,
-                    pageSize: pageSize,
-                    search: search,
-                    sorting: { field: sorting.field, order: sorting.order },
-                    excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
-                    usersIds: selectedUsersIds,
-                    hideUsers: undefined,
-                    hideGroups: undefined,
-                    user: currentUser,
-                    hideEmptyUsers: filterEmptyUsers,
-                })
-                .toPromise()
-                .then(response => {
-                    return {
-                        objects: response.objects,
-                        pager: response.pager,
-                    };
-                });
+
+            const filteredUserGroups = filterAndSortUserGroups({
+                groups: userGroups,
+                search: search,
+                sort: sorting.order,
+                filterEmptyUsers: filterEmptyUsers,
+                selectedUsersIds: selectedUsersIds,
+            });
+
+            return Promise.resolve(createPagination(filteredUserGroups, page, pageSize));
         },
-        [compositionRoot.userGroups, selectedUsersIds, currentUser, excludeUsersOrgUnit, filterEmptyUsers]
+        [userGroups, filterEmptyUsers, selectedUsersIds]
     );
 
     const tableProps = useObjectsTable(config, getRows);
@@ -108,36 +100,21 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
 
     const exportRecords = React.useCallback(
         (action: string) => {
-            const search = document.querySelector<HTMLInputElement>("input[type='search']")?.value ?? "";
-            getAllUserGroups(compositionRoot, {
-                search: search,
-                sorting: tableProps.sorting
-                    ? { field: tableProps.sorting.field, order: tableProps.sorting.order }
-                    : { field: "name", order: "asc" },
-                excludeUsersOutsideOrgUnits: true,
-                usersIds: selectedUsersIds,
-                pageSize: 100,
-                hideUsers: undefined,
-                hideGroups: undefined,
-                user: currentUser,
-                hideEmptyUsers: filterEmptyUsers,
-            }).then(userGroups => {
-                const fileName = getFilename({
-                    name: "user-groups",
-                    format: action === "export_csv" ? "csv" : "json",
-                });
-                if (action === "export_csv") {
-                    const rows = userGroups.map(user => user);
-                    buildCsvRow(rows, fileName);
-                } else if (action === "export_json") {
-                    FileSaver.saveAs(
-                        new Blob([JSON.stringify(userGroups, null, 4)], { type: "application/json" }),
-                        fileName
-                    );
-                }
+            const fileName = getFilename({
+                name: "user-groups",
+                format: action === "export_csv" ? "csv" : "json",
             });
+            if (action === "export_csv") {
+                const rows = tableProps.rows.map(user => user);
+                buildCsvRow(rows, fileName);
+            } else if (action === "export_json") {
+                FileSaver.saveAs(
+                    new Blob([JSON.stringify(tableProps.rows, null, 4)], { type: "application/json" }),
+                    fileName
+                );
+            }
         },
-        [compositionRoot, selectedUsersIds, tableProps.sorting, currentUser, filterEmptyUsers]
+        [tableProps.rows]
     );
 
     return (
@@ -162,28 +139,21 @@ const useStyles = makeStyles({
     },
 });
 
-const getAllUserGroups = async (
-    compositionRoot: CompositionRoot,
-    baseParams: Omit<GetUsersGroupsOptions, "page">,
-    currentPage = 1
-): Promise<UserGroup[]> => {
-    const response = await compositionRoot.userGroups
-        .get({
-            ...baseParams,
-            page: currentPage,
-        })
-        .toPromise();
+function useGetAllUserGroups(props: { excludeUsersOutsideOrgUnits: boolean; currentUser: UserProps }): {
+    userGroups: UserGroup[];
+} {
+    const { currentUser, excludeUsersOutsideOrgUnits } = props;
+    const { compositionRoot } = useAppContext();
+    const [userGroups, setUserGroups] = React.useState<UserGroup[]>([]);
 
-    const { objects, pager } = response;
+    React.useEffect(() => {
+        return compositionRoot.userGroups
+            .get({ excludeUsersOutsideOrgUnits, user: currentUser })
+            .run(setUserGroups, console.error);
+    }, [compositionRoot.userGroups, currentUser, excludeUsersOutsideOrgUnits]);
 
-    if (pager.page >= pager.pageCount) {
-        return objects;
-    }
-
-    const nextPageObjects = await getAllUserGroups(compositionRoot, baseParams, currentPage + 1);
-
-    return [...objects, ...nextPageObjects];
-};
+    return { userGroups };
+}
 
 function buildCsvRow(rows: UserGroup[], fileName: string): void {
     FileSaver.saveAs(
@@ -197,4 +167,49 @@ function buildCsvRow(rows: UserGroup[], fileName: string): void {
         ),
         fileName
     );
+}
+
+export const filterAndSortUserGroups = (options: {
+    groups: UserGroup[];
+    search: string;
+    sort: "asc" | "desc";
+    filterEmptyUsers: boolean;
+    selectedUsersIds: Maybe<Id[]>;
+}): UserGroup[] => {
+    const { groups, search, sort = "asc", filterEmptyUsers, selectedUsersIds } = options;
+    const filtered = _(groups)
+        .filter(group => {
+            const { name, users } = group;
+
+            const matchesSearch = search ? name.toLowerCase().includes(search.toLowerCase()) : true;
+
+            const matchesUsers =
+                selectedUsersIds && selectedUsersIds.length > 0
+                    ? users.some(user => selectedUsersIds.includes(user.id))
+                    : true;
+
+            return matchesSearch && matchesUsers;
+        })
+        .filter(group => {
+            if (!filterEmptyUsers) return true;
+            return group.users.length > 0;
+        })
+        .orderBy(dashboard => dashboard.name, sort)
+        .value();
+
+    return filtered;
+};
+
+function createPagination<T>(records: T[], page: number, pageSize: number): { objects: T[]; pager: Pager } {
+    const pager: Pager = {
+        page: page,
+        pageCount: Math.ceil(records.length / pageSize),
+        total: records.length,
+        pageSize: pageSize,
+    };
+
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pagedRecords = records.slice(startIndex, endIndex);
+    return { objects: pagedRecords, pager };
 }

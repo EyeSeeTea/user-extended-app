@@ -8,6 +8,7 @@ import { UserProps } from "../entities/UserProps";
 export interface UserGroupRepository {
     getAll(): FutureData<UserGroup[]>;
     get(options: GetUsersGroupsOptions): FutureData<PaginatedResponse<UserGroup>>;
+    getAllBy(options: { hideUsers: Maybe<Id[]>; hideGroups: Maybe<Id[]> }): FutureData<UserGroup[]>;
 }
 
 export type GetUsersGroupsOptions = CommonFilterParams & {

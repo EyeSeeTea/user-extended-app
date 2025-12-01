@@ -1,10 +1,11 @@
 import _ from "lodash";
 import { D2Api } from "../../types/d2-api";
-import { FutureData } from "../../domain/entities/Future";
+import { Future, FutureData } from "../../domain/entities/Future";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { UserGroup } from "../../domain/entities/UserGroup";
 import { apiToFuture } from "../../utils/futures";
 import { GetUsersGroupsOptions, UserGroupRepository } from "../../domain/repositories/UserGroupRepository";
+import { Id } from "../../domain/entities/Ref";
 
 export class UserGroupD2Repository implements UserGroupRepository {
     constructor(private api: D2Api) {}
@@ -57,4 +58,51 @@ export class UserGroupD2Repository implements UserGroupRepository {
             };
         });
     }
+
+    getAllBy(options: { hideUsers: Id[]; hideGroups: Id[] }): FutureData<UserGroup[]> {
+        return this.getAllUserGroups({ initialPage: 1, pageSize: 100 }).map(d2UserGroups => {
+            return d2UserGroups
+                .filter(group => !options.hideGroups.includes(group.id))
+                .map(group => {
+                    const filteredUsers = group.users.filter(user => !options.hideUsers.includes(user.id));
+                    return UserGroup.create({
+                        id: group.id,
+                        name: group.displayName,
+                        users: filteredUsers.map(user => ({ id: user.id, name: user.displayName })),
+                    });
+                });
+        });
+    }
+
+    private getAllUserGroups(options: { initialPage: number; pageSize: number }): FutureData<D2ApiUserGroup[]> {
+        const { initialPage, pageSize } = options;
+
+        const fetchByPage = (page: number): FutureData<D2ApiUserGroup[]> => {
+            return apiToFuture(
+                this.api.models.userGroups.get({
+                    fields: { id: true, displayName: true, users: { id: true, displayName: true } },
+                    page,
+                    pageSize,
+                })
+            ).flatMap(response => {
+                const userGroups = response.objects;
+                if (response.pager.page < response.pager.pageCount) {
+                    return fetchByPage(page + 1).map(nextUserGroups => userGroups.concat(nextUserGroups));
+                } else {
+                    return Future.success(userGroups);
+                }
+            });
+        };
+
+        return fetchByPage(initialPage);
+    }
 }
+
+type D2ApiUserGroup = {
+    id: string;
+    displayName: string;
+    users: Array<{
+        id: string;
+        displayName: string;
+    }>;
+};
