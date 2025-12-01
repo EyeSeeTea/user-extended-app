@@ -205,16 +205,22 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                         >
                             <Typography variant="h6">{i18n.t("Show/Hide User Actions")}</Typography>
                             {UI_USER_ACTION_LIST.map(action => (
-                                <FormControlLabel
-                                    key={action.code}
-                                    control={
-                                        <Switch
-                                            checked={formState.uiUserActionsAccess[action.code].visible}
-                                            onChange={event => updateUiActionsAccess(action.code, event.target.checked)}
-                                        />
-                                    }
-                                    label={action.label}
-                                />
+                                <div key={action.code}>
+                                    {action.code === "import" && (
+                                        <Typography variant="h6">{i18n.t("User Actions")}</Typography>
+                                    )}
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={formState.uiUserActionsAccess[action.code].visible}
+                                                onChange={event =>
+                                                    updateUiActionsAccess(action.code, event.target.checked)
+                                                }
+                                            />
+                                        }
+                                        label={action.label}
+                                    />
+                                </div>
                             ))}
                         </Box>
                     </>
