@@ -13,11 +13,12 @@ type ColumnsSettingsPageProps<T extends ColumnConfig> = {
     onUpdateColumns: (columns: T[]) => void;
     onClose: () => void;
     onSave: () => void;
+    showActions?: boolean;
+    title: string;
 };
 
 export const ColumnsSettingsPage = <T extends ColumnConfig>(props: ColumnsSettingsPageProps<T>) => {
-    const { columns, columnsMetadata, onClose, onSave, onUpdateColumns } = props;
-
+    const { columns, columnsMetadata, onClose, onSave, onUpdateColumns, showActions } = props;
     const updateColumns = (columnToUpdate: T, value: ColumnSettingValue) => {
         const newColumns = columns.map(column => {
             if (column.field === columnToUpdate.field) {
@@ -30,27 +31,34 @@ export const ColumnsSettingsPage = <T extends ColumnConfig>(props: ColumnsSettin
 
     return (
         <ColumnsSettingsContainer>
-            <div className="sticky-actions">
-                <DialogActions>
-                    <Button variant="contained" color="primary" onClick={onSave}>
-                        {i18n.t("Save")}
-                    </Button>
-                    <Button color="secondary" onClick={onClose}>
-                        {i18n.t("Close")}
-                    </Button>
-                </DialogActions>
+            {showActions && (
+                <div className="sticky-actions">
+                    <DialogActions>
+                        <Button variant="contained" color="primary" onClick={onSave}>
+                            {i18n.t("Save")}
+                        </Button>
+                        <Button color="secondary" onClick={onClose}>
+                            {i18n.t("Close")}
+                        </Button>
+                    </DialogActions>
+                </div>
+            )}
+            <div>
+                <Typography variant="h6">{props.title}</Typography>
+                <SectionColumnsContainer>
+                    {columns.map(column => {
+                        return (
+                            <ColumnSelector
+                                key={column.field}
+                                column={column}
+                                onClick={updateColumns}
+                                columns={columns}
+                                columnsMetadata={columnsMetadata}
+                            />
+                        );
+                    })}
+                </SectionColumnsContainer>
             </div>
-            {columns.map(column => {
-                return (
-                    <ColumnSelector
-                        key={column.field}
-                        column={column}
-                        onClick={updateColumns}
-                        columns={columns}
-                        columnsMetadata={columnsMetadata}
-                    />
-                );
-            })}
         </ColumnsSettingsContainer>
     );
 };
@@ -119,4 +127,8 @@ const Container = styled.div`
     .label {
         flex: 0 0 30%;
     }
+`;
+
+const SectionColumnsContainer = styled.div`
+    padding-inline: 1em;
 `;

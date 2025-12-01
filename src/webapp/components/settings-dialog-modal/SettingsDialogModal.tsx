@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs, Tab, Dialog } from "@material-ui/core";
+import { Tabs, Tab, Dialog, Divider } from "@material-ui/core";
 import i18n from "../../../utils/i18n";
 import Settings from "../../../legacy/models/settings";
 import { useAppContext } from "../../contexts/app-context";
@@ -13,7 +13,7 @@ import { PermissionsPage } from "../permissions-page/PermissionsPage";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { useUserColumns } from "../user-list-table/userColumns";
 
-type SettingsOption = "import" | "logger" | "columns" | "permissions" | "role-columns" | "user-permissions";
+type SettingsOption = "import" | "logger" | "columns" | "permissions" | "user-permissions";
 
 type SettingsDialogModalProps = {
     onCloseAppSettings: (appSettings: AppSettings) => void;
@@ -106,26 +106,31 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                 return <LoggerSettingsPage onClose={closeDialog} />;
             case "columns":
                 return (
-                    <ColumnsSettingsPage
-                        columns={appSettings.columns}
-                        columnsMetadata={userColumns}
-                        onUpdateColumns={updateColumns}
-                        onClose={closeDialog}
-                        onSave={saveSettings}
-                    />
+                    <>
+                        <ColumnsSettingsPage
+                            columns={appSettings.columns}
+                            columnsMetadata={userColumns}
+                            onUpdateColumns={updateColumns}
+                            onClose={closeDialog}
+                            onSave={saveSettings}
+                            title={i18n.t("User Columns")}
+                            showActions
+                        />
+
+                        <Divider />
+
+                        <ColumnsSettingsPage
+                            columns={appSettings.roleColumns}
+                            columnsMetadata={roleColumnsMetadata}
+                            onUpdateColumns={updateRoleColumns}
+                            onClose={closeDialog}
+                            onSave={saveSettings}
+                            title={i18n.t("Role Columns")}
+                        />
+                    </>
                 );
             case "user-permissions":
                 return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="users" />;
-            case "role-columns":
-                return (
-                    <ColumnsSettingsPage
-                        columns={appSettings.roleColumns}
-                        columnsMetadata={roleColumnsMetadata}
-                        onUpdateColumns={updateRoleColumns}
-                        onClose={closeDialog}
-                        onSave={saveSettings}
-                    />
-                );
             case "permissions":
                 return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="global" />;
         }
@@ -138,8 +143,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                 <Tab label={i18n.t("Logger")} value="logger" />
                 <Tab label={i18n.t("Permissions")} value="permissions" />
                 <Tab label={i18n.t("User Permissions")} value="user-permissions" />
-                <Tab label={i18n.t("User Columns")} value="columns" />
-                <Tab label={i18n.t("Role Columns")} value="role-columns" />
+                <Tab label={i18n.t("Columns")} value="columns" />
             </Tabs>
 
             {renderSelectedTab(selectedTab)}
