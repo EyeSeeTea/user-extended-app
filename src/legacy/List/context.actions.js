@@ -3,6 +3,7 @@ import { getOrgUnitsRoots } from "../utils/dhis2Helpers";
 import _m from "../utils/lodash-mixins";
 import orgUnitAssignmentDialogStore from "./organisation-unit-dialog/organisationUnitDialogStore";
 
+// NOTICE: function not used anywhere
 export async function assignToOrgUnits(userIds, field, titleKey) {
     const d2 = await getD2();
     const listOptions = {
@@ -24,6 +25,7 @@ export async function assignToOrgUnits(userIds, field, titleKey) {
     });
 }
 
+// NOTICE: function not used anywhere
 export async function goToUserEditPage(userId) {
     const d2 = await getD2();
     const baseUrl = d2.system.systemInfo.contextPath;

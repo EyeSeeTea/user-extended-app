@@ -93,17 +93,17 @@ export default class Filters extends React.Component {
     componentDidMount = () => {
         listActions.loadUserRoles.next();
         listActions.loadUserGroups.next();
-        const toOptions = objs => objs.toArray().map(obj => ({ value: obj.id, text: obj.displayName }));
+        const toOptions = arr => arr.map(obj => ({ value: obj.id, text: obj.displayName }));
 
         this.registerDisposable(
-            listStore.listRolesSubject.subscribe(userRoles => {
-                this.setState({ userRolesAll: toOptions(userRoles) });
+            listStore.listRolesSubject.subscribe(userRolesResponse => {
+                this.setState({ userRolesAll: toOptions(userRolesResponse.userRoles) });
             })
         );
 
         this.registerDisposable(
-            listStore.listGroupsSubject.subscribe(userGroups => {
-                this.setState({ userGroupsAll: toOptions(userGroups) });
+            listStore.listGroupsSubject.subscribe(userGroupsResponse => {
+                this.setState({ userGroupsAll: toOptions(userGroupsResponse.userGroups) });
             })
         );
     };

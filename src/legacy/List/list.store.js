@@ -1,5 +1,4 @@
 import Store from "d2-ui/lib/store/Store";
-import { getInstance as getD2 } from "d2/lib/d2";
 import { Observable, Subject } from "rxjs/Rx";
 import { getUserList } from "../models/userList";
 
@@ -20,41 +19,38 @@ export const columns = [
     { name: "phoneNumber", sortable: false },
 ];
 
+let d2 = null;
+let api = null;
+
 export default Store.create({
     listSourceSubject: new Subject(),
     listRolesSubject: new Subject(),
     listGroupsSubject: new Subject(),
     listOrgUnitsSubject: new Subject(),
 
-    initialise() {
+    initialise(deps) {
+        d2 = deps.d2;
+        api = deps.api;
         return this;
     },
 
     getRoles() {
-        getD2().then(d2 => {
-            if (d2.models.userRoles) {
-                const rolesPromise = d2.models.userRoles.list({
-                    paging: false,
-                    fields: "id,displayName",
-                });
-                Observable.fromPromise(rolesPromise).subscribe(res => {
-                    this.listRolesSubject.next(res);
-                });
-            }
+        if (!api) return;
+
+        const rolesPromise = api.get("/userRoles", { paging: false, fields: "id,displayName" }).getData();
+
+        Observable.fromPromise(rolesPromise).subscribe(res => {
+            this.listRolesSubject.next(res);
         });
     },
 
     getGroups() {
-        getD2().then(d2 => {
-            if (d2.models.userGroups) {
-                const groupsPromise = d2.models.userGroups.list({
-                    paging: false,
-                    fields: "id,displayName",
-                });
-                Observable.fromPromise(groupsPromise).subscribe(res => {
-                    this.listGroupsSubject.next(res);
-                });
-            }
+        if (!api) return;
+
+        const groupsPromise = api.get("/userGroups", { paging: false, fields: "id,displayName" }).getData();
+
+        Observable.fromPromise(groupsPromise).subscribe(res => {
+            this.listGroupsSubject.next(res);
         });
     },
 
@@ -67,11 +63,11 @@ export default Store.create({
     },
 
     filter(options, complete) {
-        getD2().then(d2 => {
-            const { filters, ...listOptions } = options;
-            const listSearchPromise = getUserList(d2, filters, listOptions);
-            this.listSourceSubject.next(Observable.fromPromise(listSearchPromise));
-            complete(`list with filters '${filters}' is loading`);
-        });
+        if (!d2) return;
+
+        const { filters, ...listOptions } = options;
+        const listSearchPromise = getUserList(d2, filters, listOptions);
+        this.listSourceSubject.next(Observable.fromPromise(listSearchPromise));
+        complete(`list with filters '${filters}' is loading`);
     },
-}).initialise();
+});

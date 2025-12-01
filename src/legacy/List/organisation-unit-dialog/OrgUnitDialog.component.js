@@ -9,6 +9,7 @@ import BatchModelsMultiSelectModel from "../../components/batch-models-multi-sel
 import { listWithInFilter } from "../../utils/dhis2Helpers";
 import _m from "../../utils/lodash-mixins";
 
+// NOTICE: component not used anywhere
 class OrgUnitDialog extends React.Component {
     constructor(props, context) {
         super(props, context);
