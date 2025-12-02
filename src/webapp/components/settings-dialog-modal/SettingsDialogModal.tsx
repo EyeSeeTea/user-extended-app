@@ -1,5 +1,6 @@
 import React from "react";
-import { Tabs, Tab, Dialog, Divider } from "@material-ui/core";
+import styled from "styled-components";
+import { Tabs, Tab, Dialog } from "@material-ui/core";
 import i18n from "../../../utils/i18n";
 import Settings from "../../../legacy/models/settings";
 import { useAppContext } from "../../contexts/app-context";
@@ -107,7 +108,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                 return <LoggerSettingsPage onClose={closeDialog} />;
             case "columns":
                 return (
-                    <>
+                    <ColumnsContainer>
                         <ColumnsSettingsPage
                             columns={appSettings.columns}
                             columnsMetadata={userColumns}
@@ -117,9 +118,6 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                             title={i18n.t("User Columns")}
                             showActions
                         />
-
-                        <Divider />
-
                         <ColumnsSettingsPage
                             columns={appSettings.roleColumns}
                             columnsMetadata={roleColumnsMetadata}
@@ -128,7 +126,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                             onSave={saveSettings}
                             title={i18n.t("Role Columns")}
                         />
-                    </>
+                    </ColumnsContainer>
                 );
             case "user-permissions":
                 return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="users" />;
@@ -154,3 +152,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
         </Dialog>
     );
 };
+
+const ColumnsContainer = styled.div`
+    padding: 2em;
+`;

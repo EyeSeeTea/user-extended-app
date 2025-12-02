@@ -219,11 +219,11 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                     flexDirection="column"
                                     gridRowGap={theme.spacing(1)}
                                 >
-                                    <Typography variant="h6">{i18n.t("Show/Hide User Actions")}</Typography>
+                                    <Typography variant="h6">{i18n.t("Show/Hide Filters")}</Typography>
                                     {UI_USER_ACTION_LIST.map(action => (
                                         <div key={action.code}>
                                             {action.code === "import" && (
-                                                <Typography variant="h6">{i18n.t("User Actions")}</Typography>
+                                                <Typography variant="h6">{i18n.t("Show/Hide Actions")}</Typography>
                                             )}
                                             <FormControlLabel
                                                 control={

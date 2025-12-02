@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-12-02T03:24:47.376Z\n"
+"POT-Creation-Date: 2025-12-02T12:30:50.676Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -385,10 +385,10 @@ msgstr ""
 "'Ativar' não estará disponível se os utilizadores selecionados já estiverem "
 "ativados."
 
-msgid "Show/Hide User Actions"
+msgid "Show/Hide Filters"
 msgstr ""
 
-msgid "User Actions"
+msgid "Show/Hide Actions"
 msgstr ""
 
 msgid "Dashboards"

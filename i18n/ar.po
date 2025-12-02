@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-11-30T18:15:07.447Z\n"
+"POT-Creation-Date: 2025-12-02T12:30:50.676Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -45,6 +45,19 @@ msgid "Show Export to JSON"
 msgstr ""
 
 msgid "Show Export to CSV"
+msgstr ""
+
+#, fuzzy
+msgid "Show \"Show only users assigned to my organization unit and below\""
+msgstr "إظهار فقط المستخدمين المعينين لوحدات تنظيم المستخدمين"
+
+msgid "Show \"Hide not applicable user groups\""
+msgstr ""
+
+msgid "Show \"Filter by Users\""
+msgstr ""
+
+msgid "Show \"Filter by Owners\""
 msgstr ""
 
 msgid "ID"
@@ -340,7 +353,7 @@ msgid "Show feedback button"
 msgstr "إظهار زر الملاحظات"
 
 msgid "Configure custom root org. units on advanced filters"
-msgstr ة"
+msgstr ""
 
 msgid "Access to Settings Section"
 msgstr ""
@@ -371,8 +384,14 @@ msgstr ""
 "استيفاؤها لكل إجراء). مثال: إجراء 'تفعيل' لن يكون متاحاً إذا كان المستخدمون "
 "المحددون مفعلين بالفعل."
 
-msgid "Show/Hide User Actions"
+msgid "Show/Hide Filters"
 msgstr ""
+
+msgid "Show/Hide Actions"
+msgstr ""
+
+msgid "Dashboards"
+msgstr "لوحات المعلومات"
 
 #, fuzzy
 msgid "Select user groups and rules"
@@ -466,6 +485,12 @@ msgstr ""
 msgid "Saving..."
 msgstr "جارٍ الحفظ..."
 
+msgid "User Columns"
+msgstr ""
+
+msgid "Role Columns"
+msgstr ""
+
 msgid "Logger"
 msgstr "السجل"
 
@@ -475,14 +500,14 @@ msgstr "الصلاحيات"
 msgid "User Permissions"
 msgstr ""
 
-msgid "User Columns"
+msgid "Columns"
+msgstr "الأعمدة"
+
+msgid "Filter Permissions"
 msgstr ""
 
-msgid "Role Columns"
-msgstr ""
-
-msgid "Dashboards"
-msgstr "لوحات المعلومات"
+msgid "Settings"
+msgstr "الإعدادات"
 
 msgid "Error saving user"
 msgstr "خطأ في حفظ المستخدم"
@@ -953,12 +978,6 @@ msgstr "فتح في إدارة المستخدمين"
 
 msgid " and {{overflow}} more..."
 msgstr " و{{overflow}} المزيد..."
-
-#~ msgid "Columns"
-#~ msgstr "الأعمدة"
-
-#~ msgid "Settings"
-#~ msgstr "الإعدادات"
 
 #~ msgid "Value should be between {{min}} and {{max}}"
 #~ msgstr "يجب أن تكون القيمة بين {{min}} و {{max}}"

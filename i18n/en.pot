@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-12-02T03:24:47.376Z\n"
-"PO-Revision-Date: 2025-12-02T03:24:47.376Z\n"
+"POT-Creation-Date: 2025-12-02T12:30:50.676Z\n"
+"PO-Revision-Date: 2025-12-02T12:30:50.676Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -377,10 +377,10 @@ msgid ""
 "will not be available if selected users are already enabled."
 msgstr ""
 
-msgid "Show/Hide User Actions"
+msgid "Show/Hide Filters"
 msgstr ""
 
-msgid "User Actions"
+msgid "Show/Hide Actions"
 msgstr ""
 
 msgid "Dashboards"

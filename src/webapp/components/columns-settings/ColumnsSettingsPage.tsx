@@ -1,7 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, ButtonGroup, DialogActions, Typography } from "@material-ui/core";
-
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Button,
+    ButtonGroup,
+    DialogActions,
+    Typography,
+} from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import i18n from "../../../utils/i18n";
 import { ColumnSettingValue, SettingsUserColumn, SettingsRoleColumn } from "../../../domain/entities/AppSettings";
 
@@ -43,22 +51,26 @@ export const ColumnsSettingsPage = <T extends ColumnConfig>(props: ColumnsSettin
                     </DialogActions>
                 </div>
             )}
-            <div>
-                <Typography variant="h6">{props.title}</Typography>
-                <SectionColumnsContainer>
-                    {columns.map(column => {
-                        return (
-                            <ColumnSelector
-                                key={column.field}
-                                column={column}
-                                onClick={updateColumns}
-                                columns={columns}
-                                columnsMetadata={columnsMetadata}
-                            />
-                        );
-                    })}
-                </SectionColumnsContainer>
-            </div>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="h6">{props.title}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <SectionColumnsContainer>
+                        {columns.map(column => {
+                            return (
+                                <ColumnSelector
+                                    key={column.field}
+                                    column={column}
+                                    onClick={updateColumns}
+                                    columns={columns}
+                                    columnsMetadata={columnsMetadata}
+                                />
+                            );
+                        })}
+                    </SectionColumnsContainer>
+                </AccordionDetails>
+            </Accordion>
         </ColumnsSettingsContainer>
     );
 };
@@ -115,7 +127,6 @@ export const ColumnSelector = <T extends ColumnConfig>(props: ColumnSelectorProp
 };
 
 const ColumnsSettingsContainer = styled.section`
-    padding: 2em;
     position: relative;
 `;
 
