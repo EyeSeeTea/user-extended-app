@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-12-02T00:32:27.598Z\n"
-"PO-Revision-Date: 2025-12-02T00:32:27.598Z\n"
+"POT-Creation-Date: 2025-12-02T03:24:47.376Z\n"
+"PO-Revision-Date: 2025-12-02T03:24:47.376Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -45,6 +45,18 @@ msgid "Show Export to JSON"
 msgstr ""
 
 msgid "Show Export to CSV"
+msgstr ""
+
+msgid "Show \"Show only users assigned to my organization unit and below\""
+msgstr ""
+
+msgid "Show \"Hide not applicable user groups\""
+msgstr ""
+
+msgid "Show \"Filter by Users\""
+msgstr ""
+
+msgid "Show \"Filter by Owners\""
 msgstr ""
 
 msgid "ID"
@@ -371,6 +383,9 @@ msgstr ""
 msgid "User Actions"
 msgstr ""
 
+msgid "Dashboards"
+msgstr ""
+
 msgid "Select user groups and rules"
 msgstr ""
 
@@ -471,7 +486,7 @@ msgstr ""
 msgid "Columns"
 msgstr ""
 
-msgid "Dashboards"
+msgid "Filter Permissions"
 msgstr ""
 
 msgid "Settings"
