@@ -253,23 +253,33 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                     flexDirection="column"
                                     gridRowGap={theme.spacing(1)}
                                 >
-                                    {UI_USER_GROUP_ACTION_LIST.map(action => (
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={formState.uiUserGroupActionsAccess[action.code].visible}
-                                                    onChange={event =>
-                                                        updateUiUserGroupActionsAccess(
-                                                            action.code,
-                                                            event.target.checked
-                                                        )
+                                    <Typography variant="h6">{i18n.t("Show/Hide Filters")}</Typography>
+                                    {UI_USER_GROUP_ACTION_LIST.map(action => {
+                                        return (
+                                            <div key={action.code}>
+                                                {action.code === "exportCsv" && (
+                                                    <Typography variant="h6">{i18n.t("Show/Hide Actions")}</Typography>
+                                                )}
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={
+                                                                formState.uiUserGroupActionsAccess[action.code].visible
+                                                            }
+                                                            onChange={event =>
+                                                                updateUiUserGroupActionsAccess(
+                                                                    action.code,
+                                                                    event.target.checked
+                                                                )
+                                                            }
+                                                        />
                                                     }
+                                                    label={action.label}
+                                                    key={action.code}
                                                 />
-                                            }
-                                            label={action.label}
-                                            key={action.code}
-                                        />
-                                    ))}
+                                            </div>
+                                        );
+                                    })}
                                 </Box>
                             </AccordionDetails>
                         </Accordion>
