@@ -3,7 +3,14 @@ import React from "react";
 import i18n from "../../../utils/i18n";
 import FileSaver from "file-saver";
 
-import { ObjectsList, TableConfig, TablePagination, TableSorting, useObjectsTable } from "@eyeseetea/d2-ui-components";
+import {
+    ObjectsList,
+    TableColumn,
+    TableConfig,
+    TablePagination,
+    TableSorting,
+    useObjectsTable,
+} from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
 import { Pager } from "../../../domain/entities/PaginatedResponse";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
@@ -18,24 +25,33 @@ import { makeStyles } from "@material-ui/core";
 import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
 import { Maybe } from "../../../types/utils";
 import { AppSettings } from "../../../domain/entities/AppSettings";
+import { GroupColumnSetting } from "../../../domain/entities/GroupColumn";
 
-function generateTableConfig(currentPageSize: number): TableConfig<UserGroup> {
+function generateTableConfig(options: {
+    currentPageSize: number;
+    columnsPreference: GroupColumnSetting[];
+    currentUser: UserProps;
+}): TableConfig<UserGroup> {
+    const { currentPageSize, columnsPreference, currentUser } = options;
+
+    const allColumns: TableColumn<UserGroup>[] = columnsPreference.map(columnSetting => {
+        return {
+            name: columnSetting.fieldName,
+            text: _.capitalize(columnSetting.fieldName),
+            getValue: (userGroup: UserGroup) => {
+                if (columnSetting.fieldName === "users") return buildEllipsizedList(userGroup.users);
+                return userGroup[columnSetting.fieldName];
+            },
+            sortable: columnSetting.fieldName !== "users",
+            hidden: columnSetting.state === "unselected",
+            disabled: isSuperAdmin(currentUser) ? false : columnSetting.state === "selected-disabled",
+        };
+    });
+
     return {
         allowEmptyColumns: false,
         actions: [],
-        columns: [
-            {
-                name: "name",
-                text: i18n.t("Name"),
-                getValue: userGroup => userGroup.name,
-            },
-            {
-                name: "users",
-                text: i18n.t("Users"),
-                sortable: false,
-                getValue: userGroup => buildEllipsizedList(userGroup.users),
-            },
-        ],
+        columns: allColumns,
         initialSorting: { field: "name", order: "asc" },
         paginationOptions: { pageSizeInitialValue: currentPageSize, pageSizeOptions: [10, 25, 50] },
     };
@@ -51,10 +67,15 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
     const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
-    const { currentUser } = useAppContext();
+    const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
     const { userGroups } = useGetAllUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
     const isAdmin = isSuperAdmin(currentUser);
+    const [columnsPreference, setColumnsPreference] = React.useState<GroupColumnSetting[]>([]);
+
+    React.useEffect(() => {
+        return compositionRoot.groupColumns.get.execute(currentUser).run(setColumnsPreference, console.error);
+    }, [compositionRoot.groupColumns, currentUser, appSettings]);
 
     const items = React.useMemo(
         () =>
@@ -74,8 +95,8 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
     );
 
     const config = React.useMemo(() => {
-        return generateTableConfig(currentPageSize);
-    }, [currentPageSize]);
+        return generateTableConfig({ currentPageSize, columnsPreference, currentUser });
+    }, [currentPageSize, columnsPreference, currentUser]);
 
     const getRows = React.useCallback(
         (

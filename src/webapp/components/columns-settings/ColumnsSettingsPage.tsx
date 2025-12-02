@@ -11,9 +11,15 @@ import {
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import i18n from "../../../utils/i18n";
-import { ColumnSettingValue, SettingsUserColumn, SettingsRoleColumn } from "../../../domain/entities/AppSettings";
+import {
+    ColumnSettingValue,
+    SettingsUserColumn,
+    SettingsRoleColumn,
+    SettingsDashboardColumn,
+    SettingsGroupColumn,
+} from "../../../domain/entities/AppSettings";
 
-type ColumnConfig = SettingsUserColumn | SettingsRoleColumn;
+type ColumnConfig = SettingsUserColumn | SettingsRoleColumn | SettingsDashboardColumn | SettingsGroupColumn;
 
 type ColumnsSettingsPageProps<T extends ColumnConfig> = {
     columns: T[];

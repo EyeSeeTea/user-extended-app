@@ -53,6 +53,10 @@ import { UserColumnD2Repository } from "./data/repositories/UserColumnD2Reposito
 import { SaveColumnsPreferenceUseCase } from "./domain/usecases/SaveColumnsPreferenceUseCase";
 import { GetRoleColumnsUseCase } from "./domain/usecases/GetRoleColumnsUseCase";
 import { RoleColumnD2Repository } from "./data/repositories/RoleColumnD2Repository";
+import { GetDashboardColumnsUseCase } from "./domain/usecases/GetDashboardColumnsUseCase";
+import { DashboardColumnD2Repository } from "./data/repositories/DashboardColumnD2Repository";
+import { GetGroupColumnsUseCase } from "./domain/usecases/GetGroupColumnsUseCase";
+import { GroupColumnD2Repository } from "./data/repositories/GroupColumnD2Repository";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -73,6 +77,8 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
     const userSimpleRepository = new UserSimpleD2Repository(api);
     const userColumnRepository = new UserColumnD2Repository(instance);
     const roleColumnRepository = new RoleColumnD2Repository(instance);
+    const dashboardColumnRepository = new DashboardColumnD2Repository(instance);
+    const groupColumnRepository = new GroupColumnD2Repository(instance);
 
     return {
         logger: {
@@ -134,6 +140,12 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         },
         roleColumns: {
             get: new GetRoleColumnsUseCase(roleColumnRepository, appSettingsRepository),
+        },
+        dashboardColumns: {
+            get: new GetDashboardColumnsUseCase(dashboardColumnRepository, appSettingsRepository),
+        },
+        groupColumns: {
+            get: new GetGroupColumnsUseCase(groupColumnRepository, appSettingsRepository),
         },
     };
 }

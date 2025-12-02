@@ -16,6 +16,8 @@ import {
     UserRoleUiActionAccess,
     UserUiActionAccess,
 } from "./FilterUserActionPermission";
+import { dashboardColumns, DashboardColumnType } from "./DashboardColumn";
+import { groupColumns, GroupColumnType } from "./GroupColumn";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
 
@@ -36,6 +38,8 @@ type AppSettingsAttr = {
     status: AppSettingStatus;
     uiUserActionsAccess: UserUiActionAccess;
     roleColumns: SettingsRoleColumn[];
+    dashboardColumns: SettingsDashboardColumn[];
+    groupColumns: SettingsGroupColumn[];
     uiUserGroupActionsAccess: UserGroupUiActionAccess;
     uiUserRoleActionsAccess: UserRoleUiActionAccess;
     uiDashboardActionsAccess: DashboardUiActionAccess;
@@ -46,6 +50,8 @@ type AppSettingStatus = "active" | "inactive";
 export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
 export type SettingsRoleColumn = { field: RoleColumnType; value: ColumnSettingValue };
+export type SettingsDashboardColumn = { field: DashboardColumnType; value: ColumnSettingValue };
+export type SettingsGroupColumn = { field: GroupColumnType; value: ColumnSettingValue };
 export type ActionsPermissions = Record<UserAction, ActionPermission>;
 const defaultHideValues = { users: [], userGroups: [], userRoles: [], orgUnits: [] };
 
@@ -64,9 +70,11 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyUsersInTheirOrgUnits: false,
             uiUserActionsAccess: this.defaultUiActions(),
             roleColumns: this.defaultRoleColumns(),
+            dashboardColumns: this.defaultDashboardColumns(),
             uiUserGroupActionsAccess: this.defaultUserGroupUiActions(),
             uiUserRoleActionsAccess: this.defaultUserRoleUiActions(),
             uiDashboardActionsAccess: this.defaultUiDashboardActions(),
+            groupColumns: this.defaultGroupColumns(),
         });
     }
 
@@ -84,6 +92,14 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     updateRoleColumns(columns: SettingsRoleColumn[]): AppSettings {
         return this._update({ roleColumns: columns });
+    }
+
+    updateDashboardColumns(columns: SettingsDashboardColumn[]): AppSettings {
+        return this._update({ dashboardColumns: columns });
+    }
+
+    updateGroupColumns(columns: SettingsGroupColumn[]): AppSettings {
+        return this._update({ groupColumns: columns });
     }
 
     updateColumnField(columnToUpdate: UserColumns, value: ColumnSettingValue): SettingsUserColumn[] {
@@ -128,6 +144,14 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     private static defaultRoleColumns(): SettingsRoleColumn[] {
         return roleColumns.map(column => ({ field: column, value: "optional" }));
+    }
+
+    private static defaultDashboardColumns(): SettingsDashboardColumn[] {
+        return dashboardColumns.map(column => ({ field: column, value: "optional" }));
+    }
+
+    private static defaultGroupColumns(): SettingsGroupColumn[] {
+        return groupColumns.map(column => ({ field: column, value: "optional" }));
     }
 
     private static defaultUiActions(): AppSettingsAttr["uiUserActionsAccess"] {

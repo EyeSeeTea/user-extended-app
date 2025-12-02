@@ -8,7 +8,13 @@ import SettingsDialog from "../../../legacy/components/SettingsDialog.component"
 import { LoggerSettingsPage } from "../../pages/log-settings/LoggerSettingsPage";
 import { Maybe } from "../../../types/utils";
 import { ColumnsSettingsPage } from "../columns-settings/ColumnsSettingsPage";
-import { AppSettings, SettingsUserColumn, SettingsRoleColumn } from "../../../domain/entities/AppSettings";
+import {
+    AppSettings,
+    SettingsUserColumn,
+    SettingsRoleColumn,
+    SettingsDashboardColumn,
+    SettingsGroupColumn,
+} from "../../../domain/entities/AppSettings";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { PermissionsPage } from "../permissions-page/PermissionsPage";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
@@ -83,10 +89,44 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
         [appSettings, setAppSettings]
     );
 
+    const updateDashboardColumns = React.useCallback(
+        (columns: SettingsDashboardColumn[]) => {
+            const updatedSettings = appSettings.updateDashboardColumns(columns);
+            setAppSettings(updatedSettings);
+        },
+        [appSettings, setAppSettings]
+    );
+
+    const updateGroupColumns = React.useCallback(
+        (columns: SettingsGroupColumn[]) => {
+            const updatedSettings = appSettings.updateGroupColumns(columns);
+            setAppSettings(updatedSettings);
+        },
+        [appSettings, setAppSettings]
+    );
+
     const roleColumnsMetadata = React.useMemo(
         () => [
             { name: "name", text: i18n.t("Name") },
             { name: "description", text: i18n.t("Description") },
+            { name: "users", text: i18n.t("Users") },
+        ],
+        []
+    );
+
+    const dashboardColumnsMetadata = React.useMemo(
+        () => [
+            { name: "name", text: i18n.t("Name") },
+            { name: "description", text: i18n.t("Description") },
+            { name: "owner", text: i18n.t("Owner") },
+            { name: "users", text: i18n.t("Users") },
+        ],
+        []
+    );
+
+    const groupColumnsMetadata = React.useMemo(
+        () => [
+            { name: "name", text: i18n.t("Name") },
             { name: "users", text: i18n.t("Users") },
         ],
         []
@@ -119,12 +159,28 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                             showActions
                         />
                         <ColumnsSettingsPage
+                            columns={appSettings.groupColumns}
+                            columnsMetadata={groupColumnsMetadata}
+                            onUpdateColumns={updateGroupColumns}
+                            onClose={closeDialog}
+                            onSave={saveSettings}
+                            title={i18n.t("Group Columns")}
+                        />
+                        <ColumnsSettingsPage
                             columns={appSettings.roleColumns}
                             columnsMetadata={roleColumnsMetadata}
                             onUpdateColumns={updateRoleColumns}
                             onClose={closeDialog}
                             onSave={saveSettings}
                             title={i18n.t("Role Columns")}
+                        />
+                        <ColumnsSettingsPage
+                            columns={appSettings.dashboardColumns}
+                            columnsMetadata={dashboardColumnsMetadata}
+                            onUpdateColumns={updateDashboardColumns}
+                            onClose={closeDialog}
+                            onSave={saveSettings}
+                            title={i18n.t("Dashboard Columns")}
                         />
                     </ColumnsContainer>
                 );

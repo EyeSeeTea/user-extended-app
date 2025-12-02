@@ -2,6 +2,7 @@ import _ from "lodash";
 import {
     ObjectsList,
     Pager,
+    TableColumn,
     TableConfig,
     TablePagination,
     TableSorting,
@@ -9,7 +10,6 @@ import {
 } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Dashboard } from "../../../domain/entities/Dashboard";
-import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { FilteredUser } from "../users-filter/UsersFilters";
@@ -17,38 +17,33 @@ import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../types/utils";
 import { DashboardFilters } from "./DashboardFilters";
 import { AppSettings } from "../../../domain/entities/AppSettings";
-import { isSuperAdmin } from "../../../domain/entities/UserProps";
+import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
+import { DashboardColumnSetting } from "../../../domain/entities/DashboardColumn";
 
 type DashboardTableProps = {
     appSettings: AppSettings;
 };
 
-function generateTableConfig(): TableConfig<Dashboard> {
+function generateTableConfig(dashboardColumns: DashboardColumnSetting[], user: UserProps): TableConfig<Dashboard> {
+    const allColumns: TableColumn<Dashboard>[] = dashboardColumns.map(columnSetting => {
+        return {
+            name: columnSetting.fieldName,
+            text: _.capitalize(columnSetting.fieldName),
+            getValue: (dashboard: Dashboard) => {
+                if (columnSetting.fieldName === "users") return buildEllipsizedList(dashboard.users);
+                if (columnSetting.fieldName === "owner") return dashboard.owner.name;
+                return dashboard[columnSetting.fieldName];
+            },
+            sortable: columnSetting.fieldName !== "users" && columnSetting.fieldName !== "owner",
+            hidden: columnSetting.state === "unselected",
+            disabled: isSuperAdmin(user) ? false : columnSetting.state === "selected-disabled",
+        };
+    });
+
     return {
         allowEmptyColumns: false,
         actions: [],
-        columns: [
-            {
-                name: "name",
-                text: i18n.t("Name"),
-                getValue: dashboard => dashboard.name,
-            },
-            {
-                name: "description",
-                text: i18n.t("Description"),
-            },
-            {
-                name: "owner",
-                text: i18n.t("Owner"),
-                sortable: false,
-            },
-            {
-                name: "users",
-                text: i18n.t("Users"),
-                sortable: false,
-                getValue: dashboard => buildEllipsizedList(dashboard.users),
-            },
-        ],
+        columns: allColumns,
         initialSorting: { field: "name", order: "asc" },
         paginationOptions: { pageSizeInitialValue: 25, pageSizeOptions: [10, 25, 50] },
     };
@@ -68,6 +63,11 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(props =>
     });
     const [dashboards, setDashboards] = React.useState<Dashboard[]>([]);
     const [loading, setLoading] = React.useState(false);
+    const [columnsPreference, setColumnsPreference] = React.useState<DashboardColumnSetting[]>([]);
+
+    React.useEffect(() => {
+        return compositionRoot.dashboardColumns.get.execute(currentUser).run(setColumnsPreference, console.error);
+    }, [compositionRoot.dashboardColumns, currentUser, appSettings]);
 
     React.useEffect(() => {
         setLoading(true);
@@ -86,8 +86,8 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(props =>
     }, [currentUser, compositionRoot.dashboards.get, filters.excludeUsersOutsideOrgUnits]);
 
     const config = React.useMemo(() => {
-        return generateTableConfig();
-    }, []);
+        return generateTableConfig(columnsPreference, currentUser);
+    }, [columnsPreference, currentUser]);
 
     const getRows = React.useCallback(
         (
