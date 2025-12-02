@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-12-02T12:30:50.676Z\n"
-"PO-Revision-Date: 2025-12-02T12:30:50.676Z\n"
+"POT-Creation-Date: 2025-12-02T13:29:40.314Z\n"
+"PO-Revision-Date: 2025-12-02T13:29:40.314Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -222,12 +222,6 @@ msgid "Users"
 msgstr ""
 
 msgid "Select users"
-msgstr ""
-
-msgid "Description"
-msgstr ""
-
-msgid "Owner"
 msgstr ""
 
 msgid "Import/Export"
@@ -468,10 +462,22 @@ msgstr ""
 msgid "Saving..."
 msgstr ""
 
+msgid "Description"
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
 msgid "User Columns"
 msgstr ""
 
+msgid "Group Columns"
+msgstr ""
+
 msgid "Role Columns"
+msgstr ""
+
+msgid "Dashboard Columns"
 msgstr ""
 
 msgid "Logger"
