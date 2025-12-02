@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-11-30T18:15:07.447Z\n"
-"PO-Revision-Date: 2025-11-30T18:15:07.447Z\n"
+"POT-Creation-Date: 2025-12-02T00:18:53.876Z\n"
+"PO-Revision-Date: 2025-12-02T00:18:53.876Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -368,6 +368,9 @@ msgstr ""
 msgid "Show/Hide User Actions"
 msgstr ""
 
+msgid "User Actions"
+msgstr ""
+
 msgid "Select user groups and rules"
 msgstr ""
 
@@ -450,6 +453,12 @@ msgstr ""
 msgid "Saving..."
 msgstr ""
 
+msgid "User Columns"
+msgstr ""
+
+msgid "Role Columns"
+msgstr ""
+
 msgid "Logger"
 msgstr ""
 
@@ -459,10 +468,7 @@ msgstr ""
 msgid "User Permissions"
 msgstr ""
 
-msgid "User Columns"
-msgstr ""
-
-msgid "Role Columns"
+msgid "Columns"
 msgstr ""
 
 msgid "Dashboards"
@@ -805,6 +811,9 @@ msgid "Error in template: {{message}}"
 msgstr ""
 
 msgid "Table exported: {{filename}}"
+msgstr ""
+
+msgid "Settings"
 msgstr ""
 
 msgid "Distributed under GNU GLPv3"

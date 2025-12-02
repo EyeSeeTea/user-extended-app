@@ -12,6 +12,11 @@ import { DashboardTable } from "../components/dashboard/DashboardTable";
 import { UserRoleTable } from "../components/user-role/UserRoleTable";
 import { UserGroupTable } from "../components/user-group-table/UserGroupTable";
 import { TabsMenu } from "../components/tabs-menu/TabsMenu";
+import { IconButton, Tooltip } from "@material-ui/core";
+import BuildIcon from "@material-ui/icons/Build";
+import i18n from "../../utils/i18n";
+import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
+import { SettingsDialogModal } from "../components/settings-dialog-modal/SettingsDialogModal";
 
 const TabWrapper = ({ children }: { children: React.ReactNode }) => (
     <LegacyAppWrapper>
@@ -20,12 +25,22 @@ const TabWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const Router: React.FC = React.memo(() => {
-    const { api, currentUser, compositionRoot } = useAppContext();
+    const { api, currentUser, compositionRoot, d2 } = useAppContext();
     const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
+    const [showSettings, setShowSettings] = React.useState(false);
+    const { appSettings, setAppSettings } = useAppSettingsContext();
 
     React.useEffect(() => {
         compositionRoot.users.checkCurrentUserCanAccessSettings().run(setCurrentUserHasAccessToSettings, console.error);
     }, [compositionRoot.users]);
+
+    const updateAppSettings = React.useCallback(
+        newAppSettings => {
+            setAppSettings(newAppSettings);
+            setShowSettings(false);
+        },
+        [setAppSettings]
+    );
 
     return (
         <HashRouter>
@@ -39,10 +54,7 @@ export const Router: React.FC = React.memo(() => {
                     path="/"
                     element={
                         <TabWrapper>
-                            <ListHybrid
-                                api={api}
-                                params={{ modelType: "users", currentUser, currentUserHasAccessToSettings }}
-                            />
+                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} />
                         </TabWrapper>
                     }
                 />
@@ -60,7 +72,7 @@ export const Router: React.FC = React.memo(() => {
                     path="/user-roles"
                     element={
                         <TabWrapper>
-                            <UserRoleTable />
+                            <UserRoleTable appSettings={appSettings} />
                         </TabWrapper>
                     }
                 />
@@ -77,6 +89,28 @@ export const Router: React.FC = React.memo(() => {
             <IconsContainer>
                 <About icon="about" visible={true} />
             </IconsContainer>
+
+            {showSettings && currentUserHasAccessToSettings && (
+                <SettingsDialogModal
+                    d2={d2}
+                    onClose={() => setShowSettings(false)}
+                    onCloseAppSettings={updateAppSettings}
+                />
+            )}
+
+            {currentUserHasAccessToSettings && (
+                <div className="user-settings-button">
+                    <Tooltip title={i18n.t("Settings")}>
+                        <IconButton
+                            style={{ marginInlineStart: "auto" }}
+                            onClick={() => setShowSettings(true)}
+                            aria-label={i18n.t("Settings")}
+                        >
+                            <BuildIcon />
+                        </IconButton>
+                    </Tooltip>
+                </div>
+            )}
         </HashRouter>
     );
 });

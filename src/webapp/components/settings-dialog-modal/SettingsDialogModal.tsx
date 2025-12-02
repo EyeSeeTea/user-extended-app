@@ -18,6 +18,7 @@ type SettingsOption = "import" | "logger" | "columns" | "permissions" | "user-pe
 type SettingsDialogModalProps = {
     onCloseAppSettings: (appSettings: AppSettings) => void;
     onClose: (settings: Maybe<Settings>) => void;
+    d2: any;
 };
 
 export function useImportSettings() {
@@ -34,7 +35,7 @@ export function useImportSettings() {
 }
 
 export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => {
-    const { onClose, onCloseAppSettings } = props;
+    const { onClose, onCloseAppSettings, d2 } = props;
     const [selectedTab, setSelectedTab] = React.useState<SettingsOption>("import");
     const { importSettings } = useImportSettings();
     const { appSettings, save, setAppSettings } = useAppSettingsContext();
@@ -101,7 +102,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     const renderSelectedTab = (tab: SettingsOption) => {
         switch (tab) {
             case "import":
-                return importSettings && <SettingsDialog settings={importSettings} onRequestClose={onClose} />;
+                return importSettings && <SettingsDialog d2={d2} settings={importSettings} onRequestClose={onClose} />;
             case "logger":
                 return <LoggerSettingsPage onClose={closeDialog} />;
             case "columns":

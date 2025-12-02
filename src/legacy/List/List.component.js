@@ -10,9 +10,7 @@ import snackActions from "../Snackbar/snack.actions";
 import Filters from "./Filters.component";
 import { useAppSettingsContext } from "../../webapp/contexts/AppSettingsProvider";
 import { isSuperAdmin } from "../../domain/entities/UserProps";
-import { Tooltip, IconButton } from "@material-ui/core";
-import BuildIcon from "@material-ui/icons/Build";
-import { SettingsDialogModal } from "../../webapp/components/settings-dialog-modal/SettingsDialogModal";
+import { IconButton } from "@material-ui/core";
 
 const initialSorting = ["name", "asc"];
 
@@ -20,7 +18,7 @@ export const DEFAULT_SHOW_ONLY_ACTIVE_USERS = false;
 
 const ListHybridWrapper = props => {
     const { currentUser, currentUserHasAccessToSettings } = props.params;
-    const { appSettings, setAppSettings } = useAppSettingsContext();
+    const { appSettings } = useAppSettingsContext();
 
     return (
         <ListHybrid
@@ -30,7 +28,6 @@ const ListHybridWrapper = props => {
             isSettingInactive={appSettings.status === "inactive"}
             appSettings={appSettings}
             currentUserHasAccessToSettings={currentUserHasAccessToSettings}
-            setAppSettings={setAppSettings}
         />
     );
 };
@@ -241,46 +238,16 @@ class ListHybrid extends React.Component {
         }
     };
 
-    _onSettingsClose = () => {
-        this.setState({ showSettings: false });
-    };
-
-    _updateAppSettings = appSettings => {
-        const { saveSettings } = this.props;
-        this._onSettingsClose();
-        saveSettings(appSettings);
-    };
-
     render() {
-        const { replicateUser, listFilterOptions, onlyUsersOrgUnits, showSettings } = this.state;
-        const { appSettings, onlyActiveUsers, isSuperAdmin, isSettingInactive, currentUserHasAccessToSettings } =
-            this.props;
+        const { replicateUser, listFilterOptions, onlyUsersOrgUnits } = this.state;
+        const { appSettings, onlyActiveUsers, isSuperAdmin, isSettingInactive } = this.props;
 
         const areFiltersOverrided = isSuperAdmin ? false : onlyActiveUsers;
         const hideUsersCanManageFilter = onlyActiveUsers && onlyUsersOrgUnits;
 
         return (
             <div>
-                {currentUserHasAccessToSettings && (
-                    <div className="user-settings-button">
-                        <Tooltip title={this.getTranslation("settings")}>
-                            <IconButton
-                                style={{ marginInlineStart: "auto" }}
-                                onClick={() => this.setState({ showSettings: true })}
-                                aria-label={this.getTranslation("settings")}
-                            >
-                                <BuildIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </div>
-                )}
                 <div style={this.styles.listDetailsWrap}>
-                    {showSettings && currentUserHasAccessToSettings && (
-                        <SettingsDialogModal
-                            onClose={this._onSettingsClose}
-                            onCloseAppSettings={this._updateAppSettings}
-                        />
-                    )}
                     <div style={this.styles.dataTableWrap}>
                         <UserListTable
                             loading={this.state.isLoading}

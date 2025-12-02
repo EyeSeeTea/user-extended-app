@@ -14,7 +14,9 @@ class Dropdown extends React.Component {
     constructor(props, context) {
         super(props, context);
 
-        this.getTranslation = context.d2.i18n.getTranslation.bind(context.d2.i18n);
+        const i18n = context && context.d2 ? context.d2.i18n : props.d2.i18n;
+
+        this.getTranslation = i18n.getTranslation.bind(i18n);
         this._onChange = this._onChange.bind(this);
         this.openDialog = this.openDialog.bind(this);
         this.closeDialog = this.closeDialog.bind(this);

@@ -15,18 +15,14 @@ export default class SettingsDialog extends React.Component {
         settings: PropTypes.object.isRequired,
     };
 
-    static contextTypes = {
-        d2: PropTypes.object.isRequired,
-    };
-
     tabs = {
         importExport: ["organisationUnitsField"],
     };
 
-    constructor(props, context) {
+    constructor(props) {
         super(props);
 
-        const { i18n } = context.d2;
+        const { i18n } = props.d2;
         this.getTranslation = i18n.getTranslation.bind(i18n);
 
         this.state = {
@@ -86,6 +82,7 @@ export default class SettingsDialog extends React.Component {
                             labelText: field.label,
                             style: { width: "100%" },
                             defaultValue: field.defaultValue,
+                            d2: this.props.d2,
                         },
                     };
                 default:

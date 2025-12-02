@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-11-30T18:15:07.447Z\n"
+"POT-Creation-Date: 2025-12-02T00:18:53.876Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -376,6 +376,9 @@ msgstr ""
 msgid "Show/Hide User Actions"
 msgstr ""
 
+msgid "User Actions"
+msgstr ""
+
 #, fuzzy
 msgid "Select user groups and rules"
 msgstr "Selecionar grupos de usuários"
@@ -473,6 +476,12 @@ msgstr ""
 msgid "Saving..."
 msgstr "Salvando..."
 
+msgid "User Columns"
+msgstr ""
+
+msgid "Role Columns"
+msgstr ""
+
 msgid "Logger"
 msgstr "Logger"
 
@@ -482,11 +491,8 @@ msgstr "Permissões"
 msgid "User Permissions"
 msgstr ""
 
-msgid "User Columns"
-msgstr ""
-
-msgid "Role Columns"
-msgstr ""
+msgid "Columns"
+msgstr "Colunas"
 
 msgid "Dashboards"
 msgstr "Painéis"
@@ -858,6 +864,9 @@ msgstr "Erro ao replicar o usuário {{user}}: {{message}}"
 msgid "Table exported: {{filename}}"
 msgstr "Tabela exportada: {{filename}}"
 
+msgid "Settings"
+msgstr "Configurações"
+
 msgid "Distributed under GNU GLPv3"
 msgstr "Distribuído sob GNU GLPv3"
 
@@ -964,12 +973,6 @@ msgstr "Abrir na gestão de usuários"
 
 msgid " and {{overflow}} more..."
 msgstr " e mais {{overflow}}..."
-
-#~ msgid "Columns"
-#~ msgstr "Colunas"
-
-#~ msgid "Settings"
-#~ msgstr "Configurações"
 
 #~ msgid "Value should be between {{min}} and {{max}}"
 #~ msgstr "O valor deve estar entre {{min}} e {{max}}"

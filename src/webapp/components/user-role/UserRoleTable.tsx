@@ -17,6 +17,7 @@ import { UsersFilters, UsersFiltersProps } from "../users-filter/UsersFilters";
 import { Id } from "../../../domain/entities/Ref";
 import { RoleColumnSetting } from "../../../domain/entities/RoleColumn";
 import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
+import { AppSettings } from "../../../domain/entities/AppSettings";
 
 function generateTableConfig(roleColumns: RoleColumnSetting[], currentUser: UserProps): TableConfig<UserRole> {
     const allColumns: TableColumn<UserRole>[] = roleColumns.map(columnSetting => {
@@ -42,7 +43,8 @@ function generateTableConfig(roleColumns: RoleColumnSetting[], currentUser: User
     };
 }
 
-export const UserRoleTable: React.FC<{}> = React.memo(() => {
+export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(props => {
+    const { appSettings } = props;
     const { compositionRoot, currentUser } = useAppContext();
     const [userIds, setUserIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
@@ -50,7 +52,7 @@ export const UserRoleTable: React.FC<{}> = React.memo(() => {
 
     React.useEffect(() => {
         return compositionRoot.roleColumns.get.execute(currentUser).run(setColumnsPreference, console.error);
-    }, [compositionRoot.roleColumns, currentUser]);
+    }, [compositionRoot.roleColumns, currentUser, appSettings]);
 
     const config = React.useMemo(() => {
         return generateTableConfig(columnsPreference, currentUser);
