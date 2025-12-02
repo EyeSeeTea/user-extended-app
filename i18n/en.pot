@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-12-02T00:18:53.876Z\n"
-"PO-Revision-Date: 2025-12-02T00:18:53.876Z\n"
+"POT-Creation-Date: 2025-12-02T00:32:27.598Z\n"
+"PO-Revision-Date: 2025-12-02T00:32:27.598Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -474,6 +474,9 @@ msgstr ""
 msgid "Dashboards"
 msgstr ""
 
+msgid "Settings"
+msgstr ""
+
 msgid "Error saving user"
 msgstr ""
 
@@ -811,9 +814,6 @@ msgid "Error in template: {{message}}"
 msgstr ""
 
 msgid "Table exported: {{filename}}"
-msgstr ""
-
-msgid "Settings"
 msgstr ""
 
 msgid "Distributed under GNU GLPv3"

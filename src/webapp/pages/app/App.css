@@ -35,10 +35,3 @@ li {
     inset-block-start: 0;
     z-index: 1;
 }
-
-.user-settings-button {
-    padding-inline-end: 2em;
-    position: absolute;
-    right: 0;
-    top: 4em;
-}
