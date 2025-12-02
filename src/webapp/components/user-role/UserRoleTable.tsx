@@ -86,14 +86,22 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
         setUserIds(filters.users.map(user => user.value));
     }, []);
 
+    const isAdmin = isSuperAdmin(currentUser);
+
+    const someFilterEnabled =
+        appSettings.uiUserRoleActionsAccess.filterUsers.visible ||
+        appSettings.uiUserRoleActionsAccess.filterUsersInOrgUnit.visible;
+
     return (
         <ObjectsList {...tableProps}>
-            <UsersFilters
-                onFilterChange={updateFilters}
-                showOrgUnitFilter
-                showUserFilter
-                filterUserLabel={i18n.t("Filter users")}
-            />
+            {(isAdmin || someFilterEnabled) && (
+                <UsersFilters
+                    onFilterChange={updateFilters}
+                    showOrgUnitFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsersInOrgUnit.visible}
+                    showUserFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsers.visible}
+                    filterUserLabel={i18n.t("Filter users")}
+                />
+            )}
         </ObjectsList>
     );
 });

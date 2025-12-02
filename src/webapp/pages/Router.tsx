@@ -74,7 +74,7 @@ export const Router: React.FC = React.memo(() => {
                     path="/dashboards"
                     element={
                         <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
-                            <DashboardTable />
+                            <DashboardTable appSettings={appSettings} />
                         </TabWrapper>
                     }
                 />
@@ -92,7 +92,7 @@ export const Router: React.FC = React.memo(() => {
                     path="/user-groups"
                     element={
                         <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
-                            <UserGroupTable />
+                            <UserGroupTable appSettings={appSettings} />
                         </TabWrapper>
                     }
                 />

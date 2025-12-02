@@ -15,8 +15,9 @@ import { PopoverList } from "../popover-list/PopoverList";
 import { getFilename } from "../../utils/file";
 
 import { makeStyles } from "@material-ui/core";
-import { UserProps } from "../../../domain/entities/UserProps";
+import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
 import { Maybe } from "../../../types/utils";
+import { AppSettings } from "../../../domain/entities/AppSettings";
 
 function generateTableConfig(currentPageSize: number): TableConfig<UserGroup> {
     return {
@@ -40,7 +41,12 @@ function generateTableConfig(currentPageSize: number): TableConfig<UserGroup> {
     };
 }
 
-export const UserGroupTable: React.FC<{}> = React.memo(() => {
+type UserGroupTableProps = {
+    appSettings: AppSettings;
+};
+
+export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props => {
+    const { appSettings } = props;
     const [currentPageSize, setCurrentPageSize] = React.useState(25);
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
@@ -48,21 +54,23 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
     const { currentUser } = useAppContext();
     const classes = useStyles();
     const { userGroups } = useGetAllUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
+    const isAdmin = isSuperAdmin(currentUser);
 
     const items = React.useMemo(
-        () => [
-            {
-                id: "export_csv",
-                label: i18n.t("Export to CSV"),
-                icon: <ExportIcon />,
-            },
-            {
-                id: "export_json",
-                label: i18n.t("Export to JSON"),
-                icon: <ExportIcon />,
-            },
-        ],
-        []
+        () =>
+            [
+                {
+                    id: "exportCsv" as const,
+                    label: i18n.t("Export to CSV"),
+                    icon: <ExportIcon />,
+                },
+                {
+                    id: "exportJson" as const,
+                    label: i18n.t("Export to JSON"),
+                    icon: <ExportIcon />,
+                },
+            ].filter(item => isAdmin || appSettings.uiUserGroupActionsAccess[item.id].visible),
+        [isAdmin, appSettings.uiUserGroupActionsAccess]
     );
 
     const config = React.useMemo(() => {
@@ -117,18 +125,29 @@ export const UserGroupTable: React.FC<{}> = React.memo(() => {
         [tableProps.rows]
     );
 
+    const someFilterEnabled =
+        appSettings.uiUserGroupActionsAccess.filterUsers.visible ||
+        appSettings.uiUserGroupActionsAccess.filterUsersInOrgUnit.visible ||
+        appSettings.uiUserGroupActionsAccess.filterHideNotApplicableUserGroups.visible;
+
     return (
         <ObjectsList {...tableProps}>
-            <UsersFilters
-                onFilterChange={updateFilters}
-                showUserFilter
-                showOrgUnitFilter
-                filterUserLabel={i18n.t("Filter users")}
-                showEmptyUsers
-            />
-            <div className={classes.popoverContainer}>
-                <PopoverList title={i18n.t("Actions")} items={items} onItemClick={exportRecords} />
-            </div>
+            {(isAdmin || someFilterEnabled) && (
+                <UsersFilters
+                    onFilterChange={updateFilters}
+                    showUserFilter={isAdmin || appSettings.uiUserGroupActionsAccess.filterUsers.visible}
+                    showOrgUnitFilter={isAdmin || appSettings.uiUserGroupActionsAccess.filterUsersInOrgUnit.visible}
+                    filterUserLabel={i18n.t("Filter users")}
+                    showEmptyUsers={
+                        isAdmin || appSettings.uiUserGroupActionsAccess.filterHideNotApplicableUserGroups.visible
+                    }
+                />
+            )}
+            {items.length > 0 && (
+                <div className={classes.popoverContainer}>
+                    <PopoverList title={i18n.t("Actions")} items={items} onItemClick={exportRecords} />
+                </div>
+            )}
         </ObjectsList>
     );
 });

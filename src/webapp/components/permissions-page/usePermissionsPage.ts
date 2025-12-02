@@ -1,9 +1,19 @@
 import _ from "lodash";
 import React from "react";
-import { AppSettings, markAllActionsPublic, UIUserActionType } from "../../../domain/entities/AppSettings";
+import { AppSettings, markAllActionsPublic } from "../../../domain/entities/AppSettings";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 import { Id } from "../../../domain/entities/Ref";
+import {
+    UserUiActionAccess,
+    UserGroupUiActionAccess,
+    UIUserActionType,
+    UIUserGroupActionType,
+    UserRoleUiActionAccess,
+    UIUserRoleActionType,
+    DashboardUiActionAccess,
+    UIDashboardActionType,
+} from "../../../domain/entities/FilterUserActionPermission";
 
 export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, permission: Permission) => {
     const { appSettings } = useAppSettingsContext();
@@ -20,6 +30,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         showCustomRootOrgUnits: appSettings.showCustomRootOrgUnits,
         showOnlyUsersInTheirOrgUnits: appSettings.showOnlyUsersInTheirOrgUnits,
         uiUserActionsAccess: appSettings.uiUserActionsAccess,
+        uiUserGroupActionsAccess: appSettings.uiUserGroupActionsAccess,
+        uiUserRoleActionsAccess: appSettings.uiUserRoleActionsAccess,
+        uiDashboardActionsAccess: appSettings.uiDashboardActionsAccess,
     });
 
     const [actionsPermissions, setActionsPermissions] = React.useState(appSettings.actionsAccess);
@@ -58,6 +71,27 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         }));
     };
 
+    const updateUiUserGroupActionsAccess = (actionCode: UIUserGroupActionType, value: boolean) => {
+        setForm(prev => ({
+            ...prev,
+            uiUserGroupActionsAccess: { ...prev.uiUserGroupActionsAccess, [actionCode]: { visible: value } },
+        }));
+    };
+
+    const updateUiUserRoleActionsAccess = (actionCode: UIUserRoleActionType, value: boolean) => {
+        setForm(prev => ({
+            ...prev,
+            uiUserRoleActionsAccess: { ...prev.uiUserRoleActionsAccess, [actionCode]: { visible: value } },
+        }));
+    };
+
+    const updateUiDashboardActionsAccess = (actionCode: UIDashboardActionType, value: boolean) => {
+        setForm(prev => ({
+            ...prev,
+            uiDashboardActionsAccess: { ...prev.uiDashboardActionsAccess, [actionCode]: { visible: value } },
+        }));
+    };
+
     const onSaveSettings = React.useCallback(() => {
         onSave(
             AppSettings.create({
@@ -75,6 +109,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 rootOrgUnitIds: rootOrgUnitIds,
                 showOnlyUsersInTheirOrgUnits: formState.showOnlyUsersInTheirOrgUnits,
                 uiUserActionsAccess: formState.uiUserActionsAccess,
+                uiUserGroupActionsAccess: formState.uiUserGroupActionsAccess,
+                uiUserRoleActionsAccess: formState.uiUserRoleActionsAccess,
+                uiDashboardActionsAccess: formState.uiDashboardActionsAccess,
             })
         );
     }, [
@@ -87,6 +124,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.actionsArePublic,
         formState.showOnlyUsersInTheirOrgUnits,
         formState.uiUserActionsAccess,
+        formState.uiUserGroupActionsAccess,
+        formState.uiUserRoleActionsAccess,
+        formState.uiDashboardActionsAccess,
         permission,
         actionsPermissions,
         usersToHide,
@@ -112,6 +152,9 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         updateRootOrgUnitIds,
         updateCustomRootOrgUnitSwitch,
         updateUiActionsAccess,
+        updateUiUserGroupActionsAccess,
+        updateUiUserRoleActionsAccess,
+        updateUiDashboardActionsAccess,
     };
 };
 
@@ -123,5 +166,8 @@ type FormType = {
     showHideOptions: boolean;
     showCustomRootOrgUnits: boolean;
     showOnlyUsersInTheirOrgUnits: boolean;
-    uiUserActionsAccess: Record<UIUserActionType, { visible: boolean }>;
+    uiUserActionsAccess: UserUiActionAccess;
+    uiUserGroupActionsAccess: UserGroupUiActionAccess;
+    uiUserRoleActionsAccess: UserRoleUiActionAccess;
+    uiDashboardActionsAccess: DashboardUiActionAccess;
 };

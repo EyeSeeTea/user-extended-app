@@ -1,19 +1,37 @@
 import React from "react";
-import { Box, Button, DialogActions, FormControlLabel, Switch, Typography, useTheme } from "@material-ui/core";
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Box,
+    Button,
+    DialogActions,
+    FormControlLabel,
+    Switch,
+    Typography,
+    useTheme,
+} from "@material-ui/core";
 import { InfoOutlined as InfoOutlinedIcon } from "@material-ui/icons";
 import { Sharing } from "@eyeseetea/d2-ui-components";
-import { AppSettings, UI_USER_ACTION_LIST } from "../../../domain/entities/AppSettings";
+import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useSharingSettings } from "./useSharingSettings";
 import { usePermissionsPage } from "./usePermissionsPage";
 import { SharingActions } from "./SharingActions";
 import i18n from "../../../utils/i18n";
 import { HideEntities } from "./HideEntities";
 import { OrgUnitSelectorModal } from "../org-unit-selector-modal/OrgUnitSelectorModal";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import {
+    UI_DASHBOARD_ACTION_LIST,
+    UI_USER_ACTION_LIST,
+    UI_USER_GROUP_ACTION_LIST,
+    UI_USER_ROLE_ACTION_LIST,
+} from "../../../domain/entities/FilterUserActionPermission";
 
 type PermissionsPageProps = {
     onSave: (appSettings: AppSettings) => void;
     onClose: () => void;
-    permissionsGroup: "users" | "global";
+    permissionsGroup: "users" | "global" | "filter";
 };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
@@ -33,30 +51,17 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         rootOrgUnitIds,
         updateCustomRootOrgUnitSwitch,
         updateUiActionsAccess,
+        updateUiUserGroupActionsAccess,
+        updateUiUserRoleActionsAccess,
+        updateUiDashboardActionsAccess,
     } = usePermissionsPage(onSave, permission);
 
     const theme = useTheme();
 
-    return (
-        <Box component="section" padding={theme.spacing(0.25)} position="relative">
-            <div className="sticky-actions">
-                <DialogActions>
-                    <Button onClick={onSaveSettings} color="primary" variant="contained">
-                        {i18n.t("Save")}
-                    </Button>
-                    <Button onClick={onClose} color="secondary">
-                        {i18n.t("Close")}
-                    </Button>
-                </DialogActions>
-            </div>
-            <Box
-                display="flex"
-                flexDirection="column"
-                flexWrap="wrap"
-                paddingX={theme.spacing(0.25)}
-                maxWidth="calc(85% - 1em)"
-            >
-                {permissionsGroup === "global" ? (
+    const renderByPermissionsGroup = () => {
+        switch (permissionsGroup) {
+            case "global":
+                return (
                     <>
                         <FormControlLabel
                             control={
@@ -120,7 +125,9 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                             </Box>
                         )}
                     </>
-                ) : (
+                );
+            case "users":
+                return (
                     <>
                         <FormControlLabel
                             control={
@@ -195,36 +202,165 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                 setActionsPermissions={setActionsPermissions}
                             />
                         )}
-
-                        <Box
-                            marginTop={2}
-                            marginBottom={2}
-                            display="flex"
-                            flexDirection="column"
-                            gridRowGap={theme.spacing(1)}
-                        >
-                            <Typography variant="h6">{i18n.t("Show/Hide User Actions")}</Typography>
-                            {UI_USER_ACTION_LIST.map(action => (
-                                <div key={action.code}>
-                                    {action.code === "import" && (
-                                        <Typography variant="h6">{i18n.t("User Actions")}</Typography>
-                                    )}
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={formState.uiUserActionsAccess[action.code].visible}
-                                                onChange={event =>
-                                                    updateUiActionsAccess(action.code, event.target.checked)
-                                                }
-                                            />
-                                        }
-                                        label={action.label}
-                                    />
-                                </div>
-                            ))}
-                        </Box>
                     </>
-                )}
+                );
+            case "filter":
+                return (
+                    <>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="h6">{i18n.t("Users")}</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Box
+                                    marginTop={2}
+                                    marginBottom={2}
+                                    display="flex"
+                                    flexDirection="column"
+                                    gridRowGap={theme.spacing(1)}
+                                >
+                                    <Typography variant="h6">{i18n.t("Show/Hide User Actions")}</Typography>
+                                    {UI_USER_ACTION_LIST.map(action => (
+                                        <div key={action.code}>
+                                            {action.code === "import" && (
+                                                <Typography variant="h6">{i18n.t("User Actions")}</Typography>
+                                            )}
+                                            <FormControlLabel
+                                                control={
+                                                    <Switch
+                                                        checked={formState.uiUserActionsAccess[action.code].visible}
+                                                        onChange={event =>
+                                                            updateUiActionsAccess(action.code, event.target.checked)
+                                                        }
+                                                    />
+                                                }
+                                                label={action.label}
+                                            />
+                                        </div>
+                                    ))}
+                                </Box>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="h6">{i18n.t("User Groups")}</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Box
+                                    marginTop={2}
+                                    marginBottom={2}
+                                    display="flex"
+                                    flexDirection="column"
+                                    gridRowGap={theme.spacing(1)}
+                                >
+                                    {UI_USER_GROUP_ACTION_LIST.map(action => (
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={formState.uiUserGroupActionsAccess[action.code].visible}
+                                                    onChange={event =>
+                                                        updateUiUserGroupActionsAccess(
+                                                            action.code,
+                                                            event.target.checked
+                                                        )
+                                                    }
+                                                />
+                                            }
+                                            label={action.label}
+                                            key={action.code}
+                                        />
+                                    ))}
+                                </Box>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="h6">{i18n.t("User Roles")}</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Box
+                                    marginTop={2}
+                                    marginBottom={2}
+                                    display="flex"
+                                    flexDirection="column"
+                                    gridRowGap={theme.spacing(1)}
+                                >
+                                    {UI_USER_ROLE_ACTION_LIST.map(action => (
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={formState.uiUserRoleActionsAccess[action.code].visible}
+                                                    onChange={event =>
+                                                        updateUiUserRoleActionsAccess(action.code, event.target.checked)
+                                                    }
+                                                />
+                                            }
+                                            label={action.label}
+                                            key={action.code}
+                                        />
+                                    ))}
+                                </Box>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="h6">{i18n.t("Dashboards")}</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Box
+                                    marginTop={2}
+                                    marginBottom={2}
+                                    display="flex"
+                                    flexDirection="column"
+                                    gridRowGap={theme.spacing(1)}
+                                >
+                                    {UI_DASHBOARD_ACTION_LIST.map(action => (
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={formState.uiDashboardActionsAccess[action.code].visible}
+                                                    onChange={event =>
+                                                        updateUiDashboardActionsAccess(
+                                                            action.code,
+                                                            event.target.checked
+                                                        )
+                                                    }
+                                                />
+                                            }
+                                            label={action.label}
+                                            key={action.code}
+                                        />
+                                    ))}
+                                </Box>
+                            </AccordionDetails>
+                        </Accordion>
+                    </>
+                );
+            default:
+                return "";
+        }
+    };
+
+    return (
+        <Box component="section" padding={theme.spacing(0.25)} position="relative">
+            <div className="sticky-actions">
+                <DialogActions>
+                    <Button onClick={onSaveSettings} color="primary" variant="contained">
+                        {i18n.t("Save")}
+                    </Button>
+                    <Button onClick={onClose} color="secondary">
+                        {i18n.t("Close")}
+                    </Button>
+                </DialogActions>
+            </div>
+            <Box
+                display="flex"
+                flexDirection="column"
+                flexWrap="wrap"
+                paddingX={theme.spacing(0.25)}
+                maxWidth="calc(85% - 1em)"
+            >
+                {renderByPermissionsGroup()}
             </Box>
         </Box>
     );

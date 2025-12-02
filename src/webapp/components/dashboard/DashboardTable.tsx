@@ -16,8 +16,12 @@ import { FilteredUser } from "../users-filter/UsersFilters";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../types/utils";
 import { DashboardFilters } from "./DashboardFilters";
+import { AppSettings } from "../../../domain/entities/AppSettings";
+import { isSuperAdmin } from "../../../domain/entities/UserProps";
 
-type DashboardTableProps = {};
+type DashboardTableProps = {
+    appSettings: AppSettings;
+};
 
 function generateTableConfig(): TableConfig<Dashboard> {
     return {
@@ -50,7 +54,8 @@ function generateTableConfig(): TableConfig<Dashboard> {
     };
 }
 
-export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
+export const DashboardTable: React.FC<DashboardTableProps> = React.memo(props => {
+    const { appSettings } = props;
     const { compositionRoot, currentUser } = useAppContext();
     const [filters, setFilters] = React.useState<{
         ownerUsersIds?: Id[];
@@ -142,9 +147,24 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(() => {
             .value();
     }, [dashboards]);
 
+    const isAdmin = isSuperAdmin(currentUser);
+
+    const someFilterEnabled =
+        appSettings.uiDashboardActionsAccess.filterUsers.visible ||
+        appSettings.uiDashboardActionsAccess.filterOwners.visible ||
+        appSettings.uiDashboardActionsAccess.filterUsersInOrgUnit.visible;
+
     return (
         <ObjectsList {...tableProps} loading={loading}>
-            <DashboardFilters onFilterChange={updateFilters} owners={dashboardOwners} users={dashboardUsers} />
+            {(isAdmin || someFilterEnabled) && (
+                <DashboardFilters
+                    isAdmin={isAdmin}
+                    appSettings={appSettings}
+                    onFilterChange={updateFilters}
+                    owners={dashboardOwners}
+                    users={dashboardUsers}
+                />
+            )}
         </ObjectsList>
     );
 });

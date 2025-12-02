@@ -13,7 +13,7 @@ import { PermissionsPage } from "../permissions-page/PermissionsPage";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { useUserColumns } from "../user-list-table/userColumns";
 
-type SettingsOption = "import" | "logger" | "columns" | "permissions" | "user-permissions";
+type SettingsOption = "import" | "logger" | "columns" | "permissions" | "user-permissions" | "filter-permissions";
 
 type SettingsDialogModalProps = {
     onCloseAppSettings: (appSettings: AppSettings) => void;
@@ -134,6 +134,8 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                 return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="users" />;
             case "permissions":
                 return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="global" />;
+            case "filter-permissions":
+                return <PermissionsPage onSave={onSaveData} onClose={closeDialog} permissionsGroup="filter" />;
         }
     };
 
@@ -145,6 +147,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                 <Tab label={i18n.t("Permissions")} value="permissions" />
                 <Tab label={i18n.t("User Permissions")} value="user-permissions" />
                 <Tab label={i18n.t("Columns")} value="columns" />
+                <Tab label={i18n.t("Filter Permissions")} value="filter-permissions" />
             </Tabs>
 
             {renderSelectedTab(selectedTab)}

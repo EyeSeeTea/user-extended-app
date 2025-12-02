@@ -8,6 +8,7 @@ import i18n from "../../../utils/i18n";
 import styled from "styled-components";
 import { formatItemsDisplay } from "../users-filter/UsersFilters";
 import { FilterButton } from "../filter-button/FilterButton";
+import { AppSettings } from "../../../domain/entities/AppSettings";
 
 export type DashboardsFiltersProps = {
     onFilterChange: (filters: {
@@ -17,10 +18,12 @@ export type DashboardsFiltersProps = {
     }) => void;
     owners: NamedRef[];
     users: NamedRef[];
+    appSettings: AppSettings;
+    isAdmin: boolean;
 };
 
 export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(props => {
-    const { onFilterChange, owners, users } = props;
+    const { appSettings, isAdmin, onFilterChange, owners, users } = props;
 
     const [showUserFilterModal, setShowUserFilterModal] = React.useState(false);
     const [showOwnerFilterModal, setShowOwnerFilterModal] = React.useState(false);
@@ -115,23 +118,27 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                 title={i18n.t("Filters")}
             >
                 <FilterRowContainer>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={excludeUsersOutsideOrgUnits}
-                                onChange={e => setExcludeUsersOutsideOrgUnits(e.target.checked)}
-                            />
-                        }
-                        label={orgUnitLabel}
-                    />
+                    {(isAdmin || appSettings.uiDashboardActionsAccess.filterUsersInOrgUnit.visible) && (
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={excludeUsersOutsideOrgUnits}
+                                    onChange={e => setExcludeUsersOutsideOrgUnits(e.target.checked)}
+                                />
+                            }
+                            label={orgUnitLabel}
+                        />
+                    )}
                     <div>
-                        <DropdownForm label={i18n.t("Owners")}>
-                            <Select value="value" onOpen={openOwnerFilterModal} open={false}>
-                                <MenuItem value="value">
-                                    {formatItemsDisplay(currentOwners.map(owner => owner.text))}
-                                </MenuItem>
-                            </Select>
-                        </DropdownForm>
+                        {(isAdmin || appSettings.uiDashboardActionsAccess.filterOwners.visible) && (
+                            <DropdownForm label={i18n.t("Owners")}>
+                                <Select value="value" onOpen={openOwnerFilterModal} open={false}>
+                                    <MenuItem value="value">
+                                        {formatItemsDisplay(currentOwners.map(owner => owner.text))}
+                                    </MenuItem>
+                                </Select>
+                            </DropdownForm>
+                        )}
 
                         {showOwnerFilterModal && (
                             <ConfirmationDialog
@@ -159,13 +166,15 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
                     </div>
 
                     <div>
-                        <DropdownForm label={i18n.t("Users")}>
-                            <Select value="value" onOpen={openUserFilterModal} open={false}>
-                                <MenuItem value="value">
-                                    {formatItemsDisplay(currentUsers.map(user => user.text))}
-                                </MenuItem>
-                            </Select>
-                        </DropdownForm>
+                        {(isAdmin || appSettings.uiDashboardActionsAccess.filterUsers.visible) && (
+                            <DropdownForm label={i18n.t("Users")}>
+                                <Select value="value" onOpen={openUserFilterModal} open={false}>
+                                    <MenuItem value="value">
+                                        {formatItemsDisplay(currentUsers.map(user => user.text))}
+                                    </MenuItem>
+                                </Select>
+                            </DropdownForm>
+                        )}
 
                         {showUserFilterModal && (
                             <ConfirmationDialog

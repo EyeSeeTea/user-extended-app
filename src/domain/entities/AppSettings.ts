@@ -9,59 +9,15 @@ import { fromPairs, getKeys } from "../../types/utils";
 import { defaultRules, getInternalRulesForAction } from "./UserActionRule";
 import { userColumns } from "./UserColumn";
 import { isSuperAdmin, UserProps } from "./UserProps";
-import i18n from "../../utils/i18n";
 import { roleColumns, RoleColumnType } from "./RoleColumn";
+import {
+    DashboardUiActionAccess,
+    UserGroupUiActionAccess,
+    UserRoleUiActionAccess,
+    UserUiActionAccess,
+} from "./FilterUserActionPermission";
 
 export const CONSTANT_SETTINGS_CODE = "user-extended-app-settings";
-
-export const UI_USER_ACTION_LIST = [
-    {
-        code: "filterActive",
-        label: i18n.t('Show "Filter by active/inactive users"'),
-    },
-    {
-        code: "filterTwoFactorAuth",
-        label: i18n.t('Show "Filter by enabled/disabled 2FA"'),
-    },
-    {
-        code: "filterExternalAuth",
-        label: i18n.t('Show "Filter by enabled/disabled external authentication"'),
-    },
-    {
-        code: "filterRoles",
-        label: i18n.t('Show "Filter by role"'),
-    },
-    {
-        code: "filterUserGroups",
-        label: i18n.t('Show "Filter by Groups"'),
-    },
-    {
-        code: "filterOrgUnits",
-        label: i18n.t('Show "Filter by organization units capture"'),
-    },
-    {
-        code: "filterOrgUnitsView",
-        label: i18n.t('Show "Filter by organization units output"'),
-    },
-    {
-        code: "filterOrgUnitsSearch",
-        label: i18n.t('Show "Filter by organization units search"'),
-    },
-    {
-        code: "import",
-        label: i18n.t("Show Import Users"),
-    },
-    {
-        code: "exportJson",
-        label: i18n.t("Show Export to JSON"),
-    },
-    {
-        code: "exportCsv",
-        label: i18n.t("Show Export to CSV"),
-    },
-] as const;
-
-export type UIUserActionType = typeof UI_USER_ACTION_LIST[number]["code"];
 
 type AppSettingsAttr = {
     columns: SettingsUserColumn[];
@@ -80,10 +36,12 @@ type AppSettingsAttr = {
     status: AppSettingStatus;
     uiUserActionsAccess: UserUiActionAccess;
     roleColumns: SettingsRoleColumn[];
+    uiUserGroupActionsAccess: UserGroupUiActionAccess;
+    uiUserRoleActionsAccess: UserRoleUiActionAccess;
+    uiDashboardActionsAccess: DashboardUiActionAccess;
 };
 
 type AppSettingStatus = "active" | "inactive";
-type UserUiActionAccess = Record<UIUserActionType, { visible: boolean }>;
 
 export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
@@ -106,6 +64,9 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyUsersInTheirOrgUnits: false,
             uiUserActionsAccess: this.defaultUiActions(),
             roleColumns: this.defaultRoleColumns(),
+            uiUserGroupActionsAccess: this.defaultUserGroupUiActions(),
+            uiUserRoleActionsAccess: this.defaultUserRoleUiActions(),
+            uiDashboardActionsAccess: this.defaultUiDashboardActions(),
         });
     }
 
@@ -182,6 +143,28 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             import: { visible: true },
             exportJson: { visible: true },
             exportCsv: { visible: true },
+        };
+    }
+
+    private static defaultUserGroupUiActions(): AppSettingsAttr["uiUserGroupActionsAccess"] {
+        return {
+            filterHideNotApplicableUserGroups: { visible: true },
+            filterUsersInOrgUnit: { visible: true },
+            filterUsers: { visible: true },
+            exportCsv: { visible: true },
+            exportJson: { visible: true },
+        };
+    }
+
+    private static defaultUserRoleUiActions(): AppSettingsAttr["uiUserRoleActionsAccess"] {
+        return { filterUsersInOrgUnit: { visible: true }, filterUsers: { visible: true } };
+    }
+
+    private static defaultUiDashboardActions(): AppSettingsAttr["uiDashboardActionsAccess"] {
+        return {
+            filterUsersInOrgUnit: { visible: true },
+            filterUsers: { visible: true },
+            filterOwners: { visible: true },
         };
     }
 }
