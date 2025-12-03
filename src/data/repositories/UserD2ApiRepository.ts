@@ -95,7 +95,7 @@ export class UserD2ApiRepository implements UserRepository {
 
     remove(ids: Id[]): FutureData<Stats> {
         return chunkRequest(ids, userIds => {
-            // TODO: This should be replaced with per-user DELETE /api/users/{id} or the bulk delete if DHIS2 version supports it
+            // TODO: Legacy metadata POST endpoint with importStrategy=DELETE. This should be replaced with per-user DELETE /api/users/{id} or the bulk delete if DHIS2 version supports it
             return apiToFuture<Dhis2Response>(
                 this.api.metadata.post({ users: userIds.map(id => ({ id: id })) }, { importStrategy: "DELETE" })
             ).flatMap(d2Response => {
@@ -512,7 +512,7 @@ export class UserD2ApiRepository implements UserRepository {
                 logger.log({
                     action: action,
                     groupId: group.id,
-                    usersIds: group.usersIds,
+                    userIds: group.usersIds,
                 });
             }
         });
@@ -561,7 +561,7 @@ export class UserD2ApiRepository implements UserRepository {
                   }
         );
         return apiToFuture(this.api.models.userGroups.patch(userGroup.id, patchOperations)).flatMap(d2Response => {
-            if (d2Response.errorReports?.length !== 0) {
+            if (d2Response.errorReports && d2Response.errorReports.length !== 0) {
                 const messages =
                     d2Response.errorReports?.map((e: ErrorReport): string => e.message).filter(Boolean) ?? [];
                 const errorMessage = Array.from(new Set(messages)).join("\n");

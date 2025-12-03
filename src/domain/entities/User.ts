@@ -11,16 +11,16 @@ import { generateUid } from "../../utils/uid";
 
 export class User extends Struct<UserProps>() {
     static createNew(props: Omit<UserProps, "id">): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser({ ...props, id: generateUid() }, false);
+        return User.validateAndCreateUser({ ...props, id: generateUid() }, { isExistingUser: false });
     }
 
     static createExisted(props: UserProps): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser(props, true);
+        return User.validateAndCreateUser(props, { isExistingUser: true });
     }
 
     // TODO: remove generic update method and use specific methods only
     update(props: Partial<UserProps>): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser({ ...this, ...props }, true);
+        return User.validateAndCreateUser({ ...this, ...props }, { isExistingUser: true });
     }
 
     enable(): Either<ValidationError<User>[], User> {
@@ -39,8 +39,9 @@ export class User extends Struct<UserProps>() {
      */
     private static validateAndCreateUser(
         props: UserProps,
-        isExistingUser: boolean
+        options: { isExistingUser: boolean }
     ): Either<ValidationError<User>[], User> {
+        const { isExistingUser } = options;
         const processedProps = {
             ...props,
             dbLocale: getLanguage(props.dbLocale),

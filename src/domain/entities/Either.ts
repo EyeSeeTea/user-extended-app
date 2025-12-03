@@ -58,6 +58,7 @@ export class Either<Error, Data> {
                 if (error instanceof Error) {
                     throw error;
                 } else if (Array.isArray(error)) {
+                    // Check if it's a ValidationError array since Either can have also this kind of error
                     if (isValidationErrorArray(error)) {
                         throw new Error(makeErrorMessageFromValidationErrors(error));
                     }
