@@ -392,7 +392,7 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                const userResult = User.createNew({
+                const userResult = User.createExisted({
                     ...user,
                     userRoles:
                         strategy === "merge"
@@ -429,7 +429,7 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                const userResult = User.createNew({
+                const userResult = User.createExisted({
                     ...user,
                     userGroups:
                         strategy === "merge"
