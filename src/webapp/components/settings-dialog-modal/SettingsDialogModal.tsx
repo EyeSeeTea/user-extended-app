@@ -45,7 +45,8 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     const { onClose, onCloseAppSettings, d2 } = props;
     const [selectedTab, setSelectedTab] = React.useState<SettingsOption>("import");
     const { importSettings } = useImportSettings();
-    const { appSettings, save, setAppSettings } = useAppSettingsContext();
+    const { save, appSettings: initialData } = useAppSettingsContext();
+    const [appSettings, setAppSettings] = React.useState<AppSettings>(initialData);
     const userColumns = useUserColumns();
 
     const loading = useLoading();
