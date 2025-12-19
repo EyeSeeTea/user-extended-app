@@ -18,8 +18,9 @@ export class User extends Struct<UserProps>() {
         return User.validateAndCreateUser(props, true);
     }
 
-    update(props: Partial<UserProps>): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser({ ...this, ...props }, false);
+    update(props: Partial<UserProps>, options: { disableValidation: boolean }): Either<ValidationError<User>[], User> {
+        const disableValidation = options.disableValidation ?? false;
+        return User.validateAndCreateUser({ ...this, ...props }, disableValidation);
     }
 
     /** Validates the user properties.
