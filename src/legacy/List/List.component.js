@@ -54,6 +54,12 @@ class ListHybrid extends React.Component {
         },
     };
 
+    componentDidMount = () => {
+        this.setState({
+            onlyUsersOrgUnits: this.props.appSettings.showOnlyUsersInTheirOrgUnits,
+        });
+    };
+
     componentWillUnmount = () => {
         this.observerDisposables.forEach(disposable => disposable.dispose?.());
         snackActions.hide();
