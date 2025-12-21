@@ -1,4 +1,4 @@
-import { CancelableResponse } from "@eyeseetea/d2-api/repositories/CancelableResponse";
+import { CancelableResponse } from "../types/d2-api";
 import { Future, FutureData } from "../domain/entities/Future";
 
 export function apiToFuture<Data>(res: CancelableResponse<Data>): FutureData<Data> {

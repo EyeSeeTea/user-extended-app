@@ -11,29 +11,37 @@ import { generateUid } from "../../utils/uid";
 
 export class User extends Struct<UserProps>() {
     static createNew(props: Omit<UserProps, "id">): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser({ ...props, id: generateUid() }, false);
+        return User.validateAndCreateUser({ ...props, id: generateUid() }, { isExistingUser: false });
     }
 
     static createExisted(props: UserProps): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser(props, true);
+        return User.validateAndCreateUser(props, { isExistingUser: true });
     }
 
+    // TODO: remove generic update method and use specific methods only
     update(props: Partial<UserProps>): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser({ ...this, ...props }, false);
+        return User.validateAndCreateUser({ ...this, ...props }, { isExistingUser: true });
+    }
+
+    enable(): Either<ValidationError<User>[], User> {
+        return this.update({ disabled: false });
+    }
+
+    disable(): Either<ValidationError<User>[], User> {
+        return this.update({ disabled: true });
     }
 
     /** Validates the user properties.
      * @param props The user properties to validate.
      * @param isExistingUser Whether the user is an existing user (true) or a new user (false).
-     * Used to determine if password is required.
-     * @param skipSourceErrors Whether to skip validation of organisationUnits, userRoles, userGroups fields.
-     * Used when loading existing users from the server that may have missing fields.
+     * Used to determine if password is required and to skip validation of organisationUnits, userRoles, userGroups fields.
      * @returns Either containing validation errors or user.
      */
     private static validateAndCreateUser(
         props: UserProps,
-        isExistingUser: boolean
+        options: { isExistingUser: boolean }
     ): Either<ValidationError<User>[], User> {
+        const { isExistingUser } = options;
         const processedProps = {
             ...props,
             dbLocale: getLanguage(props.dbLocale),

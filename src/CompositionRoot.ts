@@ -23,14 +23,14 @@ import { CopyInUserUseCase } from "./domain/usecases/CopyInUserUseCase";
 import { ImportUsersUseCase } from "./domain/usecases/ImportUsersUseCase";
 import { GetProgramsUseCase } from "./domain/usecases/GetProgramsUseCase";
 import { ProgramD2Repository } from "./data/repositories/ProgramD2Repository";
-import { getD2APiFromInstance } from "./utils/d2-api";
+import { getD2ApiFromInstance } from "./utils/d2-api";
 import { LoggerSettingsD2Repository } from "./data/repositories/LoggerSettingsD2Repository";
 import { GetLoggerSettingsUseCase } from "./domain/usecases/GetLoggerSettingsUseCase";
 import { SaveLoggerSettingsUseCase } from "./domain/usecases/SaveLoggerSettingsUseCase";
 import { ReplicateFromTemplateUseCase } from "./domain/usecases/ReplicateFromTemplateUseCase";
 
 export function getCompositionRoot(instance: Instance) {
-    const api = getD2APiFromInstance(instance);
+    const api = getD2ApiFromInstance(instance);
     const instanceRepository = new InstanceD2ApiRepository(instance);
     const userRepository = new UserD2ApiRepository(instance);
     const metadataRepository = new MetadataD2ApiRepository(instance);

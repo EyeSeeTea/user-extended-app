@@ -68,7 +68,6 @@ msgstr "Estado"
 msgid "Open ID"
 msgstr ""
 
-#, fuzzy
 msgid "Created by"
 msgstr "Creado por"
 
@@ -99,7 +98,6 @@ msgstr "Columnas a mostrar en tabla"
 msgid "Column"
 msgstr "Columna"
 
-#, fuzzy
 msgid "Copy in user: {{user}}"
 msgstr "Copiar a usuario"
 
@@ -109,7 +107,6 @@ msgstr ""
 msgid "Select at least one user"
 msgstr ""
 
-#, fuzzy
 msgid "Bulk update strategy: "
 msgstr "Estrategia de actualización: "
 
@@ -134,7 +131,6 @@ msgstr ""
 msgid "OU Capture"
 msgstr ""
 
-#, fuzzy
 msgid "Import/Export"
 msgstr "Importar"
 
@@ -369,7 +365,6 @@ msgstr "Editar"
 msgid "Copy in user"
 msgstr "Copiar a usuario"
 
-#, fuzzy
 msgid "Assign to data capture organisation units"
 msgstr "Asignar a unidades organizativas de salida"
 
@@ -418,7 +413,6 @@ msgstr ""
 msgid "User ID"
 msgstr "ID"
 
-#, fuzzy
 msgid "Data capture organisation units"
 msgstr "Unidades organizativas de salida"
 
@@ -462,15 +456,12 @@ msgstr "Confirmar"
 msgid "Replicate {{user}}"
 msgstr "Replicar {{user}}"
 
-#, fuzzy
 msgid "Replicating users"
 msgstr "Replicar {{user}}"
 
-#, fuzzy
 msgid "Users replicated successfully"
 msgstr "Usuarios importados correctamente"
 
-#, fuzzy
 msgid "Replicate User"
 msgstr "Replicar error"
 
@@ -480,7 +471,6 @@ msgstr "Usuario {{user}} replicado correctamente {{n}} veces"
 msgid "Error replicating user {{user}}: {{message}}"
 msgstr "Error replicando usuario {{user}}: {{message}}"
 
-#, fuzzy
 msgid "Error in template: {{message}}"
 msgstr "Error replicando usuario {{user}}: {{message}}"
 
@@ -583,7 +573,6 @@ msgstr "Abrir en Administración de usuarios"
 msgid " and {{overflow}} more..."
 msgstr " y {{overflow}} más..."
 
-#, fuzzy
 #~ msgid "Value must be between 1 and 100"
 #~ msgstr "El valor debe estar entre {{min}} y {{max}}"
 
@@ -592,15 +581,3 @@ msgstr " y {{overflow}} más..."
 
 #~ msgid "Please provide a password"
 #~ msgstr "Por favor proporcione una contraseña"
-
-#~ msgid "Username. Example for two users: admin.$index -> admin.1, admin.2"
-#~ msgstr "Ejemplo para dos usuarios: admin.$index -> admin.1, admin.2"
-
-#, fuzzy
-#~ msgid "close"
-#~ msgstr "Cerrar"
-
-#, fuzzy
-#~ msgctxt "user"
-#~ msgid "remove"
-#~ msgstr "Eliminar"

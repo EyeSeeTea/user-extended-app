@@ -1,6 +1,5 @@
 import _ from "lodash";
 
-import i18n from "../../locales";
 import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { UpdateStrategy, UserRepository } from "../repositories/UserRepository";
@@ -15,7 +14,7 @@ export class SaveUserOrgUnitUseCase {
             const usersToSave = this.applyOrgUnitsToUsers(options);
             return this.saveUsers(usersToSave);
         } catch (error) {
-            return Future.error(i18n.t(`${(error as Error).message}`));
+            return Future.error(`${(error as Error).message}`);
         }
     }
 
