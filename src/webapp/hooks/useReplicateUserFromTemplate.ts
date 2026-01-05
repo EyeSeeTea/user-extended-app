@@ -174,9 +174,10 @@ export const useReplicateUserFromTemplate = (
             } catch (error) {
                 if (error instanceof ReplicateTemplateValidationError) {
                     loading.hide();
+                    const errorMessage = (error as Error).message;
                     snackbar.error(
                         i18n.t("Error in template: {{message}}", {
-                            message: error.message,
+                            message: errorMessage,
                             nsSeparator: false,
                         })
                     );

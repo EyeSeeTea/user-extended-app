@@ -7,7 +7,7 @@ import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiReposit
 import { ReplicateFromTemplateUseCase } from "../ReplicateFromTemplateUseCase";
 import { UserProps } from "../../entities/UserProps";
 import { Future } from "../../entities/Future";
-import { MetadataResponse } from "@eyeseetea/d2-api/api";
+import { MetadataResponse } from "../../../types/d2-api";
 import { ReplicateTemplate } from "../../entities/ReplicateTemplate";
 
 let userRepositoryMock: UserD2ApiRepository;

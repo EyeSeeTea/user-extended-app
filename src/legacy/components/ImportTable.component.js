@@ -103,6 +103,7 @@ const styles = {
     },
 };
 
+// NOTICE: component not used anywhere
 class ImportTableOld extends React.Component {
     constructor(props, context) {
         super(props);

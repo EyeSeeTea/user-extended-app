@@ -122,24 +122,28 @@ export default class Filters extends React.Component {
         listActions.loadUserRoles.next();
         listActions.loadUserGroups.next();
         const { isSuperAdmin, appSettings } = this.props;
-        const toOptions = objs => objs.toArray().map(obj => ({ value: obj.id, text: obj.displayName }));
+        const toOptions = objs => objs.map(obj => ({ value: obj.id, text: obj.displayName }));
 
         this.registerDisposable(
-            listStore.listRolesSubject.subscribe(userRoles => {
+            listStore.listRolesSubject.subscribe(userRolesResponse => {
                 const rolesToExclude = appSettings.hide.userRoles;
                 const userRolesToShow = isSuperAdmin
-                    ? toOptions(userRoles)
-                    : toOptions(userRoles).filter(userRole => !rolesToExclude.includes(userRole.value));
+                    ? toOptions(userRolesResponse.userRoles)
+                    : toOptions(userRolesResponse.userRoles).filter(
+                          userRole => !rolesToExclude.includes(userRole.value)
+                      );
                 this.setState({ userRolesAll: userRolesToShow });
             })
         );
 
         this.registerDisposable(
-            listStore.listGroupsSubject.subscribe(userGroups => {
+            listStore.listGroupsSubject.subscribe(userGroupsResponse => {
                 const groupsToExclude = appSettings.hide.userGroups;
                 const userGroupsAll = isSuperAdmin
-                    ? toOptions(userGroups)
-                    : toOptions(userGroups).filter(userGroup => !groupsToExclude.includes(userGroup.value));
+                    ? toOptions(userGroupsResponse.userGroups)
+                    : toOptions(userGroupsResponse.userGroups).filter(
+                          userGroup => !groupsToExclude.includes(userGroup.value)
+                      );
                 this.setState({ userGroupsAll: userGroupsAll });
             })
         );

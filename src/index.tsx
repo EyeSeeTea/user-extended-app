@@ -6,11 +6,12 @@ import { init } from "d2/lib/d2";
 
 import { Instance } from "./data/entities/Instance";
 import { D2Api } from "./types/d2-api";
-import { getD2APiFromInstance } from "./utils/d2-api";
+import { getD2ApiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
 import { LegacyD2I18n } from "./types/d2-legacy-i18n";
 import i18n from "./utils/i18n";
 import "./webapp/utils/wdyr";
+import listStore from "./legacy/List/list.store";
 
 declare global {
     interface Window {
@@ -69,7 +70,10 @@ async function main() {
         });
 
         const instance = new Instance({ url: baseUrl });
-        const api = getD2APiFromInstance(instance);
+        const api = getD2ApiFromInstance(instance);
+
+        listStore.initialise({ d2, api });
+
         if (isDev) window.api = api;
 
         const userSettings = await api.get<{ keyUiLocale: string }>("/userSettings").getData();

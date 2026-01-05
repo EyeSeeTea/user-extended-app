@@ -17,7 +17,7 @@ export class SaveUsersUseCase implements UseCase {
             const users = usersToSave.map(userProps => User.createExisted(userProps).getOrThrow());
             return this.userRepository.save(users);
         } catch (error) {
-            return Future.error(i18n.t((error as Error).message));
+            return Future.error(`${(error as Error).message}`);
         }
     }
 }

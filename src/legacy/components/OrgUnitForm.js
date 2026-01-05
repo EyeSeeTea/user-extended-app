@@ -11,6 +11,7 @@ import PropTypes from "prop-types";
 import _ from "lodash";
 import { listWithInFilter } from "../utils/dhis2Helpers";
 
+// NOTICE: component not used anywhere
 class OrgUnitForm extends React.Component {
     constructor(props, context) {
         super(props, context);

@@ -1,4 +1,4 @@
-import { D2Api, D2UserSchema, MetadataResponse, SelectedPick } from "../../types/d2-api";
+import { D2Api, D2UserSchema, MetadataResponse, SelectedPick, PatchOperation, ErrorReport } from "../../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
@@ -11,7 +11,7 @@ import { LocaleCode } from "../../domain/entities/UserProps";
 import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
-import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
+import { getD2ApiFromInstance, joinPaths } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
@@ -20,9 +20,9 @@ import { D2ApiLogger, D2LoggerMessage } from "../D2ApiLogger";
 import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
-import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
 import { Codec, exactly, string } from "purify-ts";
 import i18n from "../../utils/i18n";
+import { buildUserWithoutPassword, chunkRequest, getDiffUserIdsByGroup, getErrorFromResponse } from "../utils";
 import { getLanguage } from "../../domain/utils/getLanguage";
 import { validationErrorsToString } from "../../domain/utils/validationErrorsToString";
 import { GET_USERS_BY_IDS_CHUNK_SIZE, LIST_ALL_USERS_PAGE_SIZE } from "../../domain/utils/limits";
@@ -32,7 +32,7 @@ export class UserD2ApiRepository implements UserRepository {
     private userStorage: StorageClient;
 
     constructor(instance: Instance) {
-        this.api = getD2APiFromInstance(instance);
+        this.api = getD2ApiFromInstance(instance);
         this.userStorage = new DataStoreStorageClient("user", instance);
     }
 
@@ -97,6 +97,7 @@ export class UserD2ApiRepository implements UserRepository {
 
     remove(ids: Id[]): FutureData<Stats> {
         return chunkRequest(ids, userIds => {
+            // TODO: Legacy metadata POST endpoint with importStrategy=DELETE. This should be replaced with per-user DELETE /api/users/{id} or the bulk delete if DHIS2 version supports it
             return apiToFuture<Dhis2Response>(
                 this.api.metadata.post({ users: userIds.map(id => ({ id: id })) }, { importStrategy: "DELETE" })
             ).flatMap(d2Response => {
@@ -360,8 +361,8 @@ export class UserD2ApiRepository implements UserRepository {
             this.api.models.users.get({
                 fields: {
                     ...fields,
-                    $owner: true,
-                    userCredentials: { ...fields.userCredentials, $all: true },
+                    ...ownerFields,
+                    userCredentials: { ...fields.userCredentials, passwordLastUpdated: true, $all: true },
                 },
                 page,
                 pageSize,
@@ -436,10 +437,10 @@ export class UserD2ApiRepository implements UserRepository {
                 logger?.log({ users: buildUserWithoutPassword(usersToSend as ApiUser[]) });
                 return apiToFuture(this.api.metadata.post({ users: usersToSend }))
                     .flatMap(data => {
-                        return Future.joinObj({
-                            saveLocales: this.saveLocales(usersToSave),
-                            saveGroupsStats: this.updateUserGroups(users, existingUsers, logger),
-                        }).map(() => {
+                        return Future.sequential([
+                            this.updateUserGroups(users, existingUsers, logger),
+                            this.saveLocales(usersToSave),
+                        ]).map(() => {
                             logger?.log(data);
                             return data;
                         });
@@ -570,52 +571,64 @@ export class UserD2ApiRepository implements UserRepository {
         return this.userStorage.saveObject<Array<keyof User>>(Namespaces.VISIBLE_COLUMNS, columns);
     }
 
-    updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<Stats> {
-        const allUsersGroups = this.buildUsersByGroupId(users);
+    updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<void> {
+        const allUsersGroupsToUpdate = this.buildUsersByGroupId(users);
         const allExistingUsersGroups = this.buildUsersByGroupId(existing);
 
-        const existingKeys = _(allExistingUsersGroups).keys().value();
+        const userGroupsWithUsersToAdd = getDiffUserIdsByGroup(allUsersGroupsToUpdate, allExistingUsersGroups);
+        const userGroupsWithUsersToRemove = getDiffUserIdsByGroup(allExistingUsersGroups, allUsersGroupsToUpdate);
 
-        const groupsIdsToAddRef = users.flatMap(user => {
-            const groupsRef = user.userGroups.map(userGroup => ({ id: userGroup.id }));
-            return groupsRef.filter(({ id }) => !existingKeys.includes(id));
+        const $requestsToAdd = this.buildRequestsGroups(userGroupsWithUsersToAdd, "add");
+        const $requestsToDelete = this.buildRequestsGroups(userGroupsWithUsersToRemove, "delete");
+
+        return Future.sequential([$requestsToAdd, $requestsToDelete]).flatMap(() => {
+            const groupsIdsToAdd = userGroupsWithUsersToAdd
+                .filter(group => group.usersIds.length > 0)
+                .map(group => group.id);
+            const groupsIdsToDelete = userGroupsWithUsersToRemove
+                .filter(group => group.usersIds.length > 0)
+                .map(group => group.id);
+
+            if (logger) {
+                this.logGroupChanges(logger, userGroupsWithUsersToAdd, "add");
+                this.logGroupChanges(logger, userGroupsWithUsersToRemove, "delete");
+
+                logger.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
+            }
+
+            return Future.success(undefined);
         });
+    }
 
-        const groupsIdsToAdd = _.uniqBy(groupsIdsToAddRef, ({ id }) => id);
-
-        const groupsIdsToDelete = users.flatMap(user => {
-            const existingUser = existing.find(({ id }) => id === user.id);
-            const difference = _.differenceWith(
-                existingUser?.userGroups,
-                user.userGroups,
-                (user1, user2) => user1.id === user2.id
-            );
-            return difference.map(userGroup => ({ id: userGroup.id }));
-        });
-
-        const $requestsToAdd = this.buildRequestsGroups(groupsIdsToAdd, allUsersGroups, "add");
-        const $requestsToDelete = this.buildRequestsGroups(groupsIdsToDelete, allExistingUsersGroups, "delete");
-
-        return Future.sequential([...$requestsToAdd, ...$requestsToDelete]).map(stats => {
-            logger?.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
-            return Stats.combine(stats);
+    private logGroupChanges(
+        logger: D2LoggerMessage,
+        groups: Array<{
+            id: Id;
+            usersIds: Id[];
+        }>,
+        action: "add" | "delete"
+    ) {
+        groups.forEach(group => {
+            if (group.usersIds.length > 0) {
+                logger.log({
+                    action: action,
+                    groupId: group.id,
+                    userIds: group.usersIds,
+                });
+            }
         });
     }
 
     private buildRequestsGroups(
-        groups: Array<{ id: Id }>,
-        allUsersGroups: D2UserGroupByKey,
+        userGroups: Array<{ id: Id; usersIds: Id[] }>,
         action: D2ActionGroup
-    ): FutureData<Stats>[] {
-        return _(groups)
-            .map(group => {
-                const users = allUsersGroups[group.id] || [];
-                if (users.length === 0) return undefined;
-                const userGroup = { id: group.id, users: users.map(({ id }) => ({ id })) };
-                return this.buildGroupsToSave(userGroup, action);
-            })
-            .compact()
-            .value();
+    ): FutureData<void> {
+        const $requests = userGroups.map((userGroup): FutureData<void> => {
+            if (userGroup.usersIds.length === 0) return Future.success(undefined);
+            return this.buildGroupsToSave(userGroup, action);
+        });
+
+        return Future.sequential($requests).toVoid();
     }
 
     private buildUsersByGroupId(users: ApiUser[]): D2UserGroupByKey {
@@ -627,27 +640,36 @@ export class UserD2ApiRepository implements UserRepository {
                 }))
             )
             .groupBy(x => x.groupId)
-            .mapValues(groupUsers => groupUsers.map(groupUser => groupUser.user))
+            .mapValues(groupUsers => groupUsers.map(({ user }) => ({ id: user.id, name: user.name })))
             .value();
     }
 
-    private buildGroupsToSave(
-        userGroup: { id: Id; users: Array<{ id: Id }> },
-        action: D2ActionGroup
-    ): FutureData<Stats> {
+    private buildGroupsToSave(userGroup: { id: Id; usersIds: Id[] }, action: D2ActionGroup): FutureData<void> {
         const isAdding = action === "add";
-        const usersIds = userGroup.users.map(({ id }) => ({ id: id }));
-        return apiToFuture(
-            this.api.request<Dhis2Response>({
-                method: "post",
-                url: `/userGroups/${userGroup.id}/users`,
-                data: isAdding ? { additions: usersIds } : { deletions: usersIds },
-            })
-        ).flatMap(d2Response => {
-            const response = d2Response.response ? d2Response.response : d2Response;
-            const errorMessage = getErrorFromResponse(response.typeReports);
-            if (response.status === "ERROR") return Future.error(errorMessage);
-            return Future.success(new Stats({ ...response.stats, errorMessage: errorMessage }));
+        const usersIdRefs = userGroup.usersIds.map(id => ({ id: id }));
+
+        const patchOperations: PatchOperation[] = usersIdRefs.map(userIdRef =>
+            isAdding
+                ? {
+                      op: "add",
+                      path: "/users/-",
+                      value: userIdRef,
+                  }
+                : {
+                      op: "remove-by-id",
+                      path: "/users",
+                      id: userIdRef.id,
+                  }
+        );
+        return apiToFuture(this.api.models.userGroups.patch(userGroup.id, patchOperations)).flatMap(d2Response => {
+            if (d2Response.errorReports && d2Response.errorReports.length !== 0) {
+                const messages =
+                    d2Response.errorReports?.map((e: ErrorReport): string => e.message).filter(Boolean) ?? [];
+                const errorMessage = Array.from(new Set(messages)).join("\n");
+                return Future.error(errorMessage);
+            } else {
+                return Future.success(undefined);
+            }
         });
     }
 
@@ -853,6 +875,22 @@ const fields = {
     },
 } as const;
 
+const ownerFields = {
+    createdBy: { id: true, code: true, name: true, displayName: true, username: true },
+    lastUpdatedBy: { id: true, code: true, name: true, displayName: true, username: true },
+    username: true,
+    externalAuth: true,
+    cogsDimensionConstraints: true,
+    catDimensionConstraints: true,
+    lastLogin: true,
+    passwordLastUpdated: true,
+    selfRegistered: true,
+    invitation: true,
+    disabled: true,
+    attributeValues: true,
+    userRoles: { id: true },
+} as const;
+
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
 export type ApiUserWithAudit = ApiUser & { userCredentials: ApiUser["userCredentials"] & D2UserAudit } & D2UserAudit;
 
@@ -884,5 +922,5 @@ type D2UserSettings = { keyDbLocale: LocaleCode; keyUiLocale: LocaleCode };
 type KeyLocale = "keyUiLocale" | "keyDbLocale";
 const UI_LOCALE_KEY = "keyUiLocale";
 const DB_LOCALE_KEY = "keyDbLocale";
-type D2UserGroupByKey = Record<Id, NamedRef[]>;
+export type D2UserGroupByKey = Record<Id, NamedRef[]>;
 type D2ActionGroup = "add" | "delete";

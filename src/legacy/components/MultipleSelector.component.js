@@ -14,6 +14,7 @@ import FilteredMultiSelect from "./FilteredMultiSelect.component";
 import { extractIdsFromPaths, orgUnitControls, orgUnitListParams } from "../../utils/d2-api";
 import { listWithInFilter } from "../utils/dhis2Helpers";
 
+// NOTICE: component used in ImportTable.component.js, but that one is not used anywhere
 class MultipleSelector extends React.Component {
     constructor(props, context) {
         super(props, context);
