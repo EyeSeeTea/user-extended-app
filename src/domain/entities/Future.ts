@@ -49,6 +49,10 @@ export class Future<E, D> {
         });
     }
 
+    static void<_, E = unknown>(): Future<E, undefined> {
+        return new Future<E, undefined>(fluture.resolve(undefined));
+    }
+
     /* Static methods */
     static noCancel: Cancel = () => {};
 

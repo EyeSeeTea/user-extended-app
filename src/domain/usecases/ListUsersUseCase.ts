@@ -78,7 +78,7 @@ export class ListUsersUseCase implements UseCase {
                 .value();
 
             const currentPage = options.page ?? 1;
-            const pageSize = options.pageSize ?? 25;
+            const pageSize = options.pageSize ?? DEFAULT_PAGE_SIZE;
 
             const start = (currentPage - 1) * pageSize;
             const end = start + pageSize;
@@ -96,3 +96,5 @@ export class ListUsersUseCase implements UseCase {
         });
     }
 }
+
+const DEFAULT_PAGE_SIZE = 25;

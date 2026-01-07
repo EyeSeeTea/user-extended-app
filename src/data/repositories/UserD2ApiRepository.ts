@@ -2,7 +2,7 @@ import { D2Api, D2UserSchema, MetadataResponse, SelectedPick, PatchOperation, Er
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
-import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
+import { Pager, PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { User } from "../../domain/entities/User";
@@ -11,7 +11,7 @@ import { LocaleCode } from "../../domain/entities/UserProps";
 import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { Maybe } from "../../types/utils";
 import { cache } from "../../utils/cache";
-import { getD2ApiFromInstance, joinPaths } from "../../utils/d2-api";
+import { getD2ApiFromInstance, getMajorVersion, joinPaths } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
@@ -147,12 +147,14 @@ export class UserD2ApiRepository implements UserRepository {
                     pageSize,
                     ...this.createCommonListQueryParams(options),
                 })
-            ).map(({ objects, pager }) => {
-                const users = objects.map(user => this.toDomainUser(user));
-                const excludeHiddenUsers = usersIdsToHide
-                    ? users.filter(user => !usersIdsToHide.includes(user.id))
-                    : users;
-                return { pager, objects: excludeHiddenUsers };
+            ).flatMap(({ objects, pager }) => {
+                return this.recalculatePagination(options).map(newPager => {
+                    const users = objects.map(user => this.toDomainUser(user));
+                    const excludeHiddenUsers = usersIdsToHide
+                        ? users.filter(user => !usersIdsToHide.includes(user.id))
+                        : users;
+                    return { pager: newPager ?? pager, objects: excludeHiddenUsers };
+                });
             });
         });
     }
@@ -818,6 +820,33 @@ export class UserD2ApiRepository implements UserRepository {
             })
         ).map(({ objects }) => {
             return objects.map(user => new UserIdentifier({ id: user.id, username: user.displayName }));
+        });
+    }
+
+    private recalculatePagination(options: ListOptions): FutureData<Maybe<Pager>> {
+        // There is a bug in v41 where the pager total and pageCount are incorrect when
+        // filters are applied together with userOrgUnits=true. To work around this, we recalculate
+        // the pagination based on the total number of users that match the filters.
+        const { onlyUsersOrgUnits, filters = {} } = options;
+        const calculatePager =
+            onlyUsersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
+
+        if (!calculatePager) return Future.void();
+
+        return Future.fromPromise(this.api.getVersion()).flatMap(version => {
+            const majorVersion = getMajorVersion(version);
+            if (majorVersion !== 41) return Future.void();
+
+            console.warn("Recalculating pagination due to known DHIS2 v41 bug with userOrgUnits and filters.");
+
+            return this.listAllUserIdentifiers(options).map(userIds => {
+                return {
+                    page: options.page ?? 1,
+                    pageSize: options.pageSize ?? 25,
+                    total: userIds.length,
+                    pageCount: Math.ceil(userIds.length / (options.pageSize ?? 25)),
+                };
+            });
         });
     }
 }

@@ -49,7 +49,6 @@ import { ImportExport, ImportResult } from "../import-export/ImportExport";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
-import { PaginatedResponse } from "../../../domain/entities/PaginatedResponse";
 import { UserAction } from "../../../domain/entities/UserAction";
 import { UsersSetPasswordModal } from "../users-selected-modal/UsersSetPasswordModal";
 import { useUserColumns } from "./userColumns";
@@ -503,7 +502,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                               hideUserRolesAndUserGroups(appSettings.hide.userRoles, appSettings.hide.userGroups)
                           ),
                 }))
-                .map(paginatedReponse => patchPaginatedReponseIfNeeded(false, paginatedReponse))
                 .toPromise();
         },
         [
@@ -736,23 +734,6 @@ export function buildEllipsizedList(items: NamedRef[], limit = 3) {
             </ul>
         </Tooltip>
     );
-}
-
-/**
- * Prevent pointless "next" requests when DHIS2 Pagination Bug. Solution: Clamp pagination on the last meaningful page.
- * Subsequent pages return only the "admin" user, so the last meaningful page should have fewer items than the page size.
- * This workaround calculates the total count based on the items returned on the last meaningful page.
-
- * Note: If the "last page" has the same number of items as the page size, we will not clamp. However, on the next page,
- * since only the "admin" user will be returned, the condition will be met.
- */
-function patchPaginatedReponseIfNeeded(needsPatch: boolean, paginatedReponse: PaginatedResponse<User>) {
-    const { objects, pager } = paginatedReponse;
-
-    const isLastPage = objects.length < pager.pageSize;
-    const clampedPager = { ...pager, total: pager.pageSize * (pager.page - 1) + objects.length };
-
-    return needsPatch && isLastPage ? { objects, pager: clampedPager } : { objects, pager };
 }
 
 /**
