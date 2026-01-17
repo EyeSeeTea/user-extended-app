@@ -131,12 +131,12 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
         (action: string) => {
             const fileName = getFilename({
                 name: "user-groups",
-                format: action === "export_csv" ? "csv" : "json",
+                format: action === "exportCsv" ? "csv" : "json",
             });
-            if (action === "export_csv") {
+            if (action === "exportCsv") {
                 const rows = tableProps.rows.map(user => user);
                 buildCsvRow(rows, fileName);
-            } else if (action === "export_json") {
+            } else if (action === "exportJson") {
                 FileSaver.saveAs(
                     new Blob([JSON.stringify(tableProps.rows, null, 4)], { type: "application/json" }),
                     fileName
