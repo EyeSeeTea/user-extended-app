@@ -8,13 +8,20 @@ import { ApiUser, D2UserGroupByKey } from "./repositories/UserD2ApiRepository";
 export function chunkRequest<Res>(
     ids: Id[],
     mapper: (idsGroup: Id[]) => FutureData<Res[]>,
-    chunkSize = DEFAULT_CHUNK_SIZE
+    chunkSize = DEFAULT_CHUNK_SIZE,
+    options: { maxConcurrency?: number } = {}
 ): FutureData<Res[]> {
-    return Future.flatten(
-        _.chunk(ids, chunkSize).map(idsC => {
-            return mapper(idsC);
-        })
-    );
+    const futures = _.chunk(ids, chunkSize).map(idsC => {
+        return mapper(idsC);
+    });
+
+    if (options.maxConcurrency && options.maxConcurrency > 1) {
+        return Future.parallel(futures, { maxConcurrency: options.maxConcurrency }).map(listOfValues =>
+            _.flatten(listOfValues)
+        );
+    }
+
+    return Future.flatten(futures);
 }
 
 export function getErrorFromResponse(typeReports: MetadataResponse["typeReports"]): string {
