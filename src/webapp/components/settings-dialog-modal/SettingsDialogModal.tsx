@@ -41,6 +41,13 @@ export function useImportSettings() {
     return { importSettings };
 }
 
+const errorCodes = [
+    {
+        code: "EMPTY_RULES_IN_ACTION_PERMISSION",
+        message: i18n.t("One or more actions have users or user groups assigned but no rules."),
+    },
+];
+
 export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => {
     const { onClose, onCloseAppSettings, d2 } = props;
     const [selectedTab, setSelectedTab] = React.useState<SettingsOption>("import");
@@ -67,7 +74,8 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                 },
                 message => {
                     loading.hide();
-                    snackbar.error(message);
+                    const errorMessage = errorCodes.find(errorCode => errorCode.code === message)?.message;
+                    snackbar.error(errorMessage || message);
                 }
             );
         },
