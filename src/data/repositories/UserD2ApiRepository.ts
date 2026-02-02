@@ -336,7 +336,7 @@ export class UserD2ApiRepository implements UserRepository {
         const filters = options.filters;
         const idFilter = filters?.id;
         const idFilterValues = idFilter?.[0] === "in" ? idFilter[1] : undefined;
-        return idFilterValues;
+        return idFilterValues && idFilterValues.length > 0 ? idFilterValues : undefined;
     }
 
     private getUserIdentifiersInChunks(
@@ -947,7 +947,11 @@ export class UserD2ApiRepository implements UserRepository {
 
             console.warn("Recalculating pagination due to known DHIS2 v41 bug with userOrgUnits and filters.");
 
-            const optionsWithoutUserIds: ListOptions = { ...options, filters: { id: ["in", []] } };
+            const optionsWithoutUserIds: ListOptions = {
+                ...options,
+                // @ts-expect-error
+                filters: { ...options.filters, id: ["in", undefined] },
+            };
 
             return this.listAllUserIdentifiers(optionsWithoutUserIds).map(userIds => {
                 return {
