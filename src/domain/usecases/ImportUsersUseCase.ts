@@ -77,7 +77,7 @@ export class ImportUsersUseCase implements UseCase {
             const dbUser = user.username ? usersFromDBMap[user.username] : undefined;
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
-                return User.createNew({
+                return User.createExisted({
                     ...dbUser,
                     ...user,
                     name: `${user.firstName} ${user.surname}`,
