@@ -333,6 +333,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                     return (
                                         <>
                                             <FormSpy
+                                                key={existingUsersNames.length}
                                                 onChange={(state: FormState<{ users: UserProps[] }>) => {
                                                     requestAnimationFrame(() => {
                                                         updateFormState(state);
