@@ -10,7 +10,11 @@ import { D2Api } from "./types/d2-api";
 import { getD2ApiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
 import "./webapp/utils/wdyr";
-import listStore from "./legacy/List/list.store";
+import listStore from "./legacy/List/list.store"; // Polyfill Buffer for @eyeseetea/d2-api (iconv-lite/safer-buffer) in the browser
+import { Buffer } from "buffer";
+if (typeof globalThis.Buffer === "undefined") {
+    (globalThis as any).Buffer = Buffer;
+}
 
 declare global {
     interface Window {
@@ -19,11 +23,11 @@ declare global {
     }
 }
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = import.meta.env.DEV;
 
 async function getBaseUrl() {
     if (isDev) {
-        return "/dhis2"; // See src/setupProxy.js
+        return "/dhis2"; // See vite.config.ts proxy
     } else {
         const { data: manifest } = await axios.get("manifest.webapp");
         return manifest.activities.dhis.href;
@@ -62,8 +66,8 @@ async function main() {
         const d2 = await init({
             baseUrl: baseUrl + "/api",
             headers:
-                isDev && process.env.REACT_APP_DHIS2_AUTH
-                    ? { Authorization: `Basic ${btoa(process.env.REACT_APP_DHIS2_AUTH)}` }
+                isDev && import.meta.env.VITE_DHIS2_AUTH
+                    ? { Authorization: `Basic ${btoa(import.meta.env.VITE_DHIS2_AUTH)}` }
                     : undefined,
         });
 

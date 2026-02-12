@@ -1,3 +1,4 @@
+import { afterAll, vi } from "vitest";
 import { instance, mock, when, verify, deepEqual } from "ts-mockito";
 import { UserProps } from "../../entities/UserProps";
 import { User } from "../../entities/User";
@@ -16,9 +17,10 @@ import {
 let userRepositoryMock: UserD2ApiRepository;
 let exportUsersUseCase: ExportUsersUseCase;
 
-// NOTE: Needed to avoid the timing mismatch between the usecase execution and expectedFilename generation.
-jest.useFakeTimers();
-jest.setSystemTime(new Date("2024-01-01T12:00:00Z"));
+// NOTE: Only fake Date so moment() returns a fixed time for the filename. If we fake all timers,
+// FileReader (used in readBlobAsText) never fires onload and the test times out.
+vi.useFakeTimers({ toFake: ["Date"] });
+vi.setSystemTime(new Date("2024-01-01T12:00:00Z"));
 
 describe("ExportUsersUseCase", () => {
     beforeEach(() => {
@@ -84,6 +86,10 @@ describe("ExportUsersUseCase", () => {
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(usersExportJSONBlob));
         verify(userRepositoryMock.listAll(deepEqual({}))).once();
     });
+});
+
+afterAll(() => {
+    vi.useRealTimers();
 });
 
 function givenUsersToExport(): void {
