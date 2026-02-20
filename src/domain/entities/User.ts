@@ -25,11 +25,11 @@ export class User extends Struct<UserProps>() {
     }
 
     enable(): Either<ValidationError<User>[], User> {
-        return this.update({ disabled: false }, { disableValidation: false });
+        return this.update({ disabled: false }, { disableValidation: true });
     }
 
     disable(): Either<ValidationError<User>[], User> {
-        return this.update({ disabled: false }, { disableValidation: false });
+        return this.update({ disabled: true }, { disableValidation: true });
     }
 
     /** Validates the user properties.
