@@ -245,7 +245,11 @@ class ListHybrid extends React.Component {
     };
 
     render() {
-        const { replicateUser, listFilterOptions, onlyUsersOrgUnits } = this.state;
+        const {
+            replicateUser,
+            listFilterOptions,
+            onlyUsersOrgUnits = appSettings.showOnlyUsersInTheirOrgUnits,
+        } = this.state;
         const { appSettings, onlyActiveUsers, isSuperAdmin, isSettingInactive } = this.props;
 
         const areFiltersOverrided = isSuperAdmin ? false : onlyActiveUsers;
