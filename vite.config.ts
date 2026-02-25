@@ -2,6 +2,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import checker from "vite-plugin-checker";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 import * as path from "path";
 import * as esbuild from "esbuild";
 
@@ -36,13 +37,13 @@ const config = defineConfig(({ mode }) => {
         base: "",
         resolve: {
             alias: {
-                buffer: path.resolve(__dirname, "node_modules/buffer/index.js"),
-                stream: path.resolve(__dirname, "node_modules/stream-browserify/index.js"),
-                events: path.resolve(__dirname, "node_modules/events/events.js"),
+                $: path.resolve(__dirname, "./src"),
+                // buffer, stream, events, global, process los aporta nodePolyfills (como central-planning-reporting)
             },
+            // Una sola instancia de i18n para que addResources exista (evita "Hz.addResources is not a function" en DHIS2)
+            dedupe: ["@dhis2/d2-i18n", "i18next"],
         },
         optimizeDeps: {
-            include: ["buffer"],
             esbuildOptions: {
                 loader: {
                     ".js": "jsx",
@@ -51,9 +52,20 @@ const config = defineConfig(({ mode }) => {
         },
         define: {
             "process.env.NODE_DEBUG": "undefined",
-            global: "globalThis",
+            __dirname: JSON.stringify(""),
+            __filename: JSON.stringify(""),
+        },
+        esbuild: {
+            define: {
+                // global solo en esbuild para no romper imports tipo './global-state-service' en Rollup
+                global: "globalThis",
+            },
         },
         plugins: [
+            nodePolyfills({
+                globals: { Buffer: true, global: true, process: true },
+                protocolImports: true,
+            }),
             redirectMiddleware(env),
             jsxInJsPlugin(),
             react(),
