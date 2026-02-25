@@ -3,6 +3,7 @@ import _ from "lodash";
 import { FutureData } from "../../domain/entities/Future";
 import { Locale } from "../../domain/entities/Locale";
 import { InstanceRepository, LocaleType } from "../../domain/repositories/InstanceRepository";
+// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { cache } from "../../utils/cache";
 import { getD2ApiFromInstance } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
