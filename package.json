@@ -106,7 +106,8 @@
     "resolutions": {
         "form-data": "4.0.4",
         "@babel/traverse": "7.28.6",
-        "@babel/helper-globals": "7.28.0"
+        "@babel/helper-globals": "7.28.0",
+        "ansi-regex": "4.1.1"
     },
     "scripts": {
         "start": "vite --strictPort",
