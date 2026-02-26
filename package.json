@@ -114,7 +114,8 @@
         "uglify-js": "3.14.3",
         "axios": "1.13.5",
         "follow-redirects": "1.15.6",
-        "qs": "6.14.2"
+        "qs": "6.14.2",
+        "minimatch": "5.1.6"
     },
     "scripts": {
         "start": "vite --strictPort",
