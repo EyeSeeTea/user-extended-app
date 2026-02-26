@@ -23,7 +23,7 @@
         "@material-ui/icons": "4.11.3",
         "@types/react-virtualized-auto-sizer": "1.0.1",
         "@types/react-window": "1.8.5",
-        "axios": "0.24.0",
+        "axios": "1.12.0",
         "buffer": "6.0.3",
         "classnames": "2.3.1",
         "events": "^3.3.0",
@@ -112,7 +112,7 @@
         "semver": "6.3.1",
         "async": "2.6.4",
         "uglify-js": "3.14.3",
-        "axios": "1.7.4",
+        "axios": "1.12.0",
         "follow-redirects": "1.15.6",
         "qs": "6.14.2"
     },
