@@ -119,7 +119,8 @@
         "diff": "5.2.2",
         "ua-parser-js": "0.7.33",
         "node-fetch": "2.6.7",
-        "glob-parent": "5.1.2"
+        "glob-parent": "5.1.2",
+        "moment": "2.29.4"
     },
     "scripts": {
         "start": "vite --strictPort",
