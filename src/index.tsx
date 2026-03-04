@@ -82,8 +82,11 @@ async function main() {
         configI18n(userSettings);
         initDeprecatedI18n(d2, userSettings);
 
+        type ProviderProps = React.ComponentProps<typeof Provider>;
+        const config: ProviderProps["config"] = { baseUrl, apiVersion: 30 };
+
         ReactDOM.render(
-            <Provider config={{ baseUrl, apiVersion: 30 }}>
+            <Provider config={config} plugin={false} parentAlertsAdd={() => {}} showAlertsInPlugin={false}>
                 <App api={api} d2={d2} instance={instance} />
             </Provider>,
             document.getElementById("root")
