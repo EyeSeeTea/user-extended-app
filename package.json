@@ -120,7 +120,8 @@
         "ua-parser-js": "0.7.33",
         "node-fetch": "2.6.7",
         "glob-parent": "5.1.2",
-        "moment": "2.29.4"
+        "moment": "2.29.4",
+        "i18next": "19.8.5"
     },
     "scripts": {
         "start": "vite --strictPort",
