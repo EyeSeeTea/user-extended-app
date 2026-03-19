@@ -121,7 +121,9 @@
         "node-fetch": "2.6.7",
         "glob-parent": "5.1.2",
         "moment": "2.29.4",
-        "i18next": "19.8.5"
+        "i18next": "19.8.5",
+        "url-parse": "1.5.9",
+        "rollup": "3.30.0"
     },
     "scripts": {
         "start": "vite --strictPort",
