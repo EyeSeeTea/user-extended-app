@@ -9,21 +9,17 @@ import { Maybe } from "../../../types/utils";
 
 type SettingsDialogModalProps = { onClose: (settings: Maybe<Settings>) => void };
 
-export function useImportSettings(reloadKey?: number) {
+export function useImportSettings(reloadKey?: string) {
     const { d2 } = useAppContext();
     const [importSettings, setSettings] = React.useState<Settings>();
 
-    const reloadImportSettings = React.useCallback(() => {
-        return Settings.build(d2).then((settings: Settings) => {
+    React.useEffect(() => {
+        Settings.build(d2).then((settings: Settings) => {
             setSettings(settings);
         });
-    }, [d2]);
+    }, [d2, reloadKey]);
 
-    React.useEffect(() => {
-        reloadImportSettings();
-    }, [reloadImportSettings, reloadKey]);
-
-    return { importSettings, reloadImportSettings };
+    return { importSettings };
 }
 
 export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => {

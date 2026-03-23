@@ -113,7 +113,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [showSettings, setShowSettings] = React.useState(false);
     const [showImportModal, setShowImportModal] = React.useState(false);
     const [importResult, setImportResult] = React.useState<ImportResult>();
-    const { importSettings, reloadImportSettings } = useImportSettings(reloadTableKey);
+    const { importSettings } = useImportSettings(`${reloadTableKey}-${reloadKey}`);
 
     const enableReplicate = hasReplicateAuthority(currentUser);
     const snackbar = useSnackbar();
@@ -419,10 +419,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
 
-    useEffect(() => {
-        reloadImportSettings();
-    }, [reloadKey, reloadTableKey, reloadImportSettings]);
-
     const columnsToShow = useMemo<TableColumn<User>[]>(() => {
         const indexes = _(visibleColumns)
             .map((columnName, idx) => [columnName, idx] as [string, number])
@@ -494,11 +490,10 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             setShowSettings(false);
             if (settings) {
                 openSettings(settings);
-                reloadImportSettings();
                 reload();
             }
         },
-        [openSettings, reloadImportSettings, reload]
+        [openSettings, reload]
     );
 
     const closeImportModal = React.useCallback(
