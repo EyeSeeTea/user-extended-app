@@ -1,5 +1,5 @@
 import Store from "d2-ui/lib/store/Store";
-import { Observable, Subject } from "rxjs/Rx";
+import { Observable, Subject } from "rxjs";
 import { getUserList } from "../models/userList";
 
 export const columns = [

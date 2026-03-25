@@ -1,3 +1,4 @@
+import "./rxjs-d2-ui-compat";
 import _ from "lodash";
 import axios from "axios";
 import ReactDOM from "react-dom";
@@ -11,7 +12,11 @@ import { App } from "./webapp/pages/app/App";
 import { LegacyD2I18n } from "./types/d2-legacy-i18n";
 import i18n from "./utils/i18n";
 import "./webapp/utils/wdyr";
-import listStore from "./legacy/List/list.store";
+import listStore from "./legacy/List/list.store"; // Polyfill Buffer for @eyeseetea/d2-api (iconv-lite/safer-buffer) in the browser
+import { Buffer } from "buffer";
+if (typeof globalThis.Buffer === "undefined") {
+    (globalThis as any).Buffer = Buffer;
+}
 
 declare global {
     interface Window {
@@ -20,11 +25,11 @@ declare global {
     }
 }
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = import.meta.env.DEV;
 
 async function getBaseUrl() {
     if (isDev) {
-        return "/dhis2"; // See src/setupProxy.js
+        return "/dhis2"; // See vite.config.ts proxy
     } else {
         const { data: manifest } = await axios.get("manifest.webapp");
         return manifest.activities.dhis.href;
@@ -64,8 +69,8 @@ async function main() {
         const d2 = await init({
             baseUrl: baseUrl + "/api",
             headers:
-                isDev && process.env.REACT_APP_DHIS2_AUTH
-                    ? { Authorization: `Basic ${btoa(process.env.REACT_APP_DHIS2_AUTH)}` }
+                isDev && import.meta.env.VITE_DHIS2_AUTH
+                    ? { Authorization: `Basic ${btoa(import.meta.env.VITE_DHIS2_AUTH)}` }
                     : undefined,
         });
 
@@ -80,8 +85,11 @@ async function main() {
         configI18n(userSettings);
         initDeprecatedI18n(d2.i18n, userSettings);
 
+        type ProviderProps = React.ComponentProps<typeof Provider>;
+        const config: ProviderProps["config"] = { baseUrl, apiVersion: 30 };
+
         ReactDOM.render(
-            <Provider config={{ baseUrl, apiVersion: 30 }}>
+            <Provider config={config} plugin={false} parentAlertsAdd={() => {}} showAlertsInPlugin={false}>
                 <App api={api} d2={d2} instance={instance} keyUiLocale={userSettings.keyUiLocale} />
             </Provider>,
             document.getElementById("root")

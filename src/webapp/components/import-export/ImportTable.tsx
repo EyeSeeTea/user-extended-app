@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FontIcon, RaisedButton } from "material-ui";
+import { FontIcon } from "material-ui";
 
 import React, { useState, useEffect, useCallback, ComponentType } from "react";
 
@@ -362,14 +362,16 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                                 </Table>
 
                                                 <AddButtonRow>
-                                                    <RaisedButton
+                                                    <Button
+                                                        variant="outlined"
                                                         disabled={!canAddNewUser}
-                                                        label={i18n.t("Add user")}
                                                         onClick={() => {
                                                             const currentUsers = form.getState().values.users;
                                                             addRow(currentUsers);
                                                         }}
-                                                    />
+                                                    >
+                                                        {i18n.t("Add user")}
+                                                    </Button>
                                                 </AddButtonRow>
                                             </form>
                                             {showOverwriteToggle && !templateUser && (

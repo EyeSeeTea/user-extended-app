@@ -1,4 +1,5 @@
 import { isBoolean } from "lodash/fp";
+import type { TOptions } from "i18next";
 import i18n from "../locales";
 
 export function getModuleForNamespace(namespace: string) {
@@ -18,6 +19,6 @@ export function getModuleForNamespace(namespace: string) {
     };
 }
 
-interface i18nOptions extends Omit<i18n.TranslationOptions<object>, "nsSeparator"> {
+interface i18nOptions extends Omit<TOptions, "nsSeparator"> {
     nsSeparator?: boolean | string;
 }

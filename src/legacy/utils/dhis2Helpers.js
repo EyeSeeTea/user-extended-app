@@ -9,9 +9,7 @@ const orgUnitListOptions = {
 
 const MAX_URL_LENGTH = 6192 - 1000; // Reserve some chars for the rest of URL
 
-/* NOTICE: function used in assignToOrgUnits in src/legacy/List/context.actions.js
-    and in ImportTable.component.js but these are not used currently
- */
+/* NOTICE: function used in assignToOrgUnits in src/legacy/List/context.actions.js (not used currently) */
 async function getOrgUnitsRoots(disableCache = false) {
     if (!disableCache && getOrgUnitsRoots.currentUserOrganisationUnits) {
         return getOrgUnitsRoots.currentUserOrganisationUnits;

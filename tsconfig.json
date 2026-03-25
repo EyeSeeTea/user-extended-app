@@ -21,7 +21,9 @@
         "experimentalDecorators": true,
         "noFallthroughCasesInSwitch": true,
         "lib": ["dom", "dom.iterable", "esnext"],
-        "typeRoots": ["./node_modules/@types", "./src/types"]
+        "baseUrl": ".",
+        "paths": { "$/*": ["src/*"] }
     },
-    "include": ["src"]
+    "include": ["src"],
+    "references": [{ "path": "./tsconfig.node.json" }]
 }

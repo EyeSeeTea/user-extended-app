@@ -10,6 +10,7 @@ import { ListFilters, ListOptions, UpdateStrategy, UserRepository } from "../../
 import { LocaleCode } from "../../domain/entities/UserProps";
 import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { Maybe } from "../../types/utils";
+// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { cache } from "../../utils/cache";
 import { getD2ApiFromInstance, getMajorVersion, joinPaths } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";

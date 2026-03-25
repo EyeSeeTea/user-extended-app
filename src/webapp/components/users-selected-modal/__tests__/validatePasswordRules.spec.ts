@@ -1,7 +1,10 @@
+import { vi } from "vitest";
 import { validatePasswordRules } from "../passwordValidation";
 
-jest.mock("../../../../utils/i18n", () => ({
-    t: (key: string) => key,
+vi.mock("../../../../utils/i18n", () => ({
+    default: {
+        t: (key: string) => key,
+    },
 }));
 
 //https://docs.dhis2.org/en/use/user-guides/dhis-core-version-241/configuring-the-system/users-roles-and-groups.html#password-requirements
