@@ -180,7 +180,9 @@ const StyledStepLabel = styled(StepLabel)`
 `;
 
 const StyledStepper = styled(Stepper)`
-    padding: 20px 20px 35px;
+    padding-block-start: 20px;
+    padding-block-end: 35px;
+    padding-inline: 20px;
 `;
 
 const ButtonsRow = styled(ButtonStrip)`

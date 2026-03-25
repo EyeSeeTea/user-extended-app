@@ -8,7 +8,7 @@ import i18n from "../../../utils/i18n";
 import { UserProps } from "../../../domain/entities/UserProps";
 import { Id } from "../../../domain/entities/Ref";
 import { UpdateStrategy } from "../../../domain/repositories/UserRepository";
-import { ActionType } from "../users-remove-modal/UsersSelectedModal";
+import { ActionType } from "../users-selected-modal/UsersSelectedModal";
 import { extractIdsFromPaths, joinPaths } from "../../../utils/d2-api";
 
 function isThereOnlyOneUser(users: UserProps[]): boolean {
@@ -106,7 +106,7 @@ export type OrgUnitDialogSelectorProps = {
 };
 
 const ToggleStyle = styled(Toggle)`
-    margin-left: auto;
+    margin-inline-start: auto;
     width: initial !important;
 `;
 

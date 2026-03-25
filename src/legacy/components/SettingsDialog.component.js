@@ -15,18 +15,14 @@ export default class SettingsDialog extends React.Component {
         settings: PropTypes.object.isRequired,
     };
 
-    static contextTypes = {
-        d2: PropTypes.object.isRequired,
-    };
-
     tabs = {
         importExport: ["organisationUnitsField"],
     };
 
-    constructor(props, context) {
+    constructor(props) {
         super(props);
 
-        const { i18n } = context.d2;
+        const { i18n } = props.d2;
         this.getTranslation = i18n.getTranslation.bind(i18n);
 
         this.state = {
@@ -86,6 +82,7 @@ export default class SettingsDialog extends React.Component {
                             labelText: field.label,
                             style: { width: "100%" },
                             defaultValue: field.defaultValue,
+                            d2: this.props.d2,
                         },
                     };
                 default:
@@ -114,19 +111,19 @@ export default class SettingsDialog extends React.Component {
 
         return (
             <div style={{ padding: 10, margin: 10 }}>
+                <section style={{ display: "flex", gap: "1em", justifyContent: "flex-end" }}>
+                    <Button variant="contained" color="primary" disabled={!saveIsEnabled} onClick={this.save}>
+                        {i18n.t("Save")}
+                    </Button>
+                    <Button onClick={this.cancel}>{i18n.t("Close")}</Button>
+                </section>
+
                 <FormBuilder
                     validateOnRender={false}
                     fields={this.getFields("importExport")}
                     onUpdateFormStatus={status => _.defer(this.onUpdateFormStatus, "importExport", status)}
                     onUpdateField={this.onUpdateField}
                 />
-
-                <section style={{ display: "flex", gap: "1em" }}>
-                    <Button variant="contained" color="primary" disabled={!saveIsEnabled} onClick={this.save}>
-                        {i18n.t("Save")}
-                    </Button>
-                    <Button onClick={this.cancel}>{i18n.t("Close")}</Button>
-                </section>
             </div>
         );
     }

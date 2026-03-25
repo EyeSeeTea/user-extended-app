@@ -1,6 +1,5 @@
 import _ from "lodash";
 import { MetadataResponse } from "../../types/d2-api";
-
 import { ReplicateTemplate } from "../entities/ReplicateTemplate";
 
 import { UseCase } from "../../CompositionRoot";

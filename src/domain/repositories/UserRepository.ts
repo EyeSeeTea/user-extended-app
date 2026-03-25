@@ -18,7 +18,10 @@ export interface UserRepository {
     updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse>;
     getColumns(): FutureData<Array<keyof User>>;
     saveColumns(columns: Array<keyof User>): FutureData<void>;
+    resetPasswords(users: User[]): FutureData<Stats>;
+    verifyPassword(password: string): FutureData<true>;
     remove(ids: Id[]): FutureData<Stats>;
+    getInMyOrgUnit(): FutureData<UserIdentifier[]>;
 }
 
 export interface ListOptions {
@@ -29,6 +32,9 @@ export interface ListOptions {
     filters?: ListFilters;
     canManage?: string;
     rootJunction?: "AND" | "OR";
+    onlyUsersOrgUnits: boolean;
+    onlyActiveUsers: boolean;
+    hideUsers: Id[];
 }
 
 export type ListFilterType = "in" | "eq" | "gt";

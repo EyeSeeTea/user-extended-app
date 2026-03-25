@@ -4,7 +4,7 @@ import { Dropdown, DropdownItem, DropdownProps, useSnackbar } from "@eyeseetea/d
 import { useAppContext } from "../../contexts/app-context";
 
 import i18n from "../../../utils/i18n";
-import { Button, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
+import { Button, DialogActions, FormControlLabel, FormGroup, Switch } from "@material-ui/core";
 import { LoggerSettings } from "../../../domain/entities/LoggerSettings";
 import { useGetLoggerSettings, usePrograms } from "./useLogger";
 import { Maybe } from "../../../types/utils";
@@ -126,6 +126,16 @@ export const LoggerSettingsPage: React.FC<LoggerSettingsProps> = props => {
     return (
         <section>
             <SettingsForm onSubmit={onSubmit}>
+                <DialogActions>
+                    <ButtonContainer>
+                        <Button type="submit" variant="contained" color="primary" disabled={disableButton}>
+                            {i18n.t("Save")}
+                        </Button>
+                        <Button type="button" onClick={onClose}>
+                            {i18n.t("Close")}
+                        </Button>
+                    </ButtonContainer>
+                </DialogActions>
                 <CheckboxContainer>
                     <FormControlLabel
                         control={<Switch checked={settings?.isEnabled || false} onChange={onEnableLogger} />}
@@ -170,14 +180,6 @@ export const LoggerSettingsPage: React.FC<LoggerSettingsProps> = props => {
                         />
                     </DropDownContainer>
                 )}
-                <ButtonContainer>
-                    <Button type="submit" variant="contained" color="primary" disabled={disableButton}>
-                        {i18n.t("Save")}
-                    </Button>
-                    <Button type="button" onClick={onClose}>
-                        {i18n.t("Close")}
-                    </Button>
-                </ButtonContainer>
             </SettingsForm>
         </section>
     );
@@ -185,7 +187,8 @@ export const LoggerSettingsPage: React.FC<LoggerSettingsProps> = props => {
 
 const SettingsForm = styled.form`
     background-color: #fff;
-    padding: 2em;
+    padding-inline: 2em;
+    padding-block-end: 2em;
 `;
 
 const CheckboxContainer = styled(FormGroup)`

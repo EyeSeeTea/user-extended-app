@@ -1,8 +1,9 @@
-import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
 import _ from "lodash";
-import Checkbox from "material-ui/Checkbox/Checkbox";
+import { ConfirmationDialog } from "@eyeseetea/d2-ui-components";
+import { SegmentedControl } from "@dhis2/ui";
+import { Box, FormControlLabel, Switch } from "@material-ui/core";
 import IconButton from "material-ui/IconButton";
-import { Switch, Grid } from "@material-ui/core";
+import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import FilterListIcon from "material-ui/svg-icons/content/filter-list";
 import memoize from "memoize-weak";
 import PropTypes from "prop-types";
@@ -12,6 +13,7 @@ import OrgUnitsSelectorFilter from "../components/OrgUnitsSelectorFilter";
 import listActions from "./list.actions";
 import listStore from "./list.store";
 import Dropdown from "../components/Dropdown.component";
+import { DEFAULT_SHOW_ONLY_ACTIVE_USERS } from "./List.component";
 
 export default class Filters extends React.Component {
     static contextTypes = {
@@ -20,6 +22,14 @@ export default class Filters extends React.Component {
 
     static propTypes = {
         onChange: PropTypes.func.isRequired,
+        onlyActiveUsers: PropTypes.bool,
+        areFiltersOverrided: PropTypes.bool,
+        hideUsersCanManageFilter: PropTypes.bool,
+        onlyUsersOrgUnits: PropTypes.bool,
+        setOnlyUsersOrgUnits: PropTypes.func.isRequired,
+        isSuperAdmin: PropTypes.bool,
+        isSettingInactive: PropTypes.bool,
+        appSettings: PropTypes.object,
     };
 
     styles = {
@@ -33,11 +43,11 @@ export default class Filters extends React.Component {
         },
         filterStyles: {
             textField: {
-                width: "90%",
+                width: "100%",
             },
         },
         dropdownStyles: {
-            width: "90%",
+            width: "100%",
         },
         animationVisible: {
             width: 850,
@@ -48,6 +58,11 @@ export default class Filters extends React.Component {
         clearFiltersButton: {
             marginRight: 25,
             marginLeft: "auto",
+        },
+        filterBehavior: {
+            display: "flex",
+            alignItems: "center",
+            columnGap: 6,
         },
     };
 
@@ -69,13 +84,26 @@ export default class Filters extends React.Component {
             orgUnits: [],
             orgUnitsOutput: [],
             searchOrgUnits: [],
-            userDisabled: null,
+            userDisabled: this.props.onlyActiveUsers ? false : null,
             twoFactorEnabled: null,
             externalAuth: null,
             userRolesAll: [],
             userGroupsAll: [],
-            rootJunction: "OR",
+            rootJunction: this.props.areFiltersOverrided ? "AND" : "OR",
+            onlyUsersOrgUnits: this.props.onlyUsersOrgUnits,
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.onlyActiveUsers !== this.props.onlyActiveUsers) {
+            this.setState({ userDisabled: this.props.onlyActiveUsers ? false : null }, this.notifyParent);
+        }
+        if (prevProps.areFiltersOverrided !== this.props.areFiltersOverrided) {
+            this.setState({ rootJunction: this.props.areFiltersOverrided ? "AND" : "OR" }, this.notifyParent);
+        }
+        if (prevProps.onlyUsersOrgUnits !== this.props.onlyUsersOrgUnits) {
+            this.setState({ onlyUsersOrgUnits: this.props.onlyUsersOrgUnits }, this.notifyParentOnlyUsersOrgUnits);
+        }
     }
 
     componentWillMount = () => {
@@ -93,17 +121,30 @@ export default class Filters extends React.Component {
     componentDidMount = () => {
         listActions.loadUserRoles.next();
         listActions.loadUserGroups.next();
-        const toOptions = arr => arr.map(obj => ({ value: obj.id, text: obj.displayName }));
+        const { isSuperAdmin, appSettings } = this.props;
+        const toOptions = objs => objs.map(obj => ({ value: obj.id, text: obj.displayName }));
 
         this.registerDisposable(
             listStore.listRolesSubject.subscribe(userRolesResponse => {
-                this.setState({ userRolesAll: toOptions(userRolesResponse.userRoles) });
+                const rolesToExclude = appSettings.hide.userRoles;
+                const userRolesToShow = isSuperAdmin
+                    ? toOptions(userRolesResponse.userRoles)
+                    : toOptions(userRolesResponse.userRoles).filter(
+                          userRole => !rolesToExclude.includes(userRole.value)
+                      );
+                this.setState({ userRolesAll: userRolesToShow });
             })
         );
 
         this.registerDisposable(
             listStore.listGroupsSubject.subscribe(userGroupsResponse => {
-                this.setState({ userGroupsAll: toOptions(userGroupsResponse.userGroups) });
+                const groupsToExclude = appSettings.hide.userGroups;
+                const userGroupsAll = isSuperAdmin
+                    ? toOptions(userGroupsResponse.userGroups)
+                    : toOptions(userGroupsResponse.userGroups).filter(
+                          userGroup => !groupsToExclude.includes(userGroup.value)
+                      );
+                this.setState({ userGroupsAll: userGroupsAll });
             })
         );
     };
@@ -157,21 +198,27 @@ export default class Filters extends React.Component {
     };
 
     clearFilters = () => {
+        this.setState({ onlyUsersOrgUnits: DEFAULT_SHOW_ONLY_ACTIVE_USERS }, this.notifyParentOnlyUsersOrgUnits);
         this.setState(
             {
                 showOnlyManagedUsers: false,
                 searchStringClear: new Date(),
                 userGroups: [],
                 userRoles: [],
-                userDisabled: null,
+                userDisabled: this.props.onlyActiveUsers ? false : null,
                 twoFactorEnabled: null,
                 externalAuth: null,
                 orgUnits: [],
                 orgUnitsOutput: [],
                 searchOrgUnits: [],
+                rootJunction: this.props.areFiltersOverrided ? "AND" : "OR",
             },
             this.notifyParent
         );
+    };
+
+    notifyParentOnlyUsersOrgUnits = () => {
+        this.props.setOnlyUsersOrgUnits(this.state.onlyUsersOrgUnits);
     };
 
     notifyParent = () => {
@@ -180,13 +227,32 @@ export default class Filters extends React.Component {
     };
 
     _setFilter = (key, getter) => {
+        const notify = key === "onlyUsersOrgUnits" ? this.notifyParentOnlyUsersOrgUnits : this.notifyParent;
+
         return (...args) => {
             const newValue = getter ? getter(...args) : args[0];
-            this.setState({ [key]: newValue }, this.notifyParent);
+            this.setState({ [key]: newValue }, notify);
         };
     };
 
-    checkboxHandler = (ev, isChecked) => isChecked;
+    _getActiveDropdownStatus = (isSuperAdmin, isSettingInactive, areFiltersOverrided) => {
+        const activeInactiveOptions = [
+            { value: false, text: this.getTranslation("active") },
+            { value: true, text: this.getTranslation("inactive") },
+        ];
+
+        const forcedFilterOptions = [{ value: false, text: this.getTranslation("filter_active_modified") }];
+
+        if (isSuperAdmin || isSettingInactive) {
+            return { activeInactiveDisabled: false, activeInactiveOptions: activeInactiveOptions };
+        } else if (areFiltersOverrided) {
+            return { activeInactiveDisabled: true, activeInactiveOptions: forcedFilterOptions };
+        } else {
+            return { activeInactiveDisabled: false, activeInactiveOptions: activeInactiveOptions };
+        }
+    };
+
+    checkboxHandler = ev => ev.target.checked;
     dropdownHandler = ev => ev.target.value;
 
     render() {
@@ -198,29 +264,40 @@ export default class Filters extends React.Component {
             orgUnitsOutput,
             searchOrgUnits,
             showOnlyManagedUsers,
+            onlyUsersOrgUnits,
             showExtendedFilters,
             rootJunction,
         } = this.state;
+
+        const { appSettings, isSuperAdmin, areFiltersOverrided, hideUsersCanManageFilter, isSettingInactive } =
+            this.props;
 
         const { styles } = this;
 
         const isExtendedFiltering =
             showOnlyManagedUsers ||
+            onlyUsersOrgUnits ||
             userDisabled ||
             !_([userGroups, userRoles, orgUnits, orgUnitsOutput, searchOrgUnits]).every(_.isEmpty);
         const isFiltering = showOnlyManagedUsers || isExtendedFiltering;
         const filterIconColor = isExtendedFiltering ? "#ff9800" : undefined;
         const filterButtonColor = showExtendedFilters ? { backgroundColor: "#cdcdcd" } : undefined;
 
-        const activeInactiveOptions = [
-            { value: false, text: this.getTranslation("active") },
-            { value: true, text: this.getTranslation("inactive") },
-        ];
+        const { activeInactiveOptions, activeInactiveDisabled } = this._getActiveDropdownStatus(
+            isSuperAdmin,
+            isSettingInactive,
+            areFiltersOverrided
+        );
 
         const enabledDisabledOptions = [
             { value: true, text: this.getTranslation("enabled") },
             { value: false, text: this.getTranslation("disabled") },
         ];
+
+        const rootIds =
+            appSettings.showCustomRootOrgUnits && !isSuperAdmin && appSettings.rootOrgUnitIds.length > 0
+                ? appSettings.rootOrgUnitIds
+                : undefined;
 
         return (
             <div className="user-management-controls" style={styles.wrapper}>
@@ -245,115 +322,169 @@ export default class Filters extends React.Component {
                     infoActionText={this.getTranslation("clear_filters")}
                     onInfoAction={isFiltering ? this.clearFilters : undefined}
                 >
-                    <div style={{ padding: 10, margin: 10 }}>
-                        <Grid container spacing={2} className="control-row">
-                            <Grid item xs={8} className="control-row checkboxes">
-                                <Checkbox
-                                    className="control-checkbox"
-                                    label={this.getTranslation("display_only_users_can_manage")}
-                                    onCheck={this.setFilter("showOnlyManagedUsers", this.checkboxHandler)}
-                                    checked={showOnlyManagedUsers}
-                                />
-                            </Grid>
-                            <Grid item xs={4} className="control-row switch">
-                                <span>{this.getTranslation("Filtering_behavior")}</span>
-                                <div className="control-switch">
-                                    <span>{this.getTranslation("OR")}</span>
-                                    <Switch
-                                        className="control-switch"
-                                        onChange={() => {
-                                            const newRootJunction = rootJunction === "AND" ? "OR" : "AND";
-                                            this.setState({ rootJunction: newRootJunction }, this.notifyParent);
-                                        }}
-                                        checked={rootJunction === "AND"}
+                    <div style={{ padding: "0.5em", margin: "0.5em" }}>
+                        <Box display="flex" alignItems="center" width="100%" marginBottom={1.5}>
+                            <Box display="flex" flexGrow={1} flexDirection={"column"} gridRowGap="1em">
+                                {!hideUsersCanManageFilter && (
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={showOnlyManagedUsers}
+                                                onChange={this.setFilter("showOnlyManagedUsers", this.checkboxHandler)}
+                                            />
+                                        }
+                                        label={this.getTranslation("display_only_users_can_manage")}
                                     />
-                                    <span>{this.getTranslation("AND")}</span>
+                                )}
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={onlyUsersOrgUnits}
+                                            onChange={this.setFilter("onlyUsersOrgUnits", this.checkboxHandler)}
+                                        />
+                                    }
+                                    label={this.getTranslation("only_users_assigned_to_org_unit")}
+                                />
+                            </Box>
+                        </Box>
+                        <Box display="flex" justifyContent="flex-end">
+                            <Box display="flex" gridColumnGap="1.5em">
+                                <span style={styles.filterBehavior}>
+                                    {this.getTranslation("Filtering_behavior")}
+                                    <InfoOutlinedIcon
+                                        fontSize="small"
+                                        titleAccess={this.getTranslation("Active_in_advanced_only")}
+                                    />
+                                </span>
+                                <Box
+                                    display="inline"
+                                    title={
+                                        areFiltersOverrided
+                                            ? this.getTranslation("filter_modified_on_settings")
+                                            : undefined
+                                    }
+                                >
+                                    <SegmentedControl
+                                        options={[
+                                            {
+                                                label: this.getTranslation("OR"),
+                                                value: "OR",
+                                            },
+                                            {
+                                                label: this.getTranslation("AND"),
+                                                value: "AND",
+                                            },
+                                        ]}
+                                        selected={rootJunction}
+                                        onChange={({ value }) => {
+                                            this.setState({ rootJunction: value ?? "OR" }, this.notifyParent);
+                                        }}
+                                    />
+                                </Box>
+                            </Box>
+                        </Box>
+                        <div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterActive.visible) && (
+                                <div className="user-management-control select-active-or-inactive">
+                                    <Dropdown
+                                        labelText={this.getTranslation("filter_active_inactive_users")}
+                                        options={activeInactiveOptions}
+                                        value={this.state.userDisabled}
+                                        onChange={this.setFilter("userDisabled", this.dropdownHandler)}
+                                        style={styles.dropdownStyles}
+                                        disabled={activeInactiveDisabled}
+                                    />
                                 </div>
-                                <span>{this.getTranslation("Active_in_advanced_only")}</span>
-                            </Grid>
-                        </Grid>
-                        <div className="control-row">
-                            <div className="user-management-control select-active-or-inactive">
-                                <Dropdown
-                                    labelText={this.getTranslation("filter_active_inactive_users")}
-                                    options={activeInactiveOptions}
-                                    value={this.state.userDisabled}
-                                    onChange={this.setFilter("userDisabled", this.dropdownHandler)}
-                                    style={styles.dropdownStyles}
-                                />
-                            </div>
+                            )}
 
-                            <div className="user-management-control select-active-or-inactive">
-                                <Dropdown
-                                    labelText={this.getTranslation("filter_2fa_status")}
-                                    options={enabledDisabledOptions}
-                                    value={this.state.twoFactorEnabled}
-                                    onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
-                                    style={styles.dropdownStyles}
-                                />
-                            </div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterTwoFactorAuth.visible) && (
+                                <div className="user-management-control select-active-or-inactive">
+                                    <Dropdown
+                                        labelText={this.getTranslation("filter_2fa_status")}
+                                        options={enabledDisabledOptions}
+                                        value={this.state.twoFactorEnabled}
+                                        onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
+                                        style={styles.dropdownStyles}
+                                    />
+                                </div>
+                            )}
 
-                            <div className="user-management-control select-active-or-inactive">
-                                <Dropdown
-                                    labelText={this.getTranslation("filter_externalAuth_status")}
-                                    options={enabledDisabledOptions}
-                                    value={this.state.externalAuth}
-                                    onChange={this.setFilter("externalAuth", this.dropdownHandler)}
-                                    style={styles.dropdownStyles}
-                                />
-                            </div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterExternalAuth.visible) && (
+                                <div className="user-management-control select-active-or-inactive">
+                                    <Dropdown
+                                        labelText={this.getTranslation("filter_externalAuth_status")}
+                                        options={enabledDisabledOptions}
+                                        value={this.state.externalAuth}
+                                        onChange={this.setFilter("externalAuth", this.dropdownHandler)}
+                                        style={styles.dropdownStyles}
+                                    />
+                                </div>
+                            )}
 
-                            <div className="user-management-control select-role">
-                                <MultipleFilter
-                                    title={this.getTranslation("filter_role")}
-                                    options={this.state.userRolesAll}
-                                    selected={this.state.userRoles}
-                                    onChange={this.setFilter("userRoles")}
-                                    styles={styles.filterStyles}
-                                />
-                            </div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterRoles.visible) && (
+                                <div className="user-management-control select-role">
+                                    <MultipleFilter
+                                        title={this.getTranslation("filter_role")}
+                                        options={this.state.userRolesAll}
+                                        selected={this.state.userRoles}
+                                        onChange={this.setFilter("userRoles")}
+                                        styles={styles.filterStyles}
+                                    />
+                                </div>
+                            )}
 
-                            <div className="user-management-control select-group">
-                                <MultipleFilter
-                                    title={this.getTranslation("filter_group")}
-                                    options={this.state.userGroupsAll}
-                                    selected={this.state.userGroups}
-                                    onChange={this.setFilter("userGroups")}
-                                    styles={styles.filterStyles}
-                                />
-                            </div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterUserGroups.visible) && (
+                                <div className="user-management-control select-group">
+                                    <MultipleFilter
+                                        title={this.getTranslation("filter_group")}
+                                        options={this.state.userGroupsAll}
+                                        selected={this.state.userGroups}
+                                        onChange={this.setFilter("userGroups")}
+                                        styles={styles.filterStyles}
+                                    />
+                                </div>
+                            )}
                         </div>
 
-                        <div className="control-row">
-                            <div className="user-management-control select-organisation-unit">
-                                <OrgUnitsSelectorFilter
-                                    api={this.props.api}
-                                    title={this.getTranslation("filter_by_organisation_units_capture")}
-                                    selected={this.state.orgUnits}
-                                    onChange={this.setFilter("orgUnits")}
-                                    styles={styles.filterStyles}
-                                />
-                            </div>
+                        <div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterOrgUnits.visible) && (
+                                <div className="user-management-control select-organisation-unit">
+                                    <OrgUnitsSelectorFilter
+                                        api={this.props.api}
+                                        title={this.getTranslation("filter_by_organisation_units_capture")}
+                                        selected={this.state.orgUnits}
+                                        onChange={this.setFilter("orgUnits")}
+                                        styles={styles.filterStyles}
+                                        rootIds={rootIds}
+                                    />
+                                </div>
+                            )}
 
-                            <div className="user-management-control select-organisation-unit-output">
-                                <OrgUnitsSelectorFilter
-                                    api={this.props.api}
-                                    title={this.getTranslation("filter_by_organisation_units_output")}
-                                    selected={this.state.orgUnitsOutput}
-                                    onChange={this.setFilter("orgUnitsOutput")}
-                                    styles={styles.filterStyles}
-                                />
-                            </div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterOrgUnitsView.visible) && (
+                                <div className="user-management-control select-organisation-unit-output">
+                                    <OrgUnitsSelectorFilter
+                                        api={this.props.api}
+                                        title={this.getTranslation("filter_by_organisation_units_output")}
+                                        selected={this.state.orgUnitsOutput}
+                                        onChange={this.setFilter("orgUnitsOutput")}
+                                        styles={styles.filterStyles}
+                                        rootIds={rootIds}
+                                    />
+                                </div>
+                            )}
 
-                            <div className="user-management-control select-search-organisation-unit">
-                                <OrgUnitsSelectorFilter
-                                    api={this.props.api}
-                                    title={this.getTranslation("filter_by_search_organisation_units")}
-                                    selected={this.state.searchOrgUnits}
-                                    onChange={this.setFilter("searchOrgUnits")}
-                                    styles={styles.filterStyles}
-                                />
-                            </div>
+                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterOrgUnitsSearch.visible) && (
+                                <div className="user-management-control select-search-organisation-unit">
+                                    <OrgUnitsSelectorFilter
+                                        api={this.props.api}
+                                        title={this.getTranslation("filter_by_search_organisation_units")}
+                                        selected={this.state.searchOrgUnits}
+                                        onChange={this.setFilter("searchOrgUnits")}
+                                        styles={styles.filterStyles}
+                                        rootIds={rootIds}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </ConfirmationDialog>
