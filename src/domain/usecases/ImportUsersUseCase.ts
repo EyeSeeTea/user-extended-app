@@ -3,8 +3,8 @@ import { Future, FutureData } from "../entities/Future";
 import { UserProps, defaultUserProps } from "../entities/UserProps";
 import { UserRepository } from "../repositories/UserRepository";
 import { UseCase } from "../../CompositionRoot";
+import i18n from "../../utils/i18n";
 import { User } from "../entities/User";
-import i18n from "../../locales";
 import { getLanguage } from "../utils/getLanguage";
 import { isUniqueOpenId } from "../utils/isUniqueOpenId";
 import { IMPORT_USERS_CHUNK_SIZE } from "../utils/limits";
@@ -49,7 +49,12 @@ export class ImportUsersUseCase implements UseCase {
                         const usernameList = userChunk.map(user => user.username);
 
                         return this.userRepository
-                            .listAll({ filters: { "userCredentials.username": ["in", usernameList] } })
+                            .listAll({
+                                onlyActiveUsers: false,
+                                onlyUsersOrgUnits: false,
+                                hideUsers: [],
+                                filters: { "userCredentials.username": ["in", usernameList] },
+                            })
                             .flatMap(usersFromDB => {
                                 const mergedUsers = this.mergeUsers(userChunk, usersFromDB, currentUser);
                                 return this.saveUsers(mergedUsers);
@@ -72,7 +77,7 @@ export class ImportUsersUseCase implements UseCase {
             const dbUser = user.username ? usersFromDBMap[user.username] : undefined;
             if (dbUser) {
                 // Merge user with dbUser, but do not overwrite existing properties in user
-                return User.createNew({
+                return User.createExisted({
                     ...dbUser,
                     ...user,
                     name: `${user.firstName} ${user.surname}`,

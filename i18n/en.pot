@@ -5,8 +5,59 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-10-24T00:40:55.273Z\n"
-"PO-Revision-Date: 2025-10-24T00:40:55.273Z\n"
+"POT-Creation-Date: 2026-01-21T03:07:33.214Z\n"
+"PO-Revision-Date: 2026-01-21T03:07:33.214Z\n"
+
+msgid "Invalid response from server"
+msgstr ""
+
+msgid "Unknown error"
+msgstr ""
+
+msgid "Show \"Filter by active/inactive users\""
+msgstr ""
+
+msgid "Show \"Filter by enabled/disabled 2FA\""
+msgstr ""
+
+msgid "Show \"Filter by enabled/disabled external authentication\""
+msgstr ""
+
+msgid "Show \"Filter by role\""
+msgstr ""
+
+msgid "Show \"Filter by Groups\""
+msgstr ""
+
+msgid "Show \"Filter by organization units capture\""
+msgstr ""
+
+msgid "Show \"Filter by organization units output\""
+msgstr ""
+
+msgid "Show \"Filter by organization units search\""
+msgstr ""
+
+msgid "Show Import Users"
+msgstr ""
+
+msgid "Show Export to JSON"
+msgstr ""
+
+msgid "Show Export to CSV"
+msgstr ""
+
+msgid "Show \"Show only users assigned to my organization unit and below\""
+msgstr ""
+
+msgid "Show \"Hide not applicable user groups\""
+msgstr ""
+
+msgid "Show \"Filter by Users\""
+msgstr ""
+
+msgid "Show \"Filter by Owners\""
+msgstr ""
 
 msgid "ID"
 msgstr ""
@@ -80,6 +131,9 @@ msgstr ""
 msgid "Usernames must be unique"
 msgstr ""
 
+msgid "Not all users have emails"
+msgstr ""
+
 msgid "Only admin user can edit logger settings"
 msgstr ""
 
@@ -96,6 +150,18 @@ msgid "Columns to show in table"
 msgstr ""
 
 msgid "Column"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Optional"
+msgstr ""
+
+msgid "Visible"
+msgstr ""
+
+msgid "Mandatory"
 msgstr ""
 
 msgid "Copy in user: {{user}}"
@@ -129,6 +195,33 @@ msgid "User Roles"
 msgstr ""
 
 msgid "OU Capture"
+msgstr ""
+
+msgid "Owners: {{owners}}"
+msgstr ""
+
+msgid "Users: {{users}}"
+msgstr ""
+
+msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
+msgid "Filters"
+msgstr ""
+
+msgid "Owners"
+msgstr ""
+
+msgid "Clear"
+msgstr ""
+
+msgid "Select owners"
+msgstr ""
+
+msgid "Users"
+msgstr ""
+
+msgid "Select users"
 msgstr ""
 
 msgid "Import/Export"
@@ -209,9 +302,6 @@ msgstr ""
 msgid "Ok"
 msgstr ""
 
-msgid "Users"
-msgstr ""
-
 msgid "Summary"
 msgstr ""
 
@@ -242,6 +332,120 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
+msgid "Search users"
+msgstr ""
+
+msgid "Search user roles"
+msgstr ""
+
+msgid "Search user groups"
+msgstr ""
+
+msgid "Show feedback button"
+msgstr ""
+
+msgid "Configure custom root org. units on advanced filters"
+msgstr ""
+
+msgid "Access to Settings Section"
+msgstr ""
+
+msgid "Changes on 'Who has access' to settings will be reflected after page reload"
+msgstr ""
+
+msgid "Show only active users"
+msgstr ""
+
+msgid "Show only users assigned to users organisation units"
+msgstr ""
+
+msgid "Hide users, user roles and user groups"
+msgstr ""
+
+msgid "Actions available for all users"
+msgstr ""
+
+msgid ""
+"All actions will be available for administrators (but still subject to the "
+"circumstances that need to be met for each action). Eg: 'Enable' action "
+"will not be available if selected users are already enabled."
+msgstr ""
+
+msgid "Show/Hide Filters"
+msgstr ""
+
+msgid "Show/Hide Actions"
+msgstr ""
+
+msgid "Dashboards"
+msgstr ""
+
+msgid "Select user groups and rules"
+msgstr ""
+
+msgid "You can't hide more than 480 users"
+msgstr ""
+
+msgid "Public access (Everyone)"
+msgstr ""
+
+msgid "User has email address"
+msgstr ""
+
+msgid "Only available for users assigned to users' organization unit and below"
+msgstr ""
+
+msgid "Hidden"
+msgstr ""
+
+msgid "Only available if user has update access over the users"
+msgstr ""
+
+msgid "Only available for disabled users"
+msgstr ""
+
+msgid "Only available for active users"
+msgstr ""
+
+msgid "Only available if user has delete access over the users"
+msgstr ""
+
+msgid "Only available if user has replicate authority on some owned role"
+msgstr ""
+
+msgid "Selected users have email address"
+msgstr ""
+
+msgid "Selected users belong to at least one of users' organization units"
+msgstr ""
+
+msgid "User has update access"
+msgstr ""
+
+msgid "Selected users are disabled"
+msgstr ""
+
+msgid "Selected users are active"
+msgstr ""
+
+msgid "User has delete access"
+msgstr ""
+
+msgid "User has replicate authority"
+msgstr ""
+
+msgid "criteria"
+msgstr ""
+
+msgid "criterion"
+msgstr ""
+
+msgid "The following {{label}} must always be satisfied: {{criterias}}"
+msgstr ""
+
+msgid "[RULE] "
+msgstr ""
+
 msgid "Replicate"
 msgstr ""
 
@@ -255,10 +459,46 @@ msgid ""
 "$index is optional."
 msgstr ""
 
-msgid "Settings"
+msgid "One or more actions have users or user groups assigned but no rules."
+msgstr ""
+
+msgid "Saving..."
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
+msgid "User Columns"
+msgstr ""
+
+msgid "Group Columns"
+msgstr ""
+
+msgid "Role Columns"
+msgstr ""
+
+msgid "Dashboard Columns"
 msgstr ""
 
 msgid "Logger"
+msgstr ""
+
+msgid "Permissions"
+msgstr ""
+
+msgid "User Permissions"
+msgstr ""
+
+msgid "Columns"
+msgstr ""
+
+msgid "Filter Permissions"
+msgstr ""
+
+msgid "Settings"
 msgstr ""
 
 msgid "Error saving user"
@@ -345,6 +585,18 @@ msgstr ""
 msgid "Api URL"
 msgstr ""
 
+msgid "Filter users"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Column settings have been successfully reset."
+msgstr ""
+
+msgid "Reset Columns"
+msgstr ""
+
 msgid "Last updated"
 msgstr ""
 
@@ -352,6 +604,48 @@ msgid "OU Output"
 msgstr ""
 
 msgid "OU Search"
+msgstr ""
+
+msgid "Search by name or username..."
+msgstr ""
+
+msgid "Assign to organisation units capture"
+msgstr ""
+
+msgid "Assign to organisation units output"
+msgstr ""
+
+msgid "Assign to organisation units search"
+msgstr ""
+
+msgid "{{action}}: {{users}} {{remainingCount}}"
+msgstr ""
+
+msgid "And {{overflow}} more..."
+msgstr ""
+
+msgid "User ID"
+msgstr ""
+
+msgid "Data capture organisation units"
+msgstr ""
+
+msgid "Data view organisation units"
+msgstr ""
+
+msgid "Search organisation units"
+msgstr ""
+
+msgid "Created By"
+msgstr ""
+
+msgid "Last Modified By"
+msgstr ""
+
+msgid "2FA"
+msgstr ""
+
+msgid "External Auth"
 msgstr ""
 
 msgid "Details"
@@ -381,7 +675,10 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Disable"
+msgid "Reset password"
+msgstr ""
+
+msgid "Set password"
 msgstr ""
 
 msgid "Remove"
@@ -393,46 +690,10 @@ msgstr ""
 msgid "Replicate user from table"
 msgstr ""
 
-msgid "Search by name or username..."
+msgid "Hide not applicable user groups"
 msgstr ""
 
-msgid "Assign to organisation units capture"
-msgstr ""
-
-msgid "Assign to organisation units output"
-msgstr ""
-
-msgid "Assign to organisation units search"
-msgstr ""
-
-msgid "{{action}}: {{users}} {{remainingCount}}"
-msgstr ""
-
-msgid "User ID"
-msgstr ""
-
-msgid "Data capture organisation units"
-msgstr ""
-
-msgid "Data view organisation units"
-msgstr ""
-
-msgid "Search organisation units"
-msgstr ""
-
-msgid "Created By"
-msgstr ""
-
-msgid "Last Modified By"
-msgstr ""
-
-msgid "2FA"
-msgstr ""
-
-msgid "External Auth"
-msgstr ""
-
-msgid "And {{overflow}} more..."
+msgid "Loading..."
 msgstr ""
 
 msgid "Users {{action}}. {{users}} {{remainingCount}}"
@@ -447,6 +708,112 @@ msgid ""
 msgstr ""
 
 msgid "Confirm"
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "Confirm New Password"
+msgstr ""
+
+msgid "Remove users"
+msgstr ""
+
+msgid "Users removed"
+msgstr ""
+
+msgid "Disable users"
+msgstr ""
+
+msgid "Users disabled"
+msgstr ""
+
+msgid "Enable users"
+msgstr ""
+
+msgid "Users enabled"
+msgstr ""
+
+msgid "Reset passwords"
+msgstr ""
+
+msgid "reset the passwords for"
+msgstr ""
+
+msgid "Passwords have been reset"
+msgstr ""
+
+msgid ""
+"An email will be sent to the users with instructions to reset their "
+"password."
+msgstr ""
+
+msgid "{{actionSuccess}}. {{users}} {{remainingCount}}"
+msgstr ""
+
+msgid ""
+"Are you sure you want to {{actionDescription}} the selected users? "
+"{{users}} {{remainingCount}}"
+msgstr ""
+
+msgid "Set password for {{username}}"
+msgstr ""
+
+msgid "Set Password"
+msgstr ""
+
+msgid "Password is required"
+msgstr ""
+
+msgid "Password must contain at least 8 characters"
+msgstr ""
+
+msgid "Password must not contain more than 34 characters"
+msgstr ""
+
+msgid "Password must contain at least one lowercase letter"
+msgstr ""
+
+msgid "Password must contain at least one UPPERCASE letter"
+msgstr ""
+
+msgid "Password must contain at least one digit (number)"
+msgstr ""
+
+msgid "Password must contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least 8 characters"
+msgstr ""
+
+msgid "Not contain more than 34 characters"
+msgstr ""
+
+msgid "Contain at least one special character (non-alphanumeric)"
+msgstr ""
+
+msgid "Contain at least one UPPERCASE character"
+msgstr ""
+
+msgid "Contain at least one lowercase character"
+msgstr ""
+
+msgid "Contain at least one digit (number)"
+msgstr ""
+
+msgid "Please confirm your password"
+msgstr ""
+
+msgid "Passwords do not match"
+msgstr ""
+
+msgid "Please ensure all password requirements are met and passwords match"
+msgstr ""
+
+msgid "Password has been set successfully for {{username}}"
+msgstr ""
+
+msgid "Failed to set password. Please try again."
 msgstr ""
 
 msgid "Replicate {{user}}"
@@ -468,9 +835,6 @@ msgid "Error replicating user {{user}}: {{message}}"
 msgstr ""
 
 msgid "Error in template: {{message}}"
-msgstr ""
-
-msgid "Saving..."
 msgstr ""
 
 msgid "Table exported: {{filename}}"

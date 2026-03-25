@@ -13,6 +13,7 @@ import {
     ReplicateTemplateProps,
     ReplicateTemplateValidationError,
 } from "../../domain/entities/ReplicateTemplate";
+import { useAppSettings } from "./useAppSettings";
 import { Password } from "../../domain/value-objects/Password";
 
 export interface UseReplicateUserFromTemplateReturn {
@@ -33,6 +34,7 @@ export const useReplicateUserFromTemplate = (
     onRequestClose: () => void
 ): UseReplicateUserFromTemplateReturn => {
     const { compositionRoot } = useAppContext();
+    const { appSettings } = useAppSettings();
 
     const [userToReplicate, setUserToReplicate] = React.useState<User | undefined>();
     const [existingUsernames, setExistingUsernames] = React.useState<string[]>([]);
@@ -66,7 +68,11 @@ export const useReplicateUserFromTemplate = (
         setIsUserLoaded(false);
 
         const userFuture = compositionRoot.users.get([userToReplicateId]);
-        const identifiersFuture = compositionRoot.users.listAllIdentifiers({});
+        const identifiersFuture = compositionRoot.users.listAllIdentifiers({
+            hideUsers: appSettings.hide.users,
+            onlyActiveUsers: appSettings.showOnlyActiveUsers,
+            onlyUsersOrgUnits: false,
+        });
 
         Future.joinObj({
             user: userFuture,
@@ -91,7 +97,15 @@ export const useReplicateUserFromTemplate = (
                 handleUsersError(`Error loading users data: ${error}`);
             }
         );
-    }, [compositionRoot, loading, onRequestClose, snackbar, userToReplicateId]);
+    }, [
+        compositionRoot,
+        loading,
+        onRequestClose,
+        snackbar,
+        userToReplicateId,
+        appSettings.showOnlyActiveUsers,
+        appSettings.hide.users,
+    ]);
 
     useEffect(() => {
         if (isUserLoaded && userToReplicate && userToReplicate.username) {
@@ -172,7 +186,7 @@ export const useReplicateUserFromTemplate = (
                     snackbar.error(
                         i18n.t("Error replicating user {{user}}: {{message}}", {
                             user: userToReplicate.username,
-                            message: String(error),
+                            message: error,
                             nsSeparator: false,
                         })
                     );

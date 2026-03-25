@@ -10,6 +10,8 @@ import { OrgUnitKey } from "../entities/OrgUnit";
 
 const fieldSplitChar = "||";
 const defaultNameField = "name";
+
+//FIXME: If this columns are used for export, should be translated? Now i18n is not being processed as it's called before initialization
 const columnNameFromPropertyMapping = {
     id: i18n.t("ID"),
     username: i18n.t("Username"),
@@ -39,7 +41,7 @@ export class ExportUsersUseCase {
     constructor(private userRepository: UserRepository) {}
 
     public execute({
-        filterOptions = {},
+        filterOptions,
         isEmptyTemplate = false,
         ...options
     }: ExportUsersUseCaseOptions): FutureData<{ blob: Blob; filename: string }> {

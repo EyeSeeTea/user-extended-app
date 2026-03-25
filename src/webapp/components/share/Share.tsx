@@ -72,12 +72,12 @@ const styles = {
     eyeseeteaShare: {
         backgroundColor: "rgb(243,243,243)",
         position: "fixed" as const,
-        bottom: "0px",
-        right: "80px",
+        insetBlockEnd: "0px",
+        insetInlineEnd: "80px",
         borderRadius: "0px",
         height: "auto",
         opacity: ".85",
-        paddingBottom: "40px",
+        paddingBlockEnd: "40px",
         width: "40px",
         zIndex: 10001,
         textAlign: "center" as const,
@@ -106,8 +106,8 @@ const styles = {
     },
 
     shareTab: {
-        bottom: "-3px",
-        right: "80px",
+        insetBlockEnd: "-3px",
+        insetInlineEnd: "80px",
         position: "fixed" as const,
         zIndex: 10002,
     },

@@ -7,6 +7,8 @@ module.exports = {
     moduleNameMapper: {
         "\\.(css|scss)$": "<rootDir>/config/styleMock.js",
         "\\.(jpg|jpeg|png|svg)$": "<rootDir>/config/fileMock.js",
+        // use axios version from this project instead the one used in d2-api
+        "^axios$": "<rootDir>/node_modules/axios/index.js",
     },
     transform: {
         "^.+\\.[t|j]sx?$": "babel-jest",

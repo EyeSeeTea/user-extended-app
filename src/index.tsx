@@ -1,14 +1,15 @@
-import { Provider } from "@dhis2/app-runtime";
-import i18n from "@dhis2/d2-i18n";
-import axios from "axios";
-//@ts-ignore
-import { init } from "d2/lib/d2";
 import _ from "lodash";
+import axios from "axios";
 import ReactDOM from "react-dom";
+import { Provider } from "@dhis2/app-runtime";
+import { init } from "d2/lib/d2";
+
 import { Instance } from "./data/entities/Instance";
 import { D2Api } from "./types/d2-api";
 import { getD2ApiFromInstance } from "./utils/d2-api";
 import { App } from "./webapp/pages/app/App";
+import { LegacyD2I18n } from "./types/d2-legacy-i18n";
+import i18n from "./utils/i18n";
 import "./webapp/utils/wdyr";
 import listStore from "./legacy/List/list.store";
 
@@ -38,21 +39,22 @@ const isLangRTL = (code: string) => {
 
 const configI18n = ({ keyUiLocale }: { keyUiLocale: string }) => {
     i18n.changeLanguage(keyUiLocale);
+    console.debug(`i18n language set to ${i18n.language}`);
     document.documentElement.setAttribute("dir", isLangRTL(keyUiLocale) ? "rtl" : "ltr");
 };
 
 /**  @deprecated
  *
  */
-const initDeprecatedI18n = (d2: any, { keyUiLocale }: { keyUiLocale: string }) => {
+const initDeprecatedI18n = (legacyI18n: LegacyD2I18n, { keyUiLocale }: { keyUiLocale: string }) => {
     if (keyUiLocale && keyUiLocale !== "en") {
         // Add the language sources for the preferred locale
-        d2.i18n.addSource(`old-i18n/i18n_module_${keyUiLocale}.properties`);
+        legacyI18n.addSource(`old-i18n/i18n_module_${keyUiLocale}.properties`);
     }
 
     // Add english as locale for all cases (either as primary or fallback)
-    d2.i18n.addSource("old-i18n/i18n_module_en.properties");
-    d2.i18n.load();
+    legacyI18n.addSource("old-i18n/i18n_module_en.properties");
+    legacyI18n.load();
 };
 
 async function main() {
@@ -76,11 +78,11 @@ async function main() {
 
         const userSettings = await api.get<{ keyUiLocale: string }>("/userSettings").getData();
         configI18n(userSettings);
-        initDeprecatedI18n(d2, userSettings);
+        initDeprecatedI18n(d2.i18n, userSettings);
 
         ReactDOM.render(
             <Provider config={{ baseUrl, apiVersion: 30 }}>
-                <App api={api} d2={d2} instance={instance} />
+                <App api={api} d2={d2} instance={instance} keyUiLocale={userSettings.keyUiLocale} />
             </Provider>,
             document.getElementById("root")
         );

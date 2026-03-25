@@ -7,6 +7,7 @@ import { useReplicateUserFromTable } from "../../hooks/useReplicateUserFromTable
 interface ReplicateUserFromTableProps {
     userToReplicateId: Id;
     onRequestClose: () => void;
+    onlyUsersOrgUnits: boolean;
 }
 
 const columns: Columns[] = [
@@ -22,7 +23,7 @@ const columns: Columns[] = [
 ];
 
 export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = props => {
-    const { userToReplicateId, onRequestClose } = props;
+    const { userToReplicateId, onRequestClose, onlyUsersOrgUnits } = props;
     const { replicateTitle, replicateUsers, userToReplicate, isMounted } = useReplicateUserFromTable(
         userToReplicateId,
         onRequestClose
@@ -42,6 +43,7 @@ export const ReplicateUserFromTable: React.FC<ReplicateUserFromTableProps> = pro
             onRequestClose={props.onRequestClose}
             templateUser={userToReplicate}
             warnings={[]}
+            onlyUsersOrgUnits={onlyUsersOrgUnits}
         />
     );
 };
