@@ -1,4 +1,12 @@
-import { D2Api, D2UserSchema, MetadataResponse, SelectedPick, PatchOperation, ErrorReport } from "../../types/d2-api";
+import {
+    D2Api,
+    D2UserSchema,
+    MetadataResponse,
+    SelectedPick,
+    PatchOperation,
+    ErrorReport,
+    Selector,
+} from "../../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
@@ -154,7 +162,7 @@ export class UserD2ApiRepository implements UserRepository {
                     })
                 ).flatMap(({ objects, pager }) => {
                     return this.recalculatePagination(options).map(newPager => {
-                        const users = objects.map(user => this.toDomainUser(user));
+                        const users = objects.map(user => this.toDomainUser(user as ApiUserWithAudit));
                         const excludeHiddenUsers = usersIdsToHide
                             ? users.filter(user => !usersIdsToHide.includes(user.id))
                             : users;
@@ -312,7 +320,7 @@ export class UserD2ApiRepository implements UserRepository {
             if (!idFilterValues || idFilterValues.length === 0) {
                 return apiToFuture(
                     this.api.models.users.get({
-                        fields: { id: true, userCredentials: { username: true } },
+                        fields: { id: true, name: true, userCredentials: { username: true } },
                         paging: false,
                         ...this.createCommonListQueryParams(options),
                     })
@@ -321,7 +329,12 @@ export class UserD2ApiRepository implements UserRepository {
                         ? objects.filter(user => !usersIdsToExclude.includes(user.id))
                         : objects;
                     return filteredObjects.map(
-                        user => new UserIdentifier({ id: user.id, username: user.userCredentials.username })
+                        user =>
+                            new UserIdentifier({
+                                id: user.id,
+                                username: user.userCredentials.username,
+                                name: user.name,
+                            })
                     );
                 });
             }
@@ -355,7 +368,7 @@ export class UserD2ApiRepository implements UserRepository {
 
                 return apiToFuture(
                     this.api.models.users.get({
-                        fields: { id: true, userCredentials: { username: true } },
+                        fields: { id: true, name: true, userCredentials: { username: true } },
                         paging: false,
                         ...this.createCommonListQueryParams(chunkOptions),
                     })
@@ -369,7 +382,7 @@ export class UserD2ApiRepository implements UserRepository {
                 : objects;
             const uniqueUsers = _.uniqBy(filteredObjects, user => user.id);
             return uniqueUsers.map(
-                user => new UserIdentifier({ id: user.id, username: user.userCredentials.username })
+                user => new UserIdentifier({ id: user.id, username: user.userCredentials.username, name: user.name })
             );
         });
     }
@@ -922,13 +935,15 @@ export class UserD2ApiRepository implements UserRepository {
     public getInMyOrgUnit(): FutureData<UserIdentifier[]> {
         return apiToFuture(
             this.api.models.users.get({
-                fields: { id: true, displayName: true },
+                fields: { id: true, displayName: true, name: true },
                 paging: false,
                 userOrgUnits: "true",
                 includeChildren: "true",
             })
         ).map(({ objects }) => {
-            return objects.map(user => new UserIdentifier({ id: user.id, username: user.displayName }));
+            return objects.map(
+                user => new UserIdentifier({ id: user.id, username: user.displayName, name: user.name })
+            );
         });
     }
 
