@@ -1,12 +1,4 @@
-import {
-    D2Api,
-    D2UserSchema,
-    MetadataResponse,
-    SelectedPick,
-    PatchOperation,
-    ErrorReport,
-    Selector,
-} from "../../types/d2-api";
+import { D2Api, D2UserSchema, MetadataResponse, SelectedPick, PatchOperation, ErrorReport } from "../../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
