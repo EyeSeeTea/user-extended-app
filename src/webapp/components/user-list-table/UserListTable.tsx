@@ -29,7 +29,6 @@ import {
     useColumnsPreferences,
     useCopyInUser,
     useGetAllUserIdentifiers,
-    useGetAllUsers,
     useGetUsersByIds,
     useSaveUsersOrgUnits,
 } from "../../hooks/userHooks";
