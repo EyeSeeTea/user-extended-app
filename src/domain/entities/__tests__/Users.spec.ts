@@ -40,6 +40,44 @@ describe("User Entity", () => {
         dbLocale: "en",
     };
 
+    const validUser2Props: UserProps = {
+        id: "user123",
+        name: "John Doe",
+        username: "johndoe",
+        firstName: "John",
+        surname: "Doe",
+        email: "john.doe@example.com",
+        phoneNumber: "+1234567890",
+        whatsApp: "",
+        facebookMessenger: "",
+        skype: "",
+        telegram: "",
+        twitter: "",
+        lastUpdated: new Date(),
+        created: new Date(),
+        apiUrl: "https://api.example.com",
+        userRoles: [{ id: "role1", name: "Admin" }],
+        userGroups: [],
+        organisationUnits: [{ id: "org1", name: "Main Org", code: "MAIN", path: ["org1"] }],
+        dataViewOrganisationUnits: [{ id: "org1", name: "Main Org", code: "MAIN", path: ["org1"] }],
+        searchOrganisationsUnits: [{ id: "org1", name: "Main Org", code: "MAIN", path: ["org1"] }],
+        lastLogin: new Date(),
+        status: "active",
+        disabled: false,
+        access: { read: true, update: true, externalize: true, delete: true, write: true, manage: true },
+        openId: null,
+        ldapId: null,
+        externalAuth: false,
+        twoFactorEnabled: false,
+        password: "",
+        accountExpiry: null,
+        authorities: ["F_USER_VIEW"],
+        createdBy: { id: "creator1", username: "creator" },
+        lastModifiedBy: { id: "modifier1", username: "modifier" },
+        uiLocale: "en",
+        dbLocale: "en",
+    };
+
     describe("createNewUser factory method", () => {
         describe("successful creation", () => {
             it("should create a new user with valid properties", () => {
@@ -552,6 +590,21 @@ describe("User Entity", () => {
                 success: () => {
                     throw new Error("Expected validation to fail but it succeeded");
                 },
+            });
+        });
+    });
+
+    describe("update", () => {
+        describe("userGroups", () => {
+            it("should not throw error when password is missing", () => {
+                const user = User.createExisted(validUser2Props).getOrThrow();
+                const updatedUser = user.update({ password: undefined }).getOrThrow();
+
+                const updatedUserResult = updatedUser
+                    .update({ userGroups: [{ id: "group1", name: "Administrators" }] })
+                    .getOrThrow();
+
+                expect(updatedUserResult.userGroups).toEqual([{ id: "group1", name: "Administrators" }]);
             });
         });
     });
