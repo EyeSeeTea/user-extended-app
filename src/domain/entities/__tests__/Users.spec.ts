@@ -599,12 +599,11 @@ describe("User Entity", () => {
             it("should not throw error when password is missing", () => {
                 const user = User.createExisted(validUser2Props).getOrThrow();
                 const updatedUser = user.update({ password: undefined }).getOrThrow();
+                const userGroups = [{ id: "group1", name: "Administrators" }];
 
-                const updatedUserResult = updatedUser
-                    .update({ userGroups: [{ id: "group1", name: "Administrators" }] })
-                    .getOrThrow();
+                const updatedUserResult = updatedUser.update({ userGroups }).getOrThrow();
 
-                expect(updatedUserResult.userGroups).toEqual([{ id: "group1", name: "Administrators" }]);
+                expect(updatedUserResult.userGroups).toEqual(userGroups);
             });
         });
     });
