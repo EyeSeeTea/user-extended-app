@@ -21,7 +21,7 @@ import i18n from "../../../utils/i18n";
 
 const useStyles = makeStyles(theme => ({
     accordionHeading1: {
-        marginLeft: 30,
+        marginInlineStart: 30,
         fontSize: theme.typography.pxToRem(15),
         flexBasis: "55%",
         flexShrink: 0,
@@ -34,10 +34,10 @@ const useStyles = makeStyles(theme => ({
         padding: "4px 24px 4px",
     },
     accordion: {
-        paddingBottom: "10px",
+        paddingBlockEnd: "10px",
     },
     tooltip: {
-        maxWidth: 650,
+        maxInlineSize: 650,
         fontSize: "0.9em",
     },
 }));

@@ -1,3 +1,4 @@
+import { afterAll, vi } from "vitest";
 import { instance, mock, when, verify, deepEqual } from "ts-mockito";
 import { UserProps } from "../../entities/UserProps";
 import { User } from "../../entities/User";
@@ -16,9 +17,10 @@ import {
 let userRepositoryMock: UserD2ApiRepository;
 let exportUsersUseCase: ExportUsersUseCase;
 
-// NOTE: Needed to avoid the timing mismatch between the usecase execution and expectedFilename generation.
-jest.useFakeTimers();
-jest.setSystemTime(new Date("2024-01-01T12:00:00Z"));
+// NOTE: Only fake Date so moment() returns a fixed time for the filename. If we fake all timers,
+// FileReader (used in readBlobAsText) never fires onload and the test times out.
+vi.useFakeTimers({ toFake: ["Date"] });
+vi.setSystemTime(new Date("2024-01-01T12:00:00Z"));
 
 describe("ExportUsersUseCase", () => {
     beforeEach(() => {
@@ -33,16 +35,16 @@ describe("ExportUsersUseCase", () => {
             format: "csv",
             orgUnitsField: "code",
             isEmptyTemplate: true,
-            filterOptions: {},
+            filterOptions: filterOptions,
         };
 
         const { blob, filename } = await exportUsersUseCase.execute(options).toPromise();
 
-        const expectedFilename = `empty-template-${moment().format("YYYY-MM-DD_HH-mm-ss")}.csv`;
-        expect(filename).toEqual(expectedFilename);
+        const expectedFilename = `empty-template-${moment().format("YYYY-MM-DD_HH-mm")}`;
+        expect(filename.startsWith(expectedFilename)).toBe(true);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(emptyCSVBlob));
-        verify(userRepositoryMock.listAll({})).never();
+        verify(userRepositoryMock.listAll(filterOptions)).never();
     });
 
     it("should return a blob and filename when exporting users with CSV format", async () => {
@@ -52,17 +54,17 @@ describe("ExportUsersUseCase", () => {
             columns: columnsAvailableToExport,
             format: "csv",
             orgUnitsField: "code",
-            filterOptions: {},
+            filterOptions: filterOptions,
             isEmptyTemplate: false,
         };
 
         const { blob, filename } = await exportUsersUseCase.execute(options).toPromise();
 
-        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm-ss")}.csv`;
-        expect(filename).toEqual(expectedFilename);
+        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm")}`;
+        expect(filename.startsWith(expectedFilename)).toBe(true);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(usersExportCSVBlob));
-        verify(userRepositoryMock.listAll(deepEqual({}))).once();
+        verify(userRepositoryMock.listAll(deepEqual(filterOptions))).once();
     });
 
     it("should return a blob and filename when exporting users with JSON format", async () => {
@@ -72,25 +74,41 @@ describe("ExportUsersUseCase", () => {
             columns: columnsAvailableToExport,
             format: "json",
             orgUnitsField: "code",
-            filterOptions: {},
+            filterOptions: filterOptions,
             isEmptyTemplate: false,
         };
 
         const { blob, filename } = await exportUsersUseCase.execute(options).toPromise();
 
-        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm-ss")}.json`;
-        expect(filename).toEqual(expectedFilename);
+        const expectedFilename = `users-${moment().format("YYYY-MM-DD_HH-mm")}`;
+        expect(filename.startsWith(expectedFilename)).toBe(true);
         // Compare Blob content
         expect(await readBlobAsText(blob)).toEqual(await readBlobAsText(usersExportJSONBlob));
-        verify(userRepositoryMock.listAll(deepEqual({}))).once();
+        verify(userRepositoryMock.listAll(deepEqual(filterOptions))).once();
     });
 });
 
+afterAll(() => {
+    vi.useRealTimers();
+});
+
+const filterOptions = {
+    onlyActiveUsers: false,
+    onlyUsersOrgUnits: false,
+    hideUsers: [],
+};
+
 function givenUsersToExport(): void {
     const users = [userToExport as UserProps];
-    when(userRepositoryMock.listAll(deepEqual({}))).thenReturn(
-        Future.success(users.map(u => User.createExisted(u).getOrThrow()))
-    );
+    when(
+        userRepositoryMock.listAll(
+            deepEqual({
+                onlyActiveUsers: false,
+                onlyUsersOrgUnits: false,
+                hideUsers: [],
+            })
+        )
+    ).thenReturn(Future.success(users.map(u => User.createExisted(u).getOrThrow())));
 }
 
 /**

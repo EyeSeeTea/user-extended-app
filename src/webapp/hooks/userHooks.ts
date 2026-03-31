@@ -1,7 +1,7 @@
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Id } from "../../domain/entities/Ref";
-import { User } from "../../domain/entities/User";
+import { User, UserColumns } from "../../domain/entities/User";
 import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
@@ -10,6 +10,11 @@ import i18n from "../../utils/i18n";
 import { AllowedExportFormat, ColumnMappingKeys } from "../../domain/usecases/ExportUsersUseCase";
 import FileSaver from "file-saver";
 import { OrgUnitKey } from "../../domain/entities/OrgUnit";
+import { AppSettings } from "../../domain/entities/AppSettings";
+import { Maybe } from "../../types/utils";
+import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
+import { Column } from "../../domain/entities/UserColumn";
+import { UserProps } from "../../domain/entities/UserProps";
 
 type UseSaveUsersOrgUnitsProps = { onSuccess: () => void };
 type UseExportUsersProps = {
@@ -20,6 +25,13 @@ type UseExportUsersProps = {
 };
 
 type UseCopyInUserProps = { onSuccess: () => void };
+
+type UseVisibleColumnsProps = {
+    appSettings: Maybe<AppSettings>;
+    user: UserProps;
+    onChangeVisibleColumns: (columns: UserColumns[]) => void;
+    columnsKey: string;
+};
 
 export function useGetUsersByIds(ids: Id[]) {
     const { compositionRoot } = useAppContext();
@@ -82,40 +94,54 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
     return { saveUsersOrgUnits };
 }
 
-export function useGetAllUsers() {
+export function useGetAllUsers(onlyUsersOrgUnits: boolean) {
     const { compositionRoot } = useAppContext();
+    const { appSettings } = useAppSettingsContext();
     const [users, setUsers] = React.useState<User[]>();
     const snackbar = useSnackbar();
 
     React.useMemo(() => {
-        compositionRoot.users.listAll({}).run(
-            allUsers => {
-                setUsers(allUsers);
-            },
-            error => {
-                snackbar.error(error);
-            }
-        );
-    }, [compositionRoot, snackbar]);
+        compositionRoot.users
+            .listAll({
+                onlyUsersOrgUnits: onlyUsersOrgUnits,
+                onlyActiveUsers: appSettings.showOnlyActiveUsers,
+                hideUsers: appSettings.hide.users,
+            })
+            .run(
+                allUsers => {
+                    setUsers(allUsers);
+                },
+                error => {
+                    snackbar.error(error);
+                }
+            );
+    }, [appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits, compositionRoot.users, snackbar]);
 
     return { users };
 }
 
-export function useGetAllUserIdentifiers() {
+export function useGetAllUserIdentifiers(onlyUsersOrgUnits: boolean) {
     const { compositionRoot } = useAppContext();
+    const { appSettings } = useAppSettingsContext();
     const [userIdentifiers, setUserIdentifiers] = React.useState<UserIdentifier[]>([]);
     const snackbar = useSnackbar();
 
     React.useMemo(() => {
-        compositionRoot.users.listAllIdentifiers({}).run(
-            allUserIdentifiers => {
-                setUserIdentifiers(allUserIdentifiers);
-            },
-            error => {
-                snackbar.error(error);
-            }
-        );
-    }, [compositionRoot, snackbar]);
+        compositionRoot.users
+            .listAllIdentifiers({
+                onlyUsersOrgUnits: onlyUsersOrgUnits,
+                onlyActiveUsers: appSettings.showOnlyActiveUsers,
+                hideUsers: appSettings.hide.users,
+            })
+            .run(
+                allUserIdentifiers => {
+                    setUserIdentifiers(allUserIdentifiers);
+                },
+                error => {
+                    snackbar.error(error);
+                }
+            );
+    }, [compositionRoot, snackbar, appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits]);
 
     return { userIdentifiers };
 }
@@ -193,4 +219,26 @@ export const useExportUsers = (props: UseExportUsersProps) => {
         exportUsersToJSON: React.useCallback(() => exportUsers("users", "json", false), [exportUsers]),
         exportEmptyTemplate: React.useCallback(() => exportUsers("empty-user-template", "csv", true), [exportUsers]),
     };
+};
+
+export const useColumnsPreferences = (props: UseVisibleColumnsProps) => {
+    const { columnsKey, appSettings, user, onChangeVisibleColumns } = props;
+
+    const [columnsPreferences, setColumnsPreferences] = React.useState<Column[]>();
+
+    const { compositionRoot } = useAppContext();
+    const snackbar = useSnackbar();
+
+    React.useEffect(() => {
+        console.debug("Loading columns preferences for key:", columnsKey);
+        return compositionRoot.users.getColumns(user).run(
+            columnsPreferences => {
+                setColumnsPreferences(columnsPreferences);
+                onChangeVisibleColumns(columnsPreferences.map(col => col.fieldName));
+            },
+            error => snackbar.error(error)
+        );
+    }, [appSettings?.columns, compositionRoot, snackbar, user, onChangeVisibleColumns, columnsKey]);
+
+    return { columnsPreferences };
 };

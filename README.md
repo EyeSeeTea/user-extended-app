@@ -16,11 +16,86 @@ We’d like to hear your thoughts on the app in general, improvements, new featu
 
 ## Setup
 
-Install dependencies:
-
 ```
+$ nvm use  # uses node version in .nvmrc if present
 $ yarn install
 ```
+
+This project uses **Yarn 4** managed by **Corepack** and declares:
+
+```json
+"packageManager": "yarn@4.12.0"
+```
+
+### Recommended: disable Corepack auto-pin globally (macOS, zsh)
+
+To avoid Corepack modifying the `package.json` of **other** projects when you run `corepack enable` or `yarn` in repositories that do **not** define `packageManager`, it is recommended to disable the global auto‑pin:
+
+1. Open your shell configuration (`zsh`):
+
+```bash
+nano ~/.zshrc   # or use code/vim, etc.
+```
+
+2. Add this line at the end of the file:
+
+```bash
+export COREPACK_ENABLE_AUTO_PIN=0
+```
+
+3. Reload the configuration in the current session:
+
+```bash
+source ~/.zshrc
+```
+
+4. Verify that it is active:
+
+```bash
+echo $COREPACK_ENABLE_AUTO_PIN
+# should print: 0
+```
+
+From that point on, with `corepack enable` active, when you run `yarn` in projects **without** `packageManager`, Corepack will no longer add the `packageManager` field automatically to their `package.json`.
+
+### If you have Yarn 1 globally and see a packageManager error
+
+If running `yarn` shows an error like:
+
+> This project's package.json defines "packageManager": "yarn@4.12.0". However the current global version of Yarn is 1.22.x.
+
+do the following once on your machine:
+
+```bash
+# 1) Remove global Yarn (optional but recommended)
+npm uninstall -g yarn
+
+# 2) Enable Corepack (shipped with Node 16.9+ / 14.19+)
+corepack enable
+
+# 3) Set Yarn 1.x as the default for projects WITHOUT packageManager
+corepack prepare yarn@1.22.22 --activate
+```
+
+Then, in this project (normal case, once Corepack is enabled):
+
+```bash
+nvm use   # use the version from .nvmrc
+yarn install
+```
+
+If for some reason `yarn --version` still shows `1.x` inside this repo (for example due to old Corepack state), prepare the Yarn 4 binary without changing the global default or `package.json`:
+
+```bash
+COREPACK_ENABLE_AUTO_PIN=0 corepack prepare yarn@4.12.0
+yarn --version   # should now print 4.12.0
+yarn install
+```
+
+After this:
+
+- This repo will use **Yarn 4.12.0**.
+- Other repos without `packageManager` will keep using **Yarn 1.22.22** (or whatever you activated with `corepack prepare`).
 
 ## Development
 
@@ -107,3 +182,7 @@ Check the example script, entry `"script-example"`in `package.json`->scripts and
 User-Extended App development is sustainable thanks to the partners for which we build customized DHIS2 solutions. It has been funded by the Norwegian Refugee Council, the WHO Global Malaria Programme, Samaritan’s Purse and Medecins Sans Frontières to support countries in strengthening the collection and use of health data through DHIS2. Also, the WHO Integrated Data Platform (WIDP), where several WHO departments and units share a dedicated hosting and maintenance provided by EyeSeeTea, back some specific new features. The Long Term Agreement EyeSeeTea holds with WHO for this maintenance includes maintenance of this application, ensuring that it will always work at least with the last version of WIDP. We are passionate about both DHIS2 and open source, so giving back to the community through dedicated open-source development is and will always be part of EyeSeeTea’s commitment.
 
 You can also [support our work through a one-time contribution or becoming a regular github sponsor](https://github.com/sponsors/EyeSeeTea)
+
+### Storage
+
+Settings can be saved in the data store (default) or as constants. Use the env variable **REACT_APP_STORAGE** to select which one to use (`dataStore` or `constants`).

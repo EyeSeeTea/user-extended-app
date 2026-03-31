@@ -19,16 +19,17 @@ export class User extends Struct<UserProps>() {
     }
 
     // TODO: remove generic update method and use specific methods only
-    update(props: Partial<UserProps>): Either<ValidationError<User>[], User> {
-        return User.validateAndCreateUser({ ...this, ...props }, { isExistingUser: true });
+    update(props: Partial<UserProps>, options: { disableValidation: boolean }): Either<ValidationError<User>[], User> {
+        const disableValidation = options.disableValidation ?? false;
+        return User.validateAndCreateUser({ ...this, ...props }, { isExistingUser: disableValidation });
     }
 
     enable(): Either<ValidationError<User>[], User> {
-        return this.update({ disabled: false });
+        return this.update({ disabled: false }, { disableValidation: true });
     }
 
     disable(): Either<ValidationError<User>[], User> {
-        return this.update({ disabled: true });
+        return this.update({ disabled: true }, { disableValidation: true });
     }
 
     /** Validates the user properties.
@@ -96,8 +97,18 @@ export class User extends Struct<UserProps>() {
             return Either.success(new User(processedProps));
         }
     }
+
+    updatePassword(newPassword: string): User {
+        // TODO: we skip password validation here because rules are configurable.
+        // and we're validating if password is valid in the SetUserPasswordUseCase
+        // we'll need a different entity to get all the rules and then validate here too.
+        return this._update({ password: newPassword });
+    }
 }
 
+export type LocaleCode = string;
+
+export type UserColumns = keyof User;
 function extractErrorsFromString(
     property: keyof User,
     value: unknown,

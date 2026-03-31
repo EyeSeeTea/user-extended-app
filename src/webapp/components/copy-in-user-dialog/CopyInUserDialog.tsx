@@ -137,7 +137,7 @@ export type CopyInUserDialogProps = {
 
 const Container = styled.div`
     display: flex;
-    justify-content: right;
+    justify-content: end;
     margin-block-end: 1em;
     align-items: center;
 `;

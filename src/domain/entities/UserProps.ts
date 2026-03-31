@@ -1,6 +1,8 @@
+import _ from "lodash";
 import { Maybe } from "../../types/utils";
 import { OrgUnit } from "./OrgUnit";
-import { Id, NamedRef } from "./Ref";
+import { getId, Id, NamedRef } from "./Ref";
+import { User } from "./User";
 
 export interface UserProps {
     id: string;
@@ -100,5 +102,46 @@ export const isSuperAdmin = (user: UserProps): boolean => {
 export const hasReplicateAuthority = (user: UserProps): boolean => {
     return isSuperAdmin(user) || user.authorities.includes("F_REPLICATE_USER");
 };
+
+export function allUsersHaveAllSpecifiedAccesses(users: User[], accesses: string[]): boolean {
+    return users.every(user => {
+        const userAccesses = _(user.access)
+            .pickBy(access => Boolean(access))
+            .keys()
+            .value();
+
+        return accesses.every(key => userAccesses.includes(key));
+    });
+}
+
+export function userWithinOrgUnits(user: User, organisationUnitIds: Id[]): boolean {
+    const inheretedOrgUnits = userInheritedOrgUnitIds(user);
+    return organisationUnitIds.some(orgUnitId => inheretedOrgUnits.includes(orgUnitId));
+}
+
+export function userInheritedOrgUnitIds(user: User): Id[] {
+    const allOrgUnitIds = user.organisationUnits.flatMap(orgUnit => orgUnit.path);
+    return _.uniq(allOrgUnitIds);
+}
+
+export function userOrgUnitIds(user: UserProps): Id[] {
+    return user.organisationUnits.map(getId);
+}
+
+export function allUsersHaveEmail(users: User[]): boolean {
+    return users.every(user => Boolean(user.email));
+}
+
+export function allUsersBelongToAtLeastOneOrgUnit(users: User[], orgUnitIds: Id[]) {
+    return users.every(user => userWithinOrgUnits(user, orgUnitIds));
+}
+
+export function allUsersAreDisabled(users: User[]) {
+    return users.every(user => user.disabled);
+}
+
+export function allUsersAreActive(users: User[]) {
+    return users.every(user => !user.disabled);
+}
 
 export type LocaleCode = string;

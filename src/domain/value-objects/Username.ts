@@ -1,11 +1,5 @@
 import { Either } from "../entities/Either";
-import {
-    validateLengthMax,
-    validateLengthMin,
-    validateNotRegexp,
-    validateRegexp,
-    validateRequired,
-} from "../utils/validations";
+import { validateLengthMax, validateLengthMin, validateNotRegexp, validateRequired } from "../utils/validations";
 import { ValueObject } from "./ValueObject";
 
 export interface UsernameProps {
@@ -30,16 +24,20 @@ export class Username extends ValueObject<UsernameProps> {
 
         const startError = validateNotRegexp(value, /^[._@-]|[._@-]$/, "Username cannot start or end with a separator");
         const doubleError = validateNotRegexp(value, /([._@-]){2,}/, "Username cannot have two separators in a row");
-        const charError = validateRegexp(
-            value,
-            /^[a-zA-Z0-9._@-]+$/,
-            "Username can only include . _ - or @ as separators"
-        );
+
+        // Check Username.spec.ts ("character validation") for further explanation
+        // about why this validation is skipped
+
+        // const charError = validateRegexp(
+        //     value,
+        //     /^[a-zA-Z0-9._@-]+$/,
+        //     "Username can only include . _ - or @ as separators"
+        // );
 
         const minLengthError = validateLengthMin(value, 2, "Username should be at least 2 characters long");
         const maxLengthError = validateLengthMax(value, 255, "Username may not exceed 255 characters");
 
-        const errors = [startError, doubleError, charError, minLengthError, maxLengthError].filter(
+        const errors = [startError, doubleError, minLengthError, maxLengthError].filter(
             error => error !== undefined
         ) as string[];
 

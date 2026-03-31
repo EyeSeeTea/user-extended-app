@@ -9,3 +9,10 @@ export interface Pager {
     total: number;
     pageSize: number;
 }
+
+export type CommonFilterParams = {
+    page: number;
+    pageSize: number;
+    search: string;
+    sorting: { field: string; order: "asc" | "desc" };
+};

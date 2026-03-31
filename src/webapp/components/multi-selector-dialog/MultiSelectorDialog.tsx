@@ -122,13 +122,13 @@ const buildTransferOptions = (options: NamedRef[]): TransferOption[] => {
 
 const Container = styled.div`
     display: flex;
-    justify-content: right;
-    margin-bottom: 16px;
+    justify-content: end;
+    margin-block-end: 16px;
     align-items: center;
 `;
 
 const Label = styled.span`
-    margin-right: 16px;
+    margin-inline-end: 16px;
     font-weight: bold;
 `;
 

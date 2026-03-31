@@ -16,15 +16,19 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
 
     useEffect(() => {
         const handleUsersError = (message: string) => {
+            loading.hide();
             snackbar.error(i18n.t(message));
             onRequestClose();
         };
+
+        loading.show(true, i18n.t("Loading user"));
 
         compositionRoot.users.get([userToReplicateId]).run(
             ([user]) => {
                 if (!user) {
                     handleUsersError(`Unable to load user: ${userToReplicateId}`);
                 } else {
+                    loading.hide();
                     setUserToReplicate(user);
                     setIsMounted(true);
                 }
@@ -33,7 +37,11 @@ export function useReplicateUserFromTable(userToReplicateId: Id, onRequestClose:
                 handleUsersError(`Error loading user (${userToReplicateId}): ${error}`);
             }
         );
-    }, [compositionRoot.users, onRequestClose, snackbar, userToReplicateId]);
+
+        return () => {
+            loading.hide();
+        };
+    }, [compositionRoot.users, loading, onRequestClose, snackbar, userToReplicateId]);
 
     const replicateTitle = useMemo(() => {
         console.debug("useMemo replicateTitle");

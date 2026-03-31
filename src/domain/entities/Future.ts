@@ -29,6 +29,11 @@ export class Future<E, D> {
         return new Future(chainRejMapper(this.instance));
     }
 
+    mapError<E2>(mapper: (error: E) => E2): Future<E2, D> {
+        const instance2 = fluture.mapRej(mapper)(this.instance) as fluture.FutureInstance<E2, D>;
+        return new Future(instance2);
+    }
+
     toPromise(): Promise<D> {
         return new Promise((resolve, reject) => {
             this.run(resolve, reject);
@@ -42,6 +47,10 @@ export class Future<E, D> {
                 error => resolve({ error })
             );
         });
+    }
+
+    static void<_, E = unknown>(): Future<E, undefined> {
+        return new Future<E, undefined>(fluture.resolve(undefined));
     }
 
     /* Static methods */
