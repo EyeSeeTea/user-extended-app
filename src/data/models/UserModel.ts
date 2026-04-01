@@ -15,6 +15,10 @@ export const AccessPermissionsModel: Codec<AccessPermissions> = Schema.object({
 export const ApiUserModel: Codec<ApiUser> = Schema.object({
     id: Schema.string,
     name: Schema.string,
+    username: Schema.optionalSafe(Schema.string, ""),
+    lastLogin: Schema.optionalSafe(Schema.string, ""),
+    disabled: Schema.optionalSafe(Schema.boolean, false),
+    externalAuth: Schema.optionalSafe(Schema.boolean, false),
     firstName: Schema.string,
     surname: Schema.string,
     email: Schema.optionalSafe(Schema.string, ""),
@@ -31,6 +35,16 @@ export const ApiUserModel: Codec<ApiUser> = Schema.object({
     dataViewOrganisationUnits: Schema.array(OrgUnitModel),
     teiSearchOrganisationUnits: Schema.array(OrgUnitModel),
     access: AccessPermissionsModel,
+    userRoles: Schema.optionalSafe(
+        Schema.array(
+            Schema.object({
+                id: Schema.string,
+                name: Schema.string,
+                authorities: Schema.optionalSafe(Schema.array(Schema.string), []),
+            })
+        ),
+        []
+    ),
     userCredentials: Schema.object({
         id: Schema.string,
         username: Schema.string,

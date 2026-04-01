@@ -312,7 +312,7 @@ export class UserD2ApiRepository implements UserRepository {
             if (!idFilterValues || idFilterValues.length === 0) {
                 return apiToFuture(
                     this.api.models.users.get({
-                        fields: { id: true, name: true, userCredentials: { username: true } },
+                        fields: { id: true, name: true, username: true, userCredentials: { username: true } },
                         paging: false,
                         ...this.createCommonListQueryParams(options),
                     })
@@ -324,7 +324,7 @@ export class UserD2ApiRepository implements UserRepository {
                         user =>
                             new UserIdentifier({
                                 id: user.id,
-                                username: user.userCredentials.username,
+                                username: user.username ?? user.userCredentials.username,
                                 name: user.name,
                             })
                     );
@@ -360,7 +360,7 @@ export class UserD2ApiRepository implements UserRepository {
 
                 return apiToFuture(
                     this.api.models.users.get({
-                        fields: { id: true, name: true, userCredentials: { username: true } },
+                        fields: { id: true, name: true, username: true, userCredentials: { username: true } },
                         paging: false,
                         ...this.createCommonListQueryParams(chunkOptions),
                     })
@@ -374,7 +374,12 @@ export class UserD2ApiRepository implements UserRepository {
                 : objects;
             const uniqueUsers = _.uniqBy(filteredObjects, user => user.id);
             return uniqueUsers.map(
-                user => new UserIdentifier({ id: user.id, username: user.userCredentials.username, name: user.name })
+                user =>
+                    new UserIdentifier({
+                        id: user.id,
+                        username: user.username || user.userCredentials.username,
+                        name: user.name,
+                    })
             );
         });
     }
@@ -582,20 +587,31 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private buildUsersToSave(existingUser: Maybe<ApiUser>, user: ApiUser) {
+        const shouldSendPassword = Boolean(user.userCredentials.password);
+        const shouldSendOpenId = user.userCredentials.openId !== undefined && user.userCredentials.openId !== "";
+        const shouldSendLdapId = user.userCredentials.ldapId !== undefined && user.userCredentials.ldapId !== "";
+        const shouldSendAccountExpiry =
+            user.userCredentials.accountExpiry !== undefined && user.userCredentials.accountExpiry !== "";
+        const shouldSendTwoFA = user.userCredentials.twoFA === true;
+
         return {
             ...(existingUser || {}),
             ...user,
             // include these fields here and in userCredentials due to a bug in v2.38
-            userRoles: user.userCredentials.userRoles,
-            username: user.userCredentials.username,
-            disabled: user.userCredentials.disabled,
-            openId: user.userCredentials.openId,
-            password: user.userCredentials.password,
+            userRoles: user.userRoles,
+            username: user.username,
+            disabled: user.disabled ?? user.userCredentials.disabled,
+            ...(shouldSendOpenId ? { openId: user.userCredentials.openId } : {}),
+            ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
             userCredentials: {
                 ...(existingUser || {}).userCredentials,
                 ...user.userCredentials,
                 id: user.id,
-                accountExpiry: user.userCredentials.accountExpiry ? user.userCredentials.accountExpiry : undefined,
+                ...(shouldSendOpenId ? { openId: user.userCredentials.openId } : {}),
+                ...(shouldSendLdapId ? { ldapId: user.userCredentials.ldapId } : {}),
+                ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
+                ...(shouldSendAccountExpiry ? { accountExpiry: user.userCredentials.accountExpiry } : {}),
+                ...(shouldSendTwoFA ? { twoFA: true } : {}),
             },
         };
     }
@@ -790,9 +806,19 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private toDomainUser(input: ApiUserWithAudit): User {
-        const { userCredentials, ...user } = input;
-        const authorities = _(userCredentials.userRoles)
-            .map(userRole => userRole.authorities)
+        const { userCredentials: rawUserCredentials, ...user } = input;
+
+        const userCredentials = rawUserCredentials ?? {};
+
+        const userRoles = input.userRoles || userCredentials.userRoles || [];
+        const username = input.username || userCredentials.username || "";
+
+        const lastLoginRaw = input.lastLogin ?? userCredentials.lastLogin;
+        const disabled: boolean = input.disabled ?? userCredentials.disabled ?? false;
+        const externalAuth: boolean = input.externalAuth ?? userCredentials.externalAuth ?? false;
+
+        const authorities = _(userRoles)
+            .map(userRole => userRole.authorities ?? [])
             .flatten()
             .uniq()
             .value();
@@ -814,23 +840,23 @@ export class UserD2ApiRepository implements UserRepository {
             userGroups: _(user.userGroups)
                 .orderBy(ug => ug.name)
                 .value(),
-            username: userCredentials.username,
+            username,
             apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
             userRoles:
-                _(userCredentials.userRoles)
+                _(userRoles)
                     .map(userRole => ({ id: userRole.id, name: userRole.name }))
                     .orderBy(ur => ur.name)
                     .value() || [],
-            lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
-            status: userCredentials.disabled ? "Disabled" : "Active",
-            disabled: userCredentials.disabled,
+            lastLogin: lastLoginRaw ? new Date(lastLoginRaw) : undefined,
+            status: disabled ? "Disabled" : "Active",
+            disabled,
             organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
             dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
             searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
             access: user.access,
             openId: userCredentials.openId,
             ldapId: userCredentials.ldapId,
-            externalAuth: userCredentials.externalAuth,
+            externalAuth,
             twoFactorEnabled: userCredentials.twoFA,
             password: userCredentials.password,
             accountExpiry: userCredentials.accountExpiry,
@@ -851,8 +877,9 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {
-        const createdBy = user.userCredentials.createdBy || user.createdBy;
-        const lastUpdatedBy = user.userCredentials.lastUpdatedBy || user.lastUpdatedBy;
+        const uc = user.userCredentials;
+        const createdBy = uc?.createdBy || user.createdBy;
+        const lastUpdatedBy = uc?.lastUpdatedBy || user.lastUpdatedBy;
         return {
             createdBy: createdBy ? { id: createdBy.id, username: createdBy.displayName } : undefined,
             lastModifiedBy: lastUpdatedBy ? { id: lastUpdatedBy?.id, username: lastUpdatedBy?.displayName } : undefined,
@@ -863,6 +890,7 @@ export class UserD2ApiRepository implements UserRepository {
         return {
             id: input.id,
             name: input.name,
+            username: input.username,
             firstName: input.firstName,
             surname: input.surname,
             email: input.email,
@@ -874,7 +902,12 @@ export class UserD2ApiRepository implements UserRepository {
             twitter: input.twitter,
             lastUpdated: input.lastUpdated.toISOString(),
             created: input.created.toISOString(),
+            // DHIS2 2.42 exposes these at root; keep populated for compatibility
+            lastLogin: input.lastLogin?.toISOString() ?? "",
+            disabled: input.disabled,
+            externalAuth: input.externalAuth ?? false,
             userGroups: input.userGroups,
+            userRoles: input.userRoles.map(userRole => ({ id: userRole.id, name: userRole.name, authorities: [] })),
             organisationUnits: this.getApiOrgUnits(input.organisationUnits),
             dataViewOrganisationUnits: this.getApiOrgUnits(input.dataViewOrganisationUnits),
             teiSearchOrganisationUnits: this.getApiOrgUnits(input.searchOrganisationsUnits),
@@ -988,6 +1021,7 @@ const auditFields = {
 const fields = {
     id: true,
     name: true,
+    username: true,
     firstName: true,
     surname: true,
     email: true,
@@ -999,10 +1033,15 @@ const fields = {
     twitter: true,
     lastUpdated: true,
     created: true,
+    // DHIS2 2.42 exposes some credentials fields at root
+    lastLogin: true,
+    disabled: true,
+    externalAuth: true,
     userGroups: { id: true, name: true },
     organisationUnits: orgUnitsFields,
     dataViewOrganisationUnits: orgUnitsFields,
     teiSearchOrganisationUnits: orgUnitsFields,
+    userRoles: { id: true, name: true, authorities: true },
     access: {
         manage: true,
         externalize: true,
@@ -1039,7 +1078,7 @@ const ownerFields = {
     invitation: true,
     disabled: true,
     attributeValues: true,
-    userRoles: { id: true },
+    userRoles: { id: true, name: true, authorities: true },
 } as const;
 
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
