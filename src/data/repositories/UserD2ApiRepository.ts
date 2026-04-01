@@ -134,10 +134,17 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
+        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
+            return this.listWithVersion({ ...options, filters }, is242Plus);
+        });
+    }
+
+    private listWithVersion(options: ListOptions, is242Plus: boolean): FutureData<PaginatedResponse<User>> {
         const { page, pageSize, filters } = options;
         const normalizedPage = page ?? 1;
         const normalizedPageSize = pageSize ?? 25;
         const idFilterValues = this.getIdInFilterValues(options);
+        const translatedFilters = filters;
 
         return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToHide => {
             if (!idFilterValues || idFilterValues.length === 0) {
@@ -150,7 +157,7 @@ export class UserD2ApiRepository implements UserRepository {
                         },
                         page,
                         pageSize,
-                        ...this.createCommonListQueryParams(options),
+                        ...this.createCommonListQueryParams({ ...options, filters: translatedFilters }, is242Plus),
                     })
                 ).flatMap(({ objects, pager }) => {
                     return this.recalculatePagination(options).map(newPager => {
@@ -164,9 +171,8 @@ export class UserD2ApiRepository implements UserRepository {
             }
 
             // If there is an ID filter, we need to chunk the requests to avoid URL length limits
-            //
             const sorting = options.sorting ?? { field: "firstName", order: "asc" };
-            const baseFilters = filters ?? {};
+            const baseFilters = translatedFilters ?? {};
 
             return chunkRequest(
                 idFilterValues,
@@ -187,7 +193,7 @@ export class UserD2ApiRepository implements UserRepository {
                                 userCredentials: { ...fields.userCredentials, ...auditFields },
                             },
                             paging: false,
-                            ...this.createCommonListQueryParams(chunkOptions),
+                            ...this.createCommonListQueryParams(chunkOptions, is242Plus),
                         })
                     ).map(({ objects }) => objects);
                 },
@@ -237,15 +243,15 @@ export class UserD2ApiRepository implements UserRepository {
 
     private buildFilters(
         filters: ListFilters | undefined,
-        override: { onlyActiveUsers: boolean }
+        override: { onlyActiveUsers: boolean },
+        is242Plus: boolean
     ): Record<string, Record<string, string[]> | undefined> {
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+        const disabledKey = is242Plus ? "disabled" : "userCredentials.disabled";
 
         return {
             ...otherFilters,
-            "userCredentials.disabled": override.onlyActiveUsers
-                ? { eq: ["false"] }
-                : otherFilters["userCredentials.disabled"],
+            [disabledKey]: override.onlyActiveUsers ? { eq: ["false"] } : otherFilters[disabledKey],
         };
     }
 
@@ -265,21 +271,23 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public listAllIds(options: ListOptions): FutureData<string[]> {
-        return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
-            return apiToFuture(
-                this.api.models.users.get({
-                    fields: { id: true },
-                    paging: false,
-                    ...this.createCommonListQueryParams(options),
-                })
-            ).map(({ objects }) => {
-                const usersIds = objects.map(user => user.id);
-                return usersIdsToExclude ? usersIds.filter(id => !usersIdsToExclude.includes(id)) : usersIds;
+        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
+            return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
+                return apiToFuture(
+                    this.api.models.users.get({
+                        fields: { id: true },
+                        paging: false,
+                        ...this.createCommonListQueryParams({ ...options, filters }, is242Plus),
+                    })
+                ).map(({ objects }) => {
+                    const usersIds = objects.map(user => user.id);
+                    return usersIdsToExclude ? usersIds.filter(id => !usersIdsToExclude.includes(id)) : usersIds;
+                });
             });
         });
     }
 
-    private createCommonListQueryParams(options: ListOptions) {
+    private createCommonListQueryParams(options: ListOptions, is242Plus: boolean) {
         const {
             search,
             sorting = { field: "firstName", order: "asc" },
@@ -290,7 +298,7 @@ export class UserD2ApiRepository implements UserRepository {
             onlyUsersOrgUnits,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers }, is242Plus);
         const areFiltersEnabled = _(otherFilters).values().some();
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
 
@@ -306,7 +314,14 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]> {
+        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
+            return this.listAllUserIdentifiersWithVersion({ ...options, filters }, is242Plus);
+        });
+    }
+
+    private listAllUserIdentifiersWithVersion(options: ListOptions, is242Plus: boolean): FutureData<UserIdentifier[]> {
         const idFilterValues = this.getIdInFilterValues(options);
+        const translatedFilters = options.filters;
 
         return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
             if (!idFilterValues || idFilterValues.length === 0) {
@@ -314,7 +329,7 @@ export class UserD2ApiRepository implements UserRepository {
                     this.api.models.users.get({
                         fields: { id: true, name: true, username: true, userCredentials: { username: true } },
                         paging: false,
-                        ...this.createCommonListQueryParams(options),
+                        ...this.createCommonListQueryParams({ ...options, filters: translatedFilters }, is242Plus),
                     })
                 ).map(({ objects }) => {
                     const filteredObjects = usersIdsToExclude
@@ -331,7 +346,7 @@ export class UserD2ApiRepository implements UserRepository {
                 });
             }
 
-            return this.getUserIdentifiersInChunks(options, {
+            return this.getUserIdentifiersInChunks({ ...options, filters: translatedFilters }, is242Plus, {
                 userIds: idFilterValues,
                 usersIdsToExclude: usersIdsToExclude,
             });
@@ -347,6 +362,7 @@ export class UserD2ApiRepository implements UserRepository {
 
     private getUserIdentifiersInChunks(
         options: ListOptions,
+        is242Plus: boolean,
         params: { userIds: Maybe<Id[]>; usersIdsToExclude: Maybe<Id[]> }
     ): FutureData<UserIdentifier[]> {
         const { userIds, usersIdsToExclude } = params;
@@ -362,7 +378,7 @@ export class UserD2ApiRepository implements UserRepository {
                     this.api.models.users.get({
                         fields: { id: true, name: true, username: true, userCredentials: { username: true } },
                         paging: false,
-                        ...this.createCommonListQueryParams(chunkOptions),
+                        ...this.createCommonListQueryParams(chunkOptions, is242Plus),
                     })
                 ).map(({ objects }) => objects);
             },
@@ -476,7 +492,8 @@ export class UserD2ApiRepository implements UserRepository {
             onlyActiveUsers,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        // getFullUsers is only used internally for save() prefetch; keep legacy behavior (2.41 compatible)
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers }, false);
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
@@ -1002,6 +1019,40 @@ export class UserD2ApiRepository implements UserRepository {
                     pageCount: Math.ceil(userIds.length / (options.pageSize ?? 25)),
                 };
             });
+        });
+    }
+
+    @cache()
+    private getIs242Plus(): FutureData<boolean> {
+        return Future.fromPromise(this.api.getVersion()).map(version => getMajorVersion(version) >= 42);
+    }
+
+    private translateListFiltersForApi(
+        filters: ListFilters | undefined
+    ): FutureData<{ is242Plus: boolean; filters: ListFilters | undefined }> {
+        return this.getIs242Plus().map(is242Plus => {
+            if (!filters) return { is242Plus, filters };
+            if (!is242Plus) return { is242Plus, filters };
+
+            const prefix = "userCredentials.";
+            const rootWhitelist = new Set(["username", "disabled", "externalAuth", "lastLogin", "userRoles.id"]);
+
+            const translated = _(filters)
+                .toPairs()
+                .flatMap(([key, value]) => {
+                    if (!key.startsWith(prefix)) return [[key, value] as const];
+
+                    const candidate = key.slice(prefix.length);
+                    // In DHIS2 2.42, filters using userCredentials.* can fail. Only translate the keys
+                    // we know exist in the root user schema; drop the rest (e.g. twoFA).
+                    if (!rootWhitelist.has(candidate)) return [];
+
+                    return [[candidate, value] as const];
+                })
+                .fromPairs()
+                .value();
+
+            return { is242Plus, filters: translated };
         });
     }
 }
