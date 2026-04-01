@@ -131,8 +131,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [importResult, setImportResult] = React.useState<ImportResult>();
     const { importSettings } = useImportSettings(`${reloadTableKey}-${routerReloadKey}`);
 
-    console.log({ reloadKey, reloadTableKey, routerReloadKey });
-
     const snackbar = useSnackbar();
     const navigate = useNavigate();
     const userColumns = useUserColumns();
