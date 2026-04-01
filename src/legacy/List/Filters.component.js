@@ -180,15 +180,26 @@ export default class Filters extends React.Component {
 
         const inFilter = field => (_(field).isEmpty() ? null : ["in", field]);
 
+        const is242Plus = (() => {
+            const version = this.context?.d2?.system?.systemInfo?.version;
+            const minor = version ? Number(String(version).split(".")[1]) : undefined;
+            return minor !== undefined && !Number.isNaN(minor) && minor >= 42;
+        })();
+
         return {
             ...(showOnlyManagedUsers ? { canManage: "true" } : {}),
             ...(searchString ? { query: searchString } : {}),
             ...(rootJunction ? { rootJunction } : {}),
             filters: {
-                "userCredentials.disabled": userDisabled !== null ? ["eq", userDisabled] : undefined,
-                "userCredentials.twoFA": twoFactorEnabled !== null ? ["eq", twoFactorEnabled] : undefined,
-                "userCredentials.externalAuth": externalAuth !== null ? ["eq", externalAuth] : undefined,
-                "userCredentials.userRoles.id": inFilter(userRoles),
+                [is242Plus ? "disabled" : "userCredentials.disabled"]:
+                    userDisabled !== null ? ["eq", userDisabled] : undefined,
+                // DHIS2 2.42 removed twoFA from userCredentials responses for security
+                ...(is242Plus
+                    ? {}
+                    : { "userCredentials.twoFA": twoFactorEnabled !== null ? ["eq", twoFactorEnabled] : undefined }),
+                [is242Plus ? "externalAuth" : "userCredentials.externalAuth"]:
+                    externalAuth !== null ? ["eq", externalAuth] : undefined,
+                [is242Plus ? "userRoles.id" : "userCredentials.userRoles.id"]: inFilter(userRoles),
                 "userGroups.id": inFilter(userGroups),
                 "organisationUnits.id": inFilter(orgUnits.map(ou => ou.id)),
                 "dataViewOrganisationUnits.id": inFilter(orgUnitsOutput.map(ou => ou.id)),
