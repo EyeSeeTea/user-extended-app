@@ -605,8 +605,13 @@ export class UserD2ApiRepository implements UserRepository {
 
     private buildUsersToSave(existingUser: Maybe<ApiUser>, user: ApiUser) {
         const shouldSendPassword = Boolean(user.userCredentials.password);
-        const shouldSendOpenId = user.userCredentials.openId !== undefined && user.userCredentials.openId !== "";
-        const shouldSendLdapId = user.userCredentials.ldapId !== undefined && user.userCredentials.ldapId !== "";
+        const rootOpenId = user.openId;
+        const rootLdapId = user.ldapId;
+        const effectiveOpenId = rootOpenId ?? user.userCredentials.openId;
+        const effectiveLdapId = rootLdapId ?? user.userCredentials.ldapId;
+
+        const shouldSendOpenId = effectiveOpenId !== undefined && effectiveOpenId !== "";
+        const shouldSendLdapId = effectiveLdapId !== undefined && effectiveLdapId !== "";
         const shouldSendAccountExpiry =
             user.userCredentials.accountExpiry !== undefined && user.userCredentials.accountExpiry !== "";
         const shouldSendTwoFA = user.userCredentials.twoFA === true;
@@ -618,14 +623,15 @@ export class UserD2ApiRepository implements UserRepository {
             userRoles: user.userRoles,
             username: user.username,
             disabled: user.disabled ?? user.userCredentials.disabled,
-            ...(shouldSendOpenId ? { openId: user.userCredentials.openId } : {}),
+            ...(shouldSendOpenId ? { openId: effectiveOpenId } : {}),
+            ...(shouldSendLdapId ? { ldapId: effectiveLdapId } : {}),
             ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
             userCredentials: {
                 ...(existingUser || {}).userCredentials,
                 ...user.userCredentials,
                 id: user.id,
-                ...(shouldSendOpenId ? { openId: user.userCredentials.openId } : {}),
-                ...(shouldSendLdapId ? { ldapId: user.userCredentials.ldapId } : {}),
+                ...(shouldSendOpenId ? { openId: effectiveOpenId } : {}),
+                ...(shouldSendLdapId ? { ldapId: effectiveLdapId } : {}),
                 ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
                 ...(shouldSendAccountExpiry ? { accountExpiry: user.userCredentials.accountExpiry } : {}),
                 ...(shouldSendTwoFA ? { twoFA: true } : {}),
@@ -833,6 +839,8 @@ export class UserD2ApiRepository implements UserRepository {
         const lastLoginRaw = input.lastLogin ?? userCredentials.lastLogin;
         const disabled: boolean = input.disabled ?? userCredentials.disabled ?? false;
         const externalAuth: boolean = input.externalAuth ?? userCredentials.externalAuth ?? false;
+        const ldapId = input.ldapId ?? userCredentials.ldapId;
+        const openId = input.openId ?? userCredentials.openId;
 
         const authorities = _(userRoles)
             .map(userRole => userRole.authorities ?? [])
@@ -871,8 +879,8 @@ export class UserD2ApiRepository implements UserRepository {
             dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
             searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
             access: user.access,
-            openId: userCredentials.openId,
-            ldapId: userCredentials.ldapId,
+            openId,
+            ldapId,
             externalAuth,
             twoFactorEnabled: userCredentials.twoFA,
             password: userCredentials.password,
@@ -908,6 +916,8 @@ export class UserD2ApiRepository implements UserRepository {
             id: input.id,
             name: input.name,
             username: input.username,
+            openId: input.openId ?? "",
+            ldapId: input.ldapId ?? "",
             firstName: input.firstName,
             surname: input.surname,
             email: input.email,
@@ -1088,6 +1098,8 @@ const fields = {
     lastLogin: true,
     disabled: true,
     externalAuth: true,
+    ldapId: true,
+    openId: true,
     userGroups: { id: true, name: true },
     organisationUnits: orgUnitsFields,
     dataViewOrganisationUnits: orgUnitsFields,

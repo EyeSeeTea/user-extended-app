@@ -16,6 +16,8 @@ export const ApiUserModel: Codec<ApiUser> = Schema.object({
     id: Schema.string,
     name: Schema.string,
     username: Schema.optionalSafe(Schema.string, ""),
+    openId: Schema.optionalSafe(Schema.string, ""),
+    ldapId: Schema.optionalSafe(Schema.string, ""),
     lastLogin: Schema.optionalSafe(Schema.string, ""),
     disabled: Schema.optionalSafe(Schema.boolean, false),
     externalAuth: Schema.optionalSafe(Schema.boolean, false),
