@@ -14,6 +14,9 @@ import { UserGroupTable } from "../components/user-group-table/UserGroupTable";
 import { TabsMenu } from "../components/tabs-menu/TabsMenu";
 import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
 import { SettingsDialogModal } from "../components/settings-dialog-modal/SettingsDialogModal";
+import Settings from "$/legacy/models/settings";
+import { Maybe } from "$/types/utils";
+import { useReload } from "../hooks/useReload";
 
 const TabWrapper = ({
     children,
@@ -36,6 +39,7 @@ export const Router: React.FC = React.memo(() => {
     const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
     const [showSettings, setShowSettings] = React.useState(false);
     const { appSettings, setAppSettings } = useAppSettingsContext();
+    const [reloadKey, reload] = useReload();
 
     React.useEffect(() => {
         compositionRoot.users.checkCurrentUserCanAccessSettings().run(setCurrentUserHasAccessToSettings, console.error);
@@ -53,6 +57,17 @@ export const Router: React.FC = React.memo(() => {
         setShowSettings(true);
     }, []);
 
+    const closeSettings = React.useCallback(
+        (settings: Maybe<Settings>) => {
+            setShowSettings(false);
+
+            if (settings) {
+                reload();
+            }
+        },
+        [reload]
+    );
+
     return (
         <HashRouter>
             <Routes>
@@ -65,7 +80,7 @@ export const Router: React.FC = React.memo(() => {
                     path="/"
                     element={
                         <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
-                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} />
+                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} reloadKey={reloadKey} />
                         </TabWrapper>
                     }
                 />
@@ -102,11 +117,7 @@ export const Router: React.FC = React.memo(() => {
             </IconsContainer>
 
             {showSettings && currentUserHasAccessToSettings && (
-                <SettingsDialogModal
-                    d2={d2}
-                    onClose={() => setShowSettings(false)}
-                    onCloseAppSettings={updateAppSettings}
-                />
+                <SettingsDialogModal d2={d2} onClose={closeSettings} onCloseAppSettings={updateAppSettings} />
             )}
         </HashRouter>
     );
