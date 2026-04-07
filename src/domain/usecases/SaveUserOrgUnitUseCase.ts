@@ -22,7 +22,7 @@ export class SaveUserOrgUnitUseCase {
         return options.users.map(user => {
             const orgUnits = this.getOrgUnits(options, this.getOrgUnitFromType(user, options));
             const userOrgUnits = this.buildUserWithOrgUnits(options.orgUnitType, orgUnits);
-            return user.update({ ...userOrgUnits }, { disableValidation: true }).getOrThrow();
+            return user.update({ ...userOrgUnits }).getOrThrow();
         });
     }
 
