@@ -28,7 +28,7 @@ import { useReload } from "../../hooks/useReload";
 import {
     useColumnsPreferences,
     useCopyInUser,
-    useGetAllUsers,
+    useGetAllUserIdentifiers,
     useGetUsersByIds,
     useSaveUsersOrgUnits,
 } from "../../hooks/userHooks";
@@ -136,7 +136,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const userColumns = useUserColumns();
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
-    const { users: allUsers } = useGetAllUsers(onlyUsersOrgUnits);
+    const { userIdentifiers: allUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
     const { appSettings } = useAppSettingsContext();
     const {
         showOnlyActiveUsers: onlyActiveUsers,
