@@ -2,7 +2,7 @@ import React from "react";
 import LoadingMask from "d2-ui/lib/loading-mask/LoadingMask.component";
 import TextField from "material-ui/TextField/TextField";
 import Action from "d2-ui/lib/action/Action";
-import { Observable } from "rxjs/Rx";
+import { Observable } from "rxjs";
 import { OrganisationUnitTree } from "@dhis2/ui";
 import OrgUnitSelectByLevel from "d2-ui/lib/org-unit-select/OrgUnitSelectByLevel.component";
 import OrgUnitSelectByGroup from "d2-ui/lib/org-unit-select/OrgUnitSelectByGroup.component";

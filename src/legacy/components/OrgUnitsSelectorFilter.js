@@ -81,7 +81,7 @@ class OrgUnitsSelectorFilter extends React.Component {
     }
 
     render() {
-        const { title, styles } = this.props;
+        const { title, styles, rootIds } = this.props;
         const { dialogOpen } = this.state;
         const t = this.getTranslation.bind(this);
 
@@ -104,6 +104,7 @@ class OrgUnitsSelectorFilter extends React.Component {
                         listParams={orgUnitListParams}
                         controls={orgUnitControls}
                         showNameSetting={true}
+                        rootIds={rootIds}
                     />
                 </ConfirmationDialog>
 

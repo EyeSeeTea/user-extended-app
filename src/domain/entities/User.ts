@@ -96,8 +96,18 @@ export class User extends Struct<UserProps>() {
             return Either.success(new User(processedProps));
         }
     }
+
+    updatePassword(newPassword: string): User {
+        // TODO: we skip password validation here because rules are configurable.
+        // and we're validating if password is valid in the SetUserPasswordUseCase
+        // we'll need a different entity to get all the rules and then validate here too.
+        return this._update({ password: newPassword });
+    }
 }
 
+export type LocaleCode = string;
+
+export type UserColumns = keyof User;
 function extractErrorsFromString(
     property: keyof User,
     value: unknown,

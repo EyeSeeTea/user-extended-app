@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { FontIcon, RaisedButton } from "material-ui";
+import { FontIcon } from "material-ui";
 
 import React, { useState, useEffect, useCallback, ComponentType } from "react";
 
@@ -87,6 +87,7 @@ type ImportTableProps = {
     templateUser?: UserProps;
     actionText: string;
     warnings: string[];
+    onlyUsersOrgUnits: boolean;
 };
 
 export const ImportTable: React.FC<ImportTableProps> = props => {
@@ -99,6 +100,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         templateUser = null,
         actionText,
         warnings = [],
+        onlyUsersOrgUnits,
         onSubmit: customOnSubmit,
     } = props;
     const [users, setUsers] = useState<UserProps[]>(usersFromFile);
@@ -127,7 +129,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const loading = useLoading();
 
-    const { userIdentifiers } = useGetAllUserIdentifiers();
+    const { userIdentifiers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
     useEffect(() => {
         loading.show(true);
 
@@ -331,6 +333,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                     return (
                                         <>
                                             <FormSpy
+                                                key={existingUsersNames.length}
                                                 onChange={(state: FormState<{ users: UserProps[] }>) => {
                                                     requestAnimationFrame(() => {
                                                         updateFormState(state);
@@ -359,14 +362,16 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                                 </Table>
 
                                                 <AddButtonRow>
-                                                    <RaisedButton
+                                                    <Button
+                                                        variant="outlined"
                                                         disabled={!canAddNewUser}
-                                                        label={i18n.t("Add user")}
                                                         onClick={() => {
                                                             const currentUsers = form.getState().values.users;
                                                             addRow(currentUsers);
                                                         }}
-                                                    />
+                                                    >
+                                                        {i18n.t("Add user")}
+                                                    </Button>
                                                 </AddButtonRow>
                                             </form>
                                             {showOverwriteToggle && !templateUser && (
@@ -720,8 +725,12 @@ const StyledTableColumn = styled(TableCell)`
 `;
 
 const StyledDialogTitle = styled(DialogTitle)`
-    margin: 0px 0px -1px;
-    padding: 24px 24px 20px;
+    margin-block-start: 0px;
+    margin-block-end: -1px;
+    margin-inline: 0px;
+    padding-block-start: 24px;
+    padding-block-end: 20px;
+    padding-inline: 24px;
     font-size: 24px;
     font-weight: bold;
     line-height: 32px;
@@ -729,7 +738,7 @@ const StyledDialogTitle = styled(DialogTitle)`
 `;
 
 const DialogTooltip = styled(Tooltip)`
-    float: right;
+    float: inline-end;
 `;
 
 const AddButtonRow = styled.div`

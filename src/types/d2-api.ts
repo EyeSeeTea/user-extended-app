@@ -5,5 +5,6 @@ export type { PatchOperation } from "@eyeseetea/d2-api/api/patch";
 export type { ErrorReport } from "@eyeseetea/d2-api/api/common";
 export type { CancelableResponse } from "@eyeseetea/d2-api/repositories/CancelableResponse";
 
+export { D2Api };
 export * from "@eyeseetea/d2-api/2.41";
 export const getMockApi = getMockApiFromClass(D2Api);

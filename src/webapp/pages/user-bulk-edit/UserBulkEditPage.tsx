@@ -81,7 +81,7 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
                 <IconButton
                     tooltip={i18n.t("Column settings")}
                     onClick={() => setColumnSelectorOpen(true)}
-                    style={{ float: "right" }}
+                    style={{ float: "inline-end" }}
                 >
                     <ViewColumn />
                 </IconButton>
@@ -233,7 +233,8 @@ const Container = styled(Paper)`
 `;
 
 const Item = styled.div`
-    margin: 4px 0;
+    margin-block: 4px;
+    margin-inline: 0;
     padding: 10px;
 `;
 

@@ -1,4 +1,3 @@
-import IconButton from "material-ui/IconButton";
 import MenuItem from "material-ui/MenuItem";
 import ViewColumnIcon from "material-ui/svg-icons/action/view-column";
 import PropTypes from "prop-types";
@@ -9,10 +8,34 @@ import ReplicateUserFromTemplate from "../../webapp/components/replicate/Replica
 import Settings from "../models/settings";
 import snackActions from "../Snackbar/snack.actions";
 import Filters from "./Filters.component";
+import { useAppSettingsContext } from "../../webapp/contexts/AppSettingsProvider";
+import { isSuperAdmin } from "../../domain/entities/UserProps";
+import { IconButton } from "@material-ui/core";
 
 const initialSorting = ["name", "asc"];
 
-export class ListHybrid extends React.Component {
+export const DEFAULT_SHOW_ONLY_ACTIVE_USERS = false;
+
+const ListHybridWrapper = props => {
+    const { currentUser, currentUserHasAccessToSettings } = props.params;
+    const { appSettings } = useAppSettingsContext();
+
+    return (
+        <ListHybrid
+            {...props}
+            isSuperAdmin={isSuperAdmin(currentUser)}
+            onlyActiveUsers={appSettings.showOnlyActiveUsers}
+            isSettingInactive={appSettings.status === "inactive"}
+            appSettings={appSettings}
+            currentUserHasAccessToSettings={currentUserHasAccessToSettings}
+            routerReloadKey={props.reloadKey}
+        />
+    );
+};
+
+export { ListHybridWrapper as ListHybrid };
+
+class ListHybrid extends React.Component {
     static contextTypes = {
         d2: PropTypes.object.isRequired,
     };
@@ -30,6 +53,12 @@ export class ListHybrid extends React.Component {
             display: "flex",
             flexOrientation: "row",
         },
+    };
+
+    componentDidMount = () => {
+        this.setState({
+            onlyUsersOrgUnits: this.props.appSettings.showOnlyUsersInTheirOrgUnits,
+        });
     };
 
     componentWillUnmount = () => {
@@ -51,7 +80,8 @@ export class ListHybrid extends React.Component {
         this.state = {
             reloadTableKey: 1,
             listFilterOptions: {},
-            filters: {},
+            filters: getFilters({}, props),
+            onlyUsersOrgUnits: DEFAULT_SHOW_ONLY_ACTIVE_USERS,
             pager: {
                 total: 0,
             },
@@ -88,6 +118,17 @@ export class ListHybrid extends React.Component {
         };
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.onlyActiveUsers !== this.props.onlyActiveUsers) {
+            this.setState(
+                state => ({
+                    filters: getFilters(state.filters, this.props, prevProps),
+                }),
+                this.filterList
+            );
+        }
+    }
+
     componentWillMount = () => {
         this.observerDisposables = [];
 
@@ -106,7 +147,7 @@ export class ListHybrid extends React.Component {
     };
 
     componentWillReceiveProps(newProps) {
-        if (this.props.params.modelType !== newProps.params.modelType) {
+        if (this.props.params && newProps.params && this.props.params.modelType !== newProps.params.modelType) {
             this.setState({
                 isLoading: true,
                 translation: Object.assign({}, this.state.translation, { open: false }),
@@ -154,6 +195,7 @@ export class ListHybrid extends React.Component {
                     onRequestClose={this.onReplicateDialogClose}
                     settings={this.state.settings}
                     api={this.props.api}
+                    onlyUsersOrgUnits={this.state.onlyUsersOrgUnits}
                 />
             );
         } else {
@@ -172,10 +214,10 @@ export class ListHybrid extends React.Component {
     };
 
     _openSettings = newSettings => {
-        this.setState({
+        this.setState(state => ({
             settingsVisible: false,
-            ...(newSettings ? { settings: newSettings } : {}),
-        });
+            ...(newSettings ? { settings: newSettings, reloadTableKey: state.reloadTableKey + 1 } : {}),
+        }));
     };
 
     _updateVisibleColumns = visibleColumns => {
@@ -191,6 +233,10 @@ export class ListHybrid extends React.Component {
         this.setState({ filters, canManage }, this.filterList);
     };
 
+    _onOnlyUsersOrgUnitsChange = onlyUsersOrgUnits => {
+        this.setState({ onlyUsersOrgUnits });
+    };
+
     _onAction = async (ids, action) => {
         if (action === "replicate_table" || action === "replicate_template") {
             this.setAssignState("replicateUser", { user: ids[0], open: true, action });
@@ -200,7 +246,15 @@ export class ListHybrid extends React.Component {
     };
 
     render() {
-        const { replicateUser, listFilterOptions } = this.state;
+        const {
+            replicateUser,
+            listFilterOptions,
+            onlyUsersOrgUnits = appSettings.showOnlyUsersInTheirOrgUnits,
+        } = this.state;
+        const { appSettings, onlyActiveUsers, isSuperAdmin, isSettingInactive } = this.props;
+
+        const areFiltersOverrided = isSuperAdmin ? false : onlyActiveUsers;
+        const hideUsersCanManageFilter = onlyActiveUsers && onlyUsersOrgUnits;
 
         return (
             <div>
@@ -215,10 +269,24 @@ export class ListHybrid extends React.Component {
                             onChangeVisibleColumns={this._updateVisibleColumns}
                             onChangeSearch={this._updateQuery}
                             reloadTableKey={this.state.reloadTableKey}
+                            routerReloadKey={this.props.routerReloadKey}
                             onAction={this._onAction}
                             filterOption={listFilterOptions}
+                            onlyUsersOrgUnits={onlyUsersOrgUnits}
                         >
-                            <Filters onChange={this._onFiltersChange} showSearch={false} api={this.props.api} />
+                            <Filters
+                                onChange={this._onFiltersChange}
+                                showSearch={false}
+                                api={this.props.api}
+                                onlyActiveUsers={onlyActiveUsers}
+                                isSuperAdmin={isSuperAdmin}
+                                areFiltersOverrided={areFiltersOverrided}
+                                hideUsersCanManageFilter={hideUsersCanManageFilter}
+                                onlyUsersOrgUnits={appSettings.showOnlyUsersInTheirOrgUnits}
+                                setOnlyUsersOrgUnits={this._onOnlyUsersOrgUnitsChange}
+                                isSettingInactive={isSettingInactive}
+                                appSettings={appSettings}
+                            />
                         </UserListTable>
                     </div>
                 </div>
@@ -227,4 +295,23 @@ export class ListHybrid extends React.Component {
             </div>
         );
     }
+}
+
+function getFilters(filters, props, prevProps) {
+    const areFiltersOverrided = props.onlyActiveUsers;
+    const onlyActiveUsersChanged = prevProps?.onlyActiveUsers !== props.onlyActiveUsers;
+    const userCredentialsDisabled = onlyActiveUsersChanged
+        ? props.onlyActiveUsers
+            ? ["eq", false]
+            : undefined
+        : filters?.filters?.["userCredentials.disabled"];
+
+    return {
+        ...filters,
+        rootJunction: areFiltersOverrided ? "AND" : filters.rootJunction ?? "OR",
+        filters: {
+            ...filters.filters,
+            "userCredentials.disabled": userCredentialsDisabled,
+        },
+    };
 }
