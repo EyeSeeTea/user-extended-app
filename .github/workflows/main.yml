@@ -13,5 +13,5 @@ jobs:
 
   dependency-track-yarn4:
     if: github.event_name == 'pull_request'
-    uses: EyeSeeTea/github-workflows/.github/workflows/dependency-track-yarn4.yml@feature/master
+    uses: EyeSeeTea/github-workflows/.github/workflows/dependency-track-yarn4.yml@feature/add_bom_actions
     secrets: inherit
