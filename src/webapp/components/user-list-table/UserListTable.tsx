@@ -114,6 +114,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     rootJunction,
     children,
     reloadTableKey,
+    routerReloadKey,
     onAction,
     filterOption,
     onlyUsersOrgUnits,
@@ -128,8 +129,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [actionType, setActionType] = useState<ActionType>();
     const [showImportModal, setShowImportModal] = React.useState(false);
     const [importResult, setImportResult] = React.useState<ImportResult>();
-
-    const { importSettings } = useImportSettings();
+    const { importSettings } = useImportSettings(`${reloadTableKey}-${routerReloadKey}`);
 
     const snackbar = useSnackbar();
     const navigate = useNavigate();
@@ -712,6 +712,7 @@ export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loadi
     onChangeVisibleColumns: (columns: string[]) => void;
     onChangeSearch: (search: string) => void;
     reloadTableKey: number;
+    routerReloadKey?: number;
     onAction: (ids: string[], action: UserActionName) => void;
     filterOption: ListOptions;
     onlyUsersOrgUnits: boolean;

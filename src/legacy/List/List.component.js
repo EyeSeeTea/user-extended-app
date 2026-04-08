@@ -28,6 +28,7 @@ const ListHybridWrapper = props => {
             isSettingInactive={appSettings.status === "inactive"}
             appSettings={appSettings}
             currentUserHasAccessToSettings={currentUserHasAccessToSettings}
+            routerReloadKey={props.reloadKey}
         />
     );
 };
@@ -213,10 +214,10 @@ class ListHybrid extends React.Component {
     };
 
     _openSettings = newSettings => {
-        this.setState({
+        this.setState(state => ({
             settingsVisible: false,
-            ...(newSettings ? { settings: newSettings } : {}),
-        });
+            ...(newSettings ? { settings: newSettings, reloadTableKey: state.reloadTableKey + 1 } : {}),
+        }));
     };
 
     _updateVisibleColumns = visibleColumns => {
@@ -268,6 +269,7 @@ class ListHybrid extends React.Component {
                             onChangeVisibleColumns={this._updateVisibleColumns}
                             onChangeSearch={this._updateQuery}
                             reloadTableKey={this.state.reloadTableKey}
+                            routerReloadKey={this.props.routerReloadKey}
                             onAction={this._onAction}
                             filterOption={listFilterOptions}
                             onlyUsersOrgUnits={onlyUsersOrgUnits}
