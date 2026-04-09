@@ -163,6 +163,13 @@ export default class Filters extends React.Component {
         );
     };
 
+    /** DHIS2 2.42+ (minor >= 42): API / user list shape changes (e.g. twoFA no longer on userCredentials). */
+    getIs242Plus = () => {
+        const version = this.context?.d2?.system?.systemInfo?.version;
+        const minor = version ? Number(String(version).split(".")[1]) : undefined;
+        return minor !== undefined && !Number.isNaN(minor) && minor >= 42;
+    };
+
     getFilterOptions = () => {
         const {
             showOnlyManagedUsers,
@@ -180,11 +187,7 @@ export default class Filters extends React.Component {
 
         const inFilter = field => (_(field).isEmpty() ? null : ["in", field]);
 
-        const is242Plus = (() => {
-            const version = this.context?.d2?.system?.systemInfo?.version;
-            const minor = version ? Number(String(version).split(".")[1]) : undefined;
-            return minor !== undefined && !Number.isNaN(minor) && minor >= 42;
-        })();
+        const is242Plus = this.getIs242Plus();
 
         return {
             ...(showOnlyManagedUsers ? { canManage: "true" } : {}),
@@ -284,6 +287,7 @@ export default class Filters extends React.Component {
             this.props;
 
         const { styles } = this;
+        const is242Plus = this.getIs242Plus();
 
         const isExtendedFiltering =
             showOnlyManagedUsers ||
@@ -408,17 +412,18 @@ export default class Filters extends React.Component {
                                 </div>
                             )}
 
-                            {(isSuperAdmin || appSettings.uiUserActionsAccess.filterTwoFactorAuth.visible) && (
-                                <div className="user-management-control select-active-or-inactive">
-                                    <Dropdown
-                                        labelText={this.getTranslation("filter_2fa_status")}
-                                        options={enabledDisabledOptions}
-                                        value={this.state.twoFactorEnabled}
-                                        onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
-                                        style={styles.dropdownStyles}
-                                    />
-                                </div>
-                            )}
+                            {!is242Plus &&
+                                (isSuperAdmin || appSettings.uiUserActionsAccess.filterTwoFactorAuth.visible) && (
+                                    <div className="user-management-control select-active-or-inactive">
+                                        <Dropdown
+                                            labelText={this.getTranslation("filter_2fa_status")}
+                                            options={enabledDisabledOptions}
+                                            value={this.state.twoFactorEnabled}
+                                            onChange={this.setFilter("twoFactorEnabled", this.dropdownHandler)}
+                                            style={styles.dropdownStyles}
+                                        />
+                                    </div>
+                                )}
 
                             {(isSuperAdmin || appSettings.uiUserActionsAccess.filterExternalAuth.visible) && (
                                 <div className="user-management-control select-active-or-inactive">

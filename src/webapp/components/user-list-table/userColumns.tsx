@@ -5,15 +5,24 @@ import { User } from "../../../domain/entities/User";
 import { buildEllipsizedList } from "./UserListTable";
 import { UserColumn } from "../../../domain/entities/UserColumn";
 import i18n from "../../../utils/i18n";
+import { getMajorVersion } from "../../../utils/d2-api";
+import { useDhis2Version } from "../../hooks/userHooks";
 
 export function useUserColumns(): TableColumn<User>[] {
+    const dhis2Version = useDhis2Version();
+    const hideTwoFactorColumn = React.useMemo(() => {
+        return dhis2Version != null && getMajorVersion(dhis2Version) >= 42;
+    }, [dhis2Version]);
+
     const columns = React.useMemo(() => {
-        const columnsWithValues = getDefaultUserColumns();
+        const columnsWithValues = getDefaultUserColumns().filter(
+            col => !(hideTwoFactorColumn && col.name === UserColumn.TWO_FACTOR_ENABLED)
+        );
         return columnsWithValues.map(column => ({
             ...column,
             getValue: getValue(column.name),
         }));
-    }, []);
+    }, [hideTwoFactorColumn]);
     return columns;
 }
 
