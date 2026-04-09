@@ -82,6 +82,10 @@ export const UI_USER_ROLE_ACTION_LIST = [
         label: i18n.t('Show "Show only users assigned to my organization unit and below"'),
     },
     {
+        code: "filterHideNotApplicableUserRoles",
+        label: i18n.t('Show "Hide not applicable user roles"'),
+    },
+    {
         code: "filterUsers",
         label: i18n.t('Show "Filter by Users"'),
     },

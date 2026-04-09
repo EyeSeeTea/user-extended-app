@@ -181,7 +181,11 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
     }
 
     private static defaultUserRoleUiActions(): AppSettingsAttr["uiUserRoleActionsAccess"] {
-        return { filterUsersInOrgUnit: { visible: true }, filterUsers: { visible: true } };
+        return {
+            filterHideNotApplicableUserRoles: { visible: true },
+            filterUsersInOrgUnit: { visible: true },
+            filterUsers: { visible: true },
+        };
     }
 
     private static defaultUiDashboardActions(): AppSettingsAttr["uiDashboardActionsAccess"] {

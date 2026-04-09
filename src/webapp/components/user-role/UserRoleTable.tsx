@@ -18,8 +18,14 @@ import { Id } from "../../../domain/entities/Ref";
 import { RoleColumnSetting } from "../../../domain/entities/RoleColumn";
 import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
 import { AppSettings } from "../../../domain/entities/AppSettings";
+import { useUserRoles } from "./useUserRoles";
+import { Maybe } from "../../../types/utils";
 
-function generateTableConfig(roleColumns: RoleColumnSetting[], currentUser: UserProps): TableConfig<UserRole> {
+function generateTableConfig(
+    currentPageSize: number,
+    roleColumns: RoleColumnSetting[],
+    currentUser: UserProps
+): TableConfig<UserRole> {
     const allColumns: TableColumn<UserRole>[] = roleColumns.map(columnSetting => {
         return {
             name: columnSetting.fieldName,
@@ -39,7 +45,7 @@ function generateTableConfig(roleColumns: RoleColumnSetting[], currentUser: User
         actions: [],
         columns: allColumns,
         initialSorting: { field: "name", order: "asc" },
-        paginationOptions: { pageSizeInitialValue: 25, pageSizeOptions: [10, 25, 50] },
+        paginationOptions: { pageSizeInitialValue: currentPageSize, pageSizeOptions: [10, 25, 50] },
     };
 }
 
@@ -48,15 +54,18 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
     const { compositionRoot, currentUser } = useAppContext();
     const [userIds, setUserIds] = React.useState<Id[]>();
     const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
     const [columnsPreference, setColumnsPreference] = React.useState<RoleColumnSetting[]>([]);
+    const { userRoles } = useUserRoles({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
+    const [currentPageSize, setCurrentPageSize] = React.useState(25);
 
     React.useEffect(() => {
         return compositionRoot.roleColumns.get.execute(currentUser).run(setColumnsPreference, console.error);
     }, [compositionRoot.roleColumns, currentUser, appSettings]);
 
     const config = React.useMemo(() => {
-        return generateTableConfig(columnsPreference, currentUser);
-    }, [columnsPreference, currentUser]);
+        return generateTableConfig(currentPageSize, columnsPreference, currentUser);
+    }, [currentPageSize, columnsPreference, currentUser]);
 
     const getRows = React.useCallback(
         (
@@ -64,19 +73,19 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
             { page, pageSize }: TablePagination,
             sorting: TableSorting<UserRole>
         ): Promise<{ objects: UserRole[]; pager: Pager }> => {
-            return compositionRoot.userRoles
-                .get({
-                    page: page,
-                    pageSize: pageSize,
-                    search: search,
-                    sorting: { field: sorting.field, order: sorting.order },
-                    excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
-                    user: currentUser,
-                    userIds: userIds,
-                })
-                .toPromise();
+            setCurrentPageSize(pageSize);
+
+            const filteredUserRoles = filterAndSortUserRoles({
+                roles: userRoles,
+                search: search,
+                sort: sorting.order,
+                filterEmptyUsers: filterEmptyUsers,
+                selectedUsersIds: userIds,
+            });
+
+            return Promise.resolve(createPagination(filteredUserRoles, page, pageSize));
         },
-        [compositionRoot.userRoles, currentUser, excludeUsersOrgUnit, userIds]
+        [userRoles, filterEmptyUsers, userIds]
     );
 
     const tableProps = useObjectsTable(config, getRows);
@@ -84,6 +93,7 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
     const updateFilters = React.useCallback<UsersFiltersProps["onFilterChange"]>(filters => {
         setExcludeUsersOrgUnit(filters.excludeOutsideOrgUnit);
         setUserIds(filters.users.map(user => user.value));
+        setFilterEmptyUsers(filters.filterEmptyUsers);
     }, []);
 
     const isAdmin = isSuperAdmin(currentUser);
@@ -100,8 +110,56 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
                     showOrgUnitFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsersInOrgUnit.visible}
                     showUserFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsers.visible}
                     filterUserLabel={i18n.t("Filter users")}
+                    showEmptyUsers={
+                        isAdmin || appSettings.uiUserRoleActionsAccess.filterHideNotApplicableUserRoles.visible
+                    }
                 />
             )}
         </ObjectsList>
     );
 });
+
+export const filterAndSortUserRoles = (options: {
+    roles: UserRole[];
+    search: string;
+    sort: "asc" | "desc";
+    filterEmptyUsers: boolean;
+    selectedUsersIds: Maybe<Id[]>;
+}): UserRole[] => {
+    const { roles, search, sort = "asc", filterEmptyUsers, selectedUsersIds } = options;
+    const filtered = _(roles)
+        .filter(role => {
+            const { name, users } = role;
+
+            const matchesSearch = search ? name.toLowerCase().includes(search.toLowerCase()) : true;
+
+            const matchesUsers =
+                selectedUsersIds && selectedUsersIds.length > 0
+                    ? users.some(user => selectedUsersIds.includes(user.id))
+                    : true;
+
+            return matchesSearch && matchesUsers;
+        })
+        .filter(role => {
+            if (!filterEmptyUsers) return true;
+            return role.users.length > 0;
+        })
+        .orderBy(role => role.name, sort)
+        .value();
+
+    return filtered;
+};
+
+function createPagination<T>(records: T[], page: number, pageSize: number): { objects: T[]; pager: Pager } {
+    const pager: Pager = {
+        page: page,
+        pageCount: Math.ceil(records.length / pageSize),
+        total: records.length,
+        pageSize: pageSize,
+    };
+
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pagedRecords = records.slice(startIndex, endIndex);
+    return { objects: pagedRecords, pager };
+}
