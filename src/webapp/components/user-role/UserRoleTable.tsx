@@ -19,7 +19,7 @@ import { RoleColumnSetting } from "../../../domain/entities/RoleColumn";
 import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { useUserRoles } from "./useUserRoles";
-import { Maybe } from "../../../types/utils";
+import { createPagination, filterAndSortItemWithUsers } from "../../utils/table";
 
 function generateTableConfig(
     currentPageSize: number,
@@ -75,8 +75,8 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
         ): Promise<{ objects: UserRole[]; pager: Pager }> => {
             setCurrentPageSize(pageSize);
 
-            const filteredUserRoles = filterAndSortUserRoles({
-                roles: userRoles,
+            const filteredUserRoles = filterAndSortItemWithUsers({
+                items: userRoles,
                 search: search,
                 sort: sorting.order,
                 filterEmptyUsers: filterEmptyUsers,
@@ -118,48 +118,3 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
         </ObjectsList>
     );
 });
-
-export const filterAndSortUserRoles = (options: {
-    roles: UserRole[];
-    search: string;
-    sort: "asc" | "desc";
-    filterEmptyUsers: boolean;
-    selectedUsersIds: Maybe<Id[]>;
-}): UserRole[] => {
-    const { roles, search, sort = "asc", filterEmptyUsers, selectedUsersIds } = options;
-    const filtered = _(roles)
-        .filter(role => {
-            const { name, users } = role;
-
-            const matchesSearch = search ? name.toLowerCase().includes(search.toLowerCase()) : true;
-
-            const matchesUsers =
-                selectedUsersIds && selectedUsersIds.length > 0
-                    ? users.some(user => selectedUsersIds.includes(user.id))
-                    : true;
-
-            return matchesSearch && matchesUsers;
-        })
-        .filter(role => {
-            if (!filterEmptyUsers) return true;
-            return role.users.length > 0;
-        })
-        .orderBy(role => role.name, sort)
-        .value();
-
-    return filtered;
-};
-
-function createPagination<T>(records: T[], page: number, pageSize: number): { objects: T[]; pager: Pager } {
-    const pager: Pager = {
-        page: page,
-        pageCount: Math.ceil(records.length / pageSize),
-        total: records.length,
-        pageSize: pageSize,
-    };
-
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const pagedRecords = records.slice(startIndex, endIndex);
-    return { objects: pagedRecords, pager };
-}
