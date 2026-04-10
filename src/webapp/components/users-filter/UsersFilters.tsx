@@ -31,7 +31,10 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
     const [openFilterDialog, setOpenFilterDialog] = React.useState(false);
     const [excludeOrgUnit, setExcludeOrgUnit] = React.useState(true);
     const [ids, selectedIds] = React.useState<Id[]>([]);
-    const { users } = useGetUsersSimple({ enabled: showUserFilter ?? false });
+    const { users } = useGetUsersSimple({
+        enabled: showUserFilter ?? false,
+        restrictToOrgUnits: excludeOrgUnit,
+    });
 
     const openUserFilterModal = React.useCallback(() => {
         if (users && users?.length > 0) {
@@ -163,20 +166,23 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
     );
 });
 
-export function useGetUsersSimple(props: { enabled: boolean }) {
-    const { enabled } = props;
+export function useGetUsersSimple(props: { enabled: boolean; restrictToOrgUnits: boolean }) {
+    const { enabled, restrictToOrgUnits } = props;
     const { compositionRoot, currentUser } = useAppContext();
     const [users, setUsers] = React.useState<UserSimple[]>([]);
 
     React.useEffect(() => {
         if (!enabled) return;
-        return compositionRoot.users.getInOrgUnits(currentUser).run(
-            users => {
-                setUsers(users);
+        const future = restrictToOrgUnits
+            ? compositionRoot.users.getInOrgUnits(currentUser)
+            : compositionRoot.users.getAllSimple(currentUser);
+        return future.run(
+            loadedUsers => {
+                setUsers(loadedUsers);
             },
             error => console.error(error)
         );
-    }, [compositionRoot.users, currentUser, enabled]);
+    }, [compositionRoot.users, currentUser, enabled, restrictToOrgUnits]);
 
     return { users };
 }
