@@ -51,10 +51,13 @@ function generateTableConfig(
 
 export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(props => {
     const { appSettings } = props;
+    const defaultExcludeOrgUnit = appSettings.uiUserRoleActionsAccess.filterUsersInOrgUnit.defaultValue ?? true;
+    const defaultFilterEmptyUsers =
+        appSettings.uiUserRoleActionsAccess.filterHideNotApplicableUserRoles.defaultValue ?? true;
     const { compositionRoot, currentUser } = useAppContext();
     const [userIds, setUserIds] = React.useState<Id[]>();
-    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
-    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
+    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(defaultExcludeOrgUnit);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(defaultFilterEmptyUsers);
     const [columnsPreference, setColumnsPreference] = React.useState<RoleColumnSetting[]>([]);
     const { userRoles } = useUserRoles({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
     const [currentPageSize, setCurrentPageSize] = React.useState(25);
@@ -113,6 +116,8 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
                     showEmptyUsers={
                         isAdmin || appSettings.uiUserRoleActionsAccess.filterHideNotApplicableUserRoles.visible
                     }
+                    defaultExcludeOrgUnit={defaultExcludeOrgUnit}
+                    defaultFilterEmptyUsers={defaultFilterEmptyUsers}
                 />
             )}
         </ObjectsList>

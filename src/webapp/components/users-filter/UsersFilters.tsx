@@ -21,15 +21,25 @@ export type UsersFiltersProps = {
     showOrgUnitFilter?: boolean;
     filterUserLabel?: string;
     showEmptyUsers?: boolean;
+    defaultExcludeOrgUnit?: boolean;
+    defaultFilterEmptyUsers?: boolean;
 };
 
 export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
-    const { onFilterChange, showUserFilter, showOrgUnitFilter, filterUserLabel = "", showEmptyUsers } = props;
+    const {
+        onFilterChange,
+        showUserFilter,
+        showOrgUnitFilter,
+        filterUserLabel = "",
+        showEmptyUsers,
+        defaultExcludeOrgUnit = true,
+        defaultFilterEmptyUsers = true,
+    } = props;
 
-    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(defaultFilterEmptyUsers);
     const [showUserFilterModal, setShowUserFilterModal] = React.useState(false);
     const [openFilterDialog, setOpenFilterDialog] = React.useState(false);
-    const [excludeOrgUnit, setExcludeOrgUnit] = React.useState(true);
+    const [excludeOrgUnit, setExcludeOrgUnit] = React.useState(defaultExcludeOrgUnit);
     const [ids, selectedIds] = React.useState<Id[]>([]);
     const { users } = useGetUsersSimple({
         enabled: showUserFilter ?? false,

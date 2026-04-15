@@ -53,15 +53,15 @@ export type UserUiActionAccess = Record<UIUserActionType, { visible: boolean }>;
 export const UI_USER_GROUP_ACTION_LIST = [
     {
         code: "filterUsersInOrgUnit",
-        label: i18n.t('Show "Show only users assigned to my organization unit and below"'),
+        label: i18n.t("Show only users assigned to my organization unit and below"),
     },
     {
         code: "filterHideNotApplicableUserGroups",
-        label: i18n.t('Show "Hide not applicable user groups"'),
+        label: i18n.t("Hide not applicable user groups"),
     },
     {
         code: "filterUsers",
-        label: i18n.t('Show "Filter by Users"'),
+        label: i18n.t("Filter by Users"),
     },
     {
         code: "exportCsv",
@@ -74,40 +74,40 @@ export const UI_USER_GROUP_ACTION_LIST = [
 ] as const;
 
 export type UIUserGroupActionType = typeof UI_USER_GROUP_ACTION_LIST[number]["code"];
-export type UserGroupUiActionAccess = Record<UIUserGroupActionType, { visible: boolean }>;
+export type UserGroupUiActionAccess = Record<UIUserGroupActionType, { visible: boolean; defaultValue?: boolean }>;
 
 export const UI_USER_ROLE_ACTION_LIST = [
     {
         code: "filterUsersInOrgUnit",
-        label: i18n.t('Show "Show only users assigned to my organization unit and below"'),
+        label: i18n.t("Show only users assigned to my organization unit and below"),
     },
     {
         code: "filterHideNotApplicableUserRoles",
-        label: i18n.t('Show "Hide not applicable user roles"'),
+        label: i18n.t("Hide not applicable user roles"),
     },
     {
         code: "filterUsers",
-        label: i18n.t('Show "Filter by Users"'),
+        label: i18n.t("Filter by Users"),
     },
 ] as const;
 
 export type UIUserRoleActionType = typeof UI_USER_ROLE_ACTION_LIST[number]["code"];
-export type UserRoleUiActionAccess = Record<UIUserRoleActionType, { visible: boolean }>;
+export type UserRoleUiActionAccess = Record<UIUserRoleActionType, { visible: boolean; defaultValue?: boolean }>;
 
 export const UI_DASHBOARD_ACTION_LIST = [
     {
         code: "filterUsersInOrgUnit",
-        label: i18n.t('Show "Show only users assigned to my organization unit and below"'),
+        label: i18n.t("Show only users assigned to my organization unit and below"),
     },
     {
         code: "filterUsers",
-        label: i18n.t('Show "Filter by Users"'),
+        label: i18n.t("Filter by Users"),
     },
     {
         code: "filterOwners",
-        label: i18n.t('Show "Filter by Owners"'),
+        label: i18n.t("Filter by Owners"),
     },
 ] as const;
 
 export type UIDashboardActionType = typeof UI_DASHBOARD_ACTION_LIST[number]["code"];
-export type DashboardUiActionAccess = Record<UIDashboardActionType, { visible: boolean }>;
+export type DashboardUiActionAccess = Record<UIDashboardActionType, { visible: boolean; defaultValue?: boolean }>;

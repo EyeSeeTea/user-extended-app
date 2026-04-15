@@ -64,10 +64,13 @@ type UserGroupTableProps = {
 
 export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props => {
     const { appSettings } = props;
+    const defaultExcludeOrgUnit = appSettings.uiUserGroupActionsAccess.filterUsersInOrgUnit.defaultValue ?? true;
+    const defaultFilterEmptyUsers =
+        appSettings.uiUserGroupActionsAccess.filterHideNotApplicableUserGroups.defaultValue ?? true;
     const [currentPageSize, setCurrentPageSize] = React.useState(25);
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
-    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
-    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
+    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(defaultExcludeOrgUnit);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(defaultFilterEmptyUsers);
     const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
     const { userGroups } = useUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
@@ -163,6 +166,8 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                     showEmptyUsers={
                         isAdmin || appSettings.uiUserGroupActionsAccess.filterHideNotApplicableUserGroups.visible
                     }
+                    defaultExcludeOrgUnit={defaultExcludeOrgUnit}
+                    defaultFilterEmptyUsers={defaultFilterEmptyUsers}
                 />
             )}
             {items.length > 0 && (

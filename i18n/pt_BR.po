@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-03-25T05:57:54.676Z\n"
+"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -47,16 +47,20 @@ msgstr ""
 msgid "Show Export to CSV"
 msgstr ""
 
-msgid "Show \"Show only users assigned to my organization unit and below\""
+msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
-msgid "Show \"Hide not applicable user groups\""
+msgid "Hide not applicable user groups"
 msgstr ""
 
-msgid "Show \"Filter by Users\""
+msgid "Filter by Users"
 msgstr ""
 
-msgid "Show \"Filter by Owners\""
+#, fuzzy
+msgid "Hide not applicable user roles"
+msgstr "Replicar usuário a partir da tabela"
+
+msgid "Filter by Owners"
 msgstr ""
 
 msgid "ID"
@@ -202,9 +206,6 @@ msgid "Owners: {{owners}}"
 msgstr ""
 
 msgid "Users: {{users}}"
-msgstr ""
-
-msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Filters"
@@ -386,6 +387,9 @@ msgid "Show/Hide Actions"
 msgstr ""
 
 msgid "Dashboards"
+msgstr ""
+
+msgid "Value"
 msgstr ""
 
 #, fuzzy
@@ -715,9 +719,6 @@ msgstr "Replicar usuário a partir do modelo"
 
 msgid "Replicate user from table"
 msgstr "Replicar usuário a partir da tabela"
-
-msgid "Hide not applicable user groups"
-msgstr ""
 
 msgid "Loading..."
 msgstr ""

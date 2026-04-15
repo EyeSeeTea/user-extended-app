@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-03-25T05:57:54.676Z\n"
-"PO-Revision-Date: 2026-03-25T05:57:54.677Z\n"
+"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
+"PO-Revision-Date: 2026-04-15T08:09:38.204Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -47,16 +47,19 @@ msgstr ""
 msgid "Show Export to CSV"
 msgstr ""
 
-msgid "Show \"Show only users assigned to my organization unit and below\""
+msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
-msgid "Show \"Hide not applicable user groups\""
+msgid "Hide not applicable user groups"
 msgstr ""
 
-msgid "Show \"Filter by Users\""
+msgid "Filter by Users"
 msgstr ""
 
-msgid "Show \"Filter by Owners\""
+msgid "Hide not applicable user roles"
+msgstr ""
+
+msgid "Filter by Owners"
 msgstr ""
 
 msgid "ID"
@@ -201,9 +204,6 @@ msgid "Owners: {{owners}}"
 msgstr ""
 
 msgid "Users: {{users}}"
-msgstr ""
-
-msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Filters"
@@ -378,6 +378,9 @@ msgid "Show/Hide Actions"
 msgstr ""
 
 msgid "Dashboards"
+msgstr ""
+
+msgid "Value"
 msgstr ""
 
 msgid "Select user groups and rules"
@@ -688,9 +691,6 @@ msgid "Replicate user from template"
 msgstr ""
 
 msgid "Replicate user from table"
-msgstr ""
-
-msgid "Hide not applicable user groups"
 msgstr ""
 
 msgid "Loading..."
