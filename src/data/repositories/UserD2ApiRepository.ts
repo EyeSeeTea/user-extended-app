@@ -134,10 +134,17 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
+        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
+            return this.listWithVersion({ ...options, filters }, is242Plus);
+        });
+    }
+
+    private listWithVersion(options: ListOptions, is242Plus: boolean): FutureData<PaginatedResponse<User>> {
         const { page, pageSize, filters } = options;
         const normalizedPage = page ?? 1;
         const normalizedPageSize = pageSize ?? 25;
         const idFilterValues = this.getIdInFilterValues(options);
+        const translatedFilters = filters;
 
         return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToHide => {
             if (!idFilterValues || idFilterValues.length === 0) {
@@ -150,7 +157,7 @@ export class UserD2ApiRepository implements UserRepository {
                         },
                         page,
                         pageSize,
-                        ...this.createCommonListQueryParams(options),
+                        ...this.createCommonListQueryParams({ ...options, filters: translatedFilters }, is242Plus),
                     })
                 ).flatMap(({ objects, pager }) => {
                     return this.recalculatePagination(options).map(newPager => {
@@ -164,9 +171,8 @@ export class UserD2ApiRepository implements UserRepository {
             }
 
             // If there is an ID filter, we need to chunk the requests to avoid URL length limits
-            //
             const sorting = options.sorting ?? { field: "firstName", order: "asc" };
-            const baseFilters = filters ?? {};
+            const baseFilters = translatedFilters ?? {};
 
             return chunkRequest(
                 idFilterValues,
@@ -187,7 +193,7 @@ export class UserD2ApiRepository implements UserRepository {
                                 userCredentials: { ...fields.userCredentials, ...auditFields },
                             },
                             paging: false,
-                            ...this.createCommonListQueryParams(chunkOptions),
+                            ...this.createCommonListQueryParams(chunkOptions, is242Plus),
                         })
                     ).map(({ objects }) => objects);
                 },
@@ -237,15 +243,15 @@ export class UserD2ApiRepository implements UserRepository {
 
     private buildFilters(
         filters: ListFilters | undefined,
-        override: { onlyActiveUsers: boolean }
+        override: { onlyActiveUsers: boolean },
+        is242Plus: boolean
     ): Record<string, Record<string, string[]> | undefined> {
         const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+        const disabledKey = is242Plus ? "disabled" : "userCredentials.disabled";
 
         return {
             ...otherFilters,
-            "userCredentials.disabled": override.onlyActiveUsers
-                ? { eq: ["false"] }
-                : otherFilters["userCredentials.disabled"],
+            [disabledKey]: override.onlyActiveUsers ? { eq: ["false"] } : otherFilters[disabledKey],
         };
     }
 
@@ -265,21 +271,23 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public listAllIds(options: ListOptions): FutureData<string[]> {
-        return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
-            return apiToFuture(
-                this.api.models.users.get({
-                    fields: { id: true },
-                    paging: false,
-                    ...this.createCommonListQueryParams(options),
-                })
-            ).map(({ objects }) => {
-                const usersIds = objects.map(user => user.id);
-                return usersIdsToExclude ? usersIds.filter(id => !usersIdsToExclude.includes(id)) : usersIds;
+        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
+            return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
+                return apiToFuture(
+                    this.api.models.users.get({
+                        fields: { id: true },
+                        paging: false,
+                        ...this.createCommonListQueryParams({ ...options, filters }, is242Plus),
+                    })
+                ).map(({ objects }) => {
+                    const usersIds = objects.map(user => user.id);
+                    return usersIdsToExclude ? usersIds.filter(id => !usersIdsToExclude.includes(id)) : usersIds;
+                });
             });
         });
     }
 
-    private createCommonListQueryParams(options: ListOptions) {
+    private createCommonListQueryParams(options: ListOptions, is242Plus: boolean) {
         const {
             search,
             sorting = { field: "firstName", order: "asc" },
@@ -290,7 +298,7 @@ export class UserD2ApiRepository implements UserRepository {
             onlyUsersOrgUnits,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers }, is242Plus);
         const areFiltersEnabled = _(otherFilters).values().some();
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
 
@@ -306,15 +314,22 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]> {
+        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
+            return this.listAllUserIdentifiersWithVersion({ ...options, filters }, is242Plus);
+        });
+    }
+
+    private listAllUserIdentifiersWithVersion(options: ListOptions, is242Plus: boolean): FutureData<UserIdentifier[]> {
         const idFilterValues = this.getIdInFilterValues(options);
+        const translatedFilters = options.filters;
 
         return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
             if (!idFilterValues || idFilterValues.length === 0) {
                 return apiToFuture(
                     this.api.models.users.get({
-                        fields: { id: true, name: true, userCredentials: { username: true } },
+                        fields: { id: true, name: true, username: true, userCredentials: { username: true } },
                         paging: false,
-                        ...this.createCommonListQueryParams(options),
+                        ...this.createCommonListQueryParams({ ...options, filters: translatedFilters }, is242Plus),
                     })
                 ).map(({ objects }) => {
                     const filteredObjects = usersIdsToExclude
@@ -324,14 +339,14 @@ export class UserD2ApiRepository implements UserRepository {
                         user =>
                             new UserIdentifier({
                                 id: user.id,
-                                username: user.userCredentials.username,
+                                username: user.username ?? user.userCredentials.username,
                                 name: user.name,
                             })
                     );
                 });
             }
 
-            return this.getUserIdentifiersInChunks(options, {
+            return this.getUserIdentifiersInChunks({ ...options, filters: translatedFilters }, is242Plus, {
                 userIds: idFilterValues,
                 usersIdsToExclude: usersIdsToExclude,
             });
@@ -347,6 +362,7 @@ export class UserD2ApiRepository implements UserRepository {
 
     private getUserIdentifiersInChunks(
         options: ListOptions,
+        is242Plus: boolean,
         params: { userIds: Maybe<Id[]>; usersIdsToExclude: Maybe<Id[]> }
     ): FutureData<UserIdentifier[]> {
         const { userIds, usersIdsToExclude } = params;
@@ -360,9 +376,9 @@ export class UserD2ApiRepository implements UserRepository {
 
                 return apiToFuture(
                     this.api.models.users.get({
-                        fields: { id: true, name: true, userCredentials: { username: true } },
+                        fields: { id: true, name: true, username: true, userCredentials: { username: true } },
                         paging: false,
-                        ...this.createCommonListQueryParams(chunkOptions),
+                        ...this.createCommonListQueryParams(chunkOptions, is242Plus),
                     })
                 ).map(({ objects }) => objects);
             },
@@ -374,7 +390,12 @@ export class UserD2ApiRepository implements UserRepository {
                 : objects;
             const uniqueUsers = _.uniqBy(filteredObjects, user => user.id);
             return uniqueUsers.map(
-                user => new UserIdentifier({ id: user.id, username: user.userCredentials.username, name: user.name })
+                user =>
+                    new UserIdentifier({
+                        id: user.id,
+                        username: user.username || user.userCredentials.username,
+                        name: user.name,
+                    })
             );
         });
     }
@@ -471,7 +492,8 @@ export class UserD2ApiRepository implements UserRepository {
             onlyActiveUsers,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers });
+        // getFullUsers is only used internally for save() prefetch; keep legacy behavior (2.41 compatible)
+        const otherFilters = this.buildFilters(filters, { onlyActiveUsers }, false);
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
@@ -582,20 +604,44 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private buildUsersToSave(existingUser: Maybe<ApiUser>, user: ApiUser) {
+        const shouldSendPassword = Boolean(user.userCredentials.password);
+        const rootOpenId = user.openId;
+        const rootLdapId = user.ldapId;
+        const effectiveOpenId = rootOpenId ?? user.userCredentials.openId;
+        const effectiveLdapId = rootLdapId ?? user.userCredentials.ldapId;
+
+        const shouldSendOpenId = effectiveOpenId !== undefined && effectiveOpenId !== "";
+        const shouldSendLdapId = effectiveLdapId !== undefined && effectiveLdapId !== "";
+        const shouldSendAccountExpiry =
+            user.userCredentials.accountExpiry !== undefined && user.userCredentials.accountExpiry !== "";
+        const shouldSendTwoFA = user.userCredentials.twoFA === true;
+        // Strip twoFA from the credentials spread so the shouldSendTwoFA guard below actually
+        // controls it — otherwise the spread would inject twoFA:false and disable 2FA on save.
+        const { twoFA: _stripTwoFA, ...userCredentialsWithoutTwoFA } = user.userCredentials;
+
         return {
             ...(existingUser || {}),
             ...user,
-            // include these fields here and in userCredentials due to a bug in v2.38
-            userRoles: user.userCredentials.userRoles,
-            username: user.userCredentials.username,
-            disabled: user.userCredentials.disabled,
-            openId: user.userCredentials.openId,
-            password: user.userCredentials.password,
+            // Dual-write: send these fields both at root level (required by DHIS2 2.42+, where
+            // the userCredentials schema was removed) and inside userCredentials (required by
+            // ≤2.41, which also has a 2.38 bug where root-level alone is ignored). On 2.42 the
+            // userCredentials block is silently ignored by the server. See getIs242Plus() for
+            // the version detection used by filters and list fields.
+            userRoles: user.userRoles,
+            username: user.username,
+            disabled: user.disabled ?? user.userCredentials.disabled,
+            ...(shouldSendOpenId ? { openId: effectiveOpenId } : {}),
+            ...(shouldSendLdapId ? { ldapId: effectiveLdapId } : {}),
+            ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
             userCredentials: {
                 ...(existingUser || {}).userCredentials,
-                ...user.userCredentials,
+                ...userCredentialsWithoutTwoFA,
                 id: user.id,
-                accountExpiry: user.userCredentials.accountExpiry ? user.userCredentials.accountExpiry : undefined,
+                ...(shouldSendOpenId ? { openId: effectiveOpenId } : {}),
+                ...(shouldSendLdapId ? { ldapId: effectiveLdapId } : {}),
+                ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
+                ...(shouldSendAccountExpiry ? { accountExpiry: user.userCredentials.accountExpiry } : {}),
+                ...(shouldSendTwoFA ? { twoFA: true } : {}),
             },
         };
     }
@@ -790,9 +836,21 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private toDomainUser(input: ApiUserWithAudit): User {
-        const { userCredentials, ...user } = input;
-        const authorities = _(userCredentials.userRoles)
-            .map(userRole => userRole.authorities)
+        const { userCredentials: rawUserCredentials, ...user } = input;
+
+        const userCredentials = rawUserCredentials ?? {};
+
+        const userRoles = input.userRoles || userCredentials.userRoles || [];
+        const username = input.username || userCredentials.username || "";
+
+        const lastLoginRaw = input.lastLogin ?? userCredentials.lastLogin;
+        const disabled: boolean = input.disabled ?? userCredentials.disabled ?? false;
+        const externalAuth: boolean = input.externalAuth ?? userCredentials.externalAuth ?? false;
+        const ldapId = input.ldapId ?? userCredentials.ldapId;
+        const openId = input.openId ?? userCredentials.openId;
+
+        const authorities = _(userRoles)
+            .map(userRole => userRole.authorities ?? [])
             .flatten()
             .uniq()
             .value();
@@ -814,23 +872,23 @@ export class UserD2ApiRepository implements UserRepository {
             userGroups: _(user.userGroups)
                 .orderBy(ug => ug.name)
                 .value(),
-            username: userCredentials.username,
+            username,
             apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
             userRoles:
-                _(userCredentials.userRoles)
+                _(userRoles)
                     .map(userRole => ({ id: userRole.id, name: userRole.name }))
                     .orderBy(ur => ur.name)
                     .value() || [],
-            lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
-            status: userCredentials.disabled ? "Disabled" : "Active",
-            disabled: userCredentials.disabled,
+            lastLogin: lastLoginRaw ? new Date(lastLoginRaw) : undefined,
+            status: disabled ? "Disabled" : "Active",
+            disabled,
             organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
             dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
             searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
             access: user.access,
-            openId: userCredentials.openId,
-            ldapId: userCredentials.ldapId,
-            externalAuth: userCredentials.externalAuth,
+            openId,
+            ldapId,
+            externalAuth,
             twoFactorEnabled: userCredentials.twoFA,
             password: userCredentials.password,
             accountExpiry: userCredentials.accountExpiry,
@@ -851,8 +909,9 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {
-        const createdBy = user.userCredentials.createdBy || user.createdBy;
-        const lastUpdatedBy = user.userCredentials.lastUpdatedBy || user.lastUpdatedBy;
+        const uc = user.userCredentials;
+        const createdBy = uc?.createdBy || user.createdBy;
+        const lastUpdatedBy = uc?.lastUpdatedBy || user.lastUpdatedBy;
         return {
             createdBy: createdBy ? { id: createdBy.id, username: createdBy.displayName } : undefined,
             lastModifiedBy: lastUpdatedBy ? { id: lastUpdatedBy?.id, username: lastUpdatedBy?.displayName } : undefined,
@@ -863,6 +922,9 @@ export class UserD2ApiRepository implements UserRepository {
         return {
             id: input.id,
             name: input.name,
+            username: input.username,
+            openId: input.openId ?? "",
+            ldapId: input.ldapId ?? "",
             firstName: input.firstName,
             surname: input.surname,
             email: input.email,
@@ -874,7 +936,12 @@ export class UserD2ApiRepository implements UserRepository {
             twitter: input.twitter,
             lastUpdated: input.lastUpdated.toISOString(),
             created: input.created.toISOString(),
+            // DHIS2 2.42 exposes these at root; keep populated for compatibility
+            lastLogin: input.lastLogin?.toISOString() ?? "",
+            disabled: input.disabled,
+            externalAuth: input.externalAuth ?? false,
             userGroups: input.userGroups,
+            userRoles: input.userRoles.map(userRole => ({ id: userRole.id, name: userRole.name, authorities: [] })),
             organisationUnits: this.getApiOrgUnits(input.organisationUnits),
             dataViewOrganisationUnits: this.getApiOrgUnits(input.dataViewOrganisationUnits),
             teiSearchOrganisationUnits: this.getApiOrgUnits(input.searchOrganisationsUnits),
@@ -971,6 +1038,40 @@ export class UserD2ApiRepository implements UserRepository {
             });
         });
     }
+
+    @cache()
+    private getIs242Plus(): FutureData<boolean> {
+        return Future.fromPromise(this.api.getVersion()).map(version => getMajorVersion(version) >= 42);
+    }
+
+    private translateListFiltersForApi(
+        filters: ListFilters | undefined
+    ): FutureData<{ is242Plus: boolean; filters: ListFilters | undefined }> {
+        return this.getIs242Plus().map(is242Plus => {
+            if (!filters) return { is242Plus, filters };
+            if (!is242Plus) return { is242Plus, filters };
+
+            const prefix = "userCredentials.";
+            const rootWhitelist = new Set(["username", "disabled", "externalAuth", "lastLogin", "userRoles.id"]);
+
+            const translated = _(filters)
+                .toPairs()
+                .flatMap(([key, value]) => {
+                    if (!key.startsWith(prefix)) return [[key, value] as const];
+
+                    const candidate = key.slice(prefix.length);
+                    // In DHIS2 2.42, filters using userCredentials.* can fail. Only translate the keys
+                    // we know exist in the root user schema; drop the rest (e.g. twoFA).
+                    if (!rootWhitelist.has(candidate)) return [];
+
+                    return [[candidate, value] as const];
+                })
+                .fromPairs()
+                .value();
+
+            return { is242Plus, filters: translated };
+        });
+    }
 }
 
 const verifyPasswordResponseCodec = Codec.interface({
@@ -988,6 +1089,7 @@ const auditFields = {
 const fields = {
     id: true,
     name: true,
+    username: true,
     firstName: true,
     surname: true,
     email: true,
@@ -999,10 +1101,17 @@ const fields = {
     twitter: true,
     lastUpdated: true,
     created: true,
+    // DHIS2 2.42 exposes some credentials fields at root
+    lastLogin: true,
+    disabled: true,
+    externalAuth: true,
+    ldapId: true,
+    openId: true,
     userGroups: { id: true, name: true },
     organisationUnits: orgUnitsFields,
     dataViewOrganisationUnits: orgUnitsFields,
     teiSearchOrganisationUnits: orgUnitsFields,
+    userRoles: { id: true, name: true, authorities: true },
     access: {
         manage: true,
         externalize: true,
@@ -1039,7 +1148,7 @@ const ownerFields = {
     invitation: true,
     disabled: true,
     attributeValues: true,
-    userRoles: { id: true },
+    userRoles: { id: true, name: true, authorities: true },
 } as const;
 
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;

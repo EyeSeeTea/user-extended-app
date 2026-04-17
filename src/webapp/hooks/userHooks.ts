@@ -221,6 +221,22 @@ export const useExportUsers = (props: UseExportUsersProps) => {
     };
 };
 
+/** Instance DHIS2 version string (e.g. "2.42.1"). Undefined while loading or on error. */
+export function useDhis2Version(): string | undefined {
+    const { compositionRoot } = useAppContext();
+    const [version, setVersion] = React.useState<string | undefined>(undefined);
+
+    React.useEffect(() => {
+        const cancel = compositionRoot.instance.getVersion().run(
+            v => setVersion(v),
+            () => setVersion(undefined)
+        );
+        return () => cancel();
+    }, [compositionRoot.instance]);
+
+    return version;
+}
+
 export const useColumnsPreferences = (props: UseVisibleColumnsProps) => {
     const { columnsKey, appSettings, user, onChangeVisibleColumns } = props;
 
