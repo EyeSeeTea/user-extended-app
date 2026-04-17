@@ -615,11 +615,18 @@ export class UserD2ApiRepository implements UserRepository {
         const shouldSendAccountExpiry =
             user.userCredentials.accountExpiry !== undefined && user.userCredentials.accountExpiry !== "";
         const shouldSendTwoFA = user.userCredentials.twoFA === true;
+        // Strip twoFA from the credentials spread so the shouldSendTwoFA guard below actually
+        // controls it — otherwise the spread would inject twoFA:false and disable 2FA on save.
+        const { twoFA: _stripTwoFA, ...userCredentialsWithoutTwoFA } = user.userCredentials;
 
         return {
             ...(existingUser || {}),
             ...user,
-            // include these fields here and in userCredentials due to a bug in v2.38
+            // Dual-write: send these fields both at root level (required by DHIS2 2.42+, where
+            // the userCredentials schema was removed) and inside userCredentials (required by
+            // ≤2.41, which also has a 2.38 bug where root-level alone is ignored). On 2.42 the
+            // userCredentials block is silently ignored by the server. See getIs242Plus() for
+            // the version detection used by filters and list fields.
             userRoles: user.userRoles,
             username: user.username,
             disabled: user.disabled ?? user.userCredentials.disabled,
@@ -628,7 +635,7 @@ export class UserD2ApiRepository implements UserRepository {
             ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
             userCredentials: {
                 ...(existingUser || {}).userCredentials,
-                ...user.userCredentials,
+                ...userCredentialsWithoutTwoFA,
                 id: user.id,
                 ...(shouldSendOpenId ? { openId: effectiveOpenId } : {}),
                 ...(shouldSendLdapId ? { ldapId: effectiveLdapId } : {}),
