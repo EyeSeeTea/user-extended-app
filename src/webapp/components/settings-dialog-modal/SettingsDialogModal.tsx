@@ -28,7 +28,7 @@ type SettingsDialogModalProps = {
     d2: any;
 };
 
-export function useImportSettings() {
+export function useImportSettings(reloadKey?: string) {
     const { d2 } = useAppContext();
     const [importSettings, setSettings] = React.useState<Settings>();
 
@@ -36,7 +36,7 @@ export function useImportSettings() {
         Settings.build(d2).then((settings: Settings) => {
             setSettings(settings);
         });
-    }, [d2]);
+    }, [d2, reloadKey]);
 
     return { importSettings };
 }
