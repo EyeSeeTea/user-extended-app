@@ -6,11 +6,11 @@ import {
     TableConfig,
     TablePagination,
     TableSorting,
-    useObjectsTable,
 } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Dashboard } from "../../../domain/entities/Dashboard";
 import { useAppContext } from "../../contexts/app-context";
+import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionBanner";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { FilteredUser } from "../users-filter/UsersFilters";
 import { Id } from "../../../domain/entities/Ref";
@@ -120,7 +120,7 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(props =>
         [filters, dashboards]
     );
 
-    const tableProps = useObjectsTable(config, getRows);
+    const tableProps = useTableWithSelectionCount(config, getRows);
 
     const updateFilters = React.useCallback(
         (filters: { owners: FilteredUser[]; users: FilteredUser[]; excludeUsersOutsideOrgUnits: boolean }) => {

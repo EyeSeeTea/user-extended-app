@@ -3,15 +3,9 @@ import React from "react";
 import i18n from "../../../utils/i18n";
 import FileSaver from "file-saver";
 
-import {
-    ObjectsList,
-    TableColumn,
-    TableConfig,
-    TablePagination,
-    TableSorting,
-    useObjectsTable,
-} from "@eyeseetea/d2-ui-components";
+import { ObjectsList, TableColumn, TableConfig, TablePagination, TableSorting } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
+import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionBanner";
 import { Pager } from "../../../domain/entities/PaginatedResponse";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { UserGroup } from "../../../domain/entities/UserGroup";
@@ -119,7 +113,7 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
         [userGroups, filterEmptyUsers, selectedUsersIds]
     );
 
-    const tableProps = useObjectsTable(config, getRows);
+    const tableProps = useTableWithSelectionCount(config, getRows);
 
     const updateFilters = React.useCallback<UsersFiltersProps["onFilterChange"]>(filters => {
         setSelectedUsersIds(filters.users.length > 0 ? filters.users.map(user => user.value) : undefined);
