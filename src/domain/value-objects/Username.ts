@@ -37,11 +37,7 @@ export class Username extends ValueObject<UsernameProps> {
         // unreadable/uneditable through this app.
         const charError = isExistingUser
             ? undefined
-            : validateRegexp(
-                  value,
-                  /^[a-zA-Z0-9._@-]+$/,
-                  "Username can only include . _ - or @ as separators"
-              );
+            : validateRegexp(value, /^[a-zA-Z0-9._@-]+$/, "Username can only include . _ - or @ as separators");
 
         const minLengthError = validateLengthMin(value, 2, "Username should be at least 2 characters long");
         const maxLengthError = validateLengthMax(value, 255, "Username may not exceed 255 characters");
