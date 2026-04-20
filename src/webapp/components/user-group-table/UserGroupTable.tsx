@@ -5,7 +5,7 @@ import FileSaver from "file-saver";
 
 import { ObjectsList, TableColumn, TableConfig, TablePagination, TableSorting } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
-import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionBanner";
+import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionCount";
 import { Pager } from "../../../domain/entities/PaginatedResponse";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { UserGroup } from "../../../domain/entities/UserGroup";

@@ -10,7 +10,7 @@ import {
 import React from "react";
 import { Dashboard } from "../../../domain/entities/Dashboard";
 import { useAppContext } from "../../contexts/app-context";
-import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionBanner";
+import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionCount";
 import { buildEllipsizedList } from "../user-list-table/UserListTable";
 import { FilteredUser } from "../users-filter/UsersFilters";
 import { Id } from "../../../domain/entities/Ref";

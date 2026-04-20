@@ -14,7 +14,7 @@ import { Button, Icon, Tooltip } from "@material-ui/core";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
-import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionBanner";
+import { useTableWithSelectionCount } from "../../hooks/useTableWithSelectionCount";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
