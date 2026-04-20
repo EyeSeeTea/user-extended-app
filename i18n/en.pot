@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-03-25T05:57:54.676Z\n"
-"PO-Revision-Date: 2026-03-25T05:57:54.677Z\n"
+"POT-Creation-Date: 2026-04-20T07:39:29.194Z\n"
+"PO-Revision-Date: 2026-04-20T07:39:29.194Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -838,6 +838,14 @@ msgid "Error replicating user {{user}}: {{message}}"
 msgstr ""
 
 msgid "Error in template: {{message}}"
+msgstr ""
+
+msgid "There are {{count}} items selected on this page."
+msgid_plural "There are {{count}} items selected on this page."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Clear selection"
 msgstr ""
 
 msgid "Table exported: {{filename}}"
