@@ -1,5 +1,11 @@
 import { Either } from "../entities/Either";
-import { validateLengthMax, validateLengthMin, validateNotRegexp, validateRequired } from "../utils/validations";
+import {
+    validateLengthMax,
+    validateLengthMin,
+    validateNotRegexp,
+    validateRegexp,
+    validateRequired,
+} from "../utils/validations";
 import { ValueObject } from "./ValueObject";
 
 export interface UsernameProps {
@@ -15,7 +21,7 @@ export class Username extends ValueObject<UsernameProps> {
         this.value = props.value;
     }
 
-    public static create(value: string): Either<string[], Username> {
+    public static create(value: string, isExistingUser = false): Either<string[], Username> {
         const requiredError = validateRequired(value, "Please provide a username");
 
         if (requiredError) {
@@ -25,19 +31,22 @@ export class Username extends ValueObject<UsernameProps> {
         const startError = validateNotRegexp(value, /^[._@-]|[._@-]$/, "Username cannot start or end with a separator");
         const doubleError = validateNotRegexp(value, /([._@-]){2,}/, "Username cannot have two separators in a row");
 
-        // Check Username.spec.ts ("character validation") for further explanation
-        // about why this validation is skipped
-
-        // const charError = validateRegexp(
-        //     value,
-        //     /^[a-zA-Z0-9._@-]+$/,
-        //     "Username can only include . _ - or @ as separators"
-        // );
+        // Existing users skip the character-set check: DHIS2 itself accepts
+        // characters outside this set, so legacy accounts already in the
+        // database may contain them — blocking here would make those users
+        // unreadable/uneditable through this app.
+        const charError = isExistingUser
+            ? undefined
+            : validateRegexp(
+                  value,
+                  /^[a-zA-Z0-9._@-]+$/,
+                  "Username can only include . _ - or @ as separators"
+              );
 
         const minLengthError = validateLengthMin(value, 2, "Username should be at least 2 characters long");
         const maxLengthError = validateLengthMax(value, 255, "Username may not exceed 255 characters");
 
-        const errors = [startError, doubleError, minLengthError, maxLengthError].filter(
+        const errors = [startError, doubleError, charError, minLengthError, maxLengthError].filter(
             error => error !== undefined
         ) as string[];
 
@@ -45,6 +54,6 @@ export class Username extends ValueObject<UsernameProps> {
             return Either.error(errors);
         }
 
-        return Either.success(new Username({ value: value }));
+        return Either.success(new Username({ value }));
     }
 }
