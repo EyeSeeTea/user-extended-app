@@ -113,6 +113,7 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
                     showOrgUnitFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsersInOrgUnit.visible}
                     showUserFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsers.visible}
                     filterUserLabel={i18n.t("Filter users")}
+                    emptyUsersLabel={i18n.t("Hide not applicable user roles")}
                     showEmptyUsers={
                         isAdmin || appSettings.uiUserRoleActionsAccess.filterHideNotApplicableUserRoles.visible
                     }

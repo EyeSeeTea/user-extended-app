@@ -20,6 +20,7 @@ export type UsersFiltersProps = {
     showOwnerFilter?: boolean;
     showOrgUnitFilter?: boolean;
     filterUserLabel?: string;
+    emptyUsersLabel?: string;
     showEmptyUsers?: boolean;
     defaultExcludeOrgUnit?: boolean;
     defaultFilterEmptyUsers?: boolean;
@@ -31,6 +32,7 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
         showUserFilter,
         showOrgUnitFilter,
         filterUserLabel = "",
+        emptyUsersLabel = i18n.t("Hide not applicable user groups"),
         showEmptyUsers,
         defaultExcludeOrgUnit = true,
         defaultFilterEmptyUsers = true,
@@ -127,7 +129,7 @@ export const UsersFilters: React.FC<UsersFiltersProps> = React.memo(props => {
                                     onChange={e => setFilterEmptyUsers(e.target.checked)}
                                 />
                             }
-                            label={i18n.t("Hide not applicable user groups")}
+                            label={emptyUsersLabel}
                         />
                     )}
 
