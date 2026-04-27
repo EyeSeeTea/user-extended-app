@@ -28,7 +28,9 @@ export const DashboardFilters: React.FC<DashboardsFiltersProps> = React.memo(pro
     const [showUserFilterModal, setShowUserFilterModal] = React.useState(false);
     const [showOwnerFilterModal, setShowOwnerFilterModal] = React.useState(false);
     const [openFilterDialog, setOpenFilterDialog] = React.useState(false);
-    const [excludeUsersOutsideOrgUnits, setExcludeUsersOutsideOrgUnits] = React.useState(true);
+    const [excludeUsersOutsideOrgUnits, setExcludeUsersOutsideOrgUnits] = React.useState(
+        appSettings.uiDashboardActionsAccess.filterUsersInOrgUnit.defaultValue ?? true
+    );
     const [ids, selectedIds] = React.useState<Id[]>([]);
     const [ownerIds, selectedOwnerIds] = React.useState<Id[]>([]);
 

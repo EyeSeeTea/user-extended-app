@@ -18,8 +18,14 @@ import { Id } from "../../../domain/entities/Ref";
 import { RoleColumnSetting } from "../../../domain/entities/RoleColumn";
 import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
 import { AppSettings } from "../../../domain/entities/AppSettings";
+import { useUserRoles } from "./useUserRoles";
+import { createPagination, filterAndSortItemWithUsers } from "../../utils/table";
 
-function generateTableConfig(roleColumns: RoleColumnSetting[], currentUser: UserProps): TableConfig<UserRole> {
+function generateTableConfig(
+    currentPageSize: number,
+    roleColumns: RoleColumnSetting[],
+    currentUser: UserProps
+): TableConfig<UserRole> {
     const allColumns: TableColumn<UserRole>[] = roleColumns.map(columnSetting => {
         return {
             name: columnSetting.fieldName,
@@ -39,24 +45,30 @@ function generateTableConfig(roleColumns: RoleColumnSetting[], currentUser: User
         actions: [],
         columns: allColumns,
         initialSorting: { field: "name", order: "asc" },
-        paginationOptions: { pageSizeInitialValue: 25, pageSizeOptions: [10, 25, 50] },
+        paginationOptions: { pageSizeInitialValue: currentPageSize, pageSizeOptions: [10, 25, 50] },
     };
 }
 
 export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(props => {
     const { appSettings } = props;
+    const defaultExcludeOrgUnit = appSettings.uiUserRoleActionsAccess.filterUsersInOrgUnit.defaultValue ?? true;
+    const defaultFilterEmptyUsers =
+        appSettings.uiUserRoleActionsAccess.filterHideNotApplicableUserRoles.defaultValue ?? true;
     const { compositionRoot, currentUser } = useAppContext();
     const [userIds, setUserIds] = React.useState<Id[]>();
-    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
+    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(defaultExcludeOrgUnit);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(defaultFilterEmptyUsers);
     const [columnsPreference, setColumnsPreference] = React.useState<RoleColumnSetting[]>([]);
+    const { userRoles } = useUserRoles({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
+    const [currentPageSize, setCurrentPageSize] = React.useState(25);
 
     React.useEffect(() => {
         return compositionRoot.roleColumns.get.execute(currentUser).run(setColumnsPreference, console.error);
     }, [compositionRoot.roleColumns, currentUser, appSettings]);
 
     const config = React.useMemo(() => {
-        return generateTableConfig(columnsPreference, currentUser);
-    }, [columnsPreference, currentUser]);
+        return generateTableConfig(currentPageSize, columnsPreference, currentUser);
+    }, [currentPageSize, columnsPreference, currentUser]);
 
     const getRows = React.useCallback(
         (
@@ -64,19 +76,19 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
             { page, pageSize }: TablePagination,
             sorting: TableSorting<UserRole>
         ): Promise<{ objects: UserRole[]; pager: Pager }> => {
-            return compositionRoot.userRoles
-                .get({
-                    page: page,
-                    pageSize: pageSize,
-                    search: search,
-                    sorting: { field: sorting.field, order: sorting.order },
-                    excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
-                    user: currentUser,
-                    userIds: userIds,
-                })
-                .toPromise();
+            setCurrentPageSize(pageSize);
+
+            const filteredUserRoles = filterAndSortItemWithUsers({
+                items: userRoles,
+                search: search,
+                sort: sorting.order,
+                filterEmptyUsers: filterEmptyUsers,
+                selectedUsersIds: userIds,
+            });
+
+            return Promise.resolve(createPagination(filteredUserRoles, page, pageSize));
         },
-        [compositionRoot.userRoles, currentUser, excludeUsersOrgUnit, userIds]
+        [userRoles, filterEmptyUsers, userIds]
     );
 
     const tableProps = useObjectsTable(config, getRows);
@@ -84,6 +96,7 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
     const updateFilters = React.useCallback<UsersFiltersProps["onFilterChange"]>(filters => {
         setExcludeUsersOrgUnit(filters.excludeOutsideOrgUnit);
         setUserIds(filters.users.map(user => user.value));
+        setFilterEmptyUsers(filters.filterEmptyUsers);
     }, []);
 
     const isAdmin = isSuperAdmin(currentUser);
@@ -100,6 +113,12 @@ export const UserRoleTable: React.FC<{ appSettings: AppSettings }> = React.memo(
                     showOrgUnitFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsersInOrgUnit.visible}
                     showUserFilter={isAdmin || appSettings.uiUserRoleActionsAccess.filterUsers.visible}
                     filterUserLabel={i18n.t("Filter users")}
+                    emptyUsersLabel={i18n.t("Hide not applicable user roles")}
+                    showEmptyUsers={
+                        isAdmin || appSettings.uiUserRoleActionsAccess.filterHideNotApplicableUserRoles.visible
+                    }
+                    defaultExcludeOrgUnit={defaultExcludeOrgUnit}
+                    defaultFilterEmptyUsers={defaultFilterEmptyUsers}
                 />
             )}
         </ObjectsList>

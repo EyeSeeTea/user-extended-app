@@ -42,6 +42,7 @@ import { GetUserRolesUseCase } from "./domain/usecases/GetUserRolesUseCase";
 import { OrgUnitD2Repository } from "./data/repositories/OrgUnitD2Repository";
 import { GetUserGroupsUseCase } from "./domain/usecases/GetUserGroupsUseCase";
 import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
+import { GetAllUsersSimpleUseCase } from "./domain/usecases/GetAllUsersSimpleUseCase";
 import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
 import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettingsD2ConstantRepository";
 import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase";
@@ -115,6 +116,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
                 appSettingsRepository
             ),
             getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository, appSettingsRepository),
+            getAllSimple: new GetAllUsersSimpleUseCase(userRepository, appSettingsRepository),
             resetColumns: new ResetColumnsUserCase(userColumnRepository),
             replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
         }),

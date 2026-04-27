@@ -26,7 +26,20 @@ import {
     UI_USER_ACTION_LIST,
     UI_USER_GROUP_ACTION_LIST,
     UI_USER_ROLE_ACTION_LIST,
+    UIDashboardActionType,
+    UIUserGroupActionType,
+    UIUserRoleActionType,
 } from "../../../domain/entities/FilterUserActionPermission";
+
+const BOOLEAN_USER_GROUP_FILTERS: readonly UIUserGroupActionType[] = [
+    "filterUsersInOrgUnit",
+    "filterHideNotApplicableUserGroups",
+];
+const BOOLEAN_USER_ROLE_FILTERS: readonly UIUserRoleActionType[] = [
+    "filterUsersInOrgUnit",
+    "filterHideNotApplicableUserRoles",
+];
+const BOOLEAN_DASHBOARD_FILTERS: readonly UIDashboardActionType[] = ["filterUsersInOrgUnit"];
 
 type PermissionsPageProps = {
     onSave: (appSettings: AppSettings) => void;
@@ -253,33 +266,52 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                     flexDirection="column"
                                     gridRowGap={theme.spacing(1)}
                                 >
-                                    <Typography variant="h6">{i18n.t("Show/Hide Filters")}</Typography>
-                                    {UI_USER_GROUP_ACTION_LIST.map(action => {
-                                        return (
-                                            <div key={action.code}>
-                                                {action.code === "exportCsv" && (
-                                                    <Typography variant="h6">{i18n.t("Show/Hide Actions")}</Typography>
-                                                )}
-                                                <FormControlLabel
-                                                    control={
-                                                        <Switch
-                                                            checked={
-                                                                formState.uiUserGroupActionsAccess[action.code].visible
-                                                            }
-                                                            onChange={event =>
-                                                                updateUiUserGroupActionsAccess(
-                                                                    action.code,
-                                                                    event.target.checked
-                                                                )
-                                                            }
-                                                        />
-                                                    }
-                                                    label={action.label}
+                                    <Typography variant="h6">{i18n.t("Filters")}</Typography>
+                                    <FiltersGrid>
+                                        <FiltersGridHeader />
+                                        {UI_USER_GROUP_ACTION_LIST.filter(
+                                            a => a.code !== "exportCsv" && a.code !== "exportJson"
+                                        ).map(action => {
+                                            const entry = formState.uiUserGroupActionsAccess[action.code];
+                                            const isBoolean = BOOLEAN_USER_GROUP_FILTERS.includes(action.code);
+                                            return (
+                                                <FilterRow
                                                     key={action.code}
+                                                    label={action.label}
+                                                    visible={entry.visible}
+                                                    defaultValue={entry.defaultValue}
+                                                    isBoolean={isBoolean}
+                                                    onVisibleChange={v =>
+                                                        updateUiUserGroupActionsAccess(action.code, "visible", v)
+                                                    }
+                                                    onDefaultChange={v =>
+                                                        updateUiUserGroupActionsAccess(action.code, "defaultValue", v)
+                                                    }
                                                 />
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </FiltersGrid>
+                                    <Typography variant="h6">{i18n.t("Show/Hide Actions")}</Typography>
+                                    {UI_USER_GROUP_ACTION_LIST.filter(
+                                        a => a.code === "exportCsv" || a.code === "exportJson"
+                                    ).map(action => (
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={formState.uiUserGroupActionsAccess[action.code].visible}
+                                                    onChange={event =>
+                                                        updateUiUserGroupActionsAccess(
+                                                            action.code,
+                                                            "visible",
+                                                            event.target.checked
+                                                        )
+                                                    }
+                                                />
+                                            }
+                                            label={action.label}
+                                            key={action.code}
+                                        />
+                                    ))}
                                 </Box>
                             </AccordionDetails>
                         </Accordion>
@@ -295,20 +327,29 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                     flexDirection="column"
                                     gridRowGap={theme.spacing(1)}
                                 >
-                                    {UI_USER_ROLE_ACTION_LIST.map(action => (
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={formState.uiUserRoleActionsAccess[action.code].visible}
-                                                    onChange={event =>
-                                                        updateUiUserRoleActionsAccess(action.code, event.target.checked)
+                                    <Typography variant="h6">{i18n.t("Filters")}</Typography>
+                                    <FiltersGrid>
+                                        <FiltersGridHeader />
+                                        {UI_USER_ROLE_ACTION_LIST.map(action => {
+                                            const entry = formState.uiUserRoleActionsAccess[action.code];
+                                            const isBoolean = BOOLEAN_USER_ROLE_FILTERS.includes(action.code);
+                                            return (
+                                                <FilterRow
+                                                    key={action.code}
+                                                    label={action.label}
+                                                    visible={entry.visible}
+                                                    defaultValue={entry.defaultValue}
+                                                    isBoolean={isBoolean}
+                                                    onVisibleChange={v =>
+                                                        updateUiUserRoleActionsAccess(action.code, "visible", v)
+                                                    }
+                                                    onDefaultChange={v =>
+                                                        updateUiUserRoleActionsAccess(action.code, "defaultValue", v)
                                                     }
                                                 />
-                                            }
-                                            label={action.label}
-                                            key={action.code}
-                                        />
-                                    ))}
+                                            );
+                                        })}
+                                    </FiltersGrid>
                                 </Box>
                             </AccordionDetails>
                         </Accordion>
@@ -324,23 +365,29 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                     flexDirection="column"
                                     gridRowGap={theme.spacing(1)}
                                 >
-                                    {UI_DASHBOARD_ACTION_LIST.map(action => (
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={formState.uiDashboardActionsAccess[action.code].visible}
-                                                    onChange={event =>
-                                                        updateUiDashboardActionsAccess(
-                                                            action.code,
-                                                            event.target.checked
-                                                        )
+                                    <Typography variant="h6">{i18n.t("Filters")}</Typography>
+                                    <FiltersGrid>
+                                        <FiltersGridHeader />
+                                        {UI_DASHBOARD_ACTION_LIST.map(action => {
+                                            const entry = formState.uiDashboardActionsAccess[action.code];
+                                            const isBoolean = BOOLEAN_DASHBOARD_FILTERS.includes(action.code);
+                                            return (
+                                                <FilterRow
+                                                    key={action.code}
+                                                    label={action.label}
+                                                    visible={entry.visible}
+                                                    defaultValue={entry.defaultValue}
+                                                    isBoolean={isBoolean}
+                                                    onVisibleChange={v =>
+                                                        updateUiDashboardActionsAccess(action.code, "visible", v)
+                                                    }
+                                                    onDefaultChange={v =>
+                                                        updateUiDashboardActionsAccess(action.code, "defaultValue", v)
                                                     }
                                                 />
-                                            }
-                                            label={action.label}
-                                            key={action.code}
-                                        />
-                                    ))}
+                                            );
+                                        })}
+                                    </FiltersGrid>
                                 </Box>
                             </AccordionDetails>
                         </Accordion>
@@ -382,3 +429,49 @@ const sharingOptions = {
     externalSharing: false,
     permissionPicker: false,
 };
+
+const FiltersGrid: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <Box display="grid" gridTemplateColumns="1fr auto auto" alignItems="center" style={{ columnGap: 24, rowGap: 4 }}>
+        {children}
+    </Box>
+);
+
+const FiltersGridHeader: React.FC = () => (
+    <>
+        <span />
+        <Typography variant="caption" align="center">
+            {i18n.t("Visible")}
+        </Typography>
+        <Typography variant="caption" align="center">
+            {i18n.t("Value")}
+        </Typography>
+    </>
+);
+
+type FilterRowProps = {
+    label: string;
+    visible: boolean;
+    defaultValue?: boolean;
+    isBoolean: boolean;
+    onVisibleChange: (value: boolean) => void;
+    onDefaultChange: (value: boolean) => void;
+};
+
+const FilterRow: React.FC<FilterRowProps> = ({
+    label,
+    visible,
+    defaultValue,
+    isBoolean,
+    onVisibleChange,
+    onDefaultChange,
+}) => (
+    <>
+        <Typography component="span">{label}</Typography>
+        <Switch checked={visible} onChange={e => onVisibleChange(e.target.checked)} />
+        {isBoolean ? (
+            <Switch checked={defaultValue ?? true} onChange={e => onDefaultChange(e.target.checked)} />
+        ) : (
+            <Typography component="span" align="center" color="textSecondary"></Typography>
+        )}
+    </>
+);

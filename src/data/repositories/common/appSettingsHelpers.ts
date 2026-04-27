@@ -1,13 +1,8 @@
 import _ from "lodash";
-import {
-    ActionsPermissions,
-    AppSettings,
-    injectInternalRules,
-    removeInternalRules,
-} from "../../../domain/entities/AppSettings";
+import { AppSettings, injectInternalRules, removeInternalRules } from "../../../domain/entities/AppSettings";
 import { Permission } from "../../../domain/entities/Permission";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
-import { getKeys, Maybe } from "../../../types/utils";
+import { Maybe } from "../../../types/utils";
 
 //FIXME (NOT URGENT): shouldn't be a Maybe if Request result is compared with Codec.
 // Partial, as new props can be added on next releases.
@@ -19,40 +14,58 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
         ? new Permission(appSettings.settingsAccess)
         : emptySettings.settingsAccess;
 
-    const actionsAccess = appSettings.actionsAccess
+    const storedActionsAccess = appSettings.actionsAccess
         ? _.mapValues(appSettings.actionsAccess, p => new ActionPermission(p))
         : emptySettings.actionsAccess;
 
-    const forcedActionsAccess = injectInternalRules(migrateNewerActions(actionsAccess));
+    const forcedActionsAccess = injectInternalRules(
+        migrateRecord(storedActionsAccess, emptySettings.actionsAccess, (def, stored) => stored ?? def)
+    );
+
     const newAppSettings = {
         ...emptySettings,
         ...appSettings,
         settingsAccess: settingsAccess,
         actionsAccess: forcedActionsAccess,
+        uiUserGroupActionsAccess: migrateRecord(
+            appSettings.uiUserGroupActionsAccess,
+            emptySettings.uiUserGroupActionsAccess,
+            mergeEntryShallow
+        ),
+        uiUserRoleActionsAccess: migrateRecord(
+            appSettings.uiUserRoleActionsAccess,
+            emptySettings.uiUserRoleActionsAccess,
+            mergeEntryShallow
+        ),
+        uiDashboardActionsAccess: migrateRecord(
+            appSettings.uiDashboardActionsAccess,
+            emptySettings.uiDashboardActionsAccess,
+            mergeEntryShallow
+        ),
     };
 
     return AppSettings.create(newAppSettings);
 }
 
-/* New actions may be added in the future, so we need to ensure that
- the actionsAccess object contains all actions, even if they are not defined in the appSettings
- that could be already saved.
+/* Ensures a record contains all keys from `defaults`, even if the stored value
+ * is missing or partial. New keys added in future releases get their default
+ * value automatically. `mergeEntry` decides whether to replace the whole entry
+ * (for class instances) or merge fields within it (for plain objects).
  */
-function migrateNewerActions(actionsAccess: ActionsPermissions): ActionsPermissions {
-    const newActionsAccess = AppSettings.defaultSettings("active").actionsAccess;
+function migrateRecord<K extends string, V>(
+    stored: Maybe<Partial<Record<K, V>>>,
+    defaults: Record<K, V>,
+    mergeEntry: (defaultEntry: V, storedEntry: V | undefined) => V
+): Record<K, V> {
+    if (!stored) return defaults;
+    return _.mapValues(defaults, (defaultEntry, key) => mergeEntry(defaultEntry as V, stored[key as K])) as Record<
+        K,
+        V
+    >;
+}
 
-    const newerActions = getKeys(newActionsAccess);
-    const currentActions = getKeys(actionsAccess);
-
-    const actionsToMigrate = newerActions.filter(action => !currentActions.includes(action));
-    if (actionsToMigrate.length === 0) return actionsAccess;
-
-    const newActions = _.pick(newActionsAccess, actionsToMigrate);
-
-    return {
-        ...actionsAccess,
-        ...newActions,
-    };
+function mergeEntryShallow<V extends Record<string, unknown>>(defaultEntry: V, storedEntry: V | undefined): V {
+    return { ...defaultEntry, ...(storedEntry ?? ({} as V)) };
 }
 
 export function removeRuntimeLogic(appSettings: AppSettings): AppSettings {
