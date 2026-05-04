@@ -59,7 +59,7 @@ export class User extends Struct<UserProps>() {
                 processedProps.surname,
                 validateRequired(processedProps.surname, "Surname is required")
             ),
-            extractErrorFromEither("username", props.username, Username.create(props.username)),
+            extractErrorFromEither("username", props.username, Username.create(props.username, isExistingUser)),
             extractErrorFromEither("password", props.password, Password.create(props.password, isExistingUser)),
         ];
 
