@@ -1,8 +1,5 @@
-import { Maybe } from "../../types/utils";
 import { AppSettings } from "../entities/AppSettings";
 import { Future, FutureData } from "../entities/Future";
-import { CommonFilterParams, PaginatedResponse } from "../entities/PaginatedResponse";
-import { Id } from "../entities/Ref";
 import { UserProps } from "../entities/UserProps";
 import { UserRole } from "../entities/UserRole";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
@@ -18,39 +15,28 @@ export class GetUserRolesUseCase {
         private userRepository: UserRepository
     ) {}
 
-    execute(options: GetUsersCommonOptions): FutureData<PaginatedResponse<UserRole>> {
+    execute(options: { user: UserProps; excludeUsersOutsideOrgUnits: boolean }): FutureData<UserRole[]> {
         return getAppSettings(this.appSettingsRepository, options.user).flatMap(appSettings => {
-            if (!options.excludeUsersOutsideOrgUnits) return this.getRoles(options, appSettings);
+            if (!options.excludeUsersOutsideOrgUnits) return this.getRoles(appSettings);
 
-            return this.getUsersAndRoles(options, appSettings).map(({ usersInMyOrgUnit, rolesPaginated }) => {
-                const usersRolesWithFilteredUsers = excludeUsers(usersInMyOrgUnit, rolesPaginated.objects);
-                return { ...rolesPaginated, objects: usersRolesWithFilteredUsers };
+            return this.getUsersAndRoles(appSettings).map(({ usersInMyOrgUnit, roles }) => {
+                const usersRolesWithFilteredUsers = excludeUsers(usersInMyOrgUnit, roles);
+                return usersRolesWithFilteredUsers;
             });
         });
     }
 
-    private getUsersAndRoles(options: GetUsersCommonOptions, appSettings: AppSettings) {
+    private getUsersAndRoles(appSettings: AppSettings) {
         return Future.joinObj({
             usersInMyOrgUnit: this.userRepository.getInMyOrgUnit(),
-            rolesPaginated: this.getRoles(options, appSettings),
+            roles: this.getRoles(appSettings),
         });
     }
 
-    private getRoles(
-        options: GetUsersCommonOptions,
-        appSettings: AppSettings
-    ): FutureData<PaginatedResponse<UserRole>> {
-        return this.userRoleRepository.get({
-            ...options,
+    private getRoles(appSettings: AppSettings): FutureData<UserRole[]> {
+        return this.userRoleRepository.getAllBy({
             hideRoles: appSettings.hide.userRoles,
             hideUsers: appSettings.hide.users,
-            userIds: options.userIds,
         });
     }
 }
-
-export type GetUsersCommonOptions = CommonFilterParams & {
-    excludeUsersOutsideOrgUnits: boolean;
-    user: UserProps;
-    userIds: Maybe<Id[]>;
-};

@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { D2Api } from "../../types/d2-api";
-import { FutureData } from "../../domain/entities/Future";
+import { D2Api, Id } from "../../types/d2-api";
+import { Future, FutureData } from "../../domain/entities/Future";
 import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { UserRole } from "../../domain/entities/UserRole";
 import { apiToFuture } from "../../utils/futures";
@@ -34,6 +34,7 @@ export class UserRoleD2Repository implements UserRoleRepository {
                     description: { ilike: options.search },
                     "users.id": { in: userIdsToFilters },
                     id: options.hideRoles && options.hideRoles.length > 0 ? { "!in": options.hideRoles } : undefined,
+                    users: options.hideEmptyUsers ? { gt: "0" } : undefined,
                 },
                 rootJunction: "OR",
                 page: options.page,
@@ -64,4 +65,53 @@ export class UserRoleD2Repository implements UserRoleRepository {
             };
         });
     }
+
+    getAllBy(options: { hideUsers: Id[]; hideRoles: Id[] }): FutureData<UserRole[]> {
+        return this.getAllUserRoles({ initialPage: 1, pageSize: 100 }).map(d2UserRoles => {
+            return d2UserRoles
+                .filter(role => !options.hideRoles.includes(role.id))
+                .map(role => {
+                    const filteredUsers = role.users.filter(user => !options.hideUsers.includes(user.id));
+                    return UserRole.create({
+                        id: role.id,
+                        name: role.displayName,
+                        description: role.description,
+                        users: filteredUsers.map(user => ({ id: user.id, name: user.displayName })),
+                    });
+                });
+        });
+    }
+
+    private getAllUserRoles(options: { initialPage: number; pageSize: number }): FutureData<D2ApiUserRole[]> {
+        const { initialPage, pageSize } = options;
+
+        const fetchByPage = (page: number): FutureData<D2ApiUserRole[]> => {
+            return apiToFuture(
+                this.api.models.userRoles.get({
+                    fields: { id: true, displayName: true, description: true, users: { id: true, displayName: true } },
+                    page,
+                    pageSize,
+                })
+            ).flatMap(response => {
+                const userGroups = response.objects;
+                if (response.pager.page < response.pager.pageCount) {
+                    return fetchByPage(page + 1).map(nextUserGroups => userGroups.concat(nextUserGroups));
+                } else {
+                    return Future.success(userGroups);
+                }
+            });
+        };
+
+        return fetchByPage(initialPage);
+    }
 }
+
+type D2ApiUserRole = {
+    id: string;
+    displayName: string;
+    description: string;
+    users: Array<{
+        id: string;
+        displayName: string;
+    }>;
+};
