@@ -1,13 +1,23 @@
 import { UseCase } from "../../CompositionRoot";
-import { FutureData } from "../entities/Future";
+import i18n from "../../utils/i18n";
+import { Future, FutureData } from "../entities/Future";
+import { UserProps } from "../entities/UserProps";
 import { User } from "../entities/User";
 import { UserRepository } from "../repositories/UserRepository";
-import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
+import { MetadataResponse } from "../../types/d2-api";
+import { isUniqueOpenId } from "../utils/isUniqueOpenId";
 
 export class SaveUsersUseCase implements UseCase {
     constructor(private userRepository: UserRepository) {}
 
-    public execute(usersToSave: User[]): FutureData<MetadataResponse> {
-        return this.userRepository.save(usersToSave);
+    public execute(usersToSave: UserProps[]): FutureData<MetadataResponse> {
+        if (!isUniqueOpenId(usersToSave)) return Future.error(i18n.t("Open IDs must be unique"));
+
+        try {
+            const users = usersToSave.map(userProps => User.createExisted(userProps).getOrThrow());
+            return this.userRepository.save(users);
+        } catch (error) {
+            return Future.error(`${(error as Error).message}`);
+        }
     }
 }

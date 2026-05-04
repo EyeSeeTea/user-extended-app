@@ -1,4 +1,4 @@
-import { AccessPermissions } from "../../domain/entities/User";
+import { AccessPermissions } from "../../domain/entities/UserProps";
 import { Codec, Schema } from "../../utils/codec";
 import { ApiUser } from "../repositories/UserD2ApiRepository";
 import { NamedRefModel, OrgUnitModel } from "./DHIS2Model";
@@ -15,6 +15,12 @@ export const AccessPermissionsModel: Codec<AccessPermissions> = Schema.object({
 export const ApiUserModel: Codec<ApiUser> = Schema.object({
     id: Schema.string,
     name: Schema.string,
+    username: Schema.optionalSafe(Schema.string, ""),
+    openId: Schema.optionalSafe(Schema.string, ""),
+    ldapId: Schema.optionalSafe(Schema.string, ""),
+    lastLogin: Schema.optionalSafe(Schema.string, ""),
+    disabled: Schema.optionalSafe(Schema.boolean, false),
+    externalAuth: Schema.optionalSafe(Schema.boolean, false),
     firstName: Schema.string,
     surname: Schema.string,
     email: Schema.optionalSafe(Schema.string, ""),
@@ -31,6 +37,16 @@ export const ApiUserModel: Codec<ApiUser> = Schema.object({
     dataViewOrganisationUnits: Schema.array(OrgUnitModel),
     teiSearchOrganisationUnits: Schema.array(OrgUnitModel),
     access: AccessPermissionsModel,
+    userRoles: Schema.optionalSafe(
+        Schema.array(
+            Schema.object({
+                id: Schema.string,
+                name: Schema.string,
+                authorities: Schema.optionalSafe(Schema.array(Schema.string), []),
+            })
+        ),
+        []
+    ),
     userCredentials: Schema.object({
         id: Schema.string,
         username: Schema.string,
@@ -43,6 +59,7 @@ export const ApiUserModel: Codec<ApiUser> = Schema.object({
         ),
         lastLogin: Schema.optionalSafe(Schema.string, ""),
         disabled: Schema.boolean,
+        twoFA: Schema.boolean,
         openId: Schema.optionalSafe(Schema.string, ""),
         ldapId: Schema.optionalSafe(Schema.string, ""),
         externalAuth: Schema.boolean,

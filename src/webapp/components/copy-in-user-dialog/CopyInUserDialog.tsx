@@ -1,7 +1,7 @@
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import _ from "lodash";
-import { User } from "../../../domain/entities/User";
+import { UserProps } from "../../../domain/entities/UserProps";
 import { Id } from "../../../domain/entities/Ref";
 import { AccessElements, AccessElementsKeys, UpdateStrategy } from "../../../domain/repositories/UserRepository";
 import { Toggle } from "material-ui";
@@ -9,6 +9,7 @@ import { Box } from "@material-ui/core";
 import styled from "styled-components";
 import { SegmentedControl, Transfer } from "@dhis2/ui";
 import { ConfirmationDialog, useSnackbar } from "@eyeseetea/d2-ui-components";
+import { UserIdentifier } from "../../../domain/entities/UserIdentifier";
 
 export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
     const { onCancel, onSave, user, visible, usersList } = props;
@@ -130,14 +131,14 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
 export type CopyInUserDialogProps = {
     onCancel: () => void;
     onSave: (selectedUsersIds: Id[], updateStrategy: UpdateStrategy, accessElements: AccessElements) => void;
-    user: User;
+    user: UserProps;
     visible: boolean;
-    usersList: User[];
+    usersList: UserIdentifier[];
 };
 
 const Container = styled.div`
     display: flex;
-    justify-content: right;
+    justify-content: end;
     margin-block-end: 1em;
     align-items: center;
 `;

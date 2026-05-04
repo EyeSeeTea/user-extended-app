@@ -4,22 +4,22 @@ import { ConfirmationDialog, OrgUnitsSelector } from "@eyeseetea/d2-ui-component
 
 import { useAppContext } from "../../contexts/app-context";
 import Toggle from "material-ui/Toggle";
-import i18n from "../../../locales";
-import { User } from "../../../domain/entities/User";
+import i18n from "../../../utils/i18n";
+import { UserProps } from "../../../domain/entities/UserProps";
 import { Id } from "../../../domain/entities/Ref";
 import { UpdateStrategy } from "../../../domain/repositories/UserRepository";
-import { ActionType } from "../users-remove-modal/UsersSelectedModal";
+import { ActionType } from "../users-selected-modal/UsersSelectedModal";
 import { extractIdsFromPaths, joinPaths } from "../../../utils/d2-api";
 
-function isThereOnlyOneUser(users: User[]): boolean {
+function isThereOnlyOneUser(users: UserProps[]): boolean {
     return users.length === 1;
 }
 
-function getOrgUnitPaths(actionType: ActionType, users: User[]): string[] {
+function getOrgUnitPaths(actionType: ActionType, users: UserProps[]): string[] {
     return isThereOnlyOneUser(users) ? users.flatMap(user => getOrgUnitsByActionType(actionType, user)) : [];
 }
 
-function getOrgUnitsByActionType(actionType: ActionType, user: User): string[] {
+function getOrgUnitsByActionType(actionType: ActionType, user: UserProps): string[] {
     switch (actionType) {
         case "assign_to_org_units_capture":
             return user.organisationUnits.flatMap(joinPaths);
@@ -101,12 +101,12 @@ export type OrgUnitDialogSelectorProps = {
     onCancel: () => void;
     onSave: (orgUnitIds: Id[], strategy: UpdateStrategy) => void;
     title: string;
-    users: User[];
+    users: UserProps[];
     visible: boolean;
 };
 
 const ToggleStyle = styled(Toggle)`
-    margin-left: auto;
+    margin-inline-start: auto;
     width: initial !important;
 `;
 

@@ -420,9 +420,13 @@ async function getUserGroupsToSaveAndPostMetadata(d2, api, users, existingUsersT
 async function saveUsers(d2, users, d2Api, currentUser) {
     const api = d2.Api.getApi();
     const userRepository = new UserD2ApiRepository({ url: d2Api.baseUrl });
+    const version = d2?.system?.systemInfo?.version;
+    const minor = version ? Number(String(version).split(".")[1]) : undefined;
+    const is242Plus = minor !== undefined && !Number.isNaN(minor) && minor >= 42;
     const existingUsersToUpdate = await getExistingUsers(d2, {
         fields: ":owner,userCredentials,userGroups[id]",
-        filter: "userCredentials.username:in:[" + _(users).map("username").join(",") + "]",
+        filter:
+            `${is242Plus ? "username" : "userCredentials.username"}:in:[` + _(users).map("username").join(",") + "]",
     });
     const usersToSave = getUsersToSave(users, existingUsersToUpdate);
 
@@ -448,10 +452,16 @@ async function buildLogger(d2Api, currentUser) {
 
 async function saveCopyInUsers(d2, users, copyUserGroups) {
     const api = d2.Api.getApi();
+    const version = d2?.system?.systemInfo?.version;
+    const minor = version ? Number(String(version).split(".")[1]) : undefined;
+    const is242Plus = minor !== undefined && !Number.isNaN(minor) && minor >= 42;
     if (copyUserGroups) {
         const existingUsersToUpdate = await getExistingUsers(d2, {
             fields: ":owner,userCredentials,userGroups[id]",
-            filter: "userCredentials.username:in:[" + _(users).map("userCredentials.username").join(",") + "]",
+            filter:
+                `${is242Plus ? "username" : "userCredentials.username"}:in:[` +
+                _(users).map("userCredentials.username").join(",") +
+                "]",
         });
         return getUserGroupsToSaveAndPostMetadata(d2, api, users, existingUsersToUpdate);
     } else {
@@ -575,6 +585,25 @@ function getPayload(d2, parentUser, destUsers, fields, updateStrategy) {
     return saveCopyInUsers(d2, users, fields.userGroups);
 }
 
+async function addUserToUserGroup(d2, users, userGroups) {
+    const userGroupIds = userGroups.map(group => ({ id: group.id }));
+
+    const userEntities = users.map(user => ({
+        ...user,
+        userGroups: userGroupIds,
+    }));
+
+    const baseUrl = getFormattedBaseUrl(d2);
+    const userRepository = new UserD2ApiRepository({ url: baseUrl });
+
+    return userRepository.updateUserGroups(userEntities, []).runAsync();
+}
+
+function getFormattedBaseUrl(d2) {
+    const d2Api = d2.Api.getApi();
+    return d2Api.baseUrl.replace(/\/api\/?$/, "");
+}
+
 export {
     importFromCsv,
     importFromJson,
@@ -584,4 +613,5 @@ export {
     getExistingUsers,
     getPayload,
     postMetadata,
+    addUserToUserGroup,
 };

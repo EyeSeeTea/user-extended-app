@@ -12,7 +12,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useFormState } from "react-final-form";
 import { Locale } from "../../../domain/entities/Locale";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { fullUidRegex } from "../../../utils/uid";
 import { useAppContext } from "../../contexts/app-context";
 import { FormField } from "../form/fields/FormField";

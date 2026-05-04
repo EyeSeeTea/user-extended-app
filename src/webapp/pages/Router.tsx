@@ -8,9 +8,65 @@ import { UserBulkEditPage } from "./user-bulk-edit/UserBulkEditPage";
 import { UserEditPage } from "./user-edit/UserEditPage";
 import { About } from "../components/about/About";
 import { AboutPage } from "./about/AboutPage";
+import { DashboardTable } from "../components/dashboard/DashboardTable";
+import { UserRoleTable } from "../components/user-role/UserRoleTable";
+import { UserGroupTable } from "../components/user-group-table/UserGroupTable";
+import { TabsMenu } from "../components/tabs-menu/TabsMenu";
+import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
+import { SettingsDialogModal } from "../components/settings-dialog-modal/SettingsDialogModal";
+import Settings from "$/legacy/models/settings";
+import { Maybe } from "$/types/utils";
+import { useReload } from "../hooks/useReload";
+
+const TabWrapper = ({
+    children,
+    showSettingsIcon,
+    onClickSettings,
+}: {
+    children: React.ReactNode;
+    showSettingsIcon: boolean;
+    onClickSettings: () => void;
+}) => (
+    <LegacyAppWrapper>
+        <TabsMenu showSettings={showSettingsIcon} onClickSettings={onClickSettings}>
+            {children}
+        </TabsMenu>
+    </LegacyAppWrapper>
+);
 
 export const Router: React.FC = React.memo(() => {
-    const { api } = useAppContext();
+    const { api, currentUser, compositionRoot, d2 } = useAppContext();
+    const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
+    const [showSettings, setShowSettings] = React.useState(false);
+    const { appSettings, setAppSettings } = useAppSettingsContext();
+    const [reloadKey, reload] = useReload();
+
+    React.useEffect(() => {
+        compositionRoot.users.checkCurrentUserCanAccessSettings().run(setCurrentUserHasAccessToSettings, console.error);
+    }, [compositionRoot.users]);
+
+    const updateAppSettings = React.useCallback(
+        newAppSettings => {
+            setAppSettings(newAppSettings);
+            setShowSettings(false);
+        },
+        [setAppSettings]
+    );
+
+    const openSettings = React.useCallback(() => {
+        setShowSettings(true);
+    }, []);
+
+    const closeSettings = React.useCallback(
+        (settings: Maybe<Settings>) => {
+            setShowSettings(false);
+
+            if (settings) {
+                reload();
+            }
+        },
+        [reload]
+    );
 
     return (
         <HashRouter>
@@ -23,25 +79,56 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/"
                     element={
-                        <LegacyAppWrapper>
-                            <ListHybrid api={api} />
-                        </LegacyAppWrapper>
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} reloadKey={reloadKey} />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/dashboards"
+                    element={
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                            <DashboardTable appSettings={appSettings} />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/user-roles"
+                    element={
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                            <UserRoleTable appSettings={appSettings} />
+                        </TabWrapper>
+                    }
+                />
+
+                <Route
+                    path="/user-groups"
+                    element={
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                            <UserGroupTable appSettings={appSettings} />
+                        </TabWrapper>
                     }
                 />
             </Routes>
             <IconsContainer>
                 <About icon="about" visible={true} />
             </IconsContainer>
+
+            {showSettings && currentUserHasAccessToSettings && (
+                <SettingsDialogModal d2={d2} onClose={closeSettings} onCloseAppSettings={updateAppSettings} />
+            )}
         </HashRouter>
     );
 });
 
 const IconsContainer = styled.div`
     align-items: center;
-    bottom: -3px;
+    inset-block-end: -3px;
     display: flex;
     gap: 1em;
     justify-content: center;
     position: fixed;
-    right: 80px;
+    inset-inline-end: 80px;
 `;

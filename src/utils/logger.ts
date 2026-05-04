@@ -17,8 +17,7 @@ export async function setupLogger(baseUrl: string, options: LoggerOptions): Prom
     const logger = await initLogger({
         type: "trackerProgram",
         debug: options.isDebug,
-        baseUrl: baseUrl,
-        auth: undefined,
+        d2ApiOptions: { baseUrl },
         trackerProgramId: options.settings.programId,
         messageTypeId: undefined,
     });

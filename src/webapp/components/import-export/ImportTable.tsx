@@ -1,21 +1,10 @@
 import _ from "lodash";
-import { FontIcon, RaisedButton } from "material-ui";
+import { FontIcon } from "material-ui";
 
-import React, { useState, useEffect, useCallback, SetStateAction, ComponentType } from "react";
+import React, { useState, useEffect, useCallback, ComponentType } from "react";
 
 import InfoDialog from "../../../legacy/components/InfoDialog";
-import { generateUid } from "../../../utils/uid";
-import i18n from "../../../locales";
-import UserLegacy from "../../../legacy/models/user";
-import { ApiUser } from "../../../data/repositories/UserD2ApiRepository";
-import {
-    composeValidators,
-    createMaxCharacterLength,
-    createMinCharacterLength,
-    createPattern,
-    hasValue,
-    string,
-} from "@dhis2/ui";
+import i18n from "../../../utils/i18n";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import {
     TableRow,
@@ -37,7 +26,7 @@ import {
 import { IconButton, Chip } from "material-ui";
 import { Form, FormSpy, useForm, Field } from "react-final-form";
 import { FormState } from "final-form";
-import { defaultUser, User } from "../../../domain/entities/User";
+import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
 import { ColumnSelectorDialog } from "../column-selector-dialog/ColumnSelectorDialog";
 import { UserFormField, getUserFieldName, userFormFields } from "../user-form/utils";
 import { UserRoleGroupFF } from "../user-form/components/UserRoleGroupFF";
@@ -45,11 +34,15 @@ import { OrgUnitSelectorFF } from "../user-form/components/OrgUnitSelectorFF";
 import { PreviewInputFF } from "../form/fields/PreviewInputFF";
 import styled from "styled-components";
 import { FormFieldProps } from "../form/fields/FormField";
-import { useGetAllUsers } from "../../hooks/userHooks";
+import { useGetAllUserIdentifiers } from "../../hooks/userHooks";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { ImportUser } from "../../../domain/entities/ImportUser";
-import { UserLogic } from "../../../domain/entities/UserLogic";
+import { Username } from "../../../domain/value-objects/Username";
+import { Password } from "../../../domain/value-objects/Password";
+import { Email } from "../../../domain/value-objects/Email";
+import { validateRequired } from "../../../domain/utils/validations";
+import { UserIdentifier } from "../../../domain/entities/UserIdentifier";
 
 const columnNameFromPropertyMapping: Record<Columns, string> = {
     id: "ID",
@@ -86,13 +79,15 @@ export type Columns =
 
 type ImportTableProps = {
     title: string;
-    usersFromFile: User[];
+    usersFromFile: UserProps[];
     columns: Columns[];
-    onSave: (users: User[]) => void;
+    onSave?: (users: UserProps[]) => void;
+    onSubmit?: (params: { users: UserProps[] }) => void;
     onRequestClose: () => void;
-    templateUser?: UserLegacy;
+    templateUser?: UserProps;
     actionText: string;
     warnings: string[];
+    onlyUsersOrgUnits: boolean;
 };
 
 export const ImportTable: React.FC<ImportTableProps> = props => {
@@ -105,9 +100,11 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         templateUser = null,
         actionText,
         warnings = [],
+        onlyUsersOrgUnits,
+        onSubmit: customOnSubmit,
     } = props;
-    const [users, setUsers] = useState<User[]>(usersFromFile);
-    const [existingUsers, setExistingUsers] = React.useState<Record<string, User>>({});
+    const [users, setUsers] = useState<UserProps[]>(usersFromFile);
+    const [existingUserIdentifiers, setExistingUserIdentifiers] = React.useState<UserIdentifier[]>([]);
     const [existingUsersNames, setExistingUsersNames] = React.useState<string[]>([]);
 
     const [infoDialog, setInfoDialog] = React.useState<{ response: string }>();
@@ -122,39 +119,36 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
 
     const [errorsCount, setErrorsCount] = React.useState(0);
     const [areUsersValid, setAreUsersValid] = React.useState(false);
+
+    const randomPassword = React.useMemo(() => {
+        return Password.generate().value;
+    }, []);
+
     const { compositionRoot } = useAppContext();
     const snackbar = useSnackbar();
 
     const loading = useLoading();
 
-    const { users: allUsers } = useGetAllUsers();
+    const { userIdentifiers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
     useEffect(() => {
-        const getUsername = (user: User | ApiUser): string => {
-            if ("userCredentials" in user) {
-                return user.userCredentials.username;
-            } else {
-                return user.username;
-            }
-        };
         loading.show(true);
 
         const fetchData = () => {
             setIsLoading(true);
-            if (!allUsers) {
+            if (!userIdentifiers) {
                 return;
             }
-            const existingUsersMapped = _.keyBy(allUsers, getUsername) as Record<string, User>;
-            setExistingUsers(existingUsersMapped as unknown as SetStateAction<Record<string, User>>);
-            setExistingUsersNames(allUsers.map((user: User) => getUsername(user)));
+            setExistingUserIdentifiers(userIdentifiers);
+            setExistingUsersNames(userIdentifiers.map(user => user.username));
             setIsLoading(false);
             loading.reset();
         };
 
         fetchData();
-    }, [allUsers, loading]);
+    }, [userIdentifiers, loading]);
 
     const existingUserInTable = useCallback(
-        (newUsers: User[]) => {
+        (newUsers: UserProps[]) => {
             if (!existingUsersNames) {
                 return false;
             }
@@ -195,7 +189,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                           .take(maxWarnings)
                           .map((line, idx) => `${idx + 1}. ${line}`)
                           .value(),
-                      hiddenWarnings > 0 ? i18n.t("and_n_more_warnings", { n: hiddenWarnings }) : null,
+                      hiddenWarnings > 0 ? i18n.t("[... and {{n}} more warning(s) ...]", { n: hiddenWarnings }) : null,
                   ])
                       .compact()
                       .join("\n");
@@ -217,14 +211,16 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         );
     };
 
-    const onSubmit = useCallback(
-        ({ users }: { users: User[] }) => {
+    const defaultOnSubmit = useCallback(
+        ({ users }: { users: UserProps[] }) => {
             loading.show(true, i18n.t("Importing users"));
             return compositionRoot.users.import({ users }).run(
                 () => {
                     onRequestClose();
                     loading.hide();
-                    onSave([]);
+                    if (onSave) {
+                        onSave([]);
+                    }
                     snackbar.success(i18n.t("Users imported successfully"));
                 },
                 error => {
@@ -236,22 +232,45 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
         [loading, onRequestClose, onSave, snackbar, compositionRoot.users]
     );
 
-    const addRow = useCallback((currentUsers: User[]) => {
-        const newUser: User = {
-            ...defaultUser,
-            id: generateUid(),
-            username: "",
-            password: UserLogic.DEFAULT_PASSWORD,
-            userRoles: [],
-            userGroups: [],
-        };
-        setUsers(currentUsers.concat(newUser));
-    }, []);
+    const onSubmit = customOnSubmit || defaultOnSubmit;
+
+    const defaultAddRow = useCallback(
+        (currentUsers: UserProps[]) => {
+            const newUser: UserProps = {
+                ...defaultUserProps,
+                username: "",
+                password: randomPassword,
+                userRoles: [],
+                userGroups: [],
+            };
+            setUsers(currentUsers.concat(newUser));
+        },
+        [randomPassword]
+    );
+
+    const replicateAddRow = useCallback(
+        (currentUsers: UserProps[]) => {
+            if (templateUser) {
+                const existingNames = existingUsersNames.concat(currentUsers.map(user => user.username));
+                const makeUsername = (i = 0) => `${templateUser.username}_${i}`;
+                const index = _.range(1, 1000).find(i => !existingNames.some(username => username === makeUsername(i)));
+                const newUser = {
+                    ...templateUser,
+                    username: makeUsername(index),
+                    password: randomPassword,
+                };
+                setUsers(currentUsers.concat(newUser));
+            }
+        },
+        [existingUsersNames, randomPassword, templateUser]
+    );
+
+    const addRow = templateUser ? replicateAddRow : defaultAddRow;
 
     const renderTableRow = useCallback(
-        (user: User, rowIndex: number, users: User[]) => {
+        (user: UserProps, rowIndex: number, users: UserProps[]) => {
             const currentUsername = users[rowIndex]?.username || user.username;
-            const existingUser = existingUsers[currentUsername];
+            const existingUser = existingUserIdentifiers.find(u => u.username === currentUsername);
             const chipTitle = existingUser
                 ? i18n.t("User already exists: {{id}}", { id: existingUser.id, nsSeparator: false })
                 : "";
@@ -280,10 +299,10 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                 </StyledTableRow>
             );
         },
-        [columns, existingUsers, existingUsersNames, allowOverwrite]
+        [columns, existingUserIdentifiers, existingUsersNames, allowOverwrite]
     );
 
-    const updateFormState = ({ values: { users: updatedUsers }, errors }: FormState<{ users: User[] }>) => {
+    const updateFormState = ({ values: { users: updatedUsers }, errors }: FormState<{ users: UserProps[] }>) => {
         setErrorsCount(errors?.users?.length || 0);
         setAreUsersValid(_.isEmpty(errors?.users));
         setShowOverwriteToggle(existingUserInTable(updatedUsers));
@@ -305,7 +324,7 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                             />
                         )}
                         <TableContainer>
-                            <Form<{ users: User[] }>
+                            <Form<{ users: UserProps[] }>
                                 autocomplete="off"
                                 onSubmit={onSubmit}
                                 initialValues={{ users }}
@@ -314,7 +333,8 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                     return (
                                         <>
                                             <FormSpy
-                                                onChange={(state: FormState<{ users: User[] }>) => {
+                                                key={existingUsersNames.length}
+                                                onChange={(state: FormState<{ users: UserProps[] }>) => {
                                                     requestAnimationFrame(() => {
                                                         updateFormState(state);
                                                     });
@@ -335,21 +355,23 @@ export const ImportTable: React.FC<ImportTableProps> = props => {
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
-                                                        {_.map(users, (user: User, rowIndex: string) =>
+                                                        {_.map(users, (user: UserProps, rowIndex: string) =>
                                                             renderTableRow(user, Number(rowIndex), values.users)
                                                         )}
                                                     </TableBody>
                                                 </Table>
 
                                                 <AddButtonRow>
-                                                    <RaisedButton
+                                                    <Button
+                                                        variant="outlined"
                                                         disabled={!canAddNewUser}
-                                                        label={i18n.t("Add user")}
                                                         onClick={() => {
                                                             const currentUsers = form.getState().values.users;
                                                             addRow(currentUsers);
                                                         }}
-                                                    />
+                                                    >
+                                                        {i18n.t("Add user")}
+                                                    </Button>
                                                 </AddButtonRow>
                                             </form>
                                             {showOverwriteToggle && !templateUser && (
@@ -395,12 +417,12 @@ type RowItemProps = {
     data: { columns: string[]; duplicateUsernames?: DuplicateInfo; existingUsersNames: string[] };
     columnIndex: number;
     rowIndex: number;
-    onDelete: (users: User[]) => void;
+    onDelete: (users: UserProps[]) => void;
     allowOverwrite: boolean;
 };
 
 const RowItem: React.FC<RowItemProps> = ({ data, columnIndex, rowIndex, onDelete, allowOverwrite }) => {
-    const form = useForm<{ users: User[] }>();
+    const form = useForm<{ users: UserProps[] }>();
     const deleteRow = columnIndex === data.columns.length - 1;
     const field = data.columns[columnIndex];
     const username = form.getState().values.users[rowIndex]?.username;
@@ -577,16 +599,6 @@ const FormTextField = (props: FormTextFieldProps) => {
     );
 };
 
-const userRequiredFields = [
-    "username",
-    "firstName",
-    "surname",
-    "password",
-    "userRoles",
-    "userGroups",
-    "organisationUnits",
-];
-
 const useValidations = (
     field: UserFormField,
     allowOverwrite = false,
@@ -596,51 +608,48 @@ const useValidations = (
         case "username": {
             return {
                 validation: (value: string) => {
-                    if (!value) return i18n.t("Please provide a username");
                     if (allowOverwrite && isExistingUser) return "";
                     if (isExistingUser) {
                         return i18n.t("User already exists");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(2),
-                            createMaxCharacterLength(140)
-                        );
-                        return validators(value);
                     }
+
+                    const usernameResult = Username.create(value);
+
+                    if (usernameResult.isError()) {
+                        const error = usernameResult.value.error[0] || "";
+                        return i18n.t(error);
+                    }
+
+                    return undefined;
                 },
             };
         }
         case "email":
             return {
-                validation: createPattern(
-                    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-                    i18n.t("Please provide a valid email")
-                ),
+                validation: (value: string) => {
+                    if (value) {
+                        const emailResult = Email.create(value);
+
+                        if (emailResult.isError()) {
+                            const error = emailResult.value.error[0] || "";
+                            return i18n.t(error);
+                        }
+                    }
+                    return undefined;
+                },
             };
         case "password":
             return {
                 validation: (value: string) => {
-                    if (isExistingUser && !value) return "";
-                    if (!value) {
-                        return i18n.t("Please provide a password");
-                    } else {
-                        const validators = composeValidators(
-                            string,
-                            createMinCharacterLength(8),
-                            createMaxCharacterLength(255),
-                            createPattern(/.*[a-z]/, i18n.t("Password should contain at least one lowercase letter")),
-                            createPattern(/.*[A-Z]/, i18n.t("Password should contain at least one UPPERCASE letter")),
-                            createPattern(/.*[0-9]/, i18n.t("Password should contain at least one number")),
-                            createPattern(/[^A-Za-z0-9]/, i18n.t("Password should have at least one special character"))
-                        );
-                        return validators(value);
+                    const passwordResult = Password.create(value, isExistingUser);
+
+                    if (passwordResult.isError()) {
+                        const error = passwordResult.value.error[0] || "";
+                        return i18n.t(error);
                     }
+
+                    return undefined;
                 },
-            };
-        case "phoneNumber":
-            return {
-                validation: createPattern(/^\+?[0-9 \-()]+$/, i18n.t("Please provide a valid phone number")),
             };
         case "userRoles":
         case "userGroups":
@@ -648,14 +657,31 @@ const useValidations = (
             // NOTE: userGroups is not a mandatory field but its required by src/domain/usecases/ImportUsersUseCase.ts
             return {
                 validation: (value: string[]) => {
-                    const errorMessage = "Please select at least one item";
-                    if (!value) return i18n.t(errorMessage);
-                    return value.length > 0 ? undefined : i18n.t(errorMessage);
+                    // Make the field name singular for the error message
+                    const fieldName = field.slice(0, -1);
+                    const arrayFieldValidationResult = validateRequired(
+                        value,
+                        `Please select at least one ${fieldName}`
+                    );
+                    if (arrayFieldValidationResult) {
+                        return i18n.t(arrayFieldValidationResult);
+                    }
+                    return undefined;
+                },
+            };
+        case "firstName":
+        case "surname":
+            return {
+                validation: (value: string) => {
+                    const fieldValidationError = validateRequired(value, `${field} is required`);
+                    if (fieldValidationError) {
+                        return i18n.t(fieldValidationError);
+                    }
+                    return undefined;
                 },
             };
         default: {
-            const required = userRequiredFields.includes(field);
-            return { validation: required ? hasValue : undefined };
+            return { validation: undefined };
         }
     }
 };
@@ -699,8 +725,12 @@ const StyledTableColumn = styled(TableCell)`
 `;
 
 const StyledDialogTitle = styled(DialogTitle)`
-    margin: 0px 0px -1px;
-    padding: 24px 24px 20px;
+    margin-block-start: 0px;
+    margin-block-end: -1px;
+    margin-inline: 0px;
+    padding-block-start: 24px;
+    padding-block-end: 20px;
+    padding-inline: 24px;
     font-size: 24px;
     font-weight: bold;
     line-height: 32px;
@@ -708,7 +738,7 @@ const StyledDialogTitle = styled(DialogTitle)`
 `;
 
 const DialogTooltip = styled(Tooltip)`
-    float: right;
+    float: inline-end;
 `;
 
 const AddButtonRow = styled.div`
@@ -721,7 +751,7 @@ interface DuplicateInfo {
     duplicateValue: string;
 }
 
-function findDuplicatesInUsernames(users: User[]): DuplicateInfo | undefined {
+function findDuplicatesInUsernames(users: UserProps[]): DuplicateInfo | undefined {
     const groupedUsers = _(users)
         .groupBy(user => user.username)
         .pickBy(group => group.length > 1)

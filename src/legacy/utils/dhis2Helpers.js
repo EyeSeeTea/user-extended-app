@@ -7,6 +7,9 @@ const orgUnitListOptions = {
     paging: false,
 };
 
+const MAX_URL_LENGTH = 6192 - 1000; // Reserve some chars for the rest of URL
+
+/* NOTICE: function used in assignToOrgUnits in src/legacy/List/context.actions.js (not used currently) */
 async function getOrgUnitsRoots(disableCache = false) {
     if (!disableCache && getOrgUnitsRoots.currentUserOrganisationUnits) {
         return getOrgUnitsRoots.currentUserOrganisationUnits;
@@ -40,26 +43,41 @@ async function mapPromise(inputValues, mapper) {
     return output;
 }
 
+/**
+ * Generate chunkPredicate and filterOptions for filters FIELD:in:[...] or FIELD:eq:...
+ */
+function buildInFilterHelpers(inFilterField, useInOperator = true, maxUrlLength = MAX_URL_LENGTH) {
+    let filterOptions;
+    let chunkPredicate;
+
+    if (useInOperator) {
+        const getFilter = values => `${inFilterField}:in:[${values.join(",")}]`;
+
+        chunkPredicate = values => encodeURIComponent(getFilter(values)).length < maxUrlLength;
+
+        filterOptions = values => ({
+            filter: getFilter(values),
+        });
+    } else {
+        const getFilter = value => `${inFilterField}:eq:${value}`;
+
+        chunkPredicate = values =>
+            values.map(v => `filter=${encodeURIComponent(getFilter(v))}`).join("&").length < maxUrlLength;
+
+        filterOptions = values => ({
+            filter: values.map(v => getFilter(v)),
+            rootJunction: "OR",
+        });
+    }
+
+    return { filterOptions, chunkPredicate };
+}
+
 /* Perform a model.list with a filter=FIELD:in:[VALUE1,VALUE2,...], breaking values to
    avoid hitting the 414 URL too-long error.
 */
 async function listWithInFilter(model, inFilterField, inFilterValues, listOptions, { useInOperator = true } = {}) {
-    const maxUrlLength = 8192 - 1000; // Reserve some chars for the rest of URL
-    let filterOptions, chunkPredicate;
-
-    if (useInOperator) {
-        const getFilter = values => `${inFilterField}:in:[${values.join(",")}]`;
-        chunkPredicate = values => encodeURIComponent(getFilter(values)).length < maxUrlLength;
-        filterOptions = values => ({ filter: getFilter(values) });
-    } else {
-        const getFilter = value => `${inFilterField}:eq:${value}`;
-        chunkPredicate = values =>
-            values.map(value => `filter=${encodeURIComponent(getFilter(value))}`).join("&").length < maxUrlLength;
-        filterOptions = values => ({
-            filter: values.map(value => `${inFilterField}:eq:${value}`),
-            rootJunction: "OR",
-        });
-    }
+    const { filterOptions, chunkPredicate } = buildInFilterHelpers(inFilterField, useInOperator);
 
     const filterGroups = _m(inFilterValues).chunkWhile(chunkPredicate).value();
 
@@ -68,6 +86,33 @@ async function listWithInFilter(model, inFilterField, inFilterValues, listOption
     });
 
     return _.flatten(listOfModels);
+}
+
+/* Perform a D2Api GET /resource with a filter=FIELD:in:[VALUE1,VALUE2,...], breaking values to
+   avoid hitting the 414 URL too-long error.
+*/
+async function listWithInFilterD2Api(
+    api,
+    resource,
+    inFilterField,
+    inFilterValues,
+    listOptions,
+    { useInOperator = true } = {}
+) {
+    const { filterOptions, chunkPredicate } = buildInFilterHelpers(inFilterField, useInOperator);
+
+    const filterGroups = _m(inFilterValues).chunkWhile(chunkPredicate).value();
+
+    const listOfLists = await mapPromise(filterGroups, values => {
+        const params = { ...listOptions, ...filterOptions(values) };
+
+        return api
+            .get(`/${resource}`, params)
+            .getData()
+            .then(res => res[resource] || res);
+    });
+
+    return _.flatten(listOfLists);
 }
 
 function getObjects(model, fields) {
@@ -97,4 +142,4 @@ async function getModelValuesByField(d2, fields) {
     );
 }
 
-export { getOrgUnitsRoots, mapPromise, getModelValuesByField, listWithInFilter };
+export { getOrgUnitsRoots, mapPromise, getModelValuesByField, listWithInFilter, listWithInFilterD2Api };
