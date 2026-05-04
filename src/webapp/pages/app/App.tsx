@@ -1,4 +1,4 @@
-import { HeaderBar } from "@dhis2/ui";
+import { HeaderBar } from "../../components/header-bar/HeaderBar";
 import { LoadingProvider, SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import _ from "lodash";
