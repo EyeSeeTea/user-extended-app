@@ -368,6 +368,12 @@ describe("Username value object", () => {
                 expect(result.isSuccess()).toBe(true);
             });
 
+            it("should allow usernames starting with a dot for existing users", () => {
+                const result = Username.create(".johndoe", true);
+
+                expect(result.isSuccess()).toBe(true);
+            });
+
             it("should still reject empty usernames for existing users", () => {
                 const result = Username.create("", true);
 
