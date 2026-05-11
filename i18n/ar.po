@@ -47,17 +47,20 @@ msgstr ""
 msgid "Show Export to CSV"
 msgstr ""
 
+msgid "Show only users assigned to my organization unit and below"
+msgstr ""
+
+msgid "Hide not applicable user groups"
+msgstr ""
+
+msgid "Filter by Users"
+msgstr ""
+
 #, fuzzy
-msgid "Show \"Show only users assigned to my organization unit and below\""
-msgstr "إظهار فقط المستخدمين المعينين لوحدات تنظيم المستخدمين"
+msgid "Hide not applicable user roles"
+msgstr "تكرار المستخدم من الجدول"
 
-msgid "Show \"Hide not applicable user groups\""
-msgstr ""
-
-msgid "Show \"Filter by Users\""
-msgstr ""
-
-msgid "Show \"Filter by Owners\""
+msgid "Filter by Owners"
 msgstr ""
 
 msgid "ID"
@@ -203,9 +206,6 @@ msgid "Owners: {{owners}}"
 msgstr ""
 
 msgid "Users: {{users}}"
-msgstr ""
-
-msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Filters"
@@ -386,6 +386,9 @@ msgstr ""
 
 msgid "Dashboards"
 msgstr "لوحات المعلومات"
+
+msgid "Value"
+msgstr ""
 
 #, fuzzy
 msgid "Select user groups and rules"
@@ -709,9 +712,6 @@ msgstr "تكرار المستخدم من القالب"
 msgid "Replicate user from table"
 msgstr "تكرار المستخدم من الجدول"
 
-msgid "Hide not applicable user groups"
-msgstr ""
-
 msgid "Loading..."
 msgstr ""
 
@@ -999,6 +999,10 @@ msgstr "فتح في إدارة المستخدمين"
 
 msgid " and {{overflow}} more..."
 msgstr " و{{overflow}} المزيد..."
+
+#, fuzzy
+#~ msgid "Show \"Show only users assigned to my organization unit and below\""
+#~ msgstr "إظهار فقط المستخدمين المعينين لوحدات تنظيم المستخدمين"
 
 #~ msgid "Value should be between {{min}} and {{max}}"
 #~ msgstr "يجب أن تكون القيمة بين {{min}} و {{max}}"

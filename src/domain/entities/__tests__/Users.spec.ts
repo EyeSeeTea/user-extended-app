@@ -220,7 +220,7 @@ describe("User Entity", () => {
                 });
             });
 
-            it.skip("should throw error when username contains invalid characters", () => {
+            it("should throw error when username contains invalid characters", () => {
                 const propsWithInvalidUsername = { ...validUserProps, username: "john#doe" };
 
                 const userResult = User.createNew(propsWithInvalidUsername);

@@ -268,12 +268,7 @@ describe("Username value object", () => {
             });
         });
 
-        /* 
-           In the USERS app they have this validation rule, but the API allows these characters
-           and since we have already existing users that use them, we cannot apply this validation
-           so I'm skipping it for future reference
-        */
-        describe.skip("character validation", () => {
+        describe("character validation", () => {
             it("should return error when username contains invalid characters", () => {
                 const result = Username.create("john#doe");
 
@@ -326,12 +321,78 @@ describe("Username value object", () => {
                 });
             });
 
+            it("should return error when username contains a forward slash", () => {
+                const result = Username.create("john/doe");
+
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username can only include . _ - or @ as separators");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
+            });
+
             it("should return error when username contains special characters", () => {
                 const result = Username.create("john&doe*test");
 
                 result.match({
                     error: errors => {
                         expect(errors).toContain("Username can only include . _ - or @ as separators");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
+            });
+        });
+
+        describe("existing user (permissive) validation", () => {
+            it("should allow usernames with otherwise invalid characters for existing users", () => {
+                const result = Username.create("john/doe", true);
+
+                result.match({
+                    success: username => {
+                        expect(username.value).toBe("john/doe");
+                    },
+                    error: () => {
+                        throw new Error("Expected permissive username validation to succeed but it failed");
+                    },
+                });
+            });
+
+            it("should allow usernames with spaces for existing users", () => {
+                const result = Username.create("john doe", true);
+
+                expect(result.isSuccess()).toBe(true);
+            });
+
+            it("should allow usernames starting with a dot for existing users", () => {
+                const result = Username.create(".johndoe", true);
+
+                expect(result.isSuccess()).toBe(true);
+            });
+
+            it("should still reject empty usernames for existing users", () => {
+                const result = Username.create("", true);
+
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Please provide a username");
+                    },
+                    success: () => {
+                        throw new Error("Expected username validation to fail but it succeeded");
+                    },
+                });
+            });
+
+            it("should still enforce length bounds for existing users", () => {
+                const result = Username.create("a", true);
+
+                result.match({
+                    error: errors => {
+                        expect(errors).toContain("Username should be at least 2 characters long");
                     },
                     success: () => {
                         throw new Error("Expected username validation to fail but it succeeded");

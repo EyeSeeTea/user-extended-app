@@ -47,17 +47,23 @@ msgstr ""
 msgid "Show Export to CSV"
 msgstr ""
 
-msgid "Show \"Show only users assigned to my organization unit and below\""
+msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
-msgid "Show \"Hide not applicable user groups\""
+msgid "Hide not applicable user groups"
 msgstr ""
 
-msgid "Show \"Filter by Users\""
-msgstr ""
+#, fuzzy
+msgid "Filter by Users"
+msgstr "Filtrer"
 
-msgid "Show \"Filter by Owners\""
-msgstr ""
+#, fuzzy
+msgid "Hide not applicable user roles"
+msgstr "Répliquer l'utilisateur à partir du tableau"
+
+#, fuzzy
+msgid "Filter by Owners"
+msgstr "Filtrer"
 
 msgid "ID"
 msgstr "ID"
@@ -202,9 +208,6 @@ msgid "Owners: {{owners}}"
 msgstr ""
 
 msgid "Users: {{users}}"
-msgstr ""
-
-msgid "Show only users assigned to my organization unit and below"
 msgstr ""
 
 msgid "Filters"
@@ -387,6 +390,9 @@ msgid "Show/Hide Actions"
 msgstr ""
 
 msgid "Dashboards"
+msgstr ""
+
+msgid "Value"
 msgstr ""
 
 #, fuzzy
@@ -720,9 +726,6 @@ msgstr "Répliquer l'utilisateur à partir du modèle"
 
 msgid "Replicate user from table"
 msgstr "Répliquer l'utilisateur à partir du tableau"
-
-msgid "Hide not applicable user groups"
-msgstr ""
 
 msgid "Loading..."
 msgstr ""

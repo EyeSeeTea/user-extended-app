@@ -51,6 +51,8 @@ function generateTableConfig(dashboardColumns: DashboardColumnSetting[], user: U
 
 export const DashboardTable: React.FC<DashboardTableProps> = React.memo(props => {
     const { appSettings } = props;
+    const defaultExcludeUsersOutsideOrgUnits =
+        appSettings.uiDashboardActionsAccess.filterUsersInOrgUnit.defaultValue ?? true;
     const { compositionRoot, currentUser } = useAppContext();
     const [filters, setFilters] = React.useState<{
         ownerUsersIds?: Id[];
@@ -59,7 +61,7 @@ export const DashboardTable: React.FC<DashboardTableProps> = React.memo(props =>
     }>({
         ownerUsersIds: undefined,
         userIds: undefined,
-        excludeUsersOutsideOrgUnits: true,
+        excludeUsersOutsideOrgUnits: defaultExcludeUsersOutsideOrgUnits,
     });
     const [dashboards, setDashboards] = React.useState<Dashboard[]>([]);
     const [loading, setLoading] = React.useState(false);

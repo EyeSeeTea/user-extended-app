@@ -71,24 +71,45 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         }));
     };
 
-    const updateUiUserGroupActionsAccess = (actionCode: UIUserGroupActionType, value: boolean) => {
+    const updateUiUserGroupActionsAccess = (
+        actionCode: UIUserGroupActionType,
+        field: "visible" | "defaultValue",
+        value: boolean
+    ) => {
         setForm(prev => ({
             ...prev,
-            uiUserGroupActionsAccess: { ...prev.uiUserGroupActionsAccess, [actionCode]: { visible: value } },
+            uiUserGroupActionsAccess: {
+                ...prev.uiUserGroupActionsAccess,
+                [actionCode]: { ...prev.uiUserGroupActionsAccess[actionCode], [field]: value },
+            },
         }));
     };
 
-    const updateUiUserRoleActionsAccess = (actionCode: UIUserRoleActionType, value: boolean) => {
+    const updateUiUserRoleActionsAccess = (
+        actionCode: UIUserRoleActionType,
+        field: "visible" | "defaultValue",
+        value: boolean
+    ) => {
         setForm(prev => ({
             ...prev,
-            uiUserRoleActionsAccess: { ...prev.uiUserRoleActionsAccess, [actionCode]: { visible: value } },
+            uiUserRoleActionsAccess: {
+                ...prev.uiUserRoleActionsAccess,
+                [actionCode]: { ...prev.uiUserRoleActionsAccess[actionCode], [field]: value },
+            },
         }));
     };
 
-    const updateUiDashboardActionsAccess = (actionCode: UIDashboardActionType, value: boolean) => {
+    const updateUiDashboardActionsAccess = (
+        actionCode: UIDashboardActionType,
+        field: "visible" | "defaultValue",
+        value: boolean
+    ) => {
         setForm(prev => ({
             ...prev,
-            uiDashboardActionsAccess: { ...prev.uiDashboardActionsAccess, [actionCode]: { visible: value } },
+            uiDashboardActionsAccess: {
+                ...prev.uiDashboardActionsAccess,
+                [actionCode]: { ...prev.uiDashboardActionsAccess[actionCode], [field]: value },
+            },
         }));
     };
 

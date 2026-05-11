@@ -23,9 +23,10 @@ import { getFilename } from "../../utils/file";
 
 import { makeStyles } from "@material-ui/core";
 import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
-import { Maybe } from "../../../types/utils";
 import { AppSettings } from "../../../domain/entities/AppSettings";
 import { GroupColumnSetting } from "../../../domain/entities/GroupColumn";
+import { useUserGroups } from "./useUserGroups";
+import { createPagination, filterAndSortItemWithUsers } from "../../utils/table";
 
 function generateTableConfig(options: {
     currentPageSize: number;
@@ -63,13 +64,16 @@ type UserGroupTableProps = {
 
 export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props => {
     const { appSettings } = props;
+    const defaultExcludeOrgUnit = appSettings.uiUserGroupActionsAccess.filterUsersInOrgUnit.defaultValue ?? true;
+    const defaultFilterEmptyUsers =
+        appSettings.uiUserGroupActionsAccess.filterHideNotApplicableUserGroups.defaultValue ?? true;
     const [currentPageSize, setCurrentPageSize] = React.useState(25);
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>();
-    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(true);
-    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(true);
+    const [excludeUsersOrgUnit, setExcludeUsersOrgUnit] = React.useState(defaultExcludeOrgUnit);
+    const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(defaultFilterEmptyUsers);
     const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
-    const { userGroups } = useGetAllUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
+    const { userGroups } = useUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
     const isAdmin = isSuperAdmin(currentUser);
     const [columnsPreference, setColumnsPreference] = React.useState<GroupColumnSetting[]>([]);
 
@@ -106,8 +110,8 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
         ): Promise<{ objects: UserGroup[]; pager: Pager }> => {
             setCurrentPageSize(pageSize);
 
-            const filteredUserGroups = filterAndSortUserGroups({
-                groups: userGroups,
+            const filteredUserGroups = filterAndSortItemWithUsers({
+                items: userGroups,
                 search: search,
                 sort: sorting.order,
                 filterEmptyUsers: filterEmptyUsers,
@@ -159,9 +163,12 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                     showUserFilter={isAdmin || appSettings.uiUserGroupActionsAccess.filterUsers.visible}
                     showOrgUnitFilter={isAdmin || appSettings.uiUserGroupActionsAccess.filterUsersInOrgUnit.visible}
                     filterUserLabel={i18n.t("Filter users")}
+                    emptyUsersLabel={i18n.t("Hide not applicable user groups")} 
                     showEmptyUsers={
                         isAdmin || appSettings.uiUserGroupActionsAccess.filterHideNotApplicableUserGroups.visible
                     }
+                    defaultExcludeOrgUnit={defaultExcludeOrgUnit}
+                    defaultFilterEmptyUsers={defaultFilterEmptyUsers}
                 />
             )}
             {items.length > 0 && (
@@ -179,22 +186,6 @@ const useStyles = makeStyles({
     },
 });
 
-function useGetAllUserGroups(props: { excludeUsersOutsideOrgUnits: boolean; currentUser: UserProps }): {
-    userGroups: UserGroup[];
-} {
-    const { currentUser, excludeUsersOutsideOrgUnits } = props;
-    const { compositionRoot } = useAppContext();
-    const [userGroups, setUserGroups] = React.useState<UserGroup[]>([]);
-
-    React.useEffect(() => {
-        return compositionRoot.userGroups
-            .get({ excludeUsersOutsideOrgUnits, user: currentUser })
-            .run(setUserGroups, console.error);
-    }, [compositionRoot.userGroups, currentUser, excludeUsersOutsideOrgUnits]);
-
-    return { userGroups };
-}
-
 function buildCsvRow(rows: UserGroup[], fileName: string): void {
     FileSaver.saveAs(
         new Blob(
@@ -207,49 +198,4 @@ function buildCsvRow(rows: UserGroup[], fileName: string): void {
         ),
         fileName
     );
-}
-
-export const filterAndSortUserGroups = (options: {
-    groups: UserGroup[];
-    search: string;
-    sort: "asc" | "desc";
-    filterEmptyUsers: boolean;
-    selectedUsersIds: Maybe<Id[]>;
-}): UserGroup[] => {
-    const { groups, search, sort = "asc", filterEmptyUsers, selectedUsersIds } = options;
-    const filtered = _(groups)
-        .filter(group => {
-            const { name, users } = group;
-
-            const matchesSearch = search ? name.toLowerCase().includes(search.toLowerCase()) : true;
-
-            const matchesUsers =
-                selectedUsersIds && selectedUsersIds.length > 0
-                    ? users.some(user => selectedUsersIds.includes(user.id))
-                    : true;
-
-            return matchesSearch && matchesUsers;
-        })
-        .filter(group => {
-            if (!filterEmptyUsers) return true;
-            return group.users.length > 0;
-        })
-        .orderBy(dashboard => dashboard.name, sort)
-        .value();
-
-    return filtered;
-};
-
-function createPagination<T>(records: T[], page: number, pageSize: number): { objects: T[]; pager: Pager } {
-    const pager: Pager = {
-        page: page,
-        pageCount: Math.ceil(records.length / pageSize),
-        total: records.length,
-        pageSize: pageSize,
-    };
-
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const pagedRecords = records.slice(startIndex, endIndex);
-    return { objects: pagedRecords, pager };
 }

@@ -172,8 +172,8 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     private static defaultUserGroupUiActions(): AppSettingsAttr["uiUserGroupActionsAccess"] {
         return {
-            filterHideNotApplicableUserGroups: { visible: true },
-            filterUsersInOrgUnit: { visible: true },
+            filterHideNotApplicableUserGroups: { visible: true, defaultValue: true },
+            filterUsersInOrgUnit: { visible: true, defaultValue: true },
             filterUsers: { visible: true },
             exportCsv: { visible: true },
             exportJson: { visible: true },
@@ -181,12 +181,16 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
     }
 
     private static defaultUserRoleUiActions(): AppSettingsAttr["uiUserRoleActionsAccess"] {
-        return { filterUsersInOrgUnit: { visible: true }, filterUsers: { visible: true } };
+        return {
+            filterHideNotApplicableUserRoles: { visible: true, defaultValue: true },
+            filterUsersInOrgUnit: { visible: true, defaultValue: true },
+            filterUsers: { visible: true },
+        };
     }
 
     private static defaultUiDashboardActions(): AppSettingsAttr["uiDashboardActionsAccess"] {
         return {
-            filterUsersInOrgUnit: { visible: true },
+            filterUsersInOrgUnit: { visible: true, defaultValue: true },
             filterUsers: { visible: true },
             filterOwners: { visible: true },
         };
