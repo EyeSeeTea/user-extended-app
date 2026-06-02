@@ -313,13 +313,13 @@ function getUserPayloadFromPlainAttributes(baseUser, userFields) {
 
 function getUsersToSave(users, existingUsersToUpdate) {
     const usersByUsername = _.keyBy(users, "username");
-    const existingUsernamesSet = new Set(existingUsersToUpdate.map(user => user.userCredentials.username));
+    const existingUsernamesSet = new Set(existingUsersToUpdate.map(user => user.username || user.userCredentials?.username));
     const usersToCreate = _(users)
         .filter(user => !existingUsernamesSet.has(user.username))
         .map(userAttributes => getUserPayloadFromPlainAttributes({}, userAttributes))
         .value();
     const usersToUpdate = existingUsersToUpdate.map(existingUser =>
-        getUserPayloadFromPlainAttributes(existingUser, usersByUsername[existingUser.userCredentials.username])
+        getUserPayloadFromPlainAttributes(existingUser, usersByUsername[existingUser.username || existingUser.userCredentials?.username])
     );
     const allUsers = usersToCreate.concat(usersToUpdate);
 
@@ -348,16 +348,16 @@ but that would require one request by each new user.
 
 async function getUserGroupsToSave(d2, api, usersToSave, existingUsersToUpdate) {
     const userGroupsByUsername = _(usersToSave)
-        .map(user => [user.userCredentials.username, (user.userGroups || []).map(ug => ug.id)])
+        .map(user => [user.username || user.userCredentials?.username, (user.userGroups || []).map(ug => ug.id)])
         .fromPairs()
         .value();
 
     const userGroupsInvolved = _(usersToSave).concat(existingUsersToUpdate).flatMap("userGroups").uniqBy("id").value();
     const usersByGroupId = _(usersToSave)
-        .uniqBy(user => user.userCredentials.username)
+        .uniqBy(user => user.username || user.userCredentials?.username)
         .flatMap(user => {
             const userGroupIds =
-                userGroupsByUsername[user.userCredentials.username] || user.userGroups.map(ug => ug.id);
+                userGroupsByUsername[user.username || user.userCredentials?.username] || user.userGroups.map(ug => ug.id);
             return userGroupIds.map(userGroupId => ({ user, userGroupId }));
         })
         .groupBy("userGroupId")
@@ -460,7 +460,7 @@ async function saveCopyInUsers(d2, users, copyUserGroups) {
             fields: ":owner,userCredentials,userGroups[id]",
             filter:
                 `${is242Plus ? "username" : "userCredentials.username"}:in:[` +
-                _(users).map("userCredentials.username").join(",") +
+                _(users).map(user => user.username || user.userCredentials?.username).join(",") +
                 "]",
         });
         return getUserGroupsToSaveAndPostMetadata(d2, api, users, existingUsersToUpdate);

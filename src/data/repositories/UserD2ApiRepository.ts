@@ -339,7 +339,7 @@ export class UserD2ApiRepository implements UserRepository {
                         user =>
                             new UserIdentifier({
                                 id: user.id,
-                                username: user.username ?? user.userCredentials.username,
+                                username: user.username || user.userCredentials?.username || "",
                                 name: user.name,
                             })
                     );
@@ -393,7 +393,7 @@ export class UserD2ApiRepository implements UserRepository {
                 user =>
                     new UserIdentifier({
                         id: user.id,
-                        username: user.username || user.userCredentials.username,
+                        username: user.username || user.userCredentials?.username ,
                         name: user.name,
                     })
             );
