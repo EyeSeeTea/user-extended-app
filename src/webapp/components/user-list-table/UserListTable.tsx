@@ -18,7 +18,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
-import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
+import { UserListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
 import { isSuperAdmin } from "../../../domain/entities/UserProps";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../utils/i18n";
@@ -461,25 +461,25 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             onChangeSearch(search);
 
             // SEE: src/legacy/models/userList.js LINE 29+
-            if (canManage === "true") {
-                const userIdList = await compositionRoot.users
-                    .listAllIdentifiers({
-                        search,
-                        sorting,
-                        filters,
-                        canManage,
-                        rootJunction,
-                        onlyUsersOrgUnits,
-                        onlyActiveUsers: onlyActiveUsers,
-                        hideUsers: appSettings.hide.users,
-                    })
-                    .toPromise()
-                    .then(userIdentifiers => userIdentifiers.map(user => user.id));
-
-                if (userIdList) {
-                    filters["id"] = ["in", userIdList];
-                }
-            }
+            const resolvedFilters: UserListFilters =
+                canManage === "true"
+                    ? {
+                          ...filters,
+                          id: await compositionRoot.users
+                              .listAllIdentifiers({
+                                  search,
+                                  sorting,
+                                  filters,
+                                  canManage,
+                                  rootJunction,
+                                  onlyUsersOrgUnits,
+                                  onlyActiveUsers: onlyActiveUsers,
+                                  hideUsers: appSettings.hide.users,
+                              })
+                              .toPromise()
+                              .then(userIdentifiers => userIdentifiers.map(user => user.id)),
+                      }
+                    : filters;
 
             return compositionRoot.users
                 .list({
@@ -487,7 +487,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     page,
                     pageSize,
                     sorting,
-                    filters,
+                    filters: resolvedFilters,
                     canManage,
                     rootJunction,
                     onlyUsersOrgUnits,
@@ -706,7 +706,7 @@ export type UserActionName =
 
 export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loading"> {
     openSettings: (settings: Settings) => void;
-    filters: ListFilters;
+    filters: UserListFilters;
     canManage: string;
     rootJunction: "AND" | "OR";
     onChangeVisibleColumns: (columns: string[]) => void;

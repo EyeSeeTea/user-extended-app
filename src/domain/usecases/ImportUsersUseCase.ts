@@ -53,7 +53,7 @@ export class ImportUsersUseCase implements UseCase {
                                 onlyActiveUsers: false,
                                 onlyUsersOrgUnits: false,
                                 hideUsers: [],
-                                filters: { "userCredentials.username": ["in", usernameList] },
+                                filters: { username: usernameList },
                             })
                             .flatMap(usersFromDB => {
                                 const mergedUsers = this.mergeUsers(userChunk, usersFromDB, currentUser);
