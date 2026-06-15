@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
+"POT-Creation-Date: 2026-06-11T17:45:32.783Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -357,6 +357,16 @@ msgid ""
 msgstr ""
 "As alterações em 'Quem tem acesso' às definições serão refletidas após "
 "recarregar a página"
+
+#, fuzzy
+msgid "Access to Import Settings"
+msgstr "Acesso à secção de definições"
+
+msgid ""
+"Selected users and user groups will be able to change the import options, "
+"without access to the rest of the settings. Changes will be reflected after "
+"page reload"
+msgstr ""
 
 msgid "Show only active users"
 msgstr "Mostrar apenas utilizadores ativos"

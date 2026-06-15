@@ -37,13 +37,19 @@ const TabWrapper = ({
 export const Router: React.FC = React.memo(() => {
     const { api, currentUser, compositionRoot, d2 } = useAppContext();
     const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
+    const [currentUserHasAccessToImportSettings, setCurrentUserHasAccessToImportSettings] = React.useState(false);
     const [showSettings, setShowSettings] = React.useState(false);
     const { appSettings, setAppSettings } = useAppSettingsContext();
     const [reloadKey, reload] = useReload();
 
     React.useEffect(() => {
         compositionRoot.users.checkCurrentUserCanAccessSettings().run(setCurrentUserHasAccessToSettings, console.error);
+        compositionRoot.users
+            .checkCurrentUserCanAccessImportSettings()
+            .run(setCurrentUserHasAccessToImportSettings, console.error);
     }, [compositionRoot.users]);
+
+    const showSettingsIcon = currentUserHasAccessToSettings || currentUserHasAccessToImportSettings;
 
     const updateAppSettings = React.useCallback(
         newAppSettings => {
@@ -79,7 +85,7 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/"
                     element={
-                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
                             <ListHybrid api={api} params={{ modelType: "users", currentUser }} reloadKey={reloadKey} />
                         </TabWrapper>
                     }
@@ -88,7 +94,7 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/dashboards"
                     element={
-                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
                             <DashboardTable appSettings={appSettings} />
                         </TabWrapper>
                     }
@@ -97,7 +103,7 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/user-roles"
                     element={
-                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
                             <UserRoleTable appSettings={appSettings} />
                         </TabWrapper>
                     }
@@ -106,7 +112,7 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/user-groups"
                     element={
-                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
                             <UserGroupTable appSettings={appSettings} />
                         </TabWrapper>
                     }
@@ -116,8 +122,14 @@ export const Router: React.FC = React.memo(() => {
                 <About icon="about" visible={true} />
             </IconsContainer>
 
-            {showSettings && currentUserHasAccessToSettings && (
-                <SettingsDialogModal d2={d2} onClose={closeSettings} onCloseAppSettings={updateAppSettings} />
+            {showSettings && showSettingsIcon && (
+                <SettingsDialogModal
+                    d2={d2}
+                    onClose={closeSettings}
+                    onCloseAppSettings={updateAppSettings}
+                    canAccessFullSettings={currentUserHasAccessToSettings}
+                    canAccessImportSettings={currentUserHasAccessToImportSettings}
+                />
             )}
         </HashRouter>
     );

@@ -26,6 +26,8 @@ type SettingsDialogModalProps = {
     onCloseAppSettings: (appSettings: AppSettings) => void;
     onClose: (settings: Maybe<Settings>) => void;
     d2: any;
+    canAccessFullSettings: boolean;
+    canAccessImportSettings: boolean;
 };
 
 export function useImportSettings(reloadKey?: string) {
@@ -49,7 +51,7 @@ const errorCodes = [
 ];
 
 export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => {
-    const { onClose, onCloseAppSettings, d2 } = props;
+    const { onClose, onCloseAppSettings, d2, canAccessFullSettings, canAccessImportSettings } = props;
     const [selectedTab, setSelectedTab] = React.useState<SettingsOption>("import");
     const { importSettings } = useImportSettings();
     const { save, appSettings: initialData } = useAppSettingsContext();
@@ -205,12 +207,12 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     return (
         <Dialog open maxWidth="lg" fullWidth onClose={closeDialog}>
             <Tabs value={selectedTab} onChange={(_event, value) => onChangeTab(value)}>
-                <Tab label={i18n.t("Import")} value="import" />
-                <Tab label={i18n.t("Logger")} value="logger" />
-                <Tab label={i18n.t("Permissions")} value="permissions" />
-                <Tab label={i18n.t("User Permissions")} value="user-permissions" />
-                <Tab label={i18n.t("Columns")} value="columns" />
-                <Tab label={i18n.t("Filter Permissions")} value="filter-permissions" />
+                {(canAccessImportSettings || canAccessFullSettings) && <Tab label={i18n.t("Import")} value="import" />}
+                {canAccessFullSettings && <Tab label={i18n.t("Logger")} value="logger" />}
+                {canAccessFullSettings && <Tab label={i18n.t("Permissions")} value="permissions" />}
+                {canAccessFullSettings && <Tab label={i18n.t("User Permissions")} value="user-permissions" />}
+                {canAccessFullSettings && <Tab label={i18n.t("Columns")} value="columns" />}
+                {canAccessFullSettings && <Tab label={i18n.t("Filter Permissions")} value="filter-permissions" />}
             </Tabs>
 
             {renderSelectedTab(selectedTab)}

@@ -5,11 +5,8 @@ import { NamedRef } from "../../../domain/entities/Ref";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 
-export function useSharingSettings() {
-    const { compositionRoot } = useAppContext();
-    const { appSettings } = useAppSettingsContext();
-
-    const [permission, setPermission] = React.useState<Permission>(appSettings.settingsAccess);
+function usePermissionState(initial: Permission) {
+    const [permission, setPermission] = React.useState<Permission>(initial);
 
     const sharedObject: SharedObject = React.useMemo(
         () => ({
@@ -21,6 +18,30 @@ export function useSharingSettings() {
     );
 
     const metaObject: MetaObject = React.useMemo(() => ({ object: sharedObject }), [sharedObject]);
+
+    const onUpdateSharingOptions = React.useCallback(
+        /* Marked async only because it is typed that way on the Sharing props */
+        async ({ userAccesses, userGroupAccesses }: ShareUpdate) => {
+            setPermission(
+                permissions =>
+                    new Permission({
+                        users: userAccesses ? mapAccessPermission(userAccesses) : permissions.users,
+                        userGroups: userGroupAccesses ? mapAccessPermission(userGroupAccesses) : permissions.userGroups,
+                    })
+            );
+        },
+        [setPermission]
+    );
+
+    return { permission, metaObject, onUpdateSharingOptions };
+}
+
+export function useSharingSettings() {
+    const { compositionRoot } = useAppContext();
+    const { appSettings } = useAppSettingsContext();
+
+    const settings = usePermissionState(appSettings.settingsAccess);
+    const importSettings = usePermissionState(appSettings.importSettingsAccess);
 
     const search = React.useCallback(
         (query: string) =>
@@ -37,21 +58,15 @@ export function useSharingSettings() {
         [compositionRoot]
     );
 
-    const onUpdateSharingOptions = React.useCallback(
-        /* Marked async only because it is typed that way on the Sharing props */
-        async ({ userAccesses, userGroupAccesses }: ShareUpdate) => {
-            setPermission(
-                permissions =>
-                    new Permission({
-                        users: userAccesses ? mapAccessPermission(userAccesses) : permissions.users,
-                        userGroups: userGroupAccesses ? mapAccessPermission(userGroupAccesses) : permissions.userGroups,
-                    })
-            );
-        },
-        [setPermission]
-    );
-
-    return { search, metaObject, onUpdateSharingOptions, permission };
+    return {
+        search,
+        metaObject: settings.metaObject,
+        onUpdateSharingOptions: settings.onUpdateSharingOptions,
+        permission: settings.permission,
+        importMetaObject: importSettings.metaObject,
+        onUpdateImportSharingOptions: importSettings.onUpdateSharingOptions,
+        importPermission: importSettings.permission,
+    };
 }
 
 const mapAccessPermission = (rules: SharingRule[]): NamedRef[] => {

@@ -14,6 +14,10 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
         ? new Permission(appSettings.settingsAccess)
         : emptySettings.settingsAccess;
 
+    const importSettingsAccess = appSettings.importSettingsAccess
+        ? new Permission(appSettings.importSettingsAccess)
+        : emptySettings.importSettingsAccess;
+
     const storedActionsAccess = appSettings.actionsAccess
         ? _.mapValues(appSettings.actionsAccess, p => new ActionPermission(p))
         : emptySettings.actionsAccess;
@@ -26,6 +30,7 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
         ...emptySettings,
         ...appSettings,
         settingsAccess: settingsAccess,
+        importSettingsAccess: importSettingsAccess,
         actionsAccess: forcedActionsAccess,
         uiUserGroupActionsAccess: migrateRecord(
             appSettings.uiUserGroupActionsAccess,

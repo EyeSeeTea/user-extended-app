@@ -10,6 +10,10 @@ export class Permission extends Struct<PermissionAttrs>() {
     isAccessible(args: { userId: Id; userGroupIds: Id[] }): boolean {
         return isPermissionAccessible(this, args);
     }
+
+    isEmpty(): boolean {
+        return this.users.length === 0 && this.userGroups.length === 0;
+    }
 }
 
 /* Acts as a whitelist. If not present or permission users and userGroups are empty, then no access is granted */

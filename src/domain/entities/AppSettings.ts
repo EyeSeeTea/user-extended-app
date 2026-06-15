@@ -26,6 +26,7 @@ type AppSettingsAttr = {
     showOnlyActiveUsers: boolean;
     showFeedback: boolean;
     settingsAccess: Permission;
+    importSettingsAccess: Permission;
     actionsAccess: ActionsPermissions;
     showCustomRootOrgUnits: boolean;
     showOnlyUsersInTheirOrgUnits: boolean;
@@ -62,6 +63,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyActiveUsers: false,
             showFeedback: true,
             settingsAccess: emptyPermission,
+            importSettingsAccess: emptyPermission,
             actionsAccess: defaultActions(),
             hide: defaultHideValues,
             status: status,

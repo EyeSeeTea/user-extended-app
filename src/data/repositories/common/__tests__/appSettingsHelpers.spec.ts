@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { AppSettings } from "../../../../domain/entities/AppSettings";
 import { ActionPermission } from "../../../../domain/entities/ActionPermission";
+import { Permission } from "../../../../domain/entities/Permission";
 import { UserAction } from "../../../../domain/entities/UserAction";
 import { mergeAndAddRuntimeProps } from "../appSettingsHelpers";
 
@@ -84,6 +85,29 @@ describe("mergeAndAddRuntimeProps", () => {
         });
         expect(result.uiDashboardActionsAccess.filterUsers).toEqual({ visible: true });
         expect(result.uiDashboardActionsAccess.filterOwners).toEqual({ visible: true });
+    });
+
+    it("defaults importSettingsAccess to an empty Permission for legacy stored settings", () => {
+        const result = mergeAndAddRuntimeProps({});
+
+        expect(result.importSettingsAccess).toBeInstanceOf(Permission);
+        expect(result.importSettingsAccess.users).toEqual([]);
+        expect(result.importSettingsAccess.userGroups).toEqual([]);
+    });
+
+    it("rebuilds importSettingsAccess as a Permission instance from stored plain object", () => {
+        const stored: Partial<AppSettings> = {
+            importSettingsAccess: {
+                users: [{ id: "user1", name: "User 1" }],
+                userGroups: [{ id: "group1", name: "Group 1" }],
+            } as AppSettings["importSettingsAccess"],
+        };
+
+        const result = mergeAndAddRuntimeProps(stored);
+
+        expect(result.importSettingsAccess).toBeInstanceOf(Permission);
+        expect(result.importSettingsAccess.users).toEqual([{ id: "user1", name: "User 1" }]);
+        expect(result.importSettingsAccess.userGroups).toEqual([{ id: "group1", name: "Group 1" }]);
     });
 
     it("fills missing actionsAccess entries from defaults", () => {
