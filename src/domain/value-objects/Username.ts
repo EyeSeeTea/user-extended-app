@@ -22,6 +22,11 @@ export class Username extends ValueObject<UsernameProps> {
     }
 
     public static create(value: string, isExistingUser = false): Either<string[], Username> {
+        // For existing users, wrong username is allowed
+        if (isExistingUser) {
+            return Either.success(new Username({ value }));
+        }
+
         const requiredError = validateRequired(value, "Please provide a username");
 
         if (requiredError) {
