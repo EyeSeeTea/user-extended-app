@@ -41,7 +41,6 @@ function generateTableConfig(
     });
 
     return {
-        allowEmptyColumns: false,
         actions: [],
         columns: allColumns,
         initialSorting: { field: "name", order: "asc" },

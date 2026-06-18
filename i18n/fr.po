@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-04-20T07:39:29.194Z\n"
+"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -899,14 +899,6 @@ msgstr "Erreur lors de la réplication de l'utilisateur {{user}} : {{message}}"
 #, fuzzy
 msgid "Error in template: {{message}}"
 msgstr "Erreur lors de la réplication de l'utilisateur {{user}} : {{message}}"
-
-msgid "There are {{count}} items selected on this page."
-msgid_plural "There are {{count}} items selected on this page."
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "Clear selection"
-msgstr ""
 
 msgid "Table exported: {{filename}}"
 msgstr "Tableau exporté : {{filename}}"

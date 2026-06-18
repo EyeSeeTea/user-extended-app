@@ -41,7 +41,6 @@ function generateTableConfig(dashboardColumns: DashboardColumnSetting[], user: U
     });
 
     return {
-        allowEmptyColumns: false,
         actions: [],
         columns: allColumns,
         initialSorting: { field: "name", order: "asc" },
