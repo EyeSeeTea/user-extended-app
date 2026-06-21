@@ -28,13 +28,13 @@ export class Username extends ValueObject<UsernameProps> {
             return Either.error([requiredError]);
         }
 
-        const startError = validateNotRegexp(value, /^[._@-]|[._@-]$/, "Username cannot start or end with a separator");
+        // DHIS2 accepts usernames starting with a dot, so existing users
+        // with such usernames must remain editable through this app.
+        const startEndRegex = isExistingUser ? /^[_@-]|[._@-]$/ : /^[._@-]|[._@-]$/;
+        const startError = validateNotRegexp(value, startEndRegex, "Username cannot start or end with a separator");
         const doubleError = validateNotRegexp(value, /([._@-]){2,}/, "Username cannot have two separators in a row");
-
-        // Existing users skip the character-set check: DHIS2 itself accepts
-        // characters outside this set, so legacy accounts already in the
-        // database may contain them — blocking here would make those users
-        // unreadable/uneditable through this app.
+        // Existing users also skip the character-set check: DHIS2 accepts
+        // characters outside this set, so legacy accounts may contain them.
         const charError = isExistingUser
             ? undefined
             : validateRegexp(value, /^[a-zA-Z0-9._@-]+$/, "Username can only include . _ - or @ as separators");
