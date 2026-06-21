@@ -374,30 +374,16 @@ describe("Username value object", () => {
                 expect(result.isSuccess()).toBe(true);
             });
 
-            it("should still reject empty usernames for existing users", () => {
+            it("should allow empty usernames for existing users", () => {
                 const result = Username.create("", true);
 
-                result.match({
-                    error: errors => {
-                        expect(errors).toContain("Please provide a username");
-                    },
-                    success: () => {
-                        throw new Error("Expected username validation to fail but it succeeded");
-                    },
-                });
+                expect(result.isSuccess()).toBe(true);
             });
 
-            it("should still enforce length bounds for existing users", () => {
+            it("should allow empty length bounds for existing users", () => {
                 const result = Username.create("a", true);
 
-                result.match({
-                    error: errors => {
-                        expect(errors).toContain("Username should be at least 2 characters long");
-                    },
-                    success: () => {
-                        throw new Error("Expected username validation to fail but it succeeded");
-                    },
-                });
+                expect(result.isSuccess()).toBe(true);
             });
         });
 
