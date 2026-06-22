@@ -27,7 +27,7 @@ export class AppSettingsD2ConstantRepository implements AppSettingsRepository {
             })
         ).flatMap(response => {
             const d2Constant = response.objects[0];
-            const name = "User extended app settings storage";
+            const name = "User Extended settings storage";
             const constantToSave = {
                 ...(d2Constant || {}),
                 id: d2Constant?.id ?? getUid("appsettings"),

@@ -1,5 +1,5 @@
 export const dataStoreNamespace = "user-extended-app";
-export const constantPrefix = "User Extended App Storage";
+export const constantPrefix = "User Extended Storage";
 
 export type Namespace = typeof Namespaces[keyof typeof Namespaces];
 

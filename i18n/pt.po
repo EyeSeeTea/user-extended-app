@@ -931,14 +931,14 @@ msgstr ""
 "GitHub](https://eyeseetea.github.io/user-extended-app-blessed/)"
 
 msgid ""
-"If you wish to contribute to the development of User Extended App with new "
+"If you wish to contribute to the development of User Extended with new "
 "features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com)."
 msgstr ""
-"Se desejar contribuir para o desenvolvimento do User Extended App com novas "
+"Se desejar contribuir para o desenvolvimento do User Extended com novas "
 "funcionalidades, por favor contacte [EyeSeeTea](mailto:hello@eyeseetea.com)."
 
-msgid "About User Extended App"
-msgstr "Sobre o User Extended App"
+msgid "About User Extended"
+msgstr "Sobre o User Extended"
 
 msgid "Samaritan's Purse"
 msgstr "Samaritan's Purse"
