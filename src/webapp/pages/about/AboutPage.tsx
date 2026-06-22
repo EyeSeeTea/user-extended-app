@@ -18,7 +18,7 @@ export const AboutPage: React.FC = React.memo(() => {
             { nsSeparator: false }
         ),
         i18n.t(
-            "If you wish to contribute to the development of User Extended App with new features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com).",
+            "If you wish to contribute to the development of User Extended with new features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com).",
             { nsSeparator: false }
         ),
     ].join("\n\n");
@@ -29,7 +29,7 @@ export const AboutPage: React.FC = React.memo(() => {
 
     return (
         <StyledLanding>
-            <PageHeader title={i18n.t("About User Extended App")} onBackClick={goBack} />
+            <PageHeader title={i18n.t("About User Extended")} onBackClick={goBack} />
             <div className="about-content">
                 <MarkdownViewer source={contents} center={true} />
                 <LogoWrapper>

@@ -74,7 +74,7 @@ export const App: React.FC<AppProps> = React.memo(function App({ api, d2, instan
                     <LoadingProvider>
                         <AppContext.Provider value={appContext}>
                             <AppSettingsProvider>
-                                <HeaderBar appName="User Extended App" />
+                                <HeaderBar appName="User Extended" />
 
                                 <div id="app" className="content">
                                     <Router />
