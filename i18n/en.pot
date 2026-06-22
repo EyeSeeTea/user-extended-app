@@ -863,11 +863,11 @@ msgid ""
 msgstr ""
 
 msgid ""
-"If you wish to contribute to the development of User Extended App with new "
+"If you wish to contribute to the development of User Extended with new "
 "features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com)."
 msgstr ""
 
-msgid "About User Extended App"
+msgid "About User Extended"
 msgstr ""
 
 msgid "Samaritan's Purse"
