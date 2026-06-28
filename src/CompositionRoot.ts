@@ -32,7 +32,6 @@ import { ResetUsersPasswordsUseCase } from "./domain/usecases/ResetUsersPassword
 import { SearchUsersAndUserGroupsUseCase } from "./domain/usecases/SearchUsersAndUserGroupsUseCase";
 import { UserSearchD2Repository } from "./data/repositories/UserSearchD2Repository";
 import { CheckCurrentUserCanAccessSettingsUseCase } from "./domain/usecases/CheckCurrentUserCanAccessSettingsUseCase";
-import { CheckCurrentUserCanAccessImportSettingsUseCase } from "./domain/usecases/CheckCurrentUserCanAccessImportSettingsUseCase";
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { GetAllUserGroupsUseCase } from "./domain/usecases/GetAllUserGroupsUseCase";
 import { GetAllUserRolesUseCase } from "./domain/usecases/GetAllUserRolesUseCase";
@@ -113,10 +112,6 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             setPassword: new SetUserPasswordUseCase(userRepository),
             searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
             checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
-                userRepository,
-                appSettingsRepository
-            ),
-            checkCurrentUserCanAccessImportSettings: new CheckCurrentUserCanAccessImportSettingsUseCase(
                 userRepository,
                 appSettingsRepository
             ),

@@ -43,10 +43,10 @@ export const Router: React.FC = React.memo(() => {
     const [reloadKey, reload] = useReload();
 
     React.useEffect(() => {
-        compositionRoot.users.checkCurrentUserCanAccessSettings().run(setCurrentUserHasAccessToSettings, console.error);
-        compositionRoot.users
-            .checkCurrentUserCanAccessImportSettings()
-            .run(setCurrentUserHasAccessToImportSettings, console.error);
+        compositionRoot.users.checkCurrentUserCanAccessSettings().run(({ accessToSettings, accessToImport }) => {
+            setCurrentUserHasAccessToSettings(accessToSettings);
+            setCurrentUserHasAccessToImportSettings(accessToImport);
+        }, console.error);
     }, [compositionRoot.users]);
 
     const showSettingsIcon = currentUserHasAccessToSettings || currentUserHasAccessToImportSettings;
