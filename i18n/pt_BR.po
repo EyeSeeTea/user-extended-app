@@ -358,15 +358,17 @@ msgstr ""
 "As alterações em 'Quem tem acesso' às configurações serão refletidas após "
 "recarregar a página"
 
-#, fuzzy
 msgid "Access to Import Settings"
-msgstr "Acesso à seção de configurações"
+msgstr "Acesso às configurações de importação"
 
 msgid ""
 "Selected users and user groups will be able to change the import options, "
 "without access to the rest of the settings. Changes will be reflected after "
 "page reload"
 msgstr ""
+"Os usuários e grupos de usuários selecionados poderão alterar as opções de "
+"importação, sem acesso ao restante das configurações. As alterações serão "
+"refletidas após recarregar a página"
 
 msgid "Show only active users"
 msgstr "Mostrar apenas usuários ativos"
