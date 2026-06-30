@@ -1,6 +1,6 @@
 {
     "name": "user-extended-app",
-    "description": "DHIS2 Extended User App",
+    "description": "DHIS2 Extended User app",
     "version": "1.7.2",
     "license": "GPL-3.0",
     "author": "EyeSeeTea team",
