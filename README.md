@@ -1,18 +1,18 @@
- <img height="120" src="https://github.com/EyeSeeTea/user-extended-app-blessed/blob/gh-pages/img/logo.png" alt="User-Extended App Logo">
+ <img height="120" src="https://github.com/EyeSeeTea/user-extended/blob/gh-pages/img/logo.png" alt="User-Extended App Logo">
 
 User Extended is a DHIS2 Web Application part of [EyeSeeTea's DHIS2 Suite](https://eyeseetea.com/dhis2-apps/) that provides a quick, easy and integrated way to perform common operations to DHIS2 users.
 
-[![banner_toedit](https://github.com/EyeSeeTea/user-extended-app-blessed/assets/108925044/49d54508-93f0-4c2f-8583-6f2ee9a3f1d2)](https://eyeseetea.github.io/user-extended-app-blessed/)
+[![banner_toedit](https://github.com/EyeSeeTea/user-extended-app-blessed/assets/108925044/49d54508-93f0-4c2f-8583-6f2ee9a3f1d2)](https://eyeseetea.github.io/user-extended/)
 
 ## Documentation
 
-You can find a detailed user and developer guide [at the wiki](https://github.com/EyeSeeTea/user-extended-app-blessed/wiki) and also our [road map](https://github.com/orgs/EyeSeeTea/projects/47) You can download User Extended from the [DHIS2 App Hub](https://apps.dhis2.org/user/app/1bf66488-93b5-41c8-abfe-1b03b2521a2d)
+You can find a detailed user and developer guide [at the wiki](https://github.com/EyeSeeTea/user-extended/wiki) and also our [road map](https://github.com/orgs/EyeSeeTea/projects/47) You can download User Extended from the [DHIS2 App Hub](https://apps.dhis2.org/user/app/1bf66488-93b5-41c8-abfe-1b03b2521a2d)
 
-For more links, see the [User-Extended App website](https://eyeseetea.github.io/user-extended-app-blessed/)
+For more links, see the [User-Extended App website](https://eyeseetea.github.io/user-extended/)
 
 ## Feedback
 
-We’d like to hear your thoughts on the app in general, improvements, new features or any of the technologies being used. Just drop as a line at community@eyeseetea.com and let us know! If you prefer, you can also [create a new issue](https://github.com/EyeSeeTea/user-extended-app-blessed/issues) on our GitHub repository. Note that you will have to register and be logged in to GitHub to create a new issue.
+We’d like to hear your thoughts on the app in general, improvements, new features or any of the technologies being used. Just drop as a line at community@eyeseetea.com and let us know! If you prefer, you can also [create a new issue](https://github.com/EyeSeeTea/user-extended/issues) on our GitHub repository. Note that you will have to register and be logged in to GitHub to create a new issue.
 
 ## Setup
 
