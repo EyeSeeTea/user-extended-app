@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
-"PO-Revision-Date: 2026-04-15T08:09:38.204Z\n"
+"POT-Creation-Date: 2026-07-21T11:26:58.679Z\n"
+"PO-Revision-Date: 2026-07-21T11:26:58.680Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -168,6 +168,9 @@ msgid "Mandatory"
 msgstr ""
 
 msgid "Copy in user: {{user}}"
+msgstr ""
+
+msgid "Wait until the users list finishes loading"
 msgstr ""
 
 msgid "Select one toggle"
