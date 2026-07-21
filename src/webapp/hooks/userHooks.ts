@@ -94,56 +94,43 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
     return { saveUsersOrgUnits };
 }
 
-export function useGetAllUsers(onlyUsersOrgUnits: boolean) {
+type UseGetAllUserIdentifiersOptions = Readonly<{
+    /** Skip the request entirely while false (default true). */
+    enabled?: boolean;
+    /** Changing this value forces a refetch. */
+    reloadKey?: string;
+}>;
+
+export function useGetAllUserIdentifiers(
+    onlyUsersOrgUnits: boolean,
+    options: UseGetAllUserIdentifiersOptions = {}
+): { userIdentifiers: UserIdentifier[]; isLoading: boolean } {
+    const { enabled = true, reloadKey } = options;
     const { compositionRoot } = useAppContext();
     const { appSettings } = useAppSettingsContext();
-    const [users, setUsers] = React.useState<User[]>();
     const snackbar = useSnackbar();
+    const onlyActiveUsers = appSettings.showOnlyActiveUsers;
+    const hideUsers = appSettings.hide.users;
 
-    React.useMemo(() => {
-        compositionRoot.users
-            .listAll({
-                onlyUsersOrgUnits: onlyUsersOrgUnits,
-                onlyActiveUsers: appSettings.showOnlyActiveUsers,
-                hideUsers: appSettings.hide.users,
-            })
-            .run(
-                allUsers => {
-                    setUsers(allUsers);
-                },
-                error => {
-                    snackbar.error(error);
-                }
-            );
-    }, [appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits, compositionRoot.users, snackbar]);
+    const requestKey = [onlyUsersOrgUnits, onlyActiveUsers, hideUsers, reloadKey].join("-");
+    const [result, setResult] = React.useState<{ key: string; userIdentifiers: UserIdentifier[] }>();
 
-    return { users };
-}
+    React.useEffect(() => {
+        if (!enabled) return;
 
-export function useGetAllUserIdentifiers(onlyUsersOrgUnits: boolean) {
-    const { compositionRoot } = useAppContext();
-    const { appSettings } = useAppSettingsContext();
-    const [userIdentifiers, setUserIdentifiers] = React.useState<UserIdentifier[]>([]);
-    const snackbar = useSnackbar();
+        return compositionRoot.users.listAllIdentifiers({ onlyUsersOrgUnits, onlyActiveUsers, hideUsers }).run(
+            userIdentifiers => setResult({ key: requestKey, userIdentifiers }),
+            error => {
+                snackbar.error(error);
+                setResult({ key: requestKey, userIdentifiers: [] });
+            }
+        );
+    }, [compositionRoot.users, snackbar, enabled, requestKey, onlyUsersOrgUnits, onlyActiveUsers, hideUsers]);
 
-    React.useMemo(() => {
-        compositionRoot.users
-            .listAllIdentifiers({
-                onlyUsersOrgUnits: onlyUsersOrgUnits,
-                onlyActiveUsers: appSettings.showOnlyActiveUsers,
-                hideUsers: appSettings.hide.users,
-            })
-            .run(
-                allUserIdentifiers => {
-                    setUserIdentifiers(allUserIdentifiers);
-                },
-                error => {
-                    snackbar.error(error);
-                }
-            );
-    }, [compositionRoot, snackbar, appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits]);
-
-    return { userIdentifiers };
+    return {
+        userIdentifiers: result?.userIdentifiers ?? [],
+        isLoading: enabled && result?.key !== requestKey,
+    };
 }
 
 export function useCopyInUser(props: UseCopyInUserProps) {

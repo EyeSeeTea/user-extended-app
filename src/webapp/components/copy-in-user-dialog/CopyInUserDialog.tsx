@@ -12,7 +12,7 @@ import { ConfirmationDialog, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { UserIdentifier } from "../../../domain/entities/UserIdentifier";
 
 export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
-    const { onCancel, onSave, user, visible, usersList } = props;
+    const { onCancel, onSave, user, visible, usersList, isLoadingUsers } = props;
 
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>([]);
     const [updateStrategy, setUpdateStrategy] = React.useState<UpdateStrategy>("merge");
@@ -30,7 +30,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
         nsSeparator: false,
     });
 
-    const getOptions = (): Array<{ value: Id; label: string }> => {
+    const options = React.useMemo((): Array<{ value: Id; label: string }> => {
         return _(usersList)
             .reject({ id: user.id }) // Remove user source from target users
             .map(({ id, name, username }) => ({
@@ -38,18 +38,20 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
                 value: id,
             }))
             .value();
-    };
+    }, [usersList, user.id]);
 
     const onDialogSave = React.useCallback(() => {
         // Make sure one accessElements property is truthful
-        if (_.every(accessElements, value => value === false)) {
+        if (isLoadingUsers) {
+            snackbar.error(i18n.t("Wait until the users list finishes loading"));
+        } else if (_.every(accessElements, value => value === false)) {
             snackbar.error(i18n.t("Select one toggle"));
         } else if (_.isEmpty(selectedUsersIds)) {
             snackbar.error(i18n.t("Select at least one user"));
         } else {
             onSave(selectedUsersIds, updateStrategy, accessElements);
         }
-    }, [onSave, selectedUsersIds, updateStrategy, accessElements, snackbar]);
+    }, [onSave, selectedUsersIds, updateStrategy, accessElements, snackbar, isLoadingUsers]);
 
     const onToggleAccessElements = (property: AccessElementsKeys, value: boolean) => {
         setAccessElements({ ...accessElements, [property]: value });
@@ -84,7 +86,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
             </Container>
 
             <Transfer
-                options={getOptions()}
+                options={options}
                 selected={selectedUsersIds}
                 onChange={({ selected }) => {
                     setSelectedUsersIds(selected);
@@ -96,6 +98,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
                 selectedWidth="100%"
                 optionsWidth="100%"
                 height="400px"
+                loading={isLoadingUsers}
             />
 
             <Box display="flex">
@@ -128,13 +131,14 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
     );
 };
 
-export type CopyInUserDialogProps = {
+export type CopyInUserDialogProps = Readonly<{
     onCancel: () => void;
     onSave: (selectedUsersIds: Id[], updateStrategy: UpdateStrategy, accessElements: AccessElements) => void;
     user: UserProps;
     visible: boolean;
-    usersList: UserIdentifier[];
-};
+    usersList: ReadonlyArray<UserIdentifier>;
+    isLoadingUsers: boolean;
+}>;
 
 const Container = styled.div`
     display: flex;

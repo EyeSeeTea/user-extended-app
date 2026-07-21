@@ -136,7 +136,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const userColumns = useUserColumns();
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
-    const { userIdentifiers: allUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
+    const isCopyInUserOpen = isActionTypeCopyInUser(actionType);
+    const { userIdentifiers: allUsers, isLoading: isLoadingAllUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits, {
+        enabled: isCopyInUserOpen,
+        reloadKey: `${reloadKey}-${reloadTableKey}-${routerReloadKey}`,
+    });
     const { appSettings } = useAppSettingsContext();
     const {
         showOnlyActiveUsers: onlyActiveUsers,
@@ -644,10 +648,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 />
             )}
 
-            {actionType && isActionTypeCopyInUser(actionType) && selectedUser && allUsers && (
+            {isCopyInUserOpen && selectedUser && (
                 <CopyInUserDialog
                     user={selectedUser}
                     usersList={allUsers}
+                    isLoadingUsers={isLoadingAllUsers}
                     onCancel={onCleanSelectedUsers}
                     onSave={onSaveCopyInUser}
                     visible
