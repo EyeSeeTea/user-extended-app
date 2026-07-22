@@ -8,12 +8,7 @@ import * as esbuild from "esbuild";
 
 const REDIRECT_PATHS = ["/dhis-web-pivot", "/dhis-web-data-visualizer"];
 
-/**
- * Vite's default "modules" target, with safari14 raised to safari14.1.
- * esbuild >= 0.28 knows Safari 14.0 has a destructuring bug, but it cannot lower
- * destructuring, so it fails instead of transforming. Safari 14.1 is unaffected.
- * Applied to both the dep optimizer and the build, which target them separately.
- */
+/** Vite's default "modules" target, raised to safari14.1: esbuild 0.28+ fails on Safari 14.0's destructuring bug. */
 const ESBUILD_TARGET = ["es2020", "edge88", "firefox78", "chrome87", "safari14.1"];
 
 /** Transform .js files that contain JSX (e.g. src/legacy) so esbuild parses them as JSX. */
