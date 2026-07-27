@@ -45,26 +45,18 @@ type PermissionsPageProps = {
     onSave: (appSettings: AppSettings) => void;
     onClose: () => void;
     permissionsGroup: "users" | "global" | "filter";
+    appSettings: AppSettings;
 };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
-    const { onSave, onClose, permissionsGroup } = props;
+    const { onSave, onClose, permissionsGroup, appSettings } = props;
 
-    const {
-        search,
-        metaObject,
-        onUpdateSharingOptions,
-        permission,
-        importMetaObject,
-        onUpdateImportSharingOptions,
-        importPermission,
-    } = useSharingSettings();
+    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings(appSettings.settingsAccess);
     const {
         formState,
         updateFormState,
         onSaveSettings,
         showSharingSettings,
-        showImportSettingsSharing,
         actionsPermissions,
         setActionsPermissions,
         hideOptions,
@@ -76,7 +68,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         updateUiUserGroupActionsAccess,
         updateUiUserRoleActionsAccess,
         updateUiDashboardActionsAccess,
-    } = usePermissionsPage(onSave, permission, importPermission);
+    } = usePermissionsPage(onSave, permission, appSettings);
 
     const theme = useTheme();
 
@@ -143,41 +135,6 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                     showOptions={sharingOptions}
                                     onSearch={search}
                                     onChange={onUpdateSharingOptions}
-                                />
-                            </Box>
-                        )}
-
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={formState.showImportSettingsSharing}
-                                    onChange={event =>
-                                        updateFormState(event.target.checked, "showImportSettingsSharing")
-                                    }
-                                    disabled={showImportSettingsSharing}
-                                />
-                            }
-                            label={
-                                <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
-                                    {i18n.t("Access to Import Settings")}
-                                    <InfoOutlinedIcon
-                                        fontSize="small"
-                                        color="disabled"
-                                        titleAccess={i18n.t(
-                                            "Selected users and user groups will be able to change the import options, without access to the rest of the settings. Changes will be reflected after page reload"
-                                        )}
-                                    />
-                                </Box>
-                            }
-                        />
-
-                        {formState.showImportSettingsSharing && (
-                            <Box paddingX={theme.spacing(0.25)} marginBottom={2}>
-                                <Sharing
-                                    meta={importMetaObject}
-                                    showOptions={sharingOptions}
-                                    onSearch={search}
-                                    onChange={onUpdateImportSharingOptions}
                                 />
                             </Box>
                         )}

@@ -12,8 +12,13 @@ export class Permission extends Struct<PermissionAttrs>() {
     }
 
     isEmpty(): boolean {
-        return this.users.length === 0 && this.userGroups.length === 0;
+        return isPermissionEmpty(this);
     }
+}
+
+/* An empty whitelist grants no access to anybody */
+export function isPermissionEmpty(permission: PermissionAttrs): boolean {
+    return permission.users.length === 0 && permission.userGroups.length === 0;
 }
 
 /* Acts as a whitelist. If not present or permission users and userGroups are empty, then no access is granted */

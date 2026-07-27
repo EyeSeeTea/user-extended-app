@@ -1,6 +1,5 @@
 import React from "react";
 import { AppSettings, markAllActionsPublic } from "../../../domain/entities/AppSettings";
-import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 import { Id } from "../../../domain/entities/Ref";
 import {
@@ -17,19 +16,15 @@ import {
 export const usePermissionsPage = (
     onSave: (appSettings: AppSettings) => void,
     permission: Permission,
-    importPermission: Permission
+    appSettings: AppSettings
 ) => {
-    const { appSettings } = useAppSettingsContext();
-
     const showSharingSettings = !permission.isEmpty();
-    const showImportSettingsSharing = !importPermission.isEmpty();
     const showHideOptions = !appSettings.isHideUserRelatedConfigurationEmpty();
 
     const [formState, setForm] = React.useState<FormType>({
         activeUsers: appSettings.showOnlyActiveUsers,
         feedbackButton: appSettings.showFeedback,
         showSharingSettings: showSharingSettings,
-        showImportSettingsSharing: showImportSettingsSharing,
         actionsArePublic: appSettings.areAllActionsPublic(),
         showHideOptions: showHideOptions,
         showCustomRootOrgUnits: appSettings.showCustomRootOrgUnits,
@@ -125,7 +120,6 @@ export const usePermissionsPage = (
                 showOnlyActiveUsers: formState.activeUsers,
                 showFeedback: formState.feedbackButton,
                 settingsAccess: permission,
-                importSettingsAccess: importPermission,
                 actionsAccess: formState.actionsArePublic ? markAllActionsPublic() : actionsPermissions,
                 hide: {
                     users: formState.showHideOptions ? usersToHide : [],
@@ -155,7 +149,6 @@ export const usePermissionsPage = (
         formState.uiUserRoleActionsAccess,
         formState.uiDashboardActionsAccess,
         permission,
-        importPermission,
         actionsPermissions,
         usersToHide,
         userGroupsToHide,
@@ -168,7 +161,6 @@ export const usePermissionsPage = (
         updateFormState,
         onSaveSettings,
         showSharingSettings,
-        showImportSettingsSharing,
         actionsPermissions,
         setActionsPermissions,
         rootOrgUnitIds,
@@ -191,7 +183,6 @@ type FormType = {
     activeUsers: boolean;
     feedbackButton: boolean;
     showSharingSettings: boolean;
-    showImportSettingsSharing: boolean;
     actionsArePublic: boolean;
     showHideOptions: boolean;
     showCustomRootOrgUnits: boolean;

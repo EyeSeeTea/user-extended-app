@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AppSettings } from "../../../../domain/entities/AppSettings";
 import { ActionPermission } from "../../../../domain/entities/ActionPermission";
-import { Permission } from "../../../../domain/entities/Permission";
 import { UserAction } from "../../../../domain/entities/UserAction";
 import { mergeAndAddRuntimeProps } from "../appSettingsHelpers";
 
@@ -87,27 +86,24 @@ describe("mergeAndAddRuntimeProps", () => {
         expect(result.uiDashboardActionsAccess.filterOwners).toEqual({ visible: true });
     });
 
-    it("defaults importSettingsAccess to an empty Permission for legacy stored settings", () => {
+    it("defaults organisationUnitsField to 'userDefined' for legacy stored settings", () => {
         const result = mergeAndAddRuntimeProps({});
 
-        expect(result.importSettingsAccess).toBeInstanceOf(Permission);
-        expect(result.importSettingsAccess.users).toEqual([]);
-        expect(result.importSettingsAccess.userGroups).toEqual([]);
+        expect(result.organisationUnitsField).toBe("userDefined");
     });
 
-    it("rebuilds importSettingsAccess as a Permission instance from stored plain object", () => {
-        const stored: Partial<AppSettings> = {
-            importSettingsAccess: {
-                users: [{ id: "user1", name: "User 1" }],
-                userGroups: [{ id: "group1", name: "Group 1" }],
-            } as AppSettings["importSettingsAccess"],
-        };
+    it("preserves a stored organisationUnitsField policy", () => {
+        const result = mergeAndAddRuntimeProps({ organisationUnitsField: "code" });
+
+        expect(result.organisationUnitsField).toBe("code");
+    });
+
+    it("falls back to the default organisationUnitsField when the stored value is unknown", () => {
+        const stored = { organisationUnitsField: "displayName" } as unknown as Partial<AppSettings>;
 
         const result = mergeAndAddRuntimeProps(stored);
 
-        expect(result.importSettingsAccess).toBeInstanceOf(Permission);
-        expect(result.importSettingsAccess.users).toEqual([{ id: "user1", name: "User 1" }]);
-        expect(result.importSettingsAccess.userGroups).toEqual([{ id: "group1", name: "Group 1" }]);
+        expect(result.organisationUnitsField).toBe("userDefined");
     });
 
     it("fills missing actionsAccess entries from defaults", () => {

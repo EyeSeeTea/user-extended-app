@@ -1,5 +1,10 @@
 import _ from "lodash";
-import { AppSettings, injectInternalRules, removeInternalRules } from "../../../domain/entities/AppSettings";
+import {
+    AppSettings,
+    injectInternalRules,
+    parseOrgUnitFieldPolicy,
+    removeInternalRules,
+} from "../../../domain/entities/AppSettings";
 import { Permission } from "../../../domain/entities/Permission";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import { Maybe } from "../../../types/utils";
@@ -14,10 +19,6 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
         ? new Permission(appSettings.settingsAccess)
         : emptySettings.settingsAccess;
 
-    const importSettingsAccess = appSettings.importSettingsAccess
-        ? new Permission(appSettings.importSettingsAccess)
-        : emptySettings.importSettingsAccess;
-
     const storedActionsAccess = appSettings.actionsAccess
         ? _.mapValues(appSettings.actionsAccess, p => new ActionPermission(p))
         : emptySettings.actionsAccess;
@@ -30,8 +31,11 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
         ...emptySettings,
         ...appSettings,
         settingsAccess: settingsAccess,
-        importSettingsAccess: importSettingsAccess,
         actionsAccess: forcedActionsAccess,
+        organisationUnitsField: parseOrgUnitFieldPolicy(
+            appSettings.organisationUnitsField,
+            emptySettings.organisationUnitsField
+        ),
         uiUserGroupActionsAccess: migrateRecord(
             appSettings.uiUserGroupActionsAccess,
             emptySettings.uiUserGroupActionsAccess,

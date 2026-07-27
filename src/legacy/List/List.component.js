@@ -28,7 +28,6 @@ const ListHybridWrapper = props => {
             isSettingInactive={appSettings.status === "inactive"}
             appSettings={appSettings}
             currentUserHasAccessToSettings={currentUserHasAccessToSettings}
-            routerReloadKey={props.reloadKey}
         />
     );
 };
@@ -87,7 +86,6 @@ class ListHybrid extends React.Component {
             },
             isLoading: true,
             sorting: initialSorting,
-            settingsVisible: false,
             visibleColumns: [],
             sharing: {
                 model: null,
@@ -213,13 +211,6 @@ class ListHybrid extends React.Component {
         );
     };
 
-    _openSettings = newSettings => {
-        this.setState(state => ({
-            settingsVisible: false,
-            ...(newSettings ? { settings: newSettings, reloadTableKey: state.reloadTableKey + 1 } : {}),
-        }));
-    };
-
     _updateVisibleColumns = visibleColumns => {
         this.setState({ visibleColumns });
     };
@@ -262,14 +253,12 @@ class ListHybrid extends React.Component {
                     <div style={this.styles.dataTableWrap}>
                         <UserListTable
                             loading={this.state.isLoading}
-                            openSettings={this._openSettings}
                             filters={this.state.filters?.filters}
                             canManage={this.state?.canManage}
                             rootJunction={this.state.filters?.rootJunction}
                             onChangeVisibleColumns={this._updateVisibleColumns}
                             onChangeSearch={this._updateQuery}
                             reloadTableKey={this.state.reloadTableKey}
-                            routerReloadKey={this.props.routerReloadKey}
                             onAction={this._onAction}
                             filterOption={listFilterOptions}
                             onlyUsersOrgUnits={onlyUsersOrgUnits}

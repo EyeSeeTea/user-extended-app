@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-06-11T17:45:32.783Z\n"
+"POT-Creation-Date: 2026-07-27T10:39:32.930Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -148,14 +148,14 @@ msgstr "Copiar para a área de transferência"
 msgid "Close"
 msgstr "Fechar"
 
-msgid "Save"
-msgstr "Guardar"
-
 msgid "Columns to show in table"
 msgstr "Colunas a mostrar na tabela"
 
 msgid "Column"
 msgstr "Coluna"
+
+msgid "Save"
+msgstr "Guardar"
 
 msgid "Disable"
 msgstr "Desativar"
@@ -325,6 +325,18 @@ msgstr "Atribuir funções a {{usernames}}"
 msgid "Assign groups to {{usernames}}"
 msgstr "Atribuir grupos a {{usernames}}"
 
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
+msgstr ""
+
 msgid "Bulk update strategy: {{strategy}}"
 msgstr "Estratégia de atualização em massa: {{strategy}}"
 
@@ -357,18 +369,6 @@ msgid ""
 msgstr ""
 "As alterações em 'Quem tem acesso' às definições serão refletidas após "
 "recarregar a página"
-
-msgid "Access to Import Settings"
-msgstr "Acesso às definições de importação"
-
-msgid ""
-"Selected users and user groups will be able to change the import options, "
-"without access to the rest of the settings. Changes will be reflected after "
-"page reload"
-msgstr ""
-"Os utilizadores e grupos de utilizadores selecionados poderão alterar as "
-"opções de importação, sem acesso ao resto das definições. As alterações "
-"serão refletidas após recarregar a página"
 
 msgid "Show only active users"
 msgstr "Mostrar apenas utilizadores ativos"
@@ -634,12 +634,21 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 #, fuzzy
 msgid "Reset Columns"
 msgstr "Colunas"
+
+msgid "Import settings"
+msgstr ""
 
 msgid "Last updated"
 msgstr "Última atualização"

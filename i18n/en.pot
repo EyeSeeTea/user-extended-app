@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-06-11T17:45:32.783Z\n"
-"PO-Revision-Date: 2026-06-11T17:45:32.783Z\n"
+"POT-Creation-Date: 2026-07-27T10:39:32.930Z\n"
+"PO-Revision-Date: 2026-07-27T10:39:32.931Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -146,13 +146,13 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Columns to show in table"
 msgstr ""
 
 msgid "Column"
+msgstr ""
+
+msgid "Save"
 msgstr ""
 
 msgid "Disable"
@@ -323,6 +323,18 @@ msgstr ""
 msgid "Assign groups to {{usernames}}"
 msgstr ""
 
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
+msgstr ""
+
 msgid "Bulk update strategy: {{strategy}}"
 msgstr ""
 
@@ -351,15 +363,6 @@ msgid "Access to Settings Section"
 msgstr ""
 
 msgid "Changes on 'Who has access' to settings will be reflected after page reload"
-msgstr ""
-
-msgid "Access to Import Settings"
-msgstr ""
-
-msgid ""
-"Selected users and user groups will be able to change the import options, "
-"without access to the rest of the settings. Changes will be reflected after "
-"page reload"
 msgstr ""
 
 msgid "Show only active users"
@@ -603,10 +606,19 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 msgid "Reset Columns"
+msgstr ""
+
+msgid "Import settings"
 msgstr ""
 
 msgid "Last updated"

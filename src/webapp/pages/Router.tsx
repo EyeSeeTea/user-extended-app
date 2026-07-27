@@ -14,9 +14,6 @@ import { UserGroupTable } from "../components/user-group-table/UserGroupTable";
 import { TabsMenu } from "../components/tabs-menu/TabsMenu";
 import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
 import { SettingsDialogModal } from "../components/settings-dialog-modal/SettingsDialogModal";
-import Settings from "$/legacy/models/settings";
-import { Maybe } from "$/types/utils";
-import { useReload } from "../hooks/useReload";
 
 const TabWrapper = ({
     children,
@@ -35,21 +32,14 @@ const TabWrapper = ({
 );
 
 export const Router: React.FC = React.memo(() => {
-    const { api, currentUser, compositionRoot, d2 } = useAppContext();
+    const { api, currentUser, compositionRoot } = useAppContext();
     const [currentUserHasAccessToSettings, setCurrentUserHasAccessToSettings] = React.useState(false);
-    const [currentUserHasAccessToImportSettings, setCurrentUserHasAccessToImportSettings] = React.useState(false);
     const [showSettings, setShowSettings] = React.useState(false);
     const { appSettings, setAppSettings } = useAppSettingsContext();
-    const [reloadKey, reload] = useReload();
 
     React.useEffect(() => {
-        compositionRoot.users.checkCurrentUserCanAccessSettings().run(({ accessToSettings, accessToImport }) => {
-            setCurrentUserHasAccessToSettings(accessToSettings);
-            setCurrentUserHasAccessToImportSettings(accessToImport);
-        }, console.error);
+        compositionRoot.users.checkCurrentUserCanAccessSettings().run(setCurrentUserHasAccessToSettings, console.error);
     }, [compositionRoot.users]);
-
-    const showSettingsIcon = currentUserHasAccessToSettings || currentUserHasAccessToImportSettings;
 
     const updateAppSettings = React.useCallback(
         newAppSettings => {
@@ -63,16 +53,9 @@ export const Router: React.FC = React.memo(() => {
         setShowSettings(true);
     }, []);
 
-    const closeSettings = React.useCallback(
-        (settings: Maybe<Settings>) => {
-            setShowSettings(false);
-
-            if (settings) {
-                reload();
-            }
-        },
-        [reload]
-    );
+    const closeSettings = React.useCallback(() => {
+        setShowSettings(false);
+    }, []);
 
     return (
         <HashRouter>
@@ -85,8 +68,8 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/"
                     element={
-                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
-                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} reloadKey={reloadKey} />
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
+                            <ListHybrid api={api} params={{ modelType: "users", currentUser }} />
                         </TabWrapper>
                     }
                 />
@@ -94,7 +77,7 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/dashboards"
                     element={
-                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
                             <DashboardTable appSettings={appSettings} />
                         </TabWrapper>
                     }
@@ -103,7 +86,7 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/user-roles"
                     element={
-                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
                             <UserRoleTable appSettings={appSettings} />
                         </TabWrapper>
                     }
@@ -112,7 +95,7 @@ export const Router: React.FC = React.memo(() => {
                 <Route
                     path="/user-groups"
                     element={
-                        <TabWrapper showSettingsIcon={showSettingsIcon} onClickSettings={openSettings}>
+                        <TabWrapper showSettingsIcon={currentUserHasAccessToSettings} onClickSettings={openSettings}>
                             <UserGroupTable appSettings={appSettings} />
                         </TabWrapper>
                     }
@@ -122,14 +105,8 @@ export const Router: React.FC = React.memo(() => {
                 <About icon="about" visible={true} />
             </IconsContainer>
 
-            {showSettings && showSettingsIcon && (
-                <SettingsDialogModal
-                    d2={d2}
-                    onClose={closeSettings}
-                    onCloseAppSettings={updateAppSettings}
-                    canAccessFullSettings={currentUserHasAccessToSettings}
-                    canAccessImportSettings={currentUserHasAccessToImportSettings}
-                />
+            {showSettings && currentUserHasAccessToSettings && (
+                <SettingsDialogModal onClose={closeSettings} onCloseAppSettings={updateAppSettings} />
             )}
         </HashRouter>
     );

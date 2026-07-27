@@ -2,11 +2,12 @@ import React from "react";
 import { MetaObject, SharedObject, ShareUpdate, SharingRule } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
 import { NamedRef } from "../../../domain/entities/Ref";
-import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 
-function usePermissionState(initial: Permission) {
-    const [permission, setPermission] = React.useState<Permission>(initial);
+export function useSharingSettings(settingsAccess: Permission) {
+    const { compositionRoot } = useAppContext();
+
+    const [permission, setPermission] = React.useState<Permission>(settingsAccess);
 
     const sharedObject: SharedObject = React.useMemo(
         () => ({
@@ -18,30 +19,6 @@ function usePermissionState(initial: Permission) {
     );
 
     const metaObject: MetaObject = React.useMemo(() => ({ object: sharedObject }), [sharedObject]);
-
-    const onUpdateSharingOptions = React.useCallback(
-        /* Marked async only because it is typed that way on the Sharing props */
-        async ({ userAccesses, userGroupAccesses }: ShareUpdate) => {
-            setPermission(
-                permissions =>
-                    new Permission({
-                        users: userAccesses ? mapAccessPermission(userAccesses) : permissions.users,
-                        userGroups: userGroupAccesses ? mapAccessPermission(userGroupAccesses) : permissions.userGroups,
-                    })
-            );
-        },
-        [setPermission]
-    );
-
-    return { permission, metaObject, onUpdateSharingOptions };
-}
-
-export function useSharingSettings() {
-    const { compositionRoot } = useAppContext();
-    const { appSettings } = useAppSettingsContext();
-
-    const settings = usePermissionState(appSettings.settingsAccess);
-    const importSettings = usePermissionState(appSettings.importSettingsAccess);
 
     const search = React.useCallback(
         (query: string) =>
@@ -58,14 +35,25 @@ export function useSharingSettings() {
         [compositionRoot]
     );
 
+    const onUpdateSharingOptions = React.useCallback(
+        /* Marked async only because it is typed that way on the Sharing props */
+        async ({ userAccesses, userGroupAccesses }: ShareUpdate) => {
+            setPermission(
+                permissions =>
+                    new Permission({
+                        users: userAccesses ? mapAccessPermission(userAccesses) : permissions.users,
+                        userGroups: userGroupAccesses ? mapAccessPermission(userGroupAccesses) : permissions.userGroups,
+                    })
+            );
+        },
+        [setPermission]
+    );
+
     return {
-        search,
-        metaObject: settings.metaObject,
-        onUpdateSharingOptions: settings.onUpdateSharingOptions,
-        permission: settings.permission,
-        importMetaObject: importSettings.metaObject,
-        onUpdateImportSharingOptions: importSettings.onUpdateSharingOptions,
-        importPermission: importSettings.permission,
+        metaObject: metaObject,
+        permission: permission,
+        onUpdateSharingOptions: onUpdateSharingOptions,
+        search: search,
     };
 }
 
