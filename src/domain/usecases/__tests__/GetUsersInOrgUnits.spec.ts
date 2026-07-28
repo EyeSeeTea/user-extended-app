@@ -9,7 +9,10 @@ import { UserSimple } from "../../entities/UserSimple";
 import { defaultUserProps, UserProps } from "../../entities/UserProps";
 import { GetUsersInOrgUnits } from "../GetUsersInOrgUnits";
 
-const HIDDEN_USER_ID = "hidden-user-id";
+const CURRENT_USER_ID = "DMvCHs61lV8";
+const HIDDEN_USER_ID = "QXlprxPrPch";
+const CHILD_USER = { id: "Z6hRCCmyq9f", username: "uxa-user-child", name: "Child UXA" };
+const GRANDCHILD_USER = { id: "hExxx7jjwGL", username: "uxa-user-grandchild", name: "Grandchild UXA" };
 
 let userRepositoryMock: UserD2ApiRepository;
 let appSettingsRepositoryMock: AppSettingsD2Repository;
@@ -60,29 +63,26 @@ describe("GetUsersInOrgUnits", () => {
     describe("returned users", () => {
         it("should map every identifier to the entry rendered by the users filter dropdown", async () => {
             givenAppSettings();
-            givenUsers([
-                new UserIdentifier({ id: "id-child", username: "user-child", name: "Child User" }),
-                new UserIdentifier({ id: "id-grandchild", username: "user-grandchild", name: "Grandchild User" }),
-            ]);
+            givenUsers([new UserIdentifier(CHILD_USER), new UserIdentifier(GRANDCHILD_USER)]);
 
             const users = await getUsersInOrgUnits.execute(givenACurrentUser()).toPromise();
 
             expect(users).toEqual([
                 UserSimple.create({
-                    id: "id-child",
-                    name: "Child User",
-                    firstName: "Child User",
+                    id: CHILD_USER.id,
+                    name: CHILD_USER.name,
+                    firstName: CHILD_USER.name,
                     lastName: "",
                     email: "",
-                    username: "user-child",
+                    username: CHILD_USER.username,
                 }),
                 UserSimple.create({
-                    id: "id-grandchild",
-                    name: "Grandchild User",
-                    firstName: "Grandchild User",
+                    id: GRANDCHILD_USER.id,
+                    name: GRANDCHILD_USER.name,
+                    firstName: GRANDCHILD_USER.name,
                     lastName: "",
                     email: "",
-                    username: "user-grandchild",
+                    username: GRANDCHILD_USER.username,
                 }),
             ]);
         });
@@ -90,8 +90,7 @@ describe("GetUsersInOrgUnits", () => {
 });
 
 function givenACurrentUser(): UserProps {
-    // Not a super admin: `AppSettings.validateUserAndBuild` resets `hide` for users with "ALL".
-    return { ...defaultUserProps, id: "current-user-id", authorities: ["F_USER_ADD"] };
+    return { ...defaultUserProps, id: CURRENT_USER_ID, authorities: ["F_USER_ADD"] };
 }
 
 function givenAppSettings(options: { hiddenUserIds?: Id[]; showOnlyActiveUsers?: boolean } = {}): void {
