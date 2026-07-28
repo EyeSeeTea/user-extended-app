@@ -48,8 +48,10 @@ export class GetColumnsPreferencesUseCase {
     ): Maybe<Column> {
         switch (columnConfig.value) {
             case "disabled":
-                // Disabled columns are excluded from the result
-                return undefined;
+                // Excluded from the result, except for super admins: they get it as an optional column
+                return isSuperAdmin
+                    ? existingColumn ?? this.buildColumn(columnConfig.field, "unselected", -1)
+                    : undefined;
 
             case "optional":
                 // If exists in preferences, respect its state; otherwise add as unselected
@@ -78,9 +80,9 @@ export class GetColumnsPreferencesUseCase {
 /*
 Column configuration rules:
 
-1. "disabled": Always excluded from the result, regardless of userColumnsPreferences
+1. "disabled": Excluded from the result, regardless of userColumnsPreferences
 
-2. "optional": 
+2. "optional":
    - If exists in userColumnsPreferences: preserve its state
    - If NOT exists: add as "unselected"
 
@@ -89,6 +91,9 @@ Column configuration rules:
    - If NOT exists: add as "selected"
 
 4. "mandatory": Always added as "selected-disabled", ignoring userColumnsPreferences
+
+Super admins are not subject to the restrictive rules: "disabled" columns are added as if they
+were "optional", and "mandatory" ones keep the state stored in userColumnsPreferences instead of being locked.
 
 Settings example:
 [
@@ -113,7 +118,17 @@ Result:
  "email" -> selected (visible, preserved from preferences)
  "groups" -> selected (visible, not in preferences so default to selected)
  "roles" -> selected-disabled (mandatory, always this state)
- "apiUrl" -> EXCLUDED (disabled, always excluded)
+ "apiUrl" -> EXCLUDED (disabled)
+ "firstName" -> unselected (optional, preserved from preferences)
+]
+
+Result for a super admin:
+[
+ "id" -> selected (mandatory, not in preferences so default to selected)
+ "email" -> selected (visible, preserved from preferences)
+ "groups" -> selected (visible, not in preferences so default to selected)
+ "roles" -> selected (mandatory, not in preferences so default to selected)
+ "apiUrl" -> selected (disabled, preserved from preferences)
  "firstName" -> unselected (optional, preserved from preferences)
 ]
  */

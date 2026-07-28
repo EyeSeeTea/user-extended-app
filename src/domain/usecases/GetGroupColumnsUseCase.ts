@@ -47,8 +47,10 @@ export class GetGroupColumnsUseCase {
     ): Maybe<GroupColumnSetting> {
         switch (columnConfig.value) {
             case "disabled":
-                // Disabled columns are excluded from the result
-                return undefined;
+                // Excluded from the result, except for super admins: they get it as an optional column
+                return isSuperAdmin
+                    ? existingColumn ?? this.buildColumn(columnConfig.field, "unselected", -1)
+                    : undefined;
 
             case "optional":
                 // If exists in preferences, respect its state; otherwise add as unselected
