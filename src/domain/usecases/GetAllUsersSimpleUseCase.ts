@@ -4,6 +4,7 @@ import { UserProps } from "../entities/UserProps";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
 import { UserRepository } from "../repositories/UserRepository";
 import { getAppSettings } from "./common/settings";
+import { toUserSimple } from "./common/userSimple";
 
 /** Lists every user visible to the API, excluding ids in app settings `hide.users` (same idea as {@link GetUsersInOrgUnits}). */
 export class GetAllUsersSimpleUseCase {
@@ -17,18 +18,7 @@ export class GetAllUsersSimpleUseCase {
                     onlyActiveUsers: false,
                     hideUsers: appSettings.hide.users,
                 })
-                .map(identifiers =>
-                    identifiers.map(identifier =>
-                        UserSimple.create({
-                            id: identifier.id,
-                            name: identifier.name,
-                            firstName: identifier.name,
-                            lastName: "",
-                            email: "",
-                            username: identifier.username,
-                        })
-                    )
-                );
+                .map(identifiers => identifiers.map(toUserSimple));
         });
     }
 }
