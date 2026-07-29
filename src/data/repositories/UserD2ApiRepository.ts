@@ -23,7 +23,14 @@ import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
 import { Codec, exactly, string } from "purify-ts";
 import i18n from "../../utils/i18n";
-import { buildUserWithoutPassword, chunkRequest, getDiffUserIdsByGroup, getErrorFromResponse } from "../utils";
+import {
+    buildUserToSave,
+    buildUserWithoutPassword,
+    chunkRequest,
+    ExistingApiUser,
+    getDiffUserIdsByGroup,
+    getErrorFromResponse,
+} from "../utils";
 import { getLanguage } from "../../domain/utils/getLanguage";
 import { validationErrorsToString } from "../../domain/utils/validationErrorsToString";
 import { GET_USERS_BY_IDS_CHUNK_SIZE, LIST_ALL_USERS_PAGE_SIZE } from "../../domain/utils/limits";
@@ -482,7 +489,7 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
+    private getFullUsers(options: ListOptions): FutureData<ExistingApiUser[]> {
         const {
             page,
             pageSize,
@@ -497,11 +504,7 @@ export class UserD2ApiRepository implements UserRepository {
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
-                fields: {
-                    ...fields,
-                    ...ownerFields,
-                    userCredentials: { ...fields.userCredentials, passwordLastUpdated: true, $all: true },
-                },
+                fields: savePrefetchFields,
                 page,
                 pageSize,
                 paging: false,
@@ -567,7 +570,7 @@ export class UserD2ApiRepository implements UserRepository {
                         const existingUser = existingUsers.find(user => user.id === userId);
                         const user = users.find(user => user.id === userId);
                         if (!user) return undefined;
-                        return this.buildUsersToSave(existingUser, user);
+                        return buildUserToSave(existingUser, user);
                     })
                     .compact()
                     .value();
@@ -601,49 +604,6 @@ export class UserD2ApiRepository implements UserRepository {
             const d2ApiTracker = new D2ApiLogger(this.api);
             return d2ApiTracker.buildLogger(currentUser);
         });
-    }
-
-    private buildUsersToSave(existingUser: Maybe<ApiUser>, user: ApiUser) {
-        const shouldSendPassword = Boolean(user.userCredentials.password);
-        const rootOpenId = user.openId;
-        const rootLdapId = user.ldapId;
-        const effectiveOpenId = rootOpenId ?? user.userCredentials.openId;
-        const effectiveLdapId = rootLdapId ?? user.userCredentials.ldapId;
-
-        const shouldSendOpenId = effectiveOpenId !== undefined && effectiveOpenId !== "";
-        const shouldSendLdapId = effectiveLdapId !== undefined && effectiveLdapId !== "";
-        const shouldSendAccountExpiry =
-            user.userCredentials.accountExpiry !== undefined && user.userCredentials.accountExpiry !== "";
-        const shouldSendTwoFA = user.userCredentials.twoFA === true;
-        // Strip twoFA from the credentials spread so the shouldSendTwoFA guard below actually
-        // controls it — otherwise the spread would inject twoFA:false and disable 2FA on save.
-        const { twoFA: _stripTwoFA, ...userCredentialsWithoutTwoFA } = user.userCredentials;
-
-        return {
-            ...(existingUser || {}),
-            ...user,
-            // Dual-write: send these fields both at root level (required by DHIS2 2.42+, where
-            // the userCredentials schema was removed) and inside userCredentials (required by
-            // ≤2.41, which also has a 2.38 bug where root-level alone is ignored). On 2.42 the
-            // userCredentials block is silently ignored by the server. See getIs242Plus() for
-            // the version detection used by filters and list fields.
-            userRoles: user.userRoles,
-            username: user.username,
-            disabled: user.disabled ?? user.userCredentials.disabled,
-            ...(shouldSendOpenId ? { openId: effectiveOpenId } : {}),
-            ...(shouldSendLdapId ? { ldapId: effectiveLdapId } : {}),
-            ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
-            userCredentials: {
-                ...(existingUser || {}).userCredentials,
-                ...userCredentialsWithoutTwoFA,
-                id: user.id,
-                ...(shouldSendOpenId ? { openId: effectiveOpenId } : {}),
-                ...(shouldSendLdapId ? { ldapId: effectiveLdapId } : {}),
-                ...(shouldSendPassword ? { password: user.userCredentials.password } : {}),
-                ...(shouldSendAccountExpiry ? { accountExpiry: user.userCredentials.accountExpiry } : {}),
-                ...(shouldSendTwoFA ? { twoFA: true } : {}),
-            },
-        };
     }
 
     //TODO: this method should be an use case or part of a existed use case because contains application business rules
@@ -1084,7 +1044,7 @@ const orgUnitsFields = { id: true, name: true, code: true, path: true } as const
 const auditFields = {
     createdBy: { id: true, displayName: true },
     lastUpdatedBy: { id: true, displayName: true },
-};
+} as const;
 
 const fields = {
     id: true,
@@ -1135,20 +1095,14 @@ const fields = {
     },
 } as const;
 
-const ownerFields = {
-    createdBy: { id: true, code: true, name: true, displayName: true, username: true },
-    lastUpdatedBy: { id: true, code: true, name: true, displayName: true, username: true },
-    username: true,
-    externalAuth: true,
-    cogsDimensionConstraints: true,
-    catDimensionConstraints: true,
-    lastLogin: true,
-    passwordLastUpdated: true,
-    selfRegistered: true,
-    invitation: true,
-    disabled: true,
-    attributeValues: true,
-    userRoles: { id: true, name: true, authorities: true },
+/** POST /api/metadata defaults to mergeMode=REPLACE: the server nulls each owned property that the
+ * payload omits. Request $owner, not a whitelist, to keep the properties the app does not map, such
+ * as verifiedEmail. `fields` adds what $owner does not return. */
+export const savePrefetchFields = {
+    $owner: true,
+    ...fields,
+    ...auditFields,
+    userCredentials: { ...fields.userCredentials, passwordLastUpdated: true, $all: true },
 } as const;
 
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
