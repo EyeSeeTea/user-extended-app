@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
-"PO-Revision-Date: 2026-04-15T08:09:38.204Z\n"
+"POT-Creation-Date: 2026-07-31T18:04:36.331Z\n"
+"PO-Revision-Date: 2026-07-31T18:04:36.331Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -134,10 +134,20 @@ msgstr ""
 msgid "Usernames must be unique"
 msgstr ""
 
+msgid ""
+"You are not allowed to reset the password of users outside your "
+"organisation units"
+msgstr ""
+
 msgid "Not all users have emails"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"
+msgstr ""
+
+msgid ""
+"You are not allowed to set the password of users outside your organisation "
+"units"
 msgstr ""
 
 msgid "Copy to clipboard"
@@ -357,6 +367,16 @@ msgid "Show only active users"
 msgstr ""
 
 msgid "Show only users assigned to users organisation units"
+msgstr ""
+
+msgid "Limit password actions to users' organisation units and below"
+msgstr ""
+
+msgid ""
+"'Set password' and 'Reset password' will only be available for users "
+"assigned to the logged user's data capture organisation units or below. "
+"This restriction also applies to users and user groups granted the action "
+"explicitly, but not to super users."
 msgstr ""
 
 msgid "Hide users, user roles and user groups"

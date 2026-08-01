@@ -29,6 +29,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         showHideOptions: showHideOptions,
         showCustomRootOrgUnits: appSettings.showCustomRootOrgUnits,
         showOnlyUsersInTheirOrgUnits: appSettings.showOnlyUsersInTheirOrgUnits,
+        limitPasswordActionsToUserOrgUnits: appSettings.limitPasswordActionsToUserOrgUnits,
         uiUserActionsAccess: appSettings.uiUserActionsAccess,
         uiUserGroupActionsAccess: appSettings.uiUserGroupActionsAccess,
         uiUserRoleActionsAccess: appSettings.uiUserRoleActionsAccess,
@@ -129,6 +130,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
                 showCustomRootOrgUnits: formState.showCustomRootOrgUnits,
                 rootOrgUnitIds: rootOrgUnitIds,
                 showOnlyUsersInTheirOrgUnits: formState.showOnlyUsersInTheirOrgUnits,
+                limitPasswordActionsToUserOrgUnits: formState.limitPasswordActionsToUserOrgUnits,
                 uiUserActionsAccess: formState.uiUserActionsAccess,
                 uiUserGroupActionsAccess: formState.uiUserGroupActionsAccess,
                 uiUserRoleActionsAccess: formState.uiUserRoleActionsAccess,
@@ -144,6 +146,7 @@ export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, p
         formState.showCustomRootOrgUnits,
         formState.actionsArePublic,
         formState.showOnlyUsersInTheirOrgUnits,
+        formState.limitPasswordActionsToUserOrgUnits,
         formState.uiUserActionsAccess,
         formState.uiUserGroupActionsAccess,
         formState.uiUserRoleActionsAccess,
@@ -187,6 +190,7 @@ type FormType = {
     showHideOptions: boolean;
     showCustomRootOrgUnits: boolean;
     showOnlyUsersInTheirOrgUnits: boolean;
+    limitPasswordActionsToUserOrgUnits: boolean;
     uiUserActionsAccess: UserUiActionAccess;
     uiUserGroupActionsAccess: UserGroupUiActionAccess;
     uiUserRoleActionsAccess: UserRoleUiActionAccess;

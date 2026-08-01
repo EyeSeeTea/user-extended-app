@@ -167,6 +167,32 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                         <FormControlLabel
                             control={
                                 <Switch
+                                    checked={formState.limitPasswordActionsToUserOrgUnits}
+                                    onChange={event =>
+                                        updateFormState(event.target.checked, "limitPasswordActionsToUserOrgUnits")
+                                    }
+                                />
+                            }
+                            label={
+                                <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
+                                    {i18n.t("Limit password actions to users' organisation units and below")}
+                                    <InfoOutlinedIcon
+                                        fontSize="small"
+                                        color="disabled"
+                                        titleAccess={i18n.t(
+                                            "'Set password' and 'Reset password' will only be available for users assigned to the logged user's data capture organisation units or below. This restriction also applies to users and user groups granted the action explicitly, but not to super users.",
+                                            {
+                                                nsSeparator: false,
+                                            }
+                                        )}
+                                    />
+                                </Box>
+                            }
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Switch
                                     checked={formState.showHideOptions}
                                     onChange={event => updateFormState(event.target.checked, "showHideOptions")}
                                 />

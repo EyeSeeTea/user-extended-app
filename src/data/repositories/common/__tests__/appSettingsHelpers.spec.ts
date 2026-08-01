@@ -86,6 +86,20 @@ describe("mergeAndAddRuntimeProps", () => {
         expect(result.uiDashboardActionsAccess.filterOwners).toEqual({ visible: true });
     });
 
+    it("defaults limitPasswordActionsToUserOrgUnits to false when not stored", () => {
+        const storedWithoutSetting: Partial<AppSettings> = { showOnlyActiveUsers: true };
+
+        const result = mergeAndAddRuntimeProps(storedWithoutSetting);
+
+        expect(result.limitPasswordActionsToUserOrgUnits).toBe(false);
+    });
+
+    it("keeps limitPasswordActionsToUserOrgUnits when stored", () => {
+        const result = mergeAndAddRuntimeProps({ limitPasswordActionsToUserOrgUnits: true });
+
+        expect(result.limitPasswordActionsToUserOrgUnits).toBe(true);
+    });
+
     it("fills missing actionsAccess entries from defaults", () => {
         const defaults = AppSettings.defaultSettings("active");
         const partialActionsAccess = { ...defaults.actionsAccess };

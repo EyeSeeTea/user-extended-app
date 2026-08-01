@@ -149,7 +149,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         onChangeVisibleColumns,
     });
 
-    const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess);
+    const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(
+        currentUser,
+        appSettings.actionsAccess,
+        appSettings.limitPasswordActionsToUserOrgUnits
+    );
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
