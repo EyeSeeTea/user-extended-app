@@ -94,43 +94,36 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
     return { saveUsersOrgUnits };
 }
 
-type UseGetAllUserIdentifiersOptions = Readonly<{
-    /** Skip the request entirely while false (default true). */
-    enabled?: boolean;
-    /** Changing this value forces a refetch. */
-    reloadKey?: string;
-}>;
-
-export function useGetAllUserIdentifiers(
-    onlyUsersOrgUnits: boolean,
-    options: UseGetAllUserIdentifiersOptions = {}
-): { userIdentifiers: UserIdentifier[]; isLoading: boolean } {
-    const { enabled = true, reloadKey } = options;
+export function useGetAllUserIdentifiers(onlyUsersOrgUnits: boolean): {
+    userIdentifiers: UserIdentifier[];
+    isLoading: boolean;
+} {
     const { compositionRoot } = useAppContext();
     const { appSettings } = useAppSettingsContext();
     const snackbar = useSnackbar();
     const onlyActiveUsers = appSettings.showOnlyActiveUsers;
     const hideUsers = appSettings.hide.users;
 
-    const requestKey = [onlyUsersOrgUnits, onlyActiveUsers, hideUsers, reloadKey].join("-");
-    const [result, setResult] = React.useState<{ key: string; userIdentifiers: UserIdentifier[] }>();
+    const [userIdentifiers, setUserIdentifiers] = React.useState<UserIdentifier[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
 
     React.useEffect(() => {
-        if (!enabled) return;
+        setIsLoading(true);
 
         return compositionRoot.users.listAllIdentifiers({ onlyUsersOrgUnits, onlyActiveUsers, hideUsers }).run(
-            userIdentifiers => setResult({ key: requestKey, userIdentifiers }),
+            userIdentifiers => {
+                setUserIdentifiers(userIdentifiers);
+                setIsLoading(false);
+            },
             error => {
                 snackbar.error(error);
-                setResult({ key: requestKey, userIdentifiers: [] });
+                setUserIdentifiers([]);
+                setIsLoading(false);
             }
         );
-    }, [compositionRoot.users, snackbar, enabled, requestKey, onlyUsersOrgUnits, onlyActiveUsers, hideUsers]);
+    }, [compositionRoot.users, snackbar, onlyUsersOrgUnits, onlyActiveUsers, hideUsers]);
 
-    return {
-        userIdentifiers: result?.userIdentifiers ?? [],
-        isLoading: enabled && result?.key !== requestKey,
-    };
+    return { userIdentifiers, isLoading };
 }
 
 export function useCopyInUser(props: UseCopyInUserProps) {

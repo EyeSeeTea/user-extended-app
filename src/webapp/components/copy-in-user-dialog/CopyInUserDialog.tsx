@@ -9,10 +9,12 @@ import { Box } from "@material-ui/core";
 import styled from "styled-components";
 import { SegmentedControl, Transfer } from "@dhis2/ui";
 import { ConfirmationDialog, useSnackbar } from "@eyeseetea/d2-ui-components";
-import { UserIdentifier } from "../../../domain/entities/UserIdentifier";
+import { useGetAllUserIdentifiers } from "../../hooks/userHooks";
 
 export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
-    const { onCancel, onSave, user, visible, usersList, isLoadingUsers } = props;
+    const { onCancel, onSave, user, visible, onlyUsersOrgUnits } = props;
+
+    const { userIdentifiers: usersList, isLoading: isLoadingUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
 
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>([]);
     const [updateStrategy, setUpdateStrategy] = React.useState<UpdateStrategy>("merge");
@@ -42,16 +44,14 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
 
     const onDialogSave = React.useCallback(() => {
         // Make sure one accessElements property is truthful
-        if (isLoadingUsers) {
-            snackbar.error(i18n.t("Wait until the users list finishes loading"));
-        } else if (_.every(accessElements, value => value === false)) {
+        if (_.every(accessElements, value => value === false)) {
             snackbar.error(i18n.t("Select one toggle"));
         } else if (_.isEmpty(selectedUsersIds)) {
             snackbar.error(i18n.t("Select at least one user"));
         } else {
             onSave(selectedUsersIds, updateStrategy, accessElements);
         }
-    }, [onSave, selectedUsersIds, updateStrategy, accessElements, snackbar, isLoadingUsers]);
+    }, [onSave, selectedUsersIds, updateStrategy, accessElements, snackbar]);
 
     const onToggleAccessElements = (property: AccessElementsKeys, value: boolean) => {
         setAccessElements({ ...accessElements, [property]: value });
@@ -65,6 +65,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
             open={visible}
             onCancel={onCancel}
             onSave={onDialogSave}
+            disableSave={isLoadingUsers}
         >
             <Container>
                 <Label>{i18n.t("Bulk update strategy: ", { nsSeparator: false })}</Label>
@@ -136,8 +137,7 @@ export type CopyInUserDialogProps = Readonly<{
     onSave: (selectedUsersIds: Id[], updateStrategy: UpdateStrategy, accessElements: AccessElements) => void;
     user: UserProps;
     visible: boolean;
-    usersList: ReadonlyArray<UserIdentifier>;
-    isLoadingUsers: boolean;
+    onlyUsersOrgUnits: boolean;
 }>;
 
 const Container = styled.div`

@@ -25,13 +25,7 @@ import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
-import {
-    useColumnsPreferences,
-    useCopyInUser,
-    useGetAllUserIdentifiers,
-    useGetUsersByIds,
-    useSaveUsersOrgUnits,
-} from "../../hooks/userHooks";
+import { useColumnsPreferences, useCopyInUser, useGetUsersByIds, useSaveUsersOrgUnits } from "../../hooks/userHooks";
 import { MultiSelectorDialog, MultiSelectorDialogProps } from "../multi-selector-dialog/MultiSelectorDialog";
 import { OrgUnitDialogSelector } from "../orgunit-dialog-selector/OrgUnitDialogSelector";
 import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
@@ -137,10 +131,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
     const isCopyInUserOpen = isActionTypeCopyInUser(actionType);
-    const { userIdentifiers: allUsers, isLoading: isLoadingAllUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits, {
-        enabled: isCopyInUserOpen,
-        reloadKey: `${reloadKey}-${reloadTableKey}-${routerReloadKey}`,
-    });
     const { appSettings } = useAppSettingsContext();
     const {
         showOnlyActiveUsers: onlyActiveUsers,
@@ -651,8 +641,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             {isCopyInUserOpen && selectedUser && (
                 <CopyInUserDialog
                     user={selectedUser}
-                    usersList={allUsers}
-                    isLoadingUsers={isLoadingAllUsers}
+                    onlyUsersOrgUnits={onlyUsersOrgUnits}
                     onCancel={onCleanSelectedUsers}
                     onSave={onSaveCopyInUser}
                     visible
