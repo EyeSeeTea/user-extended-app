@@ -45,12 +45,13 @@ type PermissionsPageProps = {
     onSave: (appSettings: AppSettings) => void;
     onClose: () => void;
     permissionsGroup: "users" | "global" | "filter";
+    appSettings: AppSettings;
 };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
-    const { onSave, onClose, permissionsGroup } = props;
+    const { onSave, onClose, permissionsGroup, appSettings } = props;
 
-    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings();
+    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings(appSettings.settingsAccess);
     const {
         formState,
         updateFormState,
@@ -67,7 +68,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         updateUiUserGroupActionsAccess,
         updateUiUserRoleActionsAccess,
         updateUiDashboardActionsAccess,
-    } = usePermissionsPage(onSave, permission);
+    } = usePermissionsPage(onSave, permission, appSettings);
 
     const theme = useTheme();
 
