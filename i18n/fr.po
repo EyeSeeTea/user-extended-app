@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
+"POT-Creation-Date: 2026-07-27T10:39:32.930Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -150,14 +150,14 @@ msgstr "Copier dans le presse-papiers"
 msgid "Close"
 msgstr "Fermer"
 
-msgid "Save"
-msgstr "Enregistrer"
-
 msgid "Columns to show in table"
 msgstr "Colonnes à afficher dans le tableau"
 
 msgid "Column"
 msgstr "Colonne"
+
+msgid "Save"
+msgstr "Enregistrer"
 
 msgid "Disable"
 msgstr "Désactivez"
@@ -327,6 +327,18 @@ msgstr "Assigner des rôles à {{usernames}}"
 
 msgid "Assign groups to {{usernames}}"
 msgstr "Assigner des groupes à {{usernames}}"
+
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
+msgstr ""
 
 msgid "Bulk update strategy: {{strategy}}"
 msgstr "Stratégie de mise à jour en masse : {{strategy}}"
@@ -626,12 +638,21 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 #, fuzzy
 msgid "Reset Columns"
 msgstr "Colonnes"
+
+msgid "Import settings"
+msgstr ""
 
 msgid "Last updated"
 msgstr "Dernière mise à jour"

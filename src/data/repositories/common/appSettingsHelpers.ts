@@ -1,5 +1,10 @@
 import _ from "lodash";
-import { AppSettings, injectInternalRules, removeInternalRules } from "../../../domain/entities/AppSettings";
+import {
+    AppSettings,
+    injectInternalRules,
+    parseOrgUnitFieldPolicy,
+    removeInternalRules,
+} from "../../../domain/entities/AppSettings";
 import { Permission } from "../../../domain/entities/Permission";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import { Maybe } from "../../../types/utils";
@@ -27,6 +32,10 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
         ...appSettings,
         settingsAccess: settingsAccess,
         actionsAccess: forcedActionsAccess,
+        organisationUnitsField: parseOrgUnitFieldPolicy(
+            appSettings.organisationUnitsField,
+            emptySettings.organisationUnitsField
+        ),
         uiUserGroupActionsAccess: migrateRecord(
             appSettings.uiUserGroupActionsAccess,
             emptySettings.uiUserGroupActionsAccess,

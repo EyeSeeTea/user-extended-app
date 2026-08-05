@@ -1,4 +1,5 @@
 import { AppSettings } from "../entities/AppSettings";
+import { isPermissionEmpty } from "../entities/Permission";
 import { Future, FutureData } from "../entities/Future";
 import { AppSettingsRepository } from "../../domain/repositories/AppSettingsRepository";
 
@@ -15,7 +16,7 @@ export class SaveAppSettingsUseCase {
     // Actions must include a selectable rule when users or user groups are assigned
     private validateActionsAccess(appSettings: AppSettings): FutureData<void> {
         const hasEmptyRules = Object.entries(appSettings.actionsAccess).some(([_action, permission]) => {
-            const hasWhitelist = permission.users.length > 0 || permission.userGroups.length > 0;
+            const hasWhitelist = !isPermissionEmpty(permission);
             return hasWhitelist && permission.getSelectableRules().length === 0;
         });
 
