@@ -163,7 +163,7 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                     showUserFilter={isAdmin || appSettings.uiUserGroupActionsAccess.filterUsers.visible}
                     showOrgUnitFilter={isAdmin || appSettings.uiUserGroupActionsAccess.filterUsersInOrgUnit.visible}
                     filterUserLabel={i18n.t("Filter users")}
-                    emptyUsersLabel={i18n.t("Hide not applicable user groups")} 
+                    emptyUsersLabel={i18n.t("Hide not applicable user groups")}
                     showEmptyUsers={
                         isAdmin || appSettings.uiUserGroupActionsAccess.filterHideNotApplicableUserGroups.visible
                     }
