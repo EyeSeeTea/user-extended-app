@@ -163,8 +163,8 @@
         "postinstall": "yarn localize"
     },
     "manifest.webapp": {
-        "name": "User Extended",
-        "description": "User Extended",
+        "name": "User Extended App",
+        "description": "User Extended App",
         "icons": {
             "48": "icon.png"
         },
