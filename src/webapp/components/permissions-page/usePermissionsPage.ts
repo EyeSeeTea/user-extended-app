@@ -1,7 +1,5 @@
-import _ from "lodash";
 import React from "react";
 import { AppSettings, markAllActionsPublic } from "../../../domain/entities/AppSettings";
-import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 import { Id } from "../../../domain/entities/Ref";
 import {
@@ -15,10 +13,12 @@ import {
     UIDashboardActionType,
 } from "../../../domain/entities/FilterUserActionPermission";
 
-export const usePermissionsPage = (onSave: (appSettings: AppSettings) => void, permission: Permission) => {
-    const { appSettings } = useAppSettingsContext();
-
-    const showSharingSettings = !_.isEmpty(permission.users) || !_.isEmpty(permission.userGroups);
+export const usePermissionsPage = (
+    onSave: (appSettings: AppSettings) => void,
+    permission: Permission,
+    appSettings: AppSettings
+) => {
+    const showSharingSettings = !permission.isEmpty();
     const showHideOptions = !appSettings.isHideUserRelatedConfigurationEmpty();
 
     const [formState, setForm] = React.useState<FormType>({

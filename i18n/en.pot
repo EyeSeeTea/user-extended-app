@@ -156,13 +156,13 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Columns to show in table"
 msgstr ""
 
 msgid "Column"
+msgstr ""
+
+msgid "Save"
 msgstr ""
 
 msgid "Disable"
@@ -331,6 +331,18 @@ msgid "Assign roles to {{usernames}}"
 msgstr ""
 
 msgid "Assign groups to {{usernames}}"
+msgstr ""
+
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
 msgstr ""
 
 msgid "Bulk update strategy: {{strategy}}"
@@ -614,10 +626,19 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 msgid "Reset Columns"
+msgstr ""
+
+msgid "Import settings"
 msgstr ""
 
 msgid "Last updated"

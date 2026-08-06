@@ -160,14 +160,14 @@ msgstr "Copier dans le presse-papiers"
 msgid "Close"
 msgstr "Fermer"
 
-msgid "Save"
-msgstr "Enregistrer"
-
 msgid "Columns to show in table"
 msgstr "Colonnes à afficher dans le tableau"
 
 msgid "Column"
 msgstr "Colonne"
+
+msgid "Save"
+msgstr "Enregistrer"
 
 msgid "Disable"
 msgstr "Désactivez"
@@ -337,6 +337,18 @@ msgstr "Assigner des rôles à {{usernames}}"
 
 msgid "Assign groups to {{usernames}}"
 msgstr "Assigner des groupes à {{usernames}}"
+
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
+msgstr ""
 
 msgid "Bulk update strategy: {{strategy}}"
 msgstr "Stratégie de mise à jour en masse : {{strategy}}"
@@ -646,12 +658,21 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 #, fuzzy
 msgid "Reset Columns"
 msgstr "Colonnes"
+
+msgid "Import settings"
+msgstr ""
 
 msgid "Last updated"
 msgstr "Dernière mise à jour"

@@ -158,14 +158,14 @@ msgstr "Copiar para a área de transferência"
 msgid "Close"
 msgstr "Fechar"
 
-msgid "Save"
-msgstr "Guardar"
-
 msgid "Columns to show in table"
 msgstr "Colunas a mostrar na tabela"
 
 msgid "Column"
 msgstr "Coluna"
+
+msgid "Save"
+msgstr "Guardar"
 
 msgid "Disable"
 msgstr "Desativar"
@@ -334,6 +334,18 @@ msgstr "Atribuir funções a {{usernames}}"
 
 msgid "Assign groups to {{usernames}}"
 msgstr "Atribuir grupos a {{usernames}}"
+
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
+msgstr ""
 
 msgid "Bulk update strategy: {{strategy}}"
 msgstr "Estratégia de atualização em massa: {{strategy}}"
@@ -642,12 +654,21 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 #, fuzzy
 msgid "Reset Columns"
 msgstr "Colunas"
+
+msgid "Import settings"
+msgstr ""
 
 msgid "Last updated"
 msgstr "Última atualização"
