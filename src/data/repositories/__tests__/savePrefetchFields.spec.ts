@@ -8,13 +8,18 @@ describe("savePrefetchFields", () => {
         expect(savePrefetchFields.$owner).toEqual(true);
     });
 
-    it("requests the properties that $owner does not return", () => {
+    it("adds the properties that $owner does not return", () => {
+        // The user schema marks these three as not owned.
         expect(Object.keys(savePrefetchFields)).toEqual(
-            expect.arrayContaining(["access", "userGroups", "userCredentials", "organisationUnits", "userRoles"])
+            expect.arrayContaining(["access", "userGroups", "userCredentials"])
         );
     });
 
-    it("asks for org units with the shape the payload needs", () => {
-        expect(getFieldsAsString(savePrefetchFields)).toContain("organisationUnits[code,id,name,path]");
+    it("expands the collections that $owner returns as ids", () => {
+        // $owner owns these collections, but it returns them as [{ id }].
+        const fields = getFieldsAsString(savePrefetchFields);
+
+        expect(fields).toContain("organisationUnits[code,id,name,path]");
+        expect(fields).toContain("userRoles[authorities,id,name]");
     });
 });
