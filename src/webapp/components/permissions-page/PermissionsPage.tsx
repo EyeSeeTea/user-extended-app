@@ -181,10 +181,8 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                         fontSize="small"
                                         color="disabled"
                                         titleAccess={i18n.t(
-                                            "'Set password' and 'Reset password' will only be available for users assigned to the logged user's data capture organisation units or below. This restriction also applies to users and user groups granted the action explicitly, but not to super users.",
-                                            {
-                                                nsSeparator: false,
-                                            }
+                                            "'Set password' and 'Reset password' will only be available for users assigned to the logged user's data capture organisation units or below.",
+                                            { nsSeparator: false }
                                         )}
                                     />
                                 </Box>
