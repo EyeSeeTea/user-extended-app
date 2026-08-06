@@ -8,9 +8,6 @@ import * as esbuild from "esbuild";
 
 const REDIRECT_PATHS = ["/dhis-web-pivot", "/dhis-web-data-visualizer"];
 
-/** Vite's default "modules" target, raised to safari14.1: esbuild 0.28+ fails on Safari 14.0's destructuring bug. */
-const ESBUILD_TARGET = ["es2020", "edge88", "firefox78", "chrome87", "safari14.1"];
-
 /** Transform .js files that contain JSX (e.g. src/legacy) so esbuild parses them as JSX. */
 function jsxInJsPlugin() {
     return {
@@ -48,7 +45,6 @@ const config = defineConfig(({ mode }) => {
         },
         optimizeDeps: {
             esbuildOptions: {
-                target: ESBUILD_TARGET,
                 loader: {
                     ".js": "jsx",
                 },
@@ -64,9 +60,6 @@ const config = defineConfig(({ mode }) => {
                 // global solo en esbuild para no romper imports tipo './global-state-service' en Rollup
                 global: "globalThis",
             },
-        },
-        build: {
-            target: ESBUILD_TARGET,
         },
         plugins: [
             nodePolyfills({
