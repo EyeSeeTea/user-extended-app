@@ -54,8 +54,8 @@ describe("buildUserToSave", () => {
     });
 
     it("drops the verified address when the edit changes the e-mail", () => {
-        // The verified address belongs to the previous e-mail, so e-mail 2FA would keep sending
-        // the login code to the previous mailbox.
+        // DHIS2 keeps verifiedEmail unique: a stale value stops a different user from verifying
+        // that address.
         const existingUser = givenUser({
             email: "old@example.com",
             verifiedEmail: "old@example.com",

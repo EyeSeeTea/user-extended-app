@@ -68,8 +68,9 @@ export type ExistingApiUser = ApiUser & EmailVerificationProps;
 /** Builds the /api/metadata payload for one user: the edited user merged over the prefetched
  * server copy, so REPLACE cannot erase the properties the app does not map. */
 export function buildUserToSave(existingUser: Maybe<ExistingApiUser>, user: ApiUser) {
-    // A changed e-mail makes the verified address stale: e-mail 2FA would keep sending the login
-    // code to the previous mailbox. Omit the pair so REPLACE clears it and DHIS2 asks to verify.
+    // A changed e-mail makes the pair stale, so omit it: DHIS2 keeps verifiedEmail unique, and a
+    // stale value stops a different user from verifying that address. E-mail 2FA is safe here,
+    // because the server refuses to change the e-mail of such a user (error E3052).
     const keepsEmail = user.email === existingUser?.email;
     const existingUserProps: Partial<ExistingApiUser> = keepsEmail
         ? existingUser ?? {}
