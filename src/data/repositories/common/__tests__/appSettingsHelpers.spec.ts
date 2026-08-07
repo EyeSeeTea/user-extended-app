@@ -106,6 +106,41 @@ describe("mergeAndAddRuntimeProps", () => {
         expect(result.organisationUnitsField).toBe("userDefined");
     });
 
+    it("adds the description group column to legacy stored settings, preserving the stored values", () => {
+        const legacyStored: Partial<AppSettings> = {
+            groupColumns: [
+                { field: "name", value: "mandatory" },
+                { field: "users", value: "visible" },
+            ],
+        };
+
+        const result = mergeAndAddRuntimeProps(legacyStored);
+
+        expect(result.groupColumns).toEqual([
+            { field: "name", value: "mandatory" },
+            { field: "description", value: "optional" },
+            { field: "users", value: "visible" },
+        ]);
+    });
+
+    it("preserves the stored value of the description group column", () => {
+        const stored: Partial<AppSettings> = {
+            groupColumns: [
+                { field: "users", value: "visible" },
+                { field: "description", value: "mandatory" },
+                { field: "name", value: "mandatory" },
+            ],
+        };
+
+        const result = mergeAndAddRuntimeProps(stored);
+
+        expect(result.groupColumns).toEqual([
+            { field: "name", value: "mandatory" },
+            { field: "description", value: "mandatory" },
+            { field: "users", value: "visible" },
+        ]);
+    });
+
     it("fills missing actionsAccess entries from defaults", () => {
         const defaults = AppSettings.defaultSettings("active");
         const partialActionsAccess = { ...defaults.actionsAccess };

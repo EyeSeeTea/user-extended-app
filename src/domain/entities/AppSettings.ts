@@ -44,6 +44,9 @@ type AppSettingsAttr = {
     uiUserGroupActionsAccess: UserGroupUiActionAccess;
     uiUserRoleActionsAccess: UserRoleUiActionAccess;
     uiDashboardActionsAccess: DashboardUiActionAccess;
+    /* Opaque handle for the source of the user group description. The domain
+     * never interprets its content: only the repository knows how to resolve it. */
+    userGroupDescriptionSource: Maybe<string>;
 };
 
 type AppSettingStatus = "active" | "inactive";
@@ -87,7 +90,12 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             uiUserRoleActionsAccess: this.defaultUserRoleUiActions(),
             uiDashboardActionsAccess: this.defaultUiDashboardActions(),
             groupColumns: this.defaultGroupColumns(),
+            userGroupDescriptionSource: undefined,
         });
+    }
+
+    get hasUserGroupDescriptionSource(): boolean {
+        return Boolean(this.userGroupDescriptionSource);
     }
 
     get isActive(): boolean {
@@ -120,6 +128,10 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     updateGroupColumns(columns: SettingsGroupColumn[]): AppSettings {
         return this._update({ groupColumns: columns });
+    }
+
+    updateUserGroupDescriptionSource(source: Maybe<string>): AppSettings {
+        return this._update({ userGroupDescriptionSource: source || undefined });
     }
 
     updateColumnField(columnToUpdate: UserColumns, value: ColumnSettingValue): SettingsUserColumn[] {

@@ -9,13 +9,21 @@ export function filterAndSortItemWithUsers<T extends { name: string; users: { id
     sort: "asc" | "desc";
     filterEmptyUsers: boolean;
     selectedUsersIds: Maybe<Id[]>;
+    /* Text fields the search applies to. Defaults to the name only. */
+    searchFields?: Array<keyof T>;
 }): T[] {
     const { items, search, sort = "asc", filterEmptyUsers, selectedUsersIds } = options;
+    const searchFields = options.searchFields ?? (["name"] as Array<keyof T>);
     const filtered = _(items)
         .filter(item => {
-            const { name, users } = item;
+            const { users } = item;
 
-            const matchesSearch = search ? name.toLowerCase().includes(search.toLowerCase()) : true;
+            const matchesSearch = search
+                ? searchFields.some(field => {
+                      const value = item[field];
+                      return typeof value === "string" && value.toLowerCase().includes(search.toLowerCase());
+                  })
+                : true;
 
             const matchesUsers =
                 selectedUsersIds && selectedUsersIds.length > 0

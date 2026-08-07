@@ -41,9 +41,10 @@ function generateTableConfig(options: {
             text: _.capitalize(columnSetting.fieldName),
             getValue: (userGroup: UserGroup) => {
                 if (columnSetting.fieldName === "users") return buildEllipsizedList(userGroup.users);
+                if (columnSetting.fieldName === "description") return userGroup.description ?? "";
                 return userGroup[columnSetting.fieldName];
             },
-            sortable: columnSetting.fieldName !== "users",
+            sortable: columnSetting.fieldName !== "users" && columnSetting.fieldName !== "description",
             hidden: columnSetting.state === "unselected",
             disabled: isSuperAdmin(currentUser) ? false : columnSetting.state === "selected-disabled",
         };
@@ -116,6 +117,7 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 sort: sorting.order,
                 filterEmptyUsers: filterEmptyUsers,
                 selectedUsersIds: selectedUsersIds,
+                searchFields: ["name", "description"],
             });
 
             return Promise.resolve(createPagination(filteredUserGroups, page, pageSize));
@@ -139,7 +141,7 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
             });
             if (action === "exportCsv") {
                 const rows = tableProps.rows.map(user => user);
-                buildCsvRow(rows, fileName);
+                buildCsvRow(rows, fileName, appSettings.hasUserGroupDescriptionSource);
             } else if (action === "exportJson") {
                 FileSaver.saveAs(
                     new Blob([JSON.stringify(tableProps.rows, null, 4)], { type: "application/json" }),
@@ -147,7 +149,7 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 );
             }
         },
-        [tableProps.rows]
+        [tableProps.rows, appSettings.hasUserGroupDescriptionSource]
     );
 
     const someFilterEnabled =
@@ -186,16 +188,23 @@ const useStyles = makeStyles({
     },
 });
 
-function buildCsvRow(rows: UserGroup[], fileName: string): void {
+function buildCsvRow(rows: UserGroup[], fileName: string, includeDescription: boolean): void {
+    const header = includeDescription ? ["id", "name", "description", "users"] : ["id", "name", "users"];
+
+    const values = rows.map(ug => {
+        const users = ug.users.map(u => u.name).join("|");
+        return includeDescription ? [ug.id, ug.name, ug.description ?? "", users] : [ug.id, ug.name, users];
+    });
+
     FileSaver.saveAs(
-        new Blob(
-            [
-                [["id", "name", "users"], ...rows.map(ug => [ug.id, ug.name, ug.users.map(u => u.name).join("|")])]
-                    .map(e => e.join(","))
-                    .join("\n"),
-            ],
-            { type: "text/csv;charset=utf-8" }
-        ),
+        new Blob([[header, ...values].map(row => row.map(escapeCsvValue).join(",")).join("\n")], {
+            type: "text/csv;charset=utf-8",
+        }),
         fileName
     );
+}
+
+/* Descriptions are free text, so separators and quotes must be escaped */
+function escapeCsvValue(value: string): string {
+    return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }

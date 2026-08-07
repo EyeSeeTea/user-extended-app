@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-07-27T10:39:32.930Z\n"
+"POT-Creation-Date: 2026-08-06T23:44:38.655Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -625,6 +625,20 @@ msgstr "Idioma do banco de dados"
 msgid "Api URL"
 msgstr "URL da API"
 
+#, fuzzy
+msgid "User group description"
+msgstr "Descrição"
+
+msgid ""
+"This instance has no attributes for user groups. Create one in the "
+"Maintenance app to be able to show descriptions."
+msgstr ""
+
+msgid ""
+"Attribute used as the description of a user group. Without one, the column "
+"is hidden."
+msgstr ""
+
 msgid "Filter users"
 msgstr ""
 
@@ -951,8 +965,8 @@ msgid ""
 "If you wish to contribute to the development of User Extended with new "
 "features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com)."
 msgstr ""
-"Se você deseja contribuir para o desenvolvimento do User Extended com "
-"novas funcionalidades, por favor entre em contato com [EyeSeeTea]"
+"Se você deseja contribuir para o desenvolvimento do User Extended com novas "
+"funcionalidades, por favor entre em contato com [EyeSeeTea]"
 "(mailto:hello@eyeseetea.com)."
 
 msgid "About User Extended"

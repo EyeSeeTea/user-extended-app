@@ -20,20 +20,23 @@ export class GetGroupColumnsUseCase {
     }
 
     private getColumnsFromSettings(appSettings: AppSettings, user: UserProps): FutureData<GroupColumnSetting[]> {
-        const columnsConfig = appSettings.groupColumns;
+        // Without a configured source there is nothing to show in the description column
+        const columnsConfig = appSettings.hasUserGroupDescriptionSource
+            ? appSettings.groupColumns
+            : appSettings.groupColumns.filter(column => column.field !== "description");
 
         return this.columnRepository.get().map(roleColumnsPreferences => {
             const preferencesMap = _.keyBy(roleColumnsPreferences, col => col.fieldName);
             const isSuperAdminUser = isSuperAdmin(user);
 
             const columns = _(columnsConfig)
-                .map(columnConfig => {
+                .map((columnConfig, index) => {
                     const existingColumn = preferencesMap[columnConfig.field];
 
-                    return this.processColumnByValue(columnConfig, existingColumn, isSuperAdminUser);
+                    return this.processColumnByValue(columnConfig, existingColumn, isSuperAdminUser, index);
                 })
                 .compact()
-                .orderBy(col => (col.position === -1 ? Infinity : -col.position), "desc")
+                .orderBy(col => col.position, "asc")
                 .value();
 
             return columns;
@@ -43,7 +46,9 @@ export class GetGroupColumnsUseCase {
     private processColumnByValue(
         columnConfig: SettingsGroupColumn,
         existingColumn: Maybe<GroupColumnSetting>,
-        isSuperAdmin: boolean
+        isSuperAdmin: boolean,
+        // Position in the settings, used for columns the user has no preference for yet
+        defaultPosition: number
     ): Maybe<GroupColumnSetting> {
         switch (columnConfig.value) {
             case "disabled":
@@ -52,16 +57,20 @@ export class GetGroupColumnsUseCase {
 
             case "optional":
                 // If exists in preferences, respect its state; otherwise add as unselected
-                return existingColumn ?? this.buildColumn(columnConfig.field, "unselected", -1);
+                return existingColumn ?? this.buildColumn(columnConfig.field, "unselected", defaultPosition);
 
             case "visible":
                 // If exists in preferences, respect its state; otherwise add as selected
-                return existingColumn ?? this.buildColumn(columnConfig.field, "selected", -1);
+                return existingColumn ?? this.buildColumn(columnConfig.field, "selected", defaultPosition);
 
             case "mandatory": {
                 const mandatoryState = isSuperAdmin ? existingColumn?.state ?? "selected" : "selected-disabled";
                 // Always add as selected-disabled regardless of preferences
-                return this.buildColumn(columnConfig.field, mandatoryState, existingColumn?.position ?? -1);
+                return this.buildColumn(
+                    columnConfig.field,
+                    mandatoryState,
+                    existingColumn?.position ?? defaultPosition
+                );
             }
 
             default:

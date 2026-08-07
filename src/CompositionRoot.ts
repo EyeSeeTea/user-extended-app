@@ -58,6 +58,8 @@ import { GetDashboardColumnsUseCase } from "./domain/usecases/GetDashboardColumn
 import { DashboardColumnD2Repository } from "./data/repositories/DashboardColumnD2Repository";
 import { GetGroupColumnsUseCase } from "./domain/usecases/GetGroupColumnsUseCase";
 import { GroupColumnD2Repository } from "./data/repositories/GroupColumnD2Repository";
+import { GetUserGroupDescriptionSourcesUseCase } from "./domain/usecases/GetUserGroupDescriptionSourcesUseCase";
+import { UserGroupDescriptionSourceD2Repository } from "./data/repositories/UserGroupDescriptionSourceD2Repository";
 
 export type SettingsStorageType = "dataStore" | "constants";
 
@@ -80,6 +82,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
     const roleColumnRepository = new RoleColumnD2Repository(instance);
     const dashboardColumnRepository = new DashboardColumnD2Repository(instance);
     const groupColumnRepository = new GroupColumnD2Repository(instance);
+    const userGroupDescriptionSourceRepository = new UserGroupDescriptionSourceD2Repository(api);
 
     return {
         logger: {
@@ -123,6 +126,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
         userGroups: getExecute({
             getAll: new GetAllUserGroupsUseCase(userGroupRepository),
             get: new GetUserGroupsUseCase(userGroupRepository, appSettingsRepository, userRepository),
+            getDescriptionSources: new GetUserGroupDescriptionSourcesUseCase(userGroupDescriptionSourceRepository),
         }),
         userRoles: getExecute({
             get: new GetUserRolesUseCase(userRoleRepository, appSettingsRepository, userRepository),
