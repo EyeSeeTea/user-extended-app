@@ -50,6 +50,7 @@ function generateTableConfig(options: {
     });
 
     return {
+        allowEmptyColumns: false,
         actions: [],
         columns: allColumns,
         initialSorting: { field: "name", order: "asc" },

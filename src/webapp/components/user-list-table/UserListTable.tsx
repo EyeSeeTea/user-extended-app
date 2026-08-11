@@ -403,6 +403,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
 
     const baseConfig = useMemo((): TableConfig<User> => {
         return {
+            allowEmptyColumns: false,
             childrenTransfer: (
                 <ResetColumnsContainer>
                     <Button variant="contained" color="primary" onClick={resetColumnsToDefault}>
