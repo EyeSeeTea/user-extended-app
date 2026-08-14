@@ -100,7 +100,7 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             saveColumns: new SaveColumnsPreferenceUseCase(userColumnRepository),
             remove: new RemoveUsersUseCase(userRepository),
             saveOrgUnits: new SaveUserOrgUnitUseCase(userRepository),
-            export: new ExportUsersUseCase(userRepository),
+            export: new ExportUsersUseCase(userRepository, appSettingsRepository),
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
             resetPasswords: new ResetUsersPasswordsUseCase(userRepository),

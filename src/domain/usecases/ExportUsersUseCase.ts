@@ -7,6 +7,8 @@ import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { ListOptions, UserRepository } from "../repositories/UserRepository";
 import { OrgUnitKey } from "../entities/OrgUnit";
+import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
+import { getAppSettings } from "./common/settings";
 
 const fieldSplitChar = "||";
 const defaultNameField = "name";
@@ -38,7 +40,7 @@ const columnNameFromPropertyMapping = {
 };
 
 export class ExportUsersUseCase {
-    constructor(private userRepository: UserRepository) {}
+    constructor(private userRepository: UserRepository, private appSettingsRepository: AppSettingsRepository) {}
 
     public execute({
         filterOptions,
@@ -48,8 +50,14 @@ export class ExportUsersUseCase {
         if (isEmptyTemplate) {
             return Future.success(this.buildBlobAndFilename([], options));
         }
-        return this.userRepository.listAll(filterOptions).map(users => {
-            return this.buildBlobAndFilename(users, options);
+        return this.userRepository.getCurrent().flatMap(currentUser => {
+            return getAppSettings(this.appSettingsRepository, currentUser).flatMap(appSettings => {
+                return this.userRepository
+                    .listAll({ ...filterOptions, hideUsers: appSettings.hide.users })
+                    .map(users => {
+                        return this.buildBlobAndFilename(users, options);
+                    });
+            });
         });
     }
 
