@@ -289,7 +289,7 @@ class ListHybrid extends React.Component {
 function getFilters(filters, props, prevProps) {
     const areFiltersOverrided = props.onlyActiveUsers;
     const onlyActiveUsersChanged = prevProps?.onlyActiveUsers !== props.onlyActiveUsers;
-    
+
     const disabledFilter = onlyActiveUsersChanged
         ? props.onlyActiveUsers
             ? false // show only active (disabled=false)

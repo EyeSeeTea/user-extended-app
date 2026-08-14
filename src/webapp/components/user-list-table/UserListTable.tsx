@@ -20,7 +20,12 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
-import { UserListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
+import {
+    UserListFilters,
+    UpdateStrategy,
+    AccessElements,
+    ListOptions,
+} from "../../../domain/repositories/UserRepository";
 import { isSuperAdmin } from "../../../domain/entities/UserProps";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../utils/i18n";

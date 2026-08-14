@@ -24,12 +24,20 @@ export function translateUserFilters(
     return {
         ...disabledEntry,
         ...(!is242Plus && filters.twoFA != null ? { "userCredentials.twoFA": equalityFilter(filters.twoFA) } : {}),
-        ...(filters.externalAuth != null ? { [withVersionPrefix("externalAuth")]: equalityFilter(filters.externalAuth) } : {}),
+        ...(filters.externalAuth != null
+            ? { [withVersionPrefix("externalAuth")]: equalityFilter(filters.externalAuth) }
+            : {}),
         ...(filters.userRoles?.length ? { [withVersionPrefix("userRoles.id")]: arrayFilter(filters.userRoles) } : {}),
         ...(filters.userGroups?.length ? { "userGroups.id": arrayFilter(filters.userGroups) } : {}),
-        ...(filters.organisationUnits?.length ? { "organisationUnits.id": arrayFilter(filters.organisationUnits) } : {}),
-        ...(filters.dataViewOrganisationUnits?.length ? { "dataViewOrganisationUnits.id": arrayFilter(filters.dataViewOrganisationUnits) } : {}),
-        ...(filters.teiSearchOrganisationUnits?.length ? { "teiSearchOrganisationUnits.id": arrayFilter(filters.teiSearchOrganisationUnits) } : {}),
+        ...(filters.organisationUnits?.length
+            ? { "organisationUnits.id": arrayFilter(filters.organisationUnits) }
+            : {}),
+        ...(filters.dataViewOrganisationUnits?.length
+            ? { "dataViewOrganisationUnits.id": arrayFilter(filters.dataViewOrganisationUnits) }
+            : {}),
+        ...(filters.teiSearchOrganisationUnits?.length
+            ? { "teiSearchOrganisationUnits.id": arrayFilter(filters.teiSearchOrganisationUnits) }
+            : {}),
         ...(filters.username?.length ? { [withVersionPrefix("username")]: arrayFilter(filters.username) } : {}),
         ...(filters.id?.length ? { id: arrayFilter(filters.id) } : {}),
     };

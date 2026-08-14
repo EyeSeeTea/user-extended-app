@@ -333,7 +333,7 @@ export class UserD2ApiRepository implements UserRepository {
             return this.getUserIdentifiersInChunks(options, is242Plus, {
                 userIds: idFilterValues,
                 usersIdsToExclude: usersIdsToExclude,
-            }); 
+            });
         });
     }
 
@@ -465,12 +465,7 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
-        const {
-            page,
-            pageSize,
-            search,
-            sorting = { field: "firstName", order: "asc" },
-        } = options;
+        const { page, pageSize, search, sorting = { field: "firstName", order: "asc" } } = options;
 
         // getFullUsers is only used internally for save() prefetch; keep 2.41-compatible filter keys
         const apiFilters = translateUserFilters(options.filters, options.onlyActiveUsers, false);
@@ -992,7 +987,9 @@ export class UserD2ApiRepository implements UserRepository {
         // the pagination based on the total number of users that match the filters.
         const { onlyUsersOrgUnits, filters = {} } = options;
         const hasActiveFilters =
-            Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null && (Array.isArray(v) ? v.length > 0 : true)).length > 0;
+            Object.entries(filters).filter(
+                ([_, v]) => v !== undefined && v !== null && (Array.isArray(v) ? v.length > 0 : true)
+            ).length > 0;
         const calculatePager = onlyUsersOrgUnits && hasActiveFilters;
 
         if (!calculatePager) return Future.void();
@@ -1025,7 +1022,6 @@ export class UserD2ApiRepository implements UserRepository {
     private getIs242Plus(): FutureData<boolean> {
         return Future.fromPromise(this.api.getVersion()).map(version => getMajorVersion(version) >= 42);
     }
-
 }
 
 const verifyPasswordResponseCodec = Codec.interface({
