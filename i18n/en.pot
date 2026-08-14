@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
-"PO-Revision-Date: 2026-04-15T08:09:38.204Z\n"
+"POT-Creation-Date: 2026-07-27T10:39:32.930Z\n"
+"PO-Revision-Date: 2026-07-27T10:39:32.931Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -146,13 +146,13 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Columns to show in table"
 msgstr ""
 
 msgid "Column"
+msgstr ""
+
+msgid "Save"
 msgstr ""
 
 msgid "Disable"
@@ -321,6 +321,18 @@ msgid "Assign roles to {{usernames}}"
 msgstr ""
 
 msgid "Assign groups to {{usernames}}"
+msgstr ""
+
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
 msgstr ""
 
 msgid "Bulk update strategy: {{strategy}}"
@@ -594,10 +606,19 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 msgid "Reset Columns"
+msgstr ""
+
+msgid "Import settings"
 msgstr ""
 
 msgid "Last updated"
@@ -863,11 +884,11 @@ msgid ""
 msgstr ""
 
 msgid ""
-"If you wish to contribute to the development of User Extended App with new "
+"If you wish to contribute to the development of User Extended with new "
 "features, please contact [EyeSeeTea](mailto:hello@eyeseetea.com)."
 msgstr ""
 
-msgid "About User Extended App"
+msgid "About User Extended"
 msgstr ""
 
 msgid "Samaritan's Purse"

@@ -2,14 +2,12 @@ import React from "react";
 import { MetaObject, SharedObject, ShareUpdate, SharingRule } from "@eyeseetea/d2-ui-components";
 import { useAppContext } from "../../contexts/app-context";
 import { NamedRef } from "../../../domain/entities/Ref";
-import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { Permission } from "../../../domain/entities/Permission";
 
-export function useSharingSettings() {
+export function useSharingSettings(settingsAccess: Permission) {
     const { compositionRoot } = useAppContext();
-    const { appSettings } = useAppSettingsContext();
 
-    const [permission, setPermission] = React.useState<Permission>(appSettings.settingsAccess);
+    const [permission, setPermission] = React.useState<Permission>(settingsAccess);
 
     const sharedObject: SharedObject = React.useMemo(
         () => ({
@@ -51,7 +49,12 @@ export function useSharingSettings() {
         [setPermission]
     );
 
-    return { search, metaObject, onUpdateSharingOptions, permission };
+    return {
+        metaObject: metaObject,
+        permission: permission,
+        onUpdateSharingOptions: onUpdateSharingOptions,
+        search: search,
+    };
 }
 
 const mapAccessPermission = (rules: SharingRule[]): NamedRef[] => {

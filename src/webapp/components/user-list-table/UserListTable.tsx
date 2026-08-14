@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import {
+    ConfirmationDialog,
     ObjectsList,
     ObjectsTableProps,
     Pager,
@@ -12,6 +13,7 @@ import {
     useSnackbar,
 } from "@eyeseetea/d2-ui-components";
 import { Button, Icon, Tooltip } from "@material-ui/core";
+import SettingsIcon from "@material-ui/icons/Settings";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import _ from "lodash";
 import React, { useCallback, useMemo, useState } from "react";
@@ -25,13 +27,7 @@ import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
-import {
-    useColumnsPreferences,
-    useCopyInUser,
-    useGetAllUserIdentifiers,
-    useGetUsersByIds,
-    useSaveUsersOrgUnits,
-} from "../../hooks/userHooks";
+import { useColumnsPreferences, useCopyInUser, useGetUsersByIds, useSaveUsersOrgUnits } from "../../hooks/userHooks";
 import { MultiSelectorDialog, MultiSelectorDialogProps } from "../multi-selector-dialog/MultiSelectorDialog";
 import { OrgUnitDialogSelector } from "../orgunit-dialog-selector/OrgUnitDialogSelector";
 import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
@@ -43,8 +39,7 @@ import {
     UsersSelectedModal,
     RiskyActionType,
 } from "../users-selected-modal/UsersSelectedModal";
-import { useImportSettings } from "../settings-dialog-modal/SettingsDialogModal";
-import Settings from "../../../legacy/models/settings";
+import { useImportSettings } from "../../hooks/useImportSettings";
 import { ImportExport, ImportResult } from "../import-export/ImportExport";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { ImportTable } from "../import-export/ImportTable";
@@ -53,6 +48,7 @@ import { UserAction } from "../../../domain/entities/UserAction";
 import { UsersSetPasswordModal } from "../users-selected-modal/UsersSetPasswordModal";
 import { useUserColumns } from "./userColumns";
 import { getUserActionLabel } from "./userListTableHelpers";
+import { OrgUnitFieldUserSetting } from "./OrgUnitFieldUserSetting";
 import { useActionsAccessibleToCurrentUser } from "./useActionsAccessibleToCurrentUser";
 import { Column } from "../../../domain/entities/UserColumn";
 
@@ -114,7 +110,6 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     rootJunction,
     children,
     reloadTableKey,
-    routerReloadKey,
     onAction,
     filterOption,
     onlyUsersOrgUnits,
@@ -128,15 +123,16 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const [selectedUserIds, setSelectedUserIds] = useState<Id[]>([]);
     const [actionType, setActionType] = useState<ActionType>();
     const [showImportModal, setShowImportModal] = React.useState(false);
+    const [showImportSettings, setShowImportSettings] = React.useState(false);
     const [importResult, setImportResult] = React.useState<ImportResult>();
-    const { importSettings } = useImportSettings(`${reloadTableKey}-${routerReloadKey}`);
+    const { importSettings, setImportSettings } = useImportSettings();
 
     const snackbar = useSnackbar();
     const navigate = useNavigate();
     const userColumns = useUserColumns();
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
-    const { userIdentifiers: allUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
+    const isCopyInUserOpen = isActionTypeCopyInUser(actionType);
     const { appSettings } = useAppSettingsContext();
     const {
         showOnlyActiveUsers: onlyActiveUsers,
@@ -411,6 +407,14 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     </Button>
                 </ResetColumnsContainer>
             ),
+            globalActions: [
+                {
+                    name: "import-settings",
+                    text: i18n.t("Import settings"),
+                    icon: <SettingsIcon />,
+                    onClick: () => setShowImportSettings(true),
+                },
+            ],
             columns: columnsTable,
             details: [
                 { name: "name", text: i18n.t("Name") },
@@ -644,10 +648,10 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 />
             )}
 
-            {actionType && isActionTypeCopyInUser(actionType) && selectedUser && allUsers && (
+            {isCopyInUserOpen && selectedUser && (
                 <CopyInUserDialog
                     user={selectedUser}
-                    usersList={allUsers}
+                    onlyUsersOrgUnits={onlyUsersOrgUnits}
                     onCancel={onCleanSelectedUsers}
                     onSave={onSaveCopyInUser}
                     visible
@@ -683,6 +687,23 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     onlyUsersOrgUnits={onlyUsersOrgUnits}
                 />
             )}
+
+            {showImportSettings && importSettings && (
+                <ConfirmationDialog
+                    isOpen
+                    title={i18n.t("Import settings")}
+                    onCancel={() => setShowImportSettings(false)}
+                    cancelText={i18n.t("Close")}
+                    maxWidth="sm"
+                    fullWidth
+                >
+                    <OrgUnitFieldUserSetting
+                        settings={importSettings}
+                        onSaved={setImportSettings}
+                        configuredValue={appSettings.configuredOrgUnitField}
+                    />
+                </ConfirmationDialog>
+            )}
         </React.Fragment>
     );
 };
@@ -705,14 +726,12 @@ export type UserActionName =
     | "copy_in_user";
 
 export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loading"> {
-    openSettings: (settings: Settings) => void;
     filters: UserListFilters;
     canManage: string;
     rootJunction: "AND" | "OR";
     onChangeVisibleColumns: (columns: string[]) => void;
     onChangeSearch: (search: string) => void;
     reloadTableKey: number;
-    routerReloadKey?: number;
     onAction: (ids: string[], action: UserActionName) => void;
     filterOption: ListOptions;
     onlyUsersOrgUnits: boolean;

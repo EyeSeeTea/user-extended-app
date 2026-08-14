@@ -78,7 +78,7 @@ describe("User Entity", () => {
         dbLocale: "en",
     };
 
-    describe("createNewUser factory method", () => {
+    describe("createNew factory method", () => {
         describe("successful creation", () => {
             it("should create a new user with valid properties", () => {
                 const user = User.createNew(validUserProps).getOrThrow();
@@ -457,7 +457,7 @@ describe("User Entity", () => {
         });
     });
 
-    describe("createUser factory method", () => {
+    describe("createExisted factory method", () => {
         describe("successful creation with skipSourceErrors", () => {
             it("should create a user with valid properties and skip source errors", () => {
                 const propsWithMissingFields = {
@@ -481,6 +481,24 @@ describe("User Entity", () => {
 
                 expect(user).toBeInstanceOf(User);
                 expect(user.username).toBe("johndoe");
+            });
+
+            it("should create a user for existing user without username", () => {
+                const propsWithoutUsername = { ...validUserProps, username: "" };
+
+                const user = User.createExisted(propsWithoutUsername).getOrThrow();
+
+                expect(user).toBeInstanceOf(User);
+                expect(user.username).toBe("");
+            });
+
+            it("should create a user for existing user with invalid username", () => {
+                const propsWithInvalidUsername = { ...validUserProps, username: "_invalid..username" };
+
+                const user = User.createExisted(propsWithInvalidUsername).getOrThrow();
+
+                expect(user).toBeInstanceOf(User);
+                expect(user.username).toBe("_invalid..username");
             });
 
             it("should allow missing organisation units when skipSourceErrors is true", () => {
@@ -539,22 +557,6 @@ describe("User Entity", () => {
                     error: errors => {
                         expect(errors).toHaveLength(1);
                         expect(errors[0]?.errors).toContain("First name is required");
-                    },
-                    success: () => {
-                        throw new Error("Expected validation to fail but it succeeded");
-                    },
-                });
-            });
-
-            it("should still validate username format", () => {
-                const propsWithInvalidUsername = { ...validUserProps, username: "invalid..username" };
-
-                const userResult = User.createExisted(propsWithInvalidUsername);
-
-                userResult.match({
-                    error: errors => {
-                        expect(errors).toHaveLength(1);
-                        expect(errors[0]?.errors).toContain("Username cannot have two separators in a row");
                     },
                     success: () => {
                         throw new Error("Expected validation to fail but it succeeded");
