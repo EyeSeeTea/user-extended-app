@@ -17,17 +17,21 @@ import { UserActionRule } from "../../../domain/entities/UserActionRule";
 import { ActionPermission } from "../../../domain/entities/ActionPermission";
 import { UserProps } from "../../../domain/entities/UserProps";
 import { User } from "../../../domain/entities/User";
+import { canRunPasswordActionOnUsers, isPasswordAction } from "../../../domain/entities/PasswordActionAccess";
 
 export function useActionsAccessibleToCurrentUser(
     currentUser: UserProps,
-    actionsAccess: ActionsPermissions
+    actionsAccess: ActionsPermissions,
+    limitPasswordActionsToUserOrgUnits: boolean
 ): Record<UserAction, ActionAccessibleValidator> {
     const currentUserOrgUnitIds = React.useMemo(() => userOrgUnitIds(currentUser), [currentUser]);
 
     const actionAccessMap = React.useMemo(
         () =>
-            _.mapValues(actionsAccess, (permission, _action) => {
+            _.mapValues(actionsAccess, (permission, action) => {
                 const hasWhitelistAccess = hasAccessViaWhitelist(currentUser, permission);
+                const isLimitedToOrgUnits =
+                    limitPasswordActionsToUserOrgUnits && isPasswordAction(action as UserAction);
 
                 return (users: User[]) => {
                     const internalRules = permission.getInternalRules();
@@ -41,6 +45,10 @@ export function useActionsAccessibleToCurrentUser(
                     });
 
                     if (!validInternalRules) return false; // Internal rules are mandatory to validate
+
+                    // Mandatory policy: unlike selectable rules, it cannot be bypassed by the whitelist
+                    if (!canRunPasswordActionOnUsers({ currentUser, users, isLimitedToOrgUnits })) return false;
+
                     if (hasWhitelistAccess) return true;
 
                     const validSelectableRules = validateRuleAccess({
@@ -53,7 +61,7 @@ export function useActionsAccessibleToCurrentUser(
                     return validSelectableRules;
                 };
             }),
-        [actionsAccess, currentUser, currentUserOrgUnitIds]
+        [actionsAccess, currentUser, currentUserOrgUnitIds, limitPasswordActionsToUserOrgUnits]
     );
 
     return actionAccessMap;

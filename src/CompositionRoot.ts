@@ -103,9 +103,9 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             export: new ExportUsersUseCase(userRepository, appSettingsRepository),
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
-            resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
+            resetPasswords: new ResetUsersPasswordsUseCase(userRepository, appSettingsRepository),
             verifyPassword: new VerifyPasswordUseCase(userRepository),
-            setPassword: new SetUserPasswordUseCase(userRepository),
+            setPassword: new SetUserPasswordUseCase(userRepository, appSettingsRepository),
             searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
             checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
                 userRepository,
