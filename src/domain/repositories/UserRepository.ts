@@ -24,12 +24,25 @@ export interface UserRepository {
     getInMyOrgUnit(): FutureData<UserIdentifier[]>;
 }
 
+export interface UserListFilters {
+    disabled?: boolean | null;
+    twoFA?: boolean | null;
+    externalAuth?: boolean | null;
+    userRoles?: string[];
+    userGroups?: string[];
+    organisationUnits?: string[];
+    dataViewOrganisationUnits?: string[];
+    teiSearchOrganisationUnits?: string[];
+    username?: string[];
+    id?: string[];
+}
+
 export interface ListOptions {
     page?: number;
     pageSize?: number;
     search?: string;
     sorting?: { field: string; order: "asc" | "desc" };
-    filters?: ListFilters;
+    filters?: UserListFilters;
     canManage?: string;
     rootJunction?: "AND" | "OR";
     onlyUsersOrgUnits: boolean;
@@ -37,8 +50,6 @@ export interface ListOptions {
     hideUsers: Id[];
 }
 
-export type ListFilterType = "in" | "eq" | "gt";
-export type ListFilters = Record<string, [ListFilterType, string[]]>;
 export type UpdateStrategy = "replace" | "merge";
 
 export type AccessElements = {
