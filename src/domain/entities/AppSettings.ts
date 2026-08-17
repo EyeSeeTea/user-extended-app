@@ -30,6 +30,7 @@ type AppSettingsAttr = {
     actionsAccess: ActionsPermissions;
     showCustomRootOrgUnits: boolean;
     showOnlyUsersInTheirOrgUnits: boolean;
+    limitPasswordActionsToUserOrgUnits: boolean;
     rootOrgUnitIds: Id[];
     hide: {
         users: Id[];
@@ -83,6 +84,7 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             rootOrgUnitIds: [],
             showCustomRootOrgUnits: false,
             showOnlyUsersInTheirOrgUnits: false,
+            limitPasswordActionsToUserOrgUnits: false,
             uiUserActionsAccess: this.defaultUiActions(),
             roleColumns: this.defaultRoleColumns(),
             dashboardColumns: this.defaultDashboardColumns(),

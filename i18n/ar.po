@@ -136,11 +136,21 @@ msgstr "يجب أن تكون معرفات Open ID فريدة"
 msgid "Usernames must be unique"
 msgstr "يجب أن تكون معرفات Open ID فريدة"
 
+msgid ""
+"You are not allowed to reset the password of users outside your organisation "
+"units"
+msgstr ""
+
 msgid "Not all users have emails"
 msgstr "ليس كل المستخدمين لديهم بريد إلكتروني"
 
 msgid "Only admin user can edit logger settings"
 msgstr "يمكن للمسؤول فقط تعديل إعدادات السجل"
+
+msgid ""
+"You are not allowed to set the password of users outside your organisation "
+"units"
+msgstr ""
 
 msgid "Copy to clipboard"
 msgstr "نسخ إلى الحافظة"
@@ -374,6 +384,15 @@ msgstr "إظهار المستخدمين النشطين فقط"
 
 msgid "Show only users assigned to users organisation units"
 msgstr ""
+
+msgid "Limit password actions to users' organisation units and below"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"'Set password' and 'Reset password' will only be available for users "
+"assigned to the logged user's data capture organisation units or below."
+msgstr "إظهار فقط المستخدمين المعينين لوحدات تنظيم المستخدمين"
 
 msgid "Hide users, user roles and user groups"
 msgstr "إخفاء المستخدمين وأدوار المستخدم ومجموعات المستخدم"
@@ -941,8 +960,8 @@ msgid ""
 "Frontières (MSF) to support countries in strengthening the collection and "
 "use of health data by using DHIS2. The application has been developed by "
 "[EyeSeeTea SL](http://eyeseetea.com). Source code, documentation and release "
-"notes can be found at the [EyeSeetea GitHub Project Page](https://"
-"eyeseetea.github.io/user-extended-app-blessed/)"
+"notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea."
+"github.io/user-extended-app-blessed/)"
 msgstr ""
 "تم تمويل هذا التطبيق من قبل المجلس النرويجي للاجئين (NRC)، وبرنامج الملاريا "
 "العالمي لمنظمة الصحة العالمية، وSamaritan’s Purse، وأطباء بلا حدود (MSF) "

@@ -9,8 +9,8 @@ import {
     TableConfig,
     TablePagination,
     TableSorting,
-    useObjectsTable,
     useSnackbar,
+    useTableWithSelectionCount,
 } from "@eyeseetea/d2-ui-components";
 import { Button, Icon, Tooltip } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -20,20 +20,19 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Id, NamedRef } from "../../../domain/entities/Ref";
 import { User } from "../../../domain/entities/User";
-import { ListFilters, UpdateStrategy, AccessElements, ListOptions } from "../../../domain/repositories/UserRepository";
+import {
+    UserListFilters,
+    UpdateStrategy,
+    AccessElements,
+    ListOptions,
+} from "../../../domain/repositories/UserRepository";
 import { isSuperAdmin } from "../../../domain/entities/UserProps";
 import { SaveUserOrgUnitOptions } from "../../../domain/usecases/SaveUserOrgUnitUseCase";
 import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../types/utils";
 import { useAppContext } from "../../contexts/app-context";
 import { useReload } from "../../hooks/useReload";
-import {
-    useColumnsPreferences,
-    useCopyInUser,
-    useGetAllUserIdentifiers,
-    useGetUsersByIds,
-    useSaveUsersOrgUnits,
-} from "../../hooks/userHooks";
+import { useColumnsPreferences, useCopyInUser, useGetUsersByIds, useSaveUsersOrgUnits } from "../../hooks/userHooks";
 import { MultiSelectorDialog, MultiSelectorDialogProps } from "../multi-selector-dialog/MultiSelectorDialog";
 import { OrgUnitDialogSelector } from "../orgunit-dialog-selector/OrgUnitDialogSelector";
 import { CopyInUserDialog } from "../copy-in-user-dialog/CopyInUserDialog";
@@ -138,7 +137,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
     const userColumns = useUserColumns();
 
     const { users, setUsers } = useGetUsersByIds(selectedUserIds);
-    const { userIdentifiers: allUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
+    const isCopyInUserOpen = isActionTypeCopyInUser(actionType);
     const { appSettings } = useAppSettingsContext();
     const {
         showOnlyActiveUsers: onlyActiveUsers,
@@ -151,7 +150,11 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         onChangeVisibleColumns,
     });
 
-    const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(currentUser, appSettings.actionsAccess);
+    const currentUserAccessibleActions = useActionsAccessibleToCurrentUser(
+        currentUser,
+        appSettings.actionsAccess,
+        appSettings.limitPasswordActionsToUserOrgUnits
+    );
 
     const onCleanSelectedUsers = React.useCallback(() => {
         setSelectedUserIds([]);
@@ -471,25 +474,25 @@ export const UserListTable: React.FC<UserListTableProps> = ({
             onChangeSearch(search);
 
             // SEE: src/legacy/models/userList.js LINE 29+
-            if (canManage === "true") {
-                const userIdList = await compositionRoot.users
-                    .listAllIdentifiers({
-                        search,
-                        sorting,
-                        filters,
-                        canManage,
-                        rootJunction,
-                        onlyUsersOrgUnits,
-                        onlyActiveUsers: onlyActiveUsers,
-                        hideUsers: appSettings.hide.users,
-                    })
-                    .toPromise()
-                    .then(userIdentifiers => userIdentifiers.map(user => user.id));
-
-                if (userIdList) {
-                    filters["id"] = ["in", userIdList];
-                }
-            }
+            const resolvedFilters: UserListFilters =
+                canManage === "true"
+                    ? {
+                          ...filters,
+                          id: await compositionRoot.users
+                              .listAllIdentifiers({
+                                  search,
+                                  sorting,
+                                  filters,
+                                  canManage,
+                                  rootJunction,
+                                  onlyUsersOrgUnits,
+                                  onlyActiveUsers: onlyActiveUsers,
+                                  hideUsers: appSettings.hide.users,
+                              })
+                              .toPromise()
+                              .then(userIdentifiers => userIdentifiers.map(user => user.id)),
+                      }
+                    : filters;
 
             return compositionRoot.users
                 .list({
@@ -497,7 +500,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                     page,
                     pageSize,
                     sorting,
-                    filters,
+                    filters: resolvedFilters,
                     canManage,
                     rootJunction,
                     onlyUsersOrgUnits,
@@ -558,7 +561,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         ]
     );
 
-    const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
+    const tableProps = useTableWithSelectionCount(baseConfig, refreshRows, refreshAllIds);
 
     const onSuccessUsersAction = () => {
         onCleanSelectedUsers();
@@ -654,10 +657,10 @@ export const UserListTable: React.FC<UserListTableProps> = ({
                 />
             )}
 
-            {actionType && isActionTypeCopyInUser(actionType) && selectedUser && allUsers && (
+            {isCopyInUserOpen && selectedUser && (
                 <CopyInUserDialog
                     user={selectedUser}
-                    usersList={allUsers}
+                    onlyUsersOrgUnits={onlyUsersOrgUnits}
                     onCancel={onCleanSelectedUsers}
                     onSave={onSaveCopyInUser}
                     visible
@@ -732,7 +735,7 @@ export type UserActionName =
     | "copy_in_user";
 
 export interface UserListTableProps extends Pick<ObjectsTableProps<User>, "loading"> {
-    filters: ListFilters;
+    filters: UserListFilters;
     canManage: string;
     rootJunction: "AND" | "OR";
     onChangeVisibleColumns: (columns: string[]) => void;

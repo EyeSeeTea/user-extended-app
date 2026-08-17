@@ -134,10 +134,20 @@ msgstr ""
 msgid "Usernames must be unique"
 msgstr ""
 
+msgid ""
+"You are not allowed to reset the password of users outside your "
+"organisation units"
+msgstr ""
+
 msgid "Not all users have emails"
 msgstr ""
 
 msgid "Only admin user can edit logger settings"
+msgstr ""
+
+msgid ""
+"You are not allowed to set the password of users outside your organisation "
+"units"
 msgstr ""
 
 msgid "Copy to clipboard"
@@ -369,6 +379,14 @@ msgid "Show only active users"
 msgstr ""
 
 msgid "Show only users assigned to users organisation units"
+msgstr ""
+
+msgid "Limit password actions to users' organisation units and below"
+msgstr ""
+
+msgid ""
+"'Set password' and 'Reset password' will only be available for users "
+"assigned to the logged user's data capture organisation units or below."
 msgstr ""
 
 msgid "Hide users, user roles and user groups"

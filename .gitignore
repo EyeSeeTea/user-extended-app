@@ -52,3 +52,4 @@ dist/
 .yarn/unplugged
 .yarn/build-state.yml
 .pnp.*
+.claude/settings.local.json

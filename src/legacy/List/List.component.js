@@ -289,18 +289,19 @@ class ListHybrid extends React.Component {
 function getFilters(filters, props, prevProps) {
     const areFiltersOverrided = props.onlyActiveUsers;
     const onlyActiveUsersChanged = prevProps?.onlyActiveUsers !== props.onlyActiveUsers;
-    const userCredentialsDisabled = onlyActiveUsersChanged
+
+    const disabledFilter = onlyActiveUsersChanged
         ? props.onlyActiveUsers
-            ? ["eq", false]
+            ? false // show only active (disabled=false)
             : undefined
-        : filters?.filters?.["userCredentials.disabled"];
+        : filters?.filters?.disabled;
 
     return {
         ...filters,
         rootJunction: areFiltersOverrided ? "AND" : filters.rootJunction ?? "OR",
         filters: {
             ...filters.filters,
-            "userCredentials.disabled": userCredentialsDisabled,
+            disabled: disabledFilter,
         },
     };
 }
