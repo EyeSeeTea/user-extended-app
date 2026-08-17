@@ -5,7 +5,7 @@ import { Id } from "./Ref";
 import { UserColumns } from "./User";
 import { UserAction, userActions } from "./UserAction";
 import { ActionPermission } from "./ActionPermission";
-import { fromPairs, getKeys } from "../../types/utils";
+import { fromPairs, getKeys, isValueInUnionType, Maybe } from "../../types/utils";
 import { defaultRules, getInternalRulesForAction } from "./UserActionRule";
 import { userColumns } from "./UserColumn";
 import { isSuperAdmin, UserProps } from "./UserProps";
@@ -26,9 +26,11 @@ type AppSettingsAttr = {
     showOnlyActiveUsers: boolean;
     showFeedback: boolean;
     settingsAccess: Permission;
+    organisationUnitsField: OrgUnitFieldPolicy;
     actionsAccess: ActionsPermissions;
     showCustomRootOrgUnits: boolean;
     showOnlyUsersInTheirOrgUnits: boolean;
+    limitPasswordActionsToUserOrgUnits: boolean;
     rootOrgUnitIds: Id[];
     hide: {
         users: Id[];
@@ -47,6 +49,16 @@ type AppSettingsAttr = {
 
 type AppSettingStatus = "active" | "inactive";
 
+export const orgUnitFields = ["shortName", "code"] as const;
+export type OrgUnitField = typeof orgUnitFields[number];
+
+export const orgUnitFieldPolicies = ["userDefined", ...orgUnitFields] as const;
+export type OrgUnitFieldPolicy = typeof orgUnitFieldPolicies[number];
+
+export function parseOrgUnitFieldPolicy(value: unknown, defaultValue: OrgUnitFieldPolicy): OrgUnitFieldPolicy {
+    return isValueInUnionType(value, orgUnitFieldPolicies) ? value : defaultValue;
+}
+
 export type ColumnSettingValue = "visible" | "disabled" | "optional" | "mandatory";
 export type SettingsUserColumn = { field: UserColumns; value: ColumnSettingValue };
 export type SettingsRoleColumn = { field: RoleColumnType; value: ColumnSettingValue };
@@ -62,12 +74,14 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             showOnlyActiveUsers: false,
             showFeedback: true,
             settingsAccess: emptyPermission,
+            organisationUnitsField: "userDefined",
             actionsAccess: defaultActions(),
             hide: defaultHideValues,
             status: status,
             rootOrgUnitIds: [],
             showCustomRootOrgUnits: false,
             showOnlyUsersInTheirOrgUnits: false,
+            limitPasswordActionsToUserOrgUnits: false,
             uiUserActionsAccess: this.defaultUiActions(),
             roleColumns: this.defaultRoleColumns(),
             dashboardColumns: this.defaultDashboardColumns(),
@@ -88,6 +102,14 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     updateColumns(columns: SettingsUserColumn[]): AppSettings {
         return this._update({ columns });
+    }
+
+    updateOrganisationUnitsField(organisationUnitsField: OrgUnitFieldPolicy): AppSettings {
+        return this._update({ organisationUnitsField });
+    }
+
+    get configuredOrgUnitField(): Maybe<OrgUnitField> {
+        return this.organisationUnitsField === "userDefined" ? undefined : this.organisationUnitsField;
     }
 
     updateRoleColumns(columns: SettingsRoleColumn[]): AppSettings {

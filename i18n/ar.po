@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-04-15T08:09:38.204Z\n"
+"POT-Creation-Date: 2026-08-06T04:03:14.919Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -136,11 +136,21 @@ msgstr "يجب أن تكون معرفات Open ID فريدة"
 msgid "Usernames must be unique"
 msgstr "يجب أن تكون معرفات Open ID فريدة"
 
+msgid ""
+"You are not allowed to reset the password of users outside your organisation "
+"units"
+msgstr ""
+
 msgid "Not all users have emails"
 msgstr "ليس كل المستخدمين لديهم بريد إلكتروني"
 
 msgid "Only admin user can edit logger settings"
 msgstr "يمكن للمسؤول فقط تعديل إعدادات السجل"
+
+msgid ""
+"You are not allowed to set the password of users outside your organisation "
+"units"
+msgstr ""
 
 msgid "Copy to clipboard"
 msgstr "نسخ إلى الحافظة"
@@ -148,14 +158,14 @@ msgstr "نسخ إلى الحافظة"
 msgid "Close"
 msgstr "إغلاق"
 
-msgid "Save"
-msgstr "حفظ"
-
 msgid "Columns to show in table"
 msgstr "الأعمدة المعروضة في الجدول"
 
 msgid "Column"
 msgstr "عمود"
+
+msgid "Save"
+msgstr "حفظ"
 
 msgid "Disable"
 msgstr "تعطيل"
@@ -325,6 +335,18 @@ msgstr "تعيين الأدوار إلى {{usernames}}"
 msgid "Assign groups to {{usernames}}"
 msgstr "تعيين المجموعات إلى {{usernames}}"
 
+msgid "User defined"
+msgstr ""
+
+msgid "Short name"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Organisation Units Capture field"
+msgstr ""
+
 msgid "Bulk update strategy: {{strategy}}"
 msgstr "استراتيجية التحديث الجماعي: {{strategy}}"
 
@@ -362,6 +384,15 @@ msgstr "إظهار المستخدمين النشطين فقط"
 
 msgid "Show only users assigned to users organisation units"
 msgstr ""
+
+msgid "Limit password actions to users' organisation units and below"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"'Set password' and 'Reset password' will only be available for users "
+"assigned to the logged user's data capture organisation units or below."
+msgstr "إظهار فقط المستخدمين المعينين لوحدات تنظيم المستخدمين"
 
 msgid "Hide users, user roles and user groups"
 msgstr "إخفاء المستخدمين وأدوار المستخدم ومجموعات المستخدم"
@@ -611,12 +642,21 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
+msgid "Import settings saved"
+msgstr ""
+
+msgid "An administrator has set this value for all users"
+msgstr ""
+
 msgid "Column settings have been successfully reset."
 msgstr ""
 
 #, fuzzy
 msgid "Reset Columns"
 msgstr "الأعمدة"
+
+msgid "Import settings"
+msgstr ""
 
 msgid "Last updated"
 msgstr "آخر تحديث"
@@ -906,8 +946,8 @@ msgid ""
 "Frontières (MSF) to support countries in strengthening the collection and "
 "use of health data by using DHIS2. The application has been developed by "
 "[EyeSeeTea SL](http://eyeseetea.com). Source code, documentation and release "
-"notes can be found at the [EyeSeetea GitHub Project Page](https://"
-"eyeseetea.github.io/user-extended-app-blessed/)"
+"notes can be found at the [EyeSeetea GitHub Project Page](https://eyeseetea."
+"github.io/user-extended-app-blessed/)"
 msgstr ""
 "تم تمويل هذا التطبيق من قبل المجلس النرويجي للاجئين (NRC)، وبرنامج الملاريا "
 "العالمي لمنظمة الصحة العالمية، وSamaritan’s Purse، وأطباء بلا حدود (MSF) "

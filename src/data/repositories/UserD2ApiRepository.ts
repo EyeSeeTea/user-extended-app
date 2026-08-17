@@ -6,7 +6,8 @@ import { Pager, PaginatedResponse } from "../../domain/entities/PaginatedRespons
 import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
 import { User } from "../../domain/entities/User";
-import { ListFilters, ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
+import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
+import { translateUserFilters, D2ApiFilters } from "./UserFilterTranslator";
 import { LocaleCode } from "../../domain/entities/UserProps";
 import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { Maybe } from "../../types/utils";
@@ -141,17 +142,16 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
-        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
-            return this.listWithVersion({ ...options, filters }, is242Plus);
+        return this.getIs242Plus().flatMap(is242Plus => {
+            return this.listWithVersion(options, is242Plus);
         });
     }
 
     private listWithVersion(options: ListOptions, is242Plus: boolean): FutureData<PaginatedResponse<User>> {
-        const { page, pageSize, filters } = options;
+        const { page, pageSize } = options;
         const normalizedPage = page ?? 1;
         const normalizedPageSize = pageSize ?? 25;
         const idFilterValues = this.getIdInFilterValues(options);
-        const translatedFilters = filters;
 
         return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToHide => {
             if (!idFilterValues || idFilterValues.length === 0) {
@@ -164,10 +164,10 @@ export class UserD2ApiRepository implements UserRepository {
                         },
                         page,
                         pageSize,
-                        ...this.createCommonListQueryParams({ ...options, filters: translatedFilters }, is242Plus),
+                        ...this.createCommonListQueryParams(options, is242Plus),
                     })
                 ).flatMap(({ objects, pager }) => {
-                    return this.recalculatePagination(options).map(newPager => {
+                    return this.recalculatePagination(options, is242Plus).map(newPager => {
                         const users = objects.map(user => this.toDomainUser(user as ApiUserWithAudit));
                         const excludeHiddenUsers = usersIdsToHide
                             ? users.filter(user => !usersIdsToHide.includes(user.id))
@@ -179,17 +179,14 @@ export class UserD2ApiRepository implements UserRepository {
 
             // If there is an ID filter, we need to chunk the requests to avoid URL length limits
             const sorting = options.sorting ?? { field: "firstName", order: "asc" };
-            const baseFilters = translatedFilters ?? {};
+            const baseFilters = options.filters ?? {};
 
             return chunkRequest(
                 idFilterValues,
                 idsChunk => {
                     const chunkOptions: ListOptions = {
                         ...options,
-                        filters: {
-                            ...baseFilters,
-                            id: ["in", idsChunk],
-                        },
+                        filters: { ...baseFilters, id: idsChunk },
                     };
 
                     return apiToFuture(
@@ -248,18 +245,8 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    private buildFilters(
-        filters: ListFilters | undefined,
-        override: { onlyActiveUsers: boolean },
-        is242Plus: boolean
-    ): Record<string, Record<string, string[]> | undefined> {
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
-        const disabledKey = is242Plus ? "disabled" : "userCredentials.disabled";
-
-        return {
-            ...otherFilters,
-            [disabledKey]: override.onlyActiveUsers ? { eq: ["false"] } : otherFilters[disabledKey],
-        };
+    private buildApiFilters(options: ListOptions, is242Plus: boolean): D2ApiFilters {
+        return translateUserFilters(options.filters, options.onlyActiveUsers, is242Plus);
     }
 
     private getUsersIdsInChunks(ids: Id[]): FutureData<Maybe<Id[]>> {
@@ -278,13 +265,13 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public listAllIds(options: ListOptions): FutureData<string[]> {
-        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
+        return this.getIs242Plus().flatMap(is242Plus => {
             return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
                 return apiToFuture(
                     this.api.models.users.get({
                         fields: { id: true },
                         paging: false,
-                        ...this.createCommonListQueryParams({ ...options, filters }, is242Plus),
+                        ...this.createCommonListQueryParams(options, is242Plus),
                     })
                 ).map(({ objects }) => {
                     const usersIds = objects.map(user => user.id);
@@ -298,21 +285,19 @@ export class UserD2ApiRepository implements UserRepository {
         const {
             search,
             sorting = { field: "firstName", order: "asc" },
-            filters,
             canManage,
             rootJunction,
-            onlyActiveUsers,
             onlyUsersOrgUnits,
         } = options;
 
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers }, is242Plus);
-        const areFiltersEnabled = _(otherFilters).values().some();
+        const apiFilters = this.buildApiFilters(options, is242Plus);
+        const areFiltersEnabled = Object.values(apiFilters).some(v => v !== undefined && v !== null);
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
 
         return {
             query: search !== "" ? search : undefined,
             canManage: canManage === "true" ? "true" : undefined,
-            filter: otherFilters,
+            filter: apiFilters,
             rootJunction: areFiltersEnabled ? rootJunction : undefined,
             userOrgUnits: onlyUsersOrgUnits ? "true" : undefined,
             includeChildren: onlyUsersOrgUnits ? "true" : undefined,
@@ -321,14 +306,13 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]> {
-        return this.translateListFiltersForApi(options.filters).flatMap(({ is242Plus, filters }) => {
-            return this.listAllUserIdentifiersWithVersion({ ...options, filters }, is242Plus);
+        return this.getIs242Plus().flatMap(is242Plus => {
+            return this.listAllUserIdentifiersWithVersion(options, is242Plus);
         });
     }
 
     private listAllUserIdentifiersWithVersion(options: ListOptions, is242Plus: boolean): FutureData<UserIdentifier[]> {
         const idFilterValues = this.getIdInFilterValues(options);
-        const translatedFilters = options.filters;
 
         return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
             if (!idFilterValues || idFilterValues.length === 0) {
@@ -336,7 +320,7 @@ export class UserD2ApiRepository implements UserRepository {
                     this.api.models.users.get({
                         fields: { id: true, name: true, username: true, userCredentials: { username: true } },
                         paging: false,
-                        ...this.createCommonListQueryParams({ ...options, filters: translatedFilters }, is242Plus),
+                        ...this.createCommonListQueryParams(options, is242Plus),
                     })
                 ).map(({ objects }) => {
                     const filteredObjects = usersIdsToExclude
@@ -353,7 +337,7 @@ export class UserD2ApiRepository implements UserRepository {
                 });
             }
 
-            return this.getUserIdentifiersInChunks({ ...options, filters: translatedFilters }, is242Plus, {
+            return this.getUserIdentifiersInChunks(options, is242Plus, {
                 userIds: idFilterValues,
                 usersIdsToExclude: usersIdsToExclude,
             });
@@ -361,9 +345,7 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getIdInFilterValues(options: ListOptions): Maybe<Id[]> {
-        const filters = options.filters;
-        const idFilter = filters?.id;
-        const idFilterValues = idFilter?.[0] === "in" ? idFilter[1] : undefined;
+        const idFilterValues = options.filters?.id;
         return idFilterValues && idFilterValues.length > 0 ? idFilterValues : undefined;
     }
 
@@ -379,7 +361,7 @@ export class UserD2ApiRepository implements UserRepository {
         return chunkRequest(
             userIds,
             idsChunk => {
-                const chunkOptions: ListOptions = { ...options, filters: { ...baseFilters, id: ["in", idsChunk] } };
+                const chunkOptions: ListOptions = { ...options, filters: { ...baseFilters, id: idsChunk } };
 
                 return apiToFuture(
                     this.api.models.users.get({
@@ -490,17 +472,10 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getFullUsers(options: ListOptions): FutureData<ExistingApiUser[]> {
-        const {
-            page,
-            pageSize,
-            search,
-            sorting = { field: "firstName", order: "asc" },
-            filters,
-            onlyActiveUsers,
-        } = options;
+        const { page, pageSize, search, sorting = { field: "firstName", order: "asc" } } = options;
 
-        // getFullUsers is only used internally for save() prefetch; keep legacy behavior (2.41 compatible)
-        const otherFilters = this.buildFilters(filters, { onlyActiveUsers }, false);
+        // getFullUsers is only used internally for save() prefetch; keep 2.41-compatible filter keys
+        const apiFilters = translateUserFilters(options.filters, options.onlyActiveUsers, false);
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
@@ -510,7 +485,7 @@ export class UserD2ApiRepository implements UserRepository {
                 paging: false,
                 filter: {
                     identifiable: search ? { token: search } : undefined,
-                    ...otherFilters,
+                    ...apiFilters,
                 },
                 order: `${sorting.field}:${sorting.order}`,
                 v: +new Date().getTime(),
@@ -560,7 +535,7 @@ export class UserD2ApiRepository implements UserRepository {
 
         return this.getLogger().flatMap(logger => {
             return this.getFullUsers({
-                filters: { id: ["in", userIds] },
+                filters: { id: userIds },
                 onlyUsersOrgUnits: false,
                 onlyActiveUsers: false,
                 hideUsers: [],
@@ -966,15 +941,20 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    private recalculatePagination(options: ListOptions): FutureData<Maybe<Pager>> {
+    private recalculatePagination(options: ListOptions, is242Plus: boolean): FutureData<Maybe<Pager>> {
         // There is a bug in v41 where the pager total and pageCount are incorrect when
         // filters are applied together with userOrgUnits=true. To work around this, we recalculate
         // the pagination based on the total number of users that match the filters.
         const { onlyUsersOrgUnits, filters = {} } = options;
-        const calculatePager =
-            onlyUsersOrgUnits && Object.entries(filters).filter(([_, v]) => v !== undefined && v !== null).length > 0;
+        const hasActiveFilters =
+            Object.entries(filters).filter(
+                ([_, v]) => v !== undefined && v !== null && (Array.isArray(v) ? v.length > 0 : true)
+            ).length > 0;
+        const calculatePager = onlyUsersOrgUnits && hasActiveFilters;
 
         if (!calculatePager) return Future.void();
+
+        if (is242Plus) return Future.void(); // Bug only on v41
 
         return Future.fromPromise(this.api.getVersion()).flatMap(version => {
             const majorVersion = getMajorVersion(version);
@@ -984,11 +964,10 @@ export class UserD2ApiRepository implements UserRepository {
 
             const optionsWithoutUserIds: ListOptions = {
                 ...options,
-                // @ts-expect-error
-                filters: { ...options.filters, id: ["in", undefined] },
+                filters: { ...options.filters, id: undefined },
             };
 
-            return this.listAllUserIdentifiers(optionsWithoutUserIds).map(userIds => {
+            return this.listAllUserIdentifiersWithVersion(optionsWithoutUserIds, false).map(userIds => {
                 return {
                     page: options.page ?? 1,
                     pageSize: options.pageSize ?? 25,
@@ -1002,35 +981,6 @@ export class UserD2ApiRepository implements UserRepository {
     @cache()
     private getIs242Plus(): FutureData<boolean> {
         return Future.fromPromise(this.api.getVersion()).map(version => getMajorVersion(version) >= 42);
-    }
-
-    private translateListFiltersForApi(
-        filters: ListFilters | undefined
-    ): FutureData<{ is242Plus: boolean; filters: ListFilters | undefined }> {
-        return this.getIs242Plus().map(is242Plus => {
-            if (!filters) return { is242Plus, filters };
-            if (!is242Plus) return { is242Plus, filters };
-
-            const prefix = "userCredentials.";
-            const rootWhitelist = new Set(["username", "disabled", "externalAuth", "lastLogin", "userRoles.id"]);
-
-            const translated = _(filters)
-                .toPairs()
-                .flatMap(([key, value]) => {
-                    if (!key.startsWith(prefix)) return [[key, value] as const];
-
-                    const candidate = key.slice(prefix.length);
-                    // In DHIS2 2.42, filters using userCredentials.* can fail. Only translate the keys
-                    // we know exist in the root user schema; drop the rest (e.g. twoFA).
-                    if (!rootWhitelist.has(candidate)) return [];
-
-                    return [[candidate, value] as const];
-                })
-                .fromPairs()
-                .value();
-
-            return { is242Plus, filters: translated };
-        });
     }
 }
 

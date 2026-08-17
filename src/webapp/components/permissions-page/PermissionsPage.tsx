@@ -45,12 +45,13 @@ type PermissionsPageProps = {
     onSave: (appSettings: AppSettings) => void;
     onClose: () => void;
     permissionsGroup: "users" | "global" | "filter";
+    appSettings: AppSettings;
 };
 
 export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
-    const { onSave, onClose, permissionsGroup } = props;
+    const { onSave, onClose, permissionsGroup, appSettings } = props;
 
-    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings();
+    const { search, metaObject, onUpdateSharingOptions, permission } = useSharingSettings(appSettings.settingsAccess);
     const {
         formState,
         updateFormState,
@@ -67,7 +68,7 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
         updateUiUserGroupActionsAccess,
         updateUiUserRoleActionsAccess,
         updateUiDashboardActionsAccess,
-    } = usePermissionsPage(onSave, permission);
+    } = usePermissionsPage(onSave, permission, appSettings);
 
     const theme = useTheme();
 
@@ -162,6 +163,30 @@ export const PermissionsPage = React.memo((props: PermissionsPageProps) => {
                                 />
                             }
                             label={i18n.t("Show only users assigned to users organisation units")}
+                        />
+
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={formState.limitPasswordActionsToUserOrgUnits}
+                                    onChange={event =>
+                                        updateFormState(event.target.checked, "limitPasswordActionsToUserOrgUnits")
+                                    }
+                                />
+                            }
+                            label={
+                                <Box display="flex" alignItems="center" gridColumnGap={theme.spacing(0.75)}>
+                                    {i18n.t("Limit password actions to users' organisation units and below")}
+                                    <InfoOutlinedIcon
+                                        fontSize="small"
+                                        color="disabled"
+                                        titleAccess={i18n.t(
+                                            "'Set password' and 'Reset password' will only be available for users assigned to the logged user's data capture organisation units or below.",
+                                            { nsSeparator: false }
+                                        )}
+                                    />
+                                </Box>
+                            }
                         />
 
                         <FormControlLabel

@@ -94,56 +94,36 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
     return { saveUsersOrgUnits };
 }
 
-export function useGetAllUsers(onlyUsersOrgUnits: boolean) {
+export function useGetAllUserIdentifiers(onlyUsersOrgUnits: boolean): {
+    userIdentifiers: UserIdentifier[];
+    isLoading: boolean;
+} {
     const { compositionRoot } = useAppContext();
     const { appSettings } = useAppSettingsContext();
-    const [users, setUsers] = React.useState<User[]>();
     const snackbar = useSnackbar();
+    const onlyActiveUsers = appSettings.showOnlyActiveUsers;
+    const hideUsers = appSettings.hide.users;
 
-    React.useMemo(() => {
-        compositionRoot.users
-            .listAll({
-                onlyUsersOrgUnits: onlyUsersOrgUnits,
-                onlyActiveUsers: appSettings.showOnlyActiveUsers,
-                hideUsers: appSettings.hide.users,
-            })
-            .run(
-                allUsers => {
-                    setUsers(allUsers);
-                },
-                error => {
-                    snackbar.error(error);
-                }
-            );
-    }, [appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits, compositionRoot.users, snackbar]);
-
-    return { users };
-}
-
-export function useGetAllUserIdentifiers(onlyUsersOrgUnits: boolean) {
-    const { compositionRoot } = useAppContext();
-    const { appSettings } = useAppSettingsContext();
     const [userIdentifiers, setUserIdentifiers] = React.useState<UserIdentifier[]>([]);
-    const snackbar = useSnackbar();
+    const [isLoading, setIsLoading] = React.useState(true);
 
-    React.useMemo(() => {
-        compositionRoot.users
-            .listAllIdentifiers({
-                onlyUsersOrgUnits: onlyUsersOrgUnits,
-                onlyActiveUsers: appSettings.showOnlyActiveUsers,
-                hideUsers: appSettings.hide.users,
-            })
-            .run(
-                allUserIdentifiers => {
-                    setUserIdentifiers(allUserIdentifiers);
-                },
-                error => {
-                    snackbar.error(error);
-                }
-            );
-    }, [compositionRoot, snackbar, appSettings.hide.users, appSettings.showOnlyActiveUsers, onlyUsersOrgUnits]);
+    React.useEffect(() => {
+        setIsLoading(true);
 
-    return { userIdentifiers };
+        return compositionRoot.users.listAllIdentifiers({ onlyUsersOrgUnits, onlyActiveUsers, hideUsers }).run(
+            userIdentifiers => {
+                setUserIdentifiers(userIdentifiers);
+                setIsLoading(false);
+            },
+            error => {
+                snackbar.error(error);
+                setUserIdentifiers([]);
+                setIsLoading(false);
+            }
+        );
+    }, [compositionRoot.users, snackbar, onlyUsersOrgUnits, onlyActiveUsers, hideUsers]);
+
+    return { userIdentifiers, isLoading };
 }
 
 export function useCopyInUser(props: UseCopyInUserProps) {

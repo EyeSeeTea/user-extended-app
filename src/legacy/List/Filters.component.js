@@ -185,28 +185,22 @@ export default class Filters extends React.Component {
             rootJunction,
         } = this.state;
 
-        const inFilter = field => (_(field).isEmpty() ? null : ["in", field]);
-
-        const is242Plus = this.getIs242Plus();
+        // Helper: convert an array to an id list, or undefined when empty.
+        const inFilter = field => (_(field).isEmpty() ? undefined : field);
 
         return {
             ...(showOnlyManagedUsers ? { canManage: "true" } : {}),
             ...(searchString ? { query: searchString } : {}),
             ...(rootJunction ? { rootJunction } : {}),
             filters: {
-                [is242Plus ? "disabled" : "userCredentials.disabled"]:
-                    userDisabled !== null ? ["eq", userDisabled] : undefined,
-                // DHIS2 2.42 removed twoFA from userCredentials responses for security
-                ...(is242Plus
-                    ? {}
-                    : { "userCredentials.twoFA": twoFactorEnabled !== null ? ["eq", twoFactorEnabled] : undefined }),
-                [is242Plus ? "externalAuth" : "userCredentials.externalAuth"]:
-                    externalAuth !== null ? ["eq", externalAuth] : undefined,
-                [is242Plus ? "userRoles.id" : "userCredentials.userRoles.id"]: inFilter(userRoles),
-                "userGroups.id": inFilter(userGroups),
-                "organisationUnits.id": inFilter(orgUnits.map(ou => ou.id)),
-                "dataViewOrganisationUnits.id": inFilter(orgUnitsOutput.map(ou => ou.id)),
-                "teiSearchOrganisationUnits.id": inFilter(searchOrgUnits.map(ou => ou.id)),
+                disabled: userDisabled !== null ? userDisabled : undefined,
+                twoFA: twoFactorEnabled !== null ? twoFactorEnabled : undefined,
+                externalAuth: externalAuth !== null ? externalAuth : undefined,
+                userRoles: inFilter(userRoles),
+                userGroups: inFilter(userGroups),
+                organisationUnits: inFilter(orgUnits.map(ou => ou.id)),
+                dataViewOrganisationUnits: inFilter(orgUnitsOutput.map(ou => ou.id)),
+                teiSearchOrganisationUnits: inFilter(searchOrgUnits.map(ou => ou.id)),
             },
         };
     };

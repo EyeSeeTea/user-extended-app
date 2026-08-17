@@ -38,7 +38,7 @@ export const ImportExport: React.FC<ImportExportProps> = props => {
         setMenuOpen(false);
     };
 
-    const orgUnitsField = settings.get("organisationUnitsField");
+    const orgUnitsField = appSettings.configuredOrgUnitField ?? settings.get("organisationUnitsField");
     const { exportUsersToCSV, exportUsersToJSON, exportEmptyTemplate } = useExportUsers({
         columns,
         filterOptions,

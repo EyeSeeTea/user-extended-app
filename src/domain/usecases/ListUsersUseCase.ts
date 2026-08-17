@@ -6,7 +6,7 @@ import { Pager } from "../entities/PaginatedResponse";
 import { User } from "../entities/User";
 import { isSuperAdmin } from "../entities/UserProps";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
-import { UserRepository, ListOptions, ListFilterType } from "../repositories/UserRepository";
+import { UserRepository, ListOptions, UserListFilters } from "../repositories/UserRepository";
 import { getAppSettings } from "./common/settings";
 
 export class ListUsersUseCase implements UseCase {
@@ -32,18 +32,17 @@ export class ListUsersUseCase implements UseCase {
         options: ListOptions,
         appSettings: AppSettings
     ): FutureData<{ pager: Pager; objects: User[] }> {
-        const disabledKey = "userCredentials.disabled";
+        // Separate the disabled filter from the rest so we can combine each
+        // non-disabled filter with disabled in individual OR-junction requests.
+        const { disabled, ...restFilters } = options.filters ?? {};
 
-        const otherFilters = _(options.filters)
-            .map((items, key) => {
-                if (key === disabledKey) return undefined;
-                if (!items) return undefined;
-                return { fieldName: key, values: items };
-            })
-            .compact()
-            .value();
+        const activeFilterEntries = Object.entries(restFilters).filter(([_, value]) => {
+            if (value === undefined || value === null) return false;
+            if (Array.isArray(value)) return value.length > 0;
+            return true;
+        });
 
-        if (otherFilters.length === 0) {
+        if (activeFilterEntries.length === 0) {
             return this.userRepository.list({
                 ...options,
                 onlyActiveUsers: false,
@@ -51,18 +50,13 @@ export class ListUsersUseCase implements UseCase {
             });
         }
 
-        const disabledFilter = options.filters ? options.filters["userCredentials.disabled"] : undefined;
-
-        const baseFilters: Record<string, [ListFilterType, string[]]> = {
-            ...(disabledFilter ? { "userCredentials.disabled": disabledFilter } : {}),
+        const baseFilters: UserListFilters = {
+            ...(disabled !== null && disabled !== undefined ? { disabled } : {}),
         };
 
-        const $requests = otherFilters.map(filter => {
+        const $requests = activeFilterEntries.map(([fieldName, fieldValue]) => {
             return this.userRepository.listAll({
-                filters: {
-                    ...baseFilters,
-                    [filter.fieldName]: filter.values,
-                },
+                filters: { ...baseFilters, [fieldName]: fieldValue },
                 hideUsers: appSettings.hide.users,
                 onlyActiveUsers: options.onlyActiveUsers,
                 onlyUsersOrgUnits: options.onlyUsersOrgUnits,

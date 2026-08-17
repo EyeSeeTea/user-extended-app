@@ -39,11 +39,9 @@ import { UserRoleD2Repository } from "./data/repositories/UserRoleD2Repository";
 import { GetDashboardsUseCase } from "./domain/usecases/GetDashboardsUseCase";
 import { DashboardD2Repository } from "./data/repositories/DashboardD2Repository";
 import { GetUserRolesUseCase } from "./domain/usecases/GetUserRolesUseCase";
-import { OrgUnitD2Repository } from "./data/repositories/OrgUnitD2Repository";
 import { GetUserGroupsUseCase } from "./domain/usecases/GetUserGroupsUseCase";
 import { GetUsersInOrgUnits } from "./domain/usecases/GetUsersInOrgUnits";
 import { GetAllUsersSimpleUseCase } from "./domain/usecases/GetAllUsersSimpleUseCase";
-import { UserSimpleD2Repository } from "./data/repositories/UserSimpleD2Repository";
 import { AppSettingsD2ConstantRepository } from "./data/repositories/AppSettingsD2ConstantRepository";
 import { SetUserPasswordUseCase } from "./domain/usecases/SetUserPasswordUseCase";
 import { VerifyPasswordUseCase } from "./domain/usecases/VerifyPasswordUseCase";
@@ -74,8 +72,6 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
     const userGroupRepository = new UserGroupD2Repository(api);
     const userRoleRepository = new UserRoleD2Repository(api);
     const dashboardRepository = new DashboardD2Repository(api);
-    const orgUnitRepository = new OrgUnitD2Repository(api);
-    const userSimpleRepository = new UserSimpleD2Repository(api);
     const userColumnRepository = new UserColumnD2Repository(instance);
     const roleColumnRepository = new RoleColumnD2Repository(instance);
     const dashboardColumnRepository = new DashboardColumnD2Repository(instance);
@@ -104,18 +100,18 @@ export function getCompositionRoot(instance: Instance, storageType: SettingsStor
             saveColumns: new SaveColumnsPreferenceUseCase(userColumnRepository),
             remove: new RemoveUsersUseCase(userRepository),
             saveOrgUnits: new SaveUserOrgUnitUseCase(userRepository),
-            export: new ExportUsersUseCase(userRepository),
+            export: new ExportUsersUseCase(userRepository, appSettingsRepository),
             copyInUser: new CopyInUserUseCase(userRepository),
             import: new ImportUsersUseCase(userRepository),
-            resetPasswords: new ResetUsersPasswordsUseCase(userRepository),
+            resetPasswords: new ResetUsersPasswordsUseCase(userRepository, appSettingsRepository),
             verifyPassword: new VerifyPasswordUseCase(userRepository),
-            setPassword: new SetUserPasswordUseCase(userRepository),
+            setPassword: new SetUserPasswordUseCase(userRepository, appSettingsRepository),
             searchUsersAndGroups: new SearchUsersAndUserGroupsUseCase(userAndUserGroupsSearchRepository),
             checkCurrentUserCanAccessSettings: new CheckCurrentUserCanAccessSettingsUseCase(
                 userRepository,
                 appSettingsRepository
             ),
-            getInOrgUnits: new GetUsersInOrgUnits(orgUnitRepository, userSimpleRepository, appSettingsRepository),
+            getInOrgUnits: new GetUsersInOrgUnits(userRepository, appSettingsRepository),
             getAllSimple: new GetAllUsersSimpleUseCase(userRepository, appSettingsRepository),
             resetColumns: new ResetColumnsUserCase(userColumnRepository),
             replicateFromTemplate: new ReplicateFromTemplateUseCase(userRepository),
