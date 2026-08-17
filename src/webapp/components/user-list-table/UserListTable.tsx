@@ -9,8 +9,8 @@ import {
     TableConfig,
     TablePagination,
     TableSorting,
-    useObjectsTable,
     useSnackbar,
+    useTableWithSelectionCount,
 } from "@eyeseetea/d2-ui-components";
 import { Button, Icon, Tooltip } from "@material-ui/core";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -561,7 +561,7 @@ export const UserListTable: React.FC<UserListTableProps> = ({
         ]
     );
 
-    const tableProps = useObjectsTable(baseConfig, refreshRows, refreshAllIds);
+    const tableProps = useTableWithSelectionCount(baseConfig, refreshRows, refreshAllIds);
 
     const onSuccessUsersAction = () => {
         onCleanSelectedUsers();
