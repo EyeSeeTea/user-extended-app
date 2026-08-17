@@ -2805,9 +2805,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eyeseetea/d2-ui-components@npm:2.13.0-beta.7":
-  version: 2.13.0-beta.7
-  resolution: "@eyeseetea/d2-ui-components@npm:2.13.0-beta.7"
+"@eyeseetea/d2-ui-components@npm:2.13.0":
+  version: 2.13.0
+  resolution: "@eyeseetea/d2-ui-components@npm:2.13.0"
   dependencies:
     "@date-io/core": "npm:1.3.6"
     "@date-io/moment": "npm:1.0.2"
@@ -2828,7 +2828,7 @@ __metadata:
     d2: 31
     react: ">=16"
     react-dom: ">=16"
-  checksum: 10c0/3e98acb0de66aa70cb20e384cde86de0c7aead0b152caa53408f9c7700d324c384c4239121f9d2c538df5409f152abb9111e8ff65afcf6975420efe43285ad01
+  checksum: 10c0/a178e3c3e5faf553959de64785720c0783e35ef269d41ed9185fe23cbc88493be1e7715d7661a664dc7ca9f47195962b7ba01b3218db0d1881d15e71baba76df
   languageName: node
   linkType: hard
 
@@ -12080,7 +12080,7 @@ __metadata:
     "@dhis2/ui": "npm:7.8.1"
     "@eyeseetea/d2-api": "npm:1.20.0"
     "@eyeseetea/d2-logger": "npm:1.2.0"
-    "@eyeseetea/d2-ui-components": "npm:2.13.0-beta.7"
+    "@eyeseetea/d2-ui-components": "npm:2.13.0"
     "@eyeseetea/feedback-component": "npm:0.3.0"
     "@material-ui/core": "npm:4.12.4"
     "@material-ui/icons": "npm:4.11.3"
