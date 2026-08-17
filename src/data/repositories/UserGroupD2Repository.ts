@@ -66,7 +66,11 @@ export class UserGroupD2Repository implements UserGroupRepository {
         hideGroups: Id[];
         descriptionSource: Maybe<string>;
     }): FutureData<UserGroup[]> {
-        return this.getAllUserGroups({ initialPage: 1, pageSize: 100 }).map(d2UserGroups => {
+        return this.getAllUserGroups({
+            initialPage: 1,
+            pageSize: 100,
+            descriptionSource: options.descriptionSource,
+        }).map(d2UserGroups => {
             return d2UserGroups
                 .filter(group => !options.hideGroups.includes(group.id))
                 .map(group => {
@@ -81,22 +85,15 @@ export class UserGroupD2Repository implements UserGroupRepository {
         });
     }
 
-    private getAllUserGroups(options: { initialPage: number; pageSize: number }): FutureData<D2ApiUserGroup[]> {
-        const { initialPage, pageSize } = options;
+    private getAllUserGroups(options: {
+        initialPage: number;
+        pageSize: number;
+        descriptionSource: Maybe<string>;
+    }): FutureData<D2ApiUserGroup[]> {
+        const { initialPage, pageSize, descriptionSource } = options;
 
         const fetchByPage = (page: number): FutureData<D2ApiUserGroup[]> => {
-            return apiToFuture(
-                this.api.models.userGroups.get({
-                    fields: {
-                        id: true,
-                        displayName: true,
-                        users: { id: true, displayName: true },
-                        attributeValues: { value: true, attribute: { id: true } },
-                    },
-                    page,
-                    pageSize,
-                })
-            ).flatMap(response => {
+            return this.getUserGroupsPage({ page, pageSize, descriptionSource }).flatMap(response => {
                 const userGroups = response.objects;
                 if (response.pager.page < response.pager.pageCount) {
                     return fetchByPage(page + 1).map(nextUserGroups => userGroups.concat(nextUserGroups));
@@ -108,7 +105,33 @@ export class UserGroupD2Repository implements UserGroupRepository {
 
         return fetchByPage(initialPage);
     }
+
+    /* attributeValues is only needed to resolve the description, so instances without a configured
+     * source do not pay for that extra payload on every load of the tab. */
+    private getUserGroupsPage(options: {
+        page: number;
+        pageSize: number;
+        descriptionSource: Maybe<string>;
+    }): FutureData<D2ApiUserGroupsPage> {
+        const { page, pageSize, descriptionSource } = options;
+        const fields = { id: true, displayName: true, users: { id: true, displayName: true } };
+
+        return descriptionSource
+            ? apiToFuture(
+                  this.api.models.userGroups.get({
+                      fields: { ...fields, attributeValues: { value: true, attribute: { id: true } } },
+                      page,
+                      pageSize,
+                  })
+              )
+            : apiToFuture(this.api.models.userGroups.get({ fields, page, pageSize }));
+    }
 }
+
+type D2ApiUserGroupsPage = {
+    objects: D2ApiUserGroup[];
+    pager: { page: number; pageCount: number };
+};
 
 type D2ApiUserGroup = {
     id: string;
@@ -117,7 +140,8 @@ type D2ApiUserGroup = {
         id: string;
         displayName: string;
     }>;
-    attributeValues: Array<{
+    /* Only present when a description source is configured */
+    attributeValues?: Array<{
         value: string;
         attribute: { id: string };
     }>;
@@ -128,5 +152,6 @@ type D2ApiUserGroup = {
 function getDescription(d2UserGroup: D2ApiUserGroup, descriptionSource: Maybe<string>): Maybe<string> {
     if (!descriptionSource) return undefined;
 
-    return d2UserGroup.attributeValues.find(attributeValue => attributeValue.attribute.id === descriptionSource)?.value;
+    return d2UserGroup.attributeValues?.find(attributeValue => attributeValue.attribute.id === descriptionSource)
+        ?.value;
 }

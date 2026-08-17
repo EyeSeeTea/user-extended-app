@@ -41,7 +41,7 @@ describe("GetColumnsPreferencesUseCase", () => {
 
             const columns = await getColumnsPreferencesUseCase.execute(SUPER_ADMIN).toPromise();
 
-            expect(columns).toEqual([{ fieldName: COLUMN_FIELD, state: "unselected", position: -1 }]);
+            expect(columns).toEqual([{ fieldName: COLUMN_FIELD, state: "unselected", position: 0 }]);
         });
 
         it("should keep the stored preference of a super admin", async () => {

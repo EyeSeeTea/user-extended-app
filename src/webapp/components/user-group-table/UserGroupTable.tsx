@@ -74,7 +74,11 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
     const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(defaultFilterEmptyUsers);
     const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
-    const { userGroups } = useUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
+    const { userGroups } = useUserGroups({
+        excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
+        currentUser,
+        appSettings,
+    });
     const isAdmin = isSuperAdmin(currentUser);
     const [columnsPreference, setColumnsPreference] = React.useState<GroupColumnSetting[]>([]);
 
@@ -103,6 +107,11 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
         return generateTableConfig({ currentPageSize, columnsPreference, currentUser });
     }, [currentPageSize, columnsPreference, currentUser]);
 
+    /* Search and export follow the columns the admin configured: a disabled column must not
+     * leak its content through the search results nor through the exported file. */
+    const activeColumns = React.useMemo(() => columnsPreference.map(column => column.fieldName), [columnsPreference]);
+    const hasDescriptionColumn = activeColumns.includes("description");
+
     const getRows = React.useCallback(
         (
             search: string,
@@ -117,12 +126,12 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 sort: sorting.order,
                 filterEmptyUsers: filterEmptyUsers,
                 selectedUsersIds: selectedUsersIds,
-                searchFields: ["name", "description"],
+                searchFields: activeColumns,
             });
 
             return Promise.resolve(createPagination(filteredUserGroups, page, pageSize));
         },
-        [userGroups, filterEmptyUsers, selectedUsersIds]
+        [userGroups, filterEmptyUsers, selectedUsersIds, activeColumns]
     );
 
     const tableProps = useObjectsTable(config, getRows);
@@ -140,16 +149,15 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 format: action === "exportCsv" ? "csv" : "json",
             });
             if (action === "exportCsv") {
-                const rows = tableProps.rows.map(user => user);
-                buildCsvRow(rows, fileName, appSettings.hasUserGroupDescriptionSource);
+                buildCsvRow(tableProps.rows, fileName, hasDescriptionColumn);
             } else if (action === "exportJson") {
-                FileSaver.saveAs(
-                    new Blob([JSON.stringify(tableProps.rows, null, 4)], { type: "application/json" }),
-                    fileName
-                );
+                const rows = hasDescriptionColumn
+                    ? tableProps.rows
+                    : tableProps.rows.map(userGroup => _.omit(userGroup, "description"));
+                FileSaver.saveAs(new Blob([JSON.stringify(rows, null, 4)], { type: "application/json" }), fileName);
             }
         },
-        [tableProps.rows, appSettings.hasUserGroupDescriptionSource]
+        [tableProps.rows, hasDescriptionColumn]
     );
 
     const someFilterEnabled =
