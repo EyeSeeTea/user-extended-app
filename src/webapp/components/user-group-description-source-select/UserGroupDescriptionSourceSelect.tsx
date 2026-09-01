@@ -37,6 +37,10 @@ export const UserGroupDescriptionSourceSelect: React.FC<UserGroupDescriptionSour
 
     const hasNoSources = !isLoading && sources.length === 0;
 
+    /* The attribute may have been deleted in DHIS2 after being configured here: the dropdown
+     * shows an empty value and the description column stays empty, so warn about it. */
+    const isSourceMissing = !isLoading && !!value && !sources.some(source => source.id === value);
+
     return (
         <Container>
             <Dropdown
@@ -45,6 +49,13 @@ export const UserGroupDescriptionSourceSelect: React.FC<UserGroupDescriptionSour
                 onChange={onChange}
                 value={value ?? undefined}
             />
+            {isSourceMissing && (
+                <Typography variant="caption" color="error">
+                    {i18n.t(
+                        "The configured attribute no longer exists in this instance. Select another one or the Description column will stay empty."
+                    )}
+                </Typography>
+            )}
             <Typography variant="caption">
                 {hasNoSources
                     ? i18n.t(

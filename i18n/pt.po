@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2026-08-06T23:44:38.655Z\n"
+"POT-Creation-Date: 2026-08-31T23:58:26.734Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -652,6 +652,11 @@ msgstr "URL da API"
 #, fuzzy
 msgid "User group description"
 msgstr "Descrição"
+
+msgid ""
+"The configured attribute no longer exists in this instance. Select another "
+"one or the Description column will stay empty."
+msgstr ""
 
 msgid ""
 "This instance has no attributes for user groups. Create one in the "
