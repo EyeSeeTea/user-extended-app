@@ -151,11 +151,7 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
         []
     );
 
-    const visibleGroupColumns = React.useMemo(() => {
-        return appSettings.hasUserGroupDescriptionSource
-            ? appSettings.groupColumns
-            : appSettings.groupColumns.filter(column => column.field !== "description");
-    }, [appSettings]);
+    const visibleGroupColumns = React.useMemo(() => appSettings.availableGroupColumns, [appSettings]);
 
     const saveSettings = React.useCallback(() => {
         onSaveData(appSettings);

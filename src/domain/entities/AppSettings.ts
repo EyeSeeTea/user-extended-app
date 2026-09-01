@@ -100,6 +100,19 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
         return Boolean(this.userGroupDescriptionSource);
     }
 
+    /* Without a configured source there is nothing to show in the description column */
+    get availableGroupColumns(): SettingsGroupColumn[] {
+        return this.hasUserGroupDescriptionSource
+            ? this.groupColumns
+            : this.groupColumns.filter(column => column.field !== "description");
+    }
+
+    /* Fields the user group search and the exports work with: a column disabled in the settings
+     * must not leak its content, not even for a super admin that can still show it in the table */
+    get searchableGroupColumns(): GroupColumnType[] {
+        return this.availableGroupColumns.filter(column => column.value !== "disabled").map(column => column.field);
+    }
+
     get isActive(): boolean {
         return this.status === "active";
     }

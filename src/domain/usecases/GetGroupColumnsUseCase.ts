@@ -1,4 +1,3 @@
-import { AppSettings, SettingsGroupColumn } from "../entities/AppSettings";
 import { FutureData } from "../entities/Future";
 import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
 import { UserProps } from "../entities/UserProps";
@@ -16,19 +15,12 @@ export class GetGroupColumnsUseCase {
         return this.appSettingsRepository.get().flatMap(appSettings => {
             return this.columnRepository.get().map(groupColumnsPreferences => {
                 return resolveColumns({
-                    columnsConfig: this.getColumnsConfig(appSettings),
+                    columnsConfig: appSettings.availableGroupColumns,
                     preferences: groupColumnsPreferences,
                     user: user,
                     buildColumn: (fieldName, state, position) => ({ fieldName, state, position }),
                 });
             });
         });
-    }
-
-    // Without a configured source there is nothing to show in the description column
-    private getColumnsConfig(appSettings: AppSettings): SettingsGroupColumn[] {
-        return appSettings.hasUserGroupDescriptionSource
-            ? appSettings.groupColumns
-            : appSettings.groupColumns.filter(column => column.field !== "description");
     }
 }

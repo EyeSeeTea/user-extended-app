@@ -107,10 +107,11 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
         return generateTableConfig({ currentPageSize, columnsPreference, currentUser });
     }, [currentPageSize, columnsPreference, currentUser]);
 
-    /* Search and export follow the columns the admin configured: a disabled column must not
-     * leak its content through the search results nor through the exported file. */
-    const activeColumns = React.useMemo(() => columnsPreference.map(column => column.fieldName), [columnsPreference]);
-    const hasDescriptionColumn = activeColumns.includes("description");
+    /* Search and export follow the columns enabled in the settings, not the ones rendered: a
+     * disabled column must not leak its content through the search results nor through the
+     * exported file, not even for a super admin that can still show it in the table. */
+    const searchableColumns = React.useMemo(() => appSettings.searchableGroupColumns, [appSettings]);
+    const isDescriptionEnabled = searchableColumns.includes("description");
 
     const getRows = React.useCallback(
         (
@@ -126,12 +127,12 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 sort: sorting.order,
                 filterEmptyUsers: filterEmptyUsers,
                 selectedUsersIds: selectedUsersIds,
-                searchFields: activeColumns,
+                searchFields: searchableColumns,
             });
 
             return Promise.resolve(createPagination(filteredUserGroups, page, pageSize));
         },
-        [userGroups, filterEmptyUsers, selectedUsersIds, activeColumns]
+        [userGroups, filterEmptyUsers, selectedUsersIds, searchableColumns]
     );
 
     const tableProps = useObjectsTable(config, getRows);
@@ -149,15 +150,15 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 format: action === "exportCsv" ? "csv" : "json",
             });
             if (action === "exportCsv") {
-                buildCsvRow(tableProps.rows, fileName, hasDescriptionColumn);
+                buildCsvRow(tableProps.rows, fileName, isDescriptionEnabled);
             } else if (action === "exportJson") {
-                const rows = hasDescriptionColumn
+                const rows = isDescriptionEnabled
                     ? tableProps.rows
                     : tableProps.rows.map(userGroup => _.omit(userGroup, "description"));
                 FileSaver.saveAs(new Blob([JSON.stringify(rows, null, 4)], { type: "application/json" }), fileName);
             }
         },
-        [tableProps.rows, hasDescriptionColumn]
+        [tableProps.rows, isDescriptionEnabled]
     );
 
     const someFilterEnabled =
