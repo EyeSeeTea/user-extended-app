@@ -89,7 +89,7 @@ describe.each(scenarios)("$name", scenario => {
 
             const columns = await scenario.getColumns({ preferences: [], user: SUPER_ADMIN });
 
-            expect(columns).toEqual([{ fieldName: scenario.field, state: "unselected", position: -1 }]);
+            expect(columns).toEqual([{ fieldName: scenario.field, state: "unselected", position: 0 }]);
         });
 
         it("should keep the stored preference of a super admin", async () => {

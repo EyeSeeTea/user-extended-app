@@ -45,6 +45,9 @@ type AppSettingsAttr = {
     uiUserGroupActionsAccess: UserGroupUiActionAccess;
     uiUserRoleActionsAccess: UserRoleUiActionAccess;
     uiDashboardActionsAccess: DashboardUiActionAccess;
+    /* Opaque handle for the source of the user group description. The domain
+     * never interprets its content: only the repository knows how to resolve it. */
+    userGroupDescriptionSource: Maybe<string>;
 };
 
 type AppSettingStatus = "active" | "inactive";
@@ -89,7 +92,25 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
             uiUserRoleActionsAccess: this.defaultUserRoleUiActions(),
             uiDashboardActionsAccess: this.defaultUiDashboardActions(),
             groupColumns: this.defaultGroupColumns(),
+            userGroupDescriptionSource: undefined,
         });
+    }
+
+    get hasUserGroupDescriptionSource(): boolean {
+        return Boolean(this.userGroupDescriptionSource);
+    }
+
+    /* Without a configured source there is nothing to show in the description column */
+    get availableGroupColumns(): SettingsGroupColumn[] {
+        return this.hasUserGroupDescriptionSource
+            ? this.groupColumns
+            : this.groupColumns.filter(column => column.field !== "description");
+    }
+
+    /* Fields the user group search and the exports work with: a column disabled in the settings
+     * must not leak its content, not even for a super admin that can still show it in the table */
+    get searchableGroupColumns(): GroupColumnType[] {
+        return this.availableGroupColumns.filter(column => column.value !== "disabled").map(column => column.field);
     }
 
     get isActive(): boolean {
@@ -122,6 +143,10 @@ export class AppSettings extends Struct<AppSettingsAttr>() {
 
     updateGroupColumns(columns: SettingsGroupColumn[]): AppSettings {
         return this._update({ groupColumns: columns });
+    }
+
+    updateUserGroupDescriptionSource(source: Maybe<string>): AppSettings {
+        return this._update({ userGroupDescriptionSource: source || undefined });
     }
 
     updateColumnField(columnToUpdate: UserColumns, value: ColumnSettingValue): SettingsUserColumn[] {

@@ -37,6 +37,7 @@ export class GetUserGroupsUseCase {
         return this.userGroupRepository.getAllBy({
             hideUsers: appSettings.hide.users,
             hideGroups: appSettings.hide.userGroups,
+            descriptionSource: appSettings.userGroupDescriptionSource,
         });
     }
 }

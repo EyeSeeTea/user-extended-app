@@ -29,10 +29,12 @@ type ColumnsSettingsPageProps<T extends ColumnConfig> = {
     onSave: () => void;
     showActions?: boolean;
     title: string;
+    /* Extra settings of the section, rendered above the columns */
+    children?: React.ReactNode;
 };
 
 export const ColumnsSettingsPage = <T extends ColumnConfig>(props: ColumnsSettingsPageProps<T>) => {
-    const { columns, columnsMetadata, onClose, onSave, onUpdateColumns, showActions } = props;
+    const { children, columns, columnsMetadata, onClose, onSave, onUpdateColumns, showActions } = props;
     const updateColumns = (columnToUpdate: T, value: ColumnSettingValue) => {
         const newColumns = columns.map(column => {
             if (column.field === columnToUpdate.field) {
@@ -63,6 +65,7 @@ export const ColumnsSettingsPage = <T extends ColumnConfig>(props: ColumnsSettin
                 </AccordionSummary>
                 <AccordionDetails>
                     <SectionColumnsContainer>
+                        {children}
                         {columns.map(column => {
                             return (
                                 <ColumnSelector

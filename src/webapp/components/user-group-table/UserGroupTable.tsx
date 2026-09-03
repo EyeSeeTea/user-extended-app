@@ -41,9 +41,10 @@ function generateTableConfig(options: {
             text: _.capitalize(columnSetting.fieldName),
             getValue: (userGroup: UserGroup) => {
                 if (columnSetting.fieldName === "users") return buildEllipsizedList(userGroup.users);
+                if (columnSetting.fieldName === "description") return userGroup.description ?? "";
                 return userGroup[columnSetting.fieldName];
             },
-            sortable: columnSetting.fieldName !== "users",
+            sortable: columnSetting.fieldName !== "users" && columnSetting.fieldName !== "description",
             hidden: columnSetting.state === "unselected",
             disabled: isSuperAdmin(currentUser) ? false : columnSetting.state === "selected-disabled",
         };
@@ -73,7 +74,11 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
     const [filterEmptyUsers, setFilterEmptyUsers] = React.useState(defaultFilterEmptyUsers);
     const { compositionRoot, currentUser } = useAppContext();
     const classes = useStyles();
-    const { userGroups } = useUserGroups({ excludeUsersOutsideOrgUnits: excludeUsersOrgUnit, currentUser });
+    const { userGroups } = useUserGroups({
+        excludeUsersOutsideOrgUnits: excludeUsersOrgUnit,
+        currentUser,
+        appSettings,
+    });
     const isAdmin = isSuperAdmin(currentUser);
     const [columnsPreference, setColumnsPreference] = React.useState<GroupColumnSetting[]>([]);
 
@@ -102,6 +107,12 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
         return generateTableConfig({ currentPageSize, columnsPreference, currentUser });
     }, [currentPageSize, columnsPreference, currentUser]);
 
+    /* Search and export follow the columns enabled in the settings, not the ones rendered: a
+     * disabled column must not leak its content through the search results nor through the
+     * exported file, not even for a super admin that can still show it in the table. */
+    const searchableColumns = React.useMemo(() => appSettings.searchableGroupColumns, [appSettings]);
+    const isDescriptionEnabled = searchableColumns.includes("description");
+
     const getRows = React.useCallback(
         (
             search: string,
@@ -116,11 +127,12 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 sort: sorting.order,
                 filterEmptyUsers: filterEmptyUsers,
                 selectedUsersIds: selectedUsersIds,
+                searchFields: searchableColumns,
             });
 
             return Promise.resolve(createPagination(filteredUserGroups, page, pageSize));
         },
-        [userGroups, filterEmptyUsers, selectedUsersIds]
+        [userGroups, filterEmptyUsers, selectedUsersIds, searchableColumns]
     );
 
     const tableProps = useObjectsTable(config, getRows);
@@ -138,16 +150,15 @@ export const UserGroupTable: React.FC<UserGroupTableProps> = React.memo(props =>
                 format: action === "exportCsv" ? "csv" : "json",
             });
             if (action === "exportCsv") {
-                const rows = tableProps.rows.map(user => user);
-                buildCsvRow(rows, fileName);
+                buildCsvRow(tableProps.rows, fileName, isDescriptionEnabled);
             } else if (action === "exportJson") {
-                FileSaver.saveAs(
-                    new Blob([JSON.stringify(tableProps.rows, null, 4)], { type: "application/json" }),
-                    fileName
-                );
+                const rows = isDescriptionEnabled
+                    ? tableProps.rows
+                    : tableProps.rows.map(userGroup => _.omit(userGroup, "description"));
+                FileSaver.saveAs(new Blob([JSON.stringify(rows, null, 4)], { type: "application/json" }), fileName);
             }
         },
-        [tableProps.rows]
+        [tableProps.rows, isDescriptionEnabled]
     );
 
     const someFilterEnabled =
@@ -186,16 +197,23 @@ const useStyles = makeStyles({
     },
 });
 
-function buildCsvRow(rows: UserGroup[], fileName: string): void {
+function buildCsvRow(rows: UserGroup[], fileName: string, includeDescription: boolean): void {
+    const header = includeDescription ? ["id", "name", "description", "users"] : ["id", "name", "users"];
+
+    const values = rows.map(ug => {
+        const users = ug.users.map(u => u.name).join("|");
+        return includeDescription ? [ug.id, ug.name, ug.description ?? "", users] : [ug.id, ug.name, users];
+    });
+
     FileSaver.saveAs(
-        new Blob(
-            [
-                [["id", "name", "users"], ...rows.map(ug => [ug.id, ug.name, ug.users.map(u => u.name).join("|")])]
-                    .map(e => e.join(","))
-                    .join("\n"),
-            ],
-            { type: "text/csv;charset=utf-8" }
-        ),
+        new Blob([[header, ...values].map(row => row.map(escapeCsvValue).join(",")).join("\n")], {
+            type: "text/csv;charset=utf-8",
+        }),
         fileName
     );
+}
+
+/* Descriptions are free text, so separators and quotes must be escaped */
+function escapeCsvValue(value: string): string {
+    return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }

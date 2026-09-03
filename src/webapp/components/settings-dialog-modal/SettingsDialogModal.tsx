@@ -17,6 +17,8 @@ import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { PermissionsPage } from "../permissions-page/PermissionsPage";
 import { useAppSettingsContext } from "../../contexts/AppSettingsProvider";
 import { useUserColumns } from "../user-list-table/userColumns";
+import { UserGroupDescriptionSourceSelect } from "../user-group-description-source-select/UserGroupDescriptionSourceSelect";
+import { Maybe } from "../../../types/utils";
 
 type SettingsOption = "import" | "logger" | "columns" | "permissions" | "user-permissions" | "filter-permissions";
 
@@ -104,8 +106,19 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
 
     const updateGroupColumns = React.useCallback(
         (columns: SettingsGroupColumn[]) => {
-            const updatedSettings = appSettings.updateGroupColumns(columns);
+            // Columns not rendered (description without a configured source) must be preserved
+            const updatedColumns = appSettings.groupColumns.map(
+                column => columns.find(updatedColumn => updatedColumn.field === column.field) ?? column
+            );
+            const updatedSettings = appSettings.updateGroupColumns(updatedColumns);
             setAppSettings(updatedSettings);
+        },
+        [appSettings, setAppSettings]
+    );
+
+    const updateUserGroupDescriptionSource = React.useCallback(
+        (source: Maybe<string>) => {
+            setAppSettings(appSettings.updateUserGroupDescriptionSource(source));
         },
         [appSettings, setAppSettings]
     );
@@ -132,10 +145,13 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
     const groupColumnsMetadata = React.useMemo(
         () => [
             { name: "name", text: i18n.t("Name") },
+            { name: "description", text: i18n.t("Description") },
             { name: "users", text: i18n.t("Users") },
         ],
         []
     );
+
+    const visibleGroupColumns = React.useMemo(() => appSettings.availableGroupColumns, [appSettings]);
 
     const saveSettings = React.useCallback(() => {
         onSaveData(appSettings);
@@ -167,13 +183,18 @@ export const SettingsDialogModal: React.FC<SettingsDialogModalProps> = props => 
                             showActions
                         />
                         <ColumnsSettingsPage
-                            columns={appSettings.groupColumns}
+                            columns={visibleGroupColumns}
                             columnsMetadata={groupColumnsMetadata}
                             onUpdateColumns={updateGroupColumns}
                             onClose={onClose}
                             onSave={saveSettings}
                             title={i18n.t("Group Columns")}
-                        />
+                        >
+                            <UserGroupDescriptionSourceSelect
+                                value={appSettings.userGroupDescriptionSource}
+                                onChange={updateUserGroupDescriptionSource}
+                            />
+                        </ColumnsSettingsPage>
                         <ColumnsSettingsPage
                             columns={appSettings.roleColumns}
                             columnsMetadata={roleColumnsMetadata}

@@ -15,7 +15,7 @@ export class GetGroupColumnsUseCase {
         return this.appSettingsRepository.get().flatMap(appSettings => {
             return this.columnRepository.get().map(groupColumnsPreferences => {
                 return resolveColumns({
-                    columnsConfig: appSettings.groupColumns,
+                    columnsConfig: appSettings.availableGroupColumns,
                     preferences: groupColumnsPreferences,
                     user: user,
                     buildColumn: (fieldName, state, position) => ({ fieldName, state, position }),

@@ -34,16 +34,17 @@ export function resolveColumns<Field extends string, Column extends ColumnLike<F
     const isSuperAdminUser = isSuperAdmin(user);
 
     return _(columnsConfig)
-        .map(columnConfig =>
+        .map((columnConfig, index) =>
             processColumnByValue({
                 columnConfig: columnConfig,
                 existingColumn: preferencesMap[columnConfig.field],
                 isSuperAdmin: isSuperAdminUser,
                 buildColumn: buildColumn,
+                defaultPosition: index,
             })
         )
         .compact()
-        .orderBy(column => (column.position === -1 ? Infinity : -column.position), "desc")
+        .orderBy(column => column.position, "asc")
         .value();
 }
 
@@ -52,26 +53,30 @@ function processColumnByValue<Field extends string, Column extends ColumnLike<Fi
     existingColumn: Maybe<Column>;
     isSuperAdmin: boolean;
     buildColumn: BuildColumn<Field, Column>;
+    // Position in the settings, used for columns the user has no preference for yet
+    defaultPosition: number;
 }): Maybe<Column> {
-    const { columnConfig, existingColumn, isSuperAdmin, buildColumn } = options;
+    const { columnConfig, existingColumn, isSuperAdmin, buildColumn, defaultPosition } = options;
 
     switch (columnConfig.value) {
         case "disabled":
             // Excluded from the result, except for super admins: they get it as an optional column
-            return isSuperAdmin ? existingColumn ?? buildColumn(columnConfig.field, "unselected", -1) : undefined;
+            return isSuperAdmin
+                ? existingColumn ?? buildColumn(columnConfig.field, "unselected", defaultPosition)
+                : undefined;
 
         case "optional":
             // If exists in preferences, respect its state; otherwise add as unselected
-            return existingColumn ?? buildColumn(columnConfig.field, "unselected", -1);
+            return existingColumn ?? buildColumn(columnConfig.field, "unselected", defaultPosition);
 
         case "visible":
             // If exists in preferences, respect its state; otherwise add as selected
-            return existingColumn ?? buildColumn(columnConfig.field, "selected", -1);
+            return existingColumn ?? buildColumn(columnConfig.field, "selected", defaultPosition);
 
         case "mandatory": {
             const mandatoryState = isSuperAdmin ? existingColumn?.state ?? "selected" : "selected-disabled";
             // Always add as selected-disabled regardless of preferences
-            return buildColumn(columnConfig.field, mandatoryState, existingColumn?.position ?? -1);
+            return buildColumn(columnConfig.field, mandatoryState, existingColumn?.position ?? defaultPosition);
         }
 
         default:
@@ -93,6 +98,10 @@ Column configuration rules:
    - If NOT exists: add as "selected"
 
 4. "mandatory": Always added as "selected-disabled", ignoring the columns preferences
+
+Order: every column keeps the position stored in the columns preferences. A column the user has no
+preference for yet takes its position in the settings, so a column added in a new release shows up
+where it was configured instead of jumping to the first place.
 
 Super admins are not subject to the restrictive rules: "disabled" columns are added as if they
 were "optional", and "mandatory" ones keep the state stored in the columns preferences instead of being locked.

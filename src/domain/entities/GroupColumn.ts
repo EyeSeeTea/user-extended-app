@@ -1,4 +1,4 @@
-export const groupColumns = ["name", "users"] as const;
+export const groupColumns = ["name", "description", "users"] as const;
 
 export type GroupColumnType = typeof groupColumns[number];
 

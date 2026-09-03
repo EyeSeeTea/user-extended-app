@@ -1,3 +1,4 @@
+import { Maybe } from "../../types/utils";
 import { Struct } from "./generic/Struct";
 import { Id } from "./Ref";
 import { User } from "./User";
@@ -5,6 +6,7 @@ import { User } from "./User";
 export type UserGroupAttrs = {
     id: Id;
     name: string;
+    description: Maybe<string>;
     users: Pick<User, "id" | "name">[];
 };
 

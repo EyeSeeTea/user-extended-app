@@ -30,6 +30,7 @@ export function mergeAndAddRuntimeProps(appSettings: Maybe<Partial<AppSettings>>
     const newAppSettings = {
         ...emptySettings,
         ...appSettings,
+        groupColumns: migrateColumns(appSettings.groupColumns, emptySettings.groupColumns),
         settingsAccess: settingsAccess,
         actionsAccess: forcedActionsAccess,
         organisationUnitsField: parseOrgUnitFieldPolicy(
@@ -71,6 +72,14 @@ function migrateRecord<K extends string, V>(
         K,
         V
     >;
+}
+
+/* Keeps the stored value of the columns that already exist and adds the ones
+ * introduced in later releases, in the canonical order defined by the entity.
+ */
+function migrateColumns<T extends { field: string }>(stored: Maybe<T[]>, defaults: T[]): T[] {
+    if (!stored) return defaults;
+    return defaults.map(defaultColumn => stored.find(column => column.field === defaultColumn.field) ?? defaultColumn);
 }
 
 function mergeEntryShallow<V extends Record<string, unknown>>(defaultEntry: V, storedEntry: V | undefined): V {

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2026-08-06T04:03:14.919Z\n"
-"PO-Revision-Date: 2026-08-06T04:03:14.920Z\n"
+"POT-Creation-Date: 2026-08-31T23:58:26.734Z\n"
+"PO-Revision-Date: 2026-08-31T23:58:26.734Z\n"
 
 msgid "Invalid response from server"
 msgstr ""
@@ -616,6 +616,24 @@ msgid "Database language"
 msgstr ""
 
 msgid "Api URL"
+msgstr ""
+
+msgid "User group description"
+msgstr ""
+
+msgid ""
+"The configured attribute no longer exists in this instance. Select another "
+"one or the Description column will stay empty."
+msgstr ""
+
+msgid ""
+"This instance has no attributes for user groups. Create one in the "
+"Maintenance app to be able to show descriptions."
+msgstr ""
+
+msgid ""
+"Attribute used as the description of a user group. Without one, the column "
+"is hidden."
 msgstr ""
 
 msgid "Filter users"
