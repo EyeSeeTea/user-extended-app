@@ -1,3 +1,5 @@
+import { isValidationErrorArray, makeErrorMessageFromValidationErrors } from "../errors/Errors";
+
 type EitherValueError<Error> = { type: "error"; error: Error; data?: never };
 type EitherValueSuccess<Data> = { type: "success"; error?: never; data: Data };
 type EitherValue<Error, Data> = EitherValueError<Error> | EitherValueSuccess<Data>;
@@ -46,6 +48,26 @@ export class Either<Error, Data> {
         return this.match({
             success: () => this as Either<any, Data>,
             error: error => fn(error),
+        });
+    }
+
+    getOrThrow(): Data {
+        return this.match({
+            success: data => data,
+            error: error => {
+                if (error instanceof Error) {
+                    throw error;
+                } else if (Array.isArray(error)) {
+                    // Check if it's a ValidationError array since Either can have also this kind of error
+                    if (isValidationErrorArray(error)) {
+                        throw new Error(makeErrorMessageFromValidationErrors(error));
+                    }
+
+                    throw new Error(error.join(", "));
+                } else {
+                    throw new Error(String(error));
+                }
+            },
         });
     }
 

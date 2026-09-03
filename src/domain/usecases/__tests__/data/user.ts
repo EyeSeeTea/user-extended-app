@@ -1,10 +1,15 @@
-import { User, defaultUser } from "../../../entities/User";
+import { defaultUserProps } from "../../../entities/UserProps";
+import { User } from "../../../entities/User";
 
-export const sourceUser: User = {
-    ...defaultUser,
+export const sourceUser = new User({
+    ...defaultUserProps,
     id: "oXD88WWSQpR",
     name: "Alain Traore",
+    firstName: "Alain",
+    surname: "Traore",
     username: "traore",
+    password: "ValidPassword123!",
+    email: "alain.traore@example.com",
     userGroups: [
         {
             name: "Partner for Health International",
@@ -45,13 +50,17 @@ export const sourceUser: User = {
             path: ["ImspTQPwCqd"],
         },
     ],
-};
+});
 
-export const targetUser: User = {
-    ...defaultUser,
+export const targetUser = new User({
+    ...defaultUserProps,
     id: "DXyJmlo9rge",
     name: "Android Barnes",
+    firstName: "Android",
+    surname: "Barnes",
     username: "android",
+    password: "ValidPassword123!",
+    email: "android.barnes@example.com",
     userGroups: [
         {
             name: "Partner for Health International",
@@ -92,4 +101,4 @@ export const targetUser: User = {
             path: ["ImspTQPwCqd", "O6uvpzGd5pu", "YuQRtpLP10I"],
         },
     ],
-};
+});

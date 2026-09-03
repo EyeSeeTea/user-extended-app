@@ -25,7 +25,7 @@ export const TransferFF = ({
 }: TransferFFProps) => {
     const isLoading = loading || (showLoadingStatus && meta.validating);
     const message = validationText ?? meta.error ?? meta.submitError;
-    const selected = input.value.map(({ id }: NamedRef) => id);
+    const selected = Array.isArray(input.value) ? input.value.map(({ id }: NamedRef) => id) : [];
 
     const onChange = useCallback(
         ({ selected }: { selected: string[] }) => {
@@ -44,11 +44,11 @@ export const TransferFF = ({
 };
 
 const WarningBox = styled(NoticeBox)`
-    margin-top: 20px;
+    margin-block-start: 20px;
     align-items: center;
 
     h6 {
-        margin: 0px;
+        margin: 0;
     }
 `;
 
@@ -58,6 +58,6 @@ const StyledTransfer = styled(Transfer)`
     }
 
     .status-icon {
-        margin-left: 0;
+        margin-inline-start: 0;
     }
 `;

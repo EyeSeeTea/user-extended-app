@@ -6,13 +6,13 @@ import _ from "lodash";
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { defaultUser, User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
-import { generateUid } from "../../../utils/uid";
+import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
+import i18n from "../../../utils/i18n";
 import { PageHeader } from "../../components/page-header/PageHeader";
 import { UserEditWizard } from "../../components/user-edit-wizard/UserEditWizard";
 import { useAppContext } from "../../contexts/app-context";
 import { useGoBack } from "../../hooks/useGoBack";
+import { generateUid } from "../../../utils/uid";
 
 export interface UserEditPageParams {
     id?: string;
@@ -32,13 +32,13 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
     const snackbar = useSnackbar();
     const goBack = useGoBack();
 
-    const [user, setUser] = useState<User>(location.state?.user);
+    const [user, setUser] = useState<UserProps>(location.state?.user);
 
     const isValidEdit = id !== undefined || location.state?.user !== undefined;
     const title = type === "edit" && isValidEdit ? i18n.t("Edit user") : i18n.t("New user");
 
     const saveUser = useCallback(
-        async (user: User) => {
+        async (user: UserProps) => {
             const { data = [], error } = await compositionRoot.users.save([user]).runAsync();
             if (error || _.some(data, ({ status }) => status === "ERROR")) {
                 return error ?? i18n.t("Network error");
@@ -56,7 +56,7 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
     useEffect(() => {
         if (user !== undefined) return;
         else if (id === undefined) {
-            setUser({ ...defaultUser, id: generateUid() });
+            setUser({ ...defaultUserProps, id: generateUid() });
             return;
         }
 
@@ -92,12 +92,13 @@ export const UserEditPage: React.FC<UserEditPageProps> = ({ type }) => {
 };
 
 const Wrapper = styled.div`
-    margin: 20px 30px;
+    margin-block: 20px;
+    margin-inline: 30px;
 `;
 
 const MaintenanceButton = styled(Button)`
-    float: right;
-    margin-top: 2px;
+    float: inline-end;
+    margin-block-start: 2px;
 
     :focus::after {
         border-color: transparent !important;

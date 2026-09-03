@@ -1,5 +1,5 @@
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import { IconButton, Menu, MenuItem } from "material-ui";
 import { Popover } from "@material-ui/core";
 import ImportExportIcon from "@material-ui/icons/ImportExport";
@@ -12,14 +12,22 @@ import { useSnackbar, useLoading } from "@eyeseetea/d2-ui-components";
 import { ColumnMappingKeys } from "../../../domain/usecases/ExportUsersUseCase";
 import { useExportUsers } from "../../hooks/userHooks";
 import Settings from "../../../legacy/models/settings";
+import { isSuperAdmin, UserProps } from "../../../domain/entities/UserProps";
+import { Columns } from "./ImportTable";
+import { ImportUser } from "../../../domain/entities/ImportUser";
+import { ListOptions } from "../../../domain/repositories/UserRepository";
+import { AppSettings } from "../../../domain/entities/AppSettings";
 
 export const ImportExport: React.FC<ImportExportProps> = props => {
-    const { d2 } = useAppContext();
-    const { columns, filterOptions, onImport, maxUsers, settings } = props;
+    const { d2, currentUser } = useAppContext();
+    const { appSettings, columns, filterOptions, onImport, settings } = props;
+    const { uiUserActionsAccess } = appSettings;
     const snackbar = useSnackbar();
     const loading = useLoading();
     const [isMenuOpen, setMenuOpen] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+
+    const isAdmin = isSuperAdmin(currentUser);
 
     const openMenu = (event: React.MouseEvent<HTMLElement>) => {
         setMenuOpen(true);
@@ -30,7 +38,7 @@ export const ImportExport: React.FC<ImportExportProps> = props => {
         setMenuOpen(false);
     };
 
-    const orgUnitsField = settings.get("organisationUnitsField");
+    const orgUnitsField = appSettings.configuredOrgUnitField ?? settings.get("organisationUnitsField");
     const { exportUsersToCSV, exportUsersToJSON, exportEmptyTemplate } = useExportUsers({
         columns,
         filterOptions,
@@ -45,16 +53,20 @@ export const ImportExport: React.FC<ImportExportProps> = props => {
                 const file = files[0];
                 if (!file) return;
                 if (file.type === "text/csv") {
-                    return importFromCsv(d2, file, { maxUsers, orgUnitsField });
+                    return importFromCsv(d2, file, { maxUsers: ImportUser.MAX_USERS, orgUnitsField });
                 } else if (file.type === "application/json") {
-                    return importFromJson(d2, file, { maxUsers, orgUnitsField });
+                    return importFromJson(d2, file, { maxUsers: ImportUser.MAX_USERS, orgUnitsField });
                 }
             })
-            .then(onImport)
-            .catch(err => snackbar.error(err.toString()))
-            .finally(() => {
-                closeMenu();
+            .then(result => {
                 loading.hide();
+                closeMenu();
+                onImport(result);
+            })
+            .catch(err => {
+                snackbar.error(err.toString());
+                loading.hide();
+                closeMenu();
             });
     };
 
@@ -78,15 +90,22 @@ export const ImportExport: React.FC<ImportExportProps> = props => {
                 onClose={closeMenu}
             >
                 <Menu>
-                    <MenuItem leftIcon={<ImportIcon />} onClick={importFromFile}>
-                        {i18n.t("Import")}
-                    </MenuItem>
-                    <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToCSV}>
-                        {i18n.t("Export to CSV")}
-                    </MenuItem>
-                    <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToJSON}>
-                        {i18n.t("Export to JSON")}
-                    </MenuItem>
+                    {(isAdmin || uiUserActionsAccess.import.visible) && (
+                        <MenuItem leftIcon={<ImportIcon />} onClick={importFromFile}>
+                            {i18n.t("Import")}
+                        </MenuItem>
+                    )}
+                    {(isAdmin || uiUserActionsAccess.exportCsv.visible) && (
+                        <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToCSV}>
+                            {i18n.t("Export to CSV")}
+                        </MenuItem>
+                    )}
+                    {(isAdmin || uiUserActionsAccess.exportJson.visible) && (
+                        <MenuItem leftIcon={<ExportIcon />} onClick={exportUsersToJSON}>
+                            {i18n.t("Export to JSON")}
+                        </MenuItem>
+                    )}
+
                     <MenuItem leftIcon={<ExportIcon />} onClick={exportEmptyTemplate}>
                         {i18n.t("Export empty template")}
                     </MenuItem>
@@ -96,12 +115,12 @@ export const ImportExport: React.FC<ImportExportProps> = props => {
     );
 };
 
-export type FilterOption = { search: string; sorting: { field: string; order: "asc" | "desc" } };
-
 export type ImportExportProps = {
     columns: ColumnMappingKeys[];
-    filterOptions: FilterOption;
-    onImport: (result: any) => void;
-    maxUsers: number;
+    filterOptions: ListOptions;
+    onImport: (result: ImportResult) => void;
     settings: Settings;
+    appSettings: AppSettings;
 };
+
+export type ImportResult = { columns: Columns[]; users: UserProps[]; success: boolean; warnings: string[] };

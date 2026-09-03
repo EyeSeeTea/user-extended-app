@@ -1,15 +1,19 @@
-import { D2Api, D2UserSchema, MetadataResponse, SelectedPick } from "@eyeseetea/d2-api/2.36";
+import { D2Api, D2UserSchema, MetadataResponse, SelectedPick, PatchOperation, ErrorReport } from "../../types/d2-api";
 import _ from "lodash";
 import { Future, FutureData } from "../../domain/entities/Future";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
-import { PaginatedResponse } from "../../domain/entities/PaginatedResponse";
+import { Pager, PaginatedResponse } from "../../domain/entities/PaginatedResponse";
 import { Id, NamedRef } from "../../domain/entities/Ref";
 import { Stats } from "../../domain/entities/Stats";
-import { LocaleCode, User } from "../../domain/entities/User";
+import { User } from "../../domain/entities/User";
 import { ListOptions, UpdateStrategy, UserRepository } from "../../domain/repositories/UserRepository";
+import { translateUserFilters, D2ApiFilters } from "./UserFilterTranslator";
+import { LocaleCode } from "../../domain/entities/UserProps";
+import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { Maybe } from "../../types/utils";
+// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { cache } from "../../utils/cache";
-import { getD2APiFromInstance, joinPaths } from "../../utils/d2-api";
+import { getD2ApiFromInstance, getMajorVersion, joinPaths } from "../../utils/d2-api";
 import { apiToFuture } from "../../utils/futures";
 import { DataStoreStorageClient } from "../clients/storage/DataStoreStorageClient";
 import { Namespaces } from "../clients/storage/Namespaces";
@@ -18,17 +22,31 @@ import { D2ApiLogger, D2LoggerMessage } from "../D2ApiLogger";
 import { Instance } from "../entities/Instance";
 import { ApiD2OrgUnit } from "../models/DHIS2Model";
 import { ApiUserModel } from "../models/UserModel";
-import { buildUserWithoutPassword, chunkRequest, getErrorFromResponse } from "../utils";
+import { Codec, exactly, string } from "purify-ts";
+import i18n from "../../utils/i18n";
+import {
+    buildUserToSave,
+    buildUserWithoutPassword,
+    chunkRequest,
+    ExistingApiUser,
+    getDiffUserIdsByGroup,
+    getErrorFromResponse,
+} from "../utils";
+import { getLanguage } from "../../domain/utils/getLanguage";
+import { validationErrorsToString } from "../../domain/utils/validationErrorsToString";
+import { GET_USERS_BY_IDS_CHUNK_SIZE, LIST_ALL_USERS_PAGE_SIZE } from "../../domain/utils/limits";
 
 export class UserD2ApiRepository implements UserRepository {
     private api: D2Api;
     private userStorage: StorageClient;
 
     constructor(instance: Instance) {
-        this.api = getD2APiFromInstance(instance);
+        this.api = getD2ApiFromInstance(instance);
         this.userStorage = new DataStoreStorageClient("user", instance);
     }
 
+    // TODO: this method should be in a different use case
+    // retrieve users, update them
     private getLocales(users: User[]): FutureData<User[]> {
         const $requests = users.map((user): FutureData<User> => {
             return apiToFuture(
@@ -38,7 +56,22 @@ export class UserD2ApiRepository implements UserRepository {
                     params: { user: user.username },
                 })
             ).map((response): User => {
-                return { ...user, uiLocale: response.keyUiLocale, dbLocale: response.keyDbLocale };
+                const userResult = User.createExisted({
+                    ...user,
+                    uiLocale: response.keyUiLocale,
+                    dbLocale: response.keyDbLocale,
+                });
+
+                return userResult.match({
+                    success: user => {
+                        return user;
+                    },
+                    error: errors => {
+                        throw new Error(
+                            `Error setting locales for user ${user.id}: ${validationErrorsToString(errors)}`
+                        );
+                    },
+                });
             });
         });
 
@@ -65,15 +98,15 @@ export class UserD2ApiRepository implements UserRepository {
     private getLocaleValueByType(user: User, keyLocale: KeyLocale): string {
         switch (keyLocale) {
             case DB_LOCALE_KEY:
-                return user.dbLocale;
+                return getLanguage(user.dbLocale);
             case UI_LOCALE_KEY:
-                return user.uiLocale;
+                return getLanguage(user.uiLocale);
         }
     }
 
-    remove(users: User[]): FutureData<Stats> {
-        const ids = users.map(user => user.id);
+    remove(ids: Id[]): FutureData<Stats> {
         return chunkRequest(ids, userIds => {
+            // TODO: Legacy metadata POST endpoint with importStrategy=DELETE. This should be replaced with per-user DELETE /api/users/{id} or the bulk delete if DHIS2 version supports it
             return apiToFuture<Dhis2Response>(
                 this.api.metadata.post({ users: userIds.map(id => ({ id: id })) }, { importStrategy: "DELETE" })
             ).flatMap(d2Response => {
@@ -93,6 +126,12 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
+    resetPasswords(users: User[]): FutureData<Stats> {
+        const $requests = users.map(user => apiToFuture(this.api.post(`/users/${user.id}/reset`)));
+
+        return Future.parallel($requests, { maxConcurrency: 5 }).map(() => Stats.empty()); // There is no response body from the API
+    }
+
     @cache()
     public getCurrent(): FutureData<User> {
         return apiToFuture(
@@ -103,55 +142,254 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     public list(options: ListOptions): FutureData<PaginatedResponse<User>> {
+        return this.getIs242Plus().flatMap(is242Plus => {
+            return this.listWithVersion(options, is242Plus);
+        });
+    }
+
+    private listWithVersion(options: ListOptions, is242Plus: boolean): FutureData<PaginatedResponse<User>> {
+        const { page, pageSize } = options;
+        const normalizedPage = page ?? 1;
+        const normalizedPageSize = pageSize ?? 25;
+        const idFilterValues = this.getIdInFilterValues(options);
+
+        return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToHide => {
+            if (!idFilterValues || idFilterValues.length === 0) {
+                return apiToFuture(
+                    this.api.models.users.get({
+                        fields: {
+                            ...fields,
+                            ...auditFields,
+                            userCredentials: { ...fields.userCredentials, ...auditFields },
+                        },
+                        page,
+                        pageSize,
+                        ...this.createCommonListQueryParams(options, is242Plus),
+                    })
+                ).flatMap(({ objects, pager }) => {
+                    return this.recalculatePagination(options, is242Plus).map(newPager => {
+                        const users = objects.map(user => this.toDomainUser(user as ApiUserWithAudit));
+                        const excludeHiddenUsers = usersIdsToHide
+                            ? users.filter(user => !usersIdsToHide.includes(user.id))
+                            : users;
+                        return { pager: newPager ?? pager, objects: excludeHiddenUsers };
+                    });
+                });
+            }
+
+            // If there is an ID filter, we need to chunk the requests to avoid URL length limits
+            const sorting = options.sorting ?? { field: "firstName", order: "asc" };
+            const baseFilters = options.filters ?? {};
+
+            return chunkRequest(
+                idFilterValues,
+                idsChunk => {
+                    const chunkOptions: ListOptions = {
+                        ...options,
+                        filters: { ...baseFilters, id: idsChunk },
+                    };
+
+                    return apiToFuture(
+                        this.api.models.users.get({
+                            fields: {
+                                ...fields,
+                                ...auditFields,
+                                userCredentials: { ...fields.userCredentials, ...auditFields },
+                            },
+                            paging: false,
+                            ...this.createCommonListQueryParams(chunkOptions, is242Plus),
+                        })
+                    ).map(({ objects }) => objects);
+                },
+                100,
+                { maxConcurrency: 5 }
+            ).map(objects => {
+                const users = objects.map(user => this.toDomainUser(user));
+                const excludeHiddenUsers = usersIdsToHide
+                    ? users.filter(user => !usersIdsToHide.includes(user.id))
+                    : users;
+                const uniqueUsers = _.uniqBy(excludeHiddenUsers, user => user.id);
+                const sortedUsers = _.orderBy(uniqueUsers, [sorting.field], [sorting.order]);
+                const startIndex = (normalizedPage - 1) * normalizedPageSize;
+                const pagedUsers = sortedUsers.slice(startIndex, startIndex + normalizedPageSize);
+                const total = sortedUsers.length;
+                const pageCount = total === 0 ? 0 : Math.ceil(total / normalizedPageSize);
+
+                return {
+                    pager: {
+                        page: normalizedPage,
+                        pageSize: normalizedPageSize,
+                        total,
+                        pageCount,
+                    },
+                    objects: pagedUsers,
+                };
+            });
+        });
+    }
+
+    verifyPassword(password: string): FutureData<true> {
+        return apiToFuture(
+            this.api.post<typeof verifyPasswordResponseCodec>(`/account/validatePassword?password=${password}`)
+        ).flatMap(data => {
+            return verifyPasswordResponseCodec.decode(data).caseOf<FutureData<true>>({
+                Left: () => Future.error(i18n.t("Invalid response from server")),
+                Right: data => {
+                    if (data.response === "error") {
+                        return Future.error(data.message || i18n.t("Unknown error"));
+                    } else {
+                        return Future.success(true);
+                    }
+                },
+            });
+        });
+    }
+
+    private buildApiFilters(options: ListOptions, is242Plus: boolean): D2ApiFilters {
+        return translateUserFilters(options.filters, options.onlyActiveUsers, is242Plus);
+    }
+
+    private getUsersIdsInChunks(ids: Id[]): FutureData<Maybe<Id[]>> {
+        if (ids.length === 0) return Future.success(undefined);
+        return chunkRequest(ids, usersIds => {
+            return apiToFuture(
+                this.api.models.users.get({
+                    fields: { id: true },
+                    filter: { id: { in: usersIds } },
+                    paging: false,
+                })
+            ).map(d2Response => {
+                return d2Response.objects.map(d2User => d2User.id);
+            });
+        });
+    }
+
+    public listAllIds(options: ListOptions): FutureData<string[]> {
+        return this.getIs242Plus().flatMap(is242Plus => {
+            return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
+                return apiToFuture(
+                    this.api.models.users.get({
+                        fields: { id: true },
+                        paging: false,
+                        ...this.createCommonListQueryParams(options, is242Plus),
+                    })
+                ).map(({ objects }) => {
+                    const usersIds = objects.map(user => user.id);
+                    return usersIdsToExclude ? usersIds.filter(id => !usersIdsToExclude.includes(id)) : usersIds;
+                });
+            });
+        });
+    }
+
+    private createCommonListQueryParams(options: ListOptions, is242Plus: boolean) {
         const {
-            page,
-            pageSize,
             search,
             sorting = { field: "firstName", order: "asc" },
             canManage,
             rootJunction,
-            filters,
+            onlyUsersOrgUnits,
         } = options;
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
-        const areFiltersEnabled = _(otherFilters).values().some();
 
+        const apiFilters = this.buildApiFilters(options, is242Plus);
+        const areFiltersEnabled = Object.values(apiFilters).some(v => v !== undefined && v !== null);
         const sortingField = sorting.field === "status" ? "disabled" : sorting.field;
 
-        return apiToFuture(
-            this.api.models.users.get({
-                fields: {
-                    ...fields,
-                    ...auditFields,
-                    userCredentials: { ...fields.userCredentials, ...auditFields },
-                },
-                page,
-                pageSize,
-                query: search !== "" ? search : undefined,
-                canManage: canManage === "true" ? "true" : undefined,
-                filter: otherFilters,
-                rootJunction: areFiltersEnabled ? rootJunction : undefined,
-                order: `${sortingField}:${sorting.order}`,
-            })
-        ).map(({ objects, pager }) => ({ pager, objects: objects.map(user => this.toDomainUser(user)) }));
+        return {
+            query: search !== "" ? search : undefined,
+            canManage: canManage === "true" ? "true" : undefined,
+            filter: apiFilters,
+            rootJunction: areFiltersEnabled ? rootJunction : undefined,
+            userOrgUnits: onlyUsersOrgUnits ? "true" : undefined,
+            includeChildren: onlyUsersOrgUnits ? "true" : undefined,
+            order: `${sortingField}:${sorting.order}`,
+        };
     }
 
-    public listAllIds(options: ListOptions): FutureData<string[]> {
-        const { search, sorting = { field: "firstName", order: "asc" }, filters, canManage } = options;
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
-
-        return apiToFuture(
-            this.api.models.users.get({
-                fields: { id: true },
-                paging: false,
-                query: search !== "" ? search : undefined,
-                canManage: canManage === "true" ? "true" : undefined,
-                filter: otherFilters,
-                order: `${sorting.field}:${sorting.order}`,
-            })
-        ).map(({ objects }) => objects.map(user => user.id));
+    public listAllUserIdentifiers(options: ListOptions): FutureData<UserIdentifier[]> {
+        return this.getIs242Plus().flatMap(is242Plus => {
+            return this.listAllUserIdentifiersWithVersion(options, is242Plus);
+        });
     }
 
-    public getByIds(ids: string[]): FutureData<User[]> {
+    private listAllUserIdentifiersWithVersion(options: ListOptions, is242Plus: boolean): FutureData<UserIdentifier[]> {
+        const idFilterValues = this.getIdInFilterValues(options);
+
+        return this.getUsersIdsInChunks(options.hideUsers).flatMap(usersIdsToExclude => {
+            if (!idFilterValues || idFilterValues.length === 0) {
+                return apiToFuture(
+                    this.api.models.users.get({
+                        fields: { id: true, name: true, username: true, userCredentials: { username: true } },
+                        paging: false,
+                        ...this.createCommonListQueryParams(options, is242Plus),
+                    })
+                ).map(({ objects }) => {
+                    const filteredObjects = usersIdsToExclude
+                        ? objects.filter(user => !usersIdsToExclude.includes(user.id))
+                        : objects;
+                    return filteredObjects.map(
+                        user =>
+                            new UserIdentifier({
+                                id: user.id,
+                                username: user.username || user.userCredentials?.username || "",
+                                name: user.name,
+                            })
+                    );
+                });
+            }
+
+            return this.getUserIdentifiersInChunks(options, is242Plus, {
+                userIds: idFilterValues,
+                usersIdsToExclude: usersIdsToExclude,
+            });
+        });
+    }
+
+    private getIdInFilterValues(options: ListOptions): Maybe<Id[]> {
+        const idFilterValues = options.filters?.id;
+        return idFilterValues && idFilterValues.length > 0 ? idFilterValues : undefined;
+    }
+
+    private getUserIdentifiersInChunks(
+        options: ListOptions,
+        is242Plus: boolean,
+        params: { userIds: Maybe<Id[]>; usersIdsToExclude: Maybe<Id[]> }
+    ): FutureData<UserIdentifier[]> {
+        const { userIds, usersIdsToExclude } = params;
+        if (!userIds || userIds.length === 0) return Future.success([]);
+
+        const baseFilters = options.filters ?? {};
+        return chunkRequest(
+            userIds,
+            idsChunk => {
+                const chunkOptions: ListOptions = { ...options, filters: { ...baseFilters, id: idsChunk } };
+
+                return apiToFuture(
+                    this.api.models.users.get({
+                        fields: { id: true, name: true, username: true, userCredentials: { username: true } },
+                        paging: false,
+                        ...this.createCommonListQueryParams(chunkOptions, is242Plus),
+                    })
+                ).map(({ objects }) => objects);
+            },
+            100,
+            { maxConcurrency: 5 }
+        ).map(objects => {
+            const filteredObjects = usersIdsToExclude
+                ? objects.filter(user => !usersIdsToExclude.includes(user.id))
+                : objects;
+            const uniqueUsers = _.uniqBy(filteredObjects, user => user.id);
+            return uniqueUsers.map(
+                user =>
+                    new UserIdentifier({
+                        id: user.id,
+                        username: user.username || user.userCredentials?.username || "",
+                        name: user.name,
+                    })
+            );
+        });
+    }
+
+    public getByIds(ids: Id[]): FutureData<User[]> {
         if (ids.length === 0) return Future.success([]);
         return this.getUsersByIds(ids);
     }
@@ -179,7 +417,7 @@ export class UserD2ApiRepository implements UserRepository {
                     });
                 });
             },
-            50
+            GET_USERS_BY_IDS_CHUNK_SIZE
         );
 
         return $requests.map(_.flatten);
@@ -188,7 +426,17 @@ export class UserD2ApiRepository implements UserRepository {
     private addGroupsToUsers(users: User[], d2UsersWithGroups: D2UserGroupByKey): User[] {
         return users.map((user): User => {
             const userGroups = d2UsersWithGroups[user.id] || [];
-            return { ...user, userGroups: userGroups };
+
+            const userResult = User.createExisted({ ...user, userGroups: userGroups });
+
+            return userResult.match({
+                success: user => {
+                    return user;
+                },
+                error: errors => {
+                    throw new Error(`Error adding groups to user ${user.id}: ${validationErrorsToString(errors)}`);
+                },
+            });
         });
     }
 
@@ -223,23 +471,21 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    private getFullUsers(options: ListOptions): FutureData<ApiUser[]> {
-        const { page, pageSize, search, sorting = { field: "firstName", order: "asc" }, filters } = options;
-        const otherFilters = _.mapValues(filters, items => (items ? { [items[0]]: items[1] } : undefined));
+    private getFullUsers(options: ListOptions): FutureData<ExistingApiUser[]> {
+        const { page, pageSize, search, sorting = { field: "firstName", order: "asc" } } = options;
+
+        // getFullUsers is only used internally for save() prefetch; keep 2.41-compatible filter keys
+        const apiFilters = translateUserFilters(options.filters, options.onlyActiveUsers, false);
 
         const userData$ = apiToFuture(
             this.api.models.users.get({
-                fields: {
-                    ...fields,
-                    $owner: true,
-                    userCredentials: { ...fields.userCredentials, $all: true },
-                },
+                fields: savePrefetchFields,
                 page,
                 pageSize,
                 paging: false,
                 filter: {
                     identifiable: search ? { token: search } : undefined,
-                    ...otherFilters,
+                    ...apiFilters,
                 },
                 order: `${sorting.field}:${sorting.order}`,
                 v: +new Date().getTime(),
@@ -261,17 +507,19 @@ export class UserD2ApiRepository implements UserRepository {
         state: { initialPage: number; users: User[] } = { initialPage: 1, users: [] }
     ): FutureData<User[]> {
         const { initialPage, users } = state;
-        return this.list({ ...options, pageSize: 100, page: initialPage }).flatMap(({ pager, objects }) => {
-            const newUsers = [...users, ...objects];
-            if (pager.page >= pager.pageCount) {
-                return Future.success(newUsers);
-            } else {
-                return this.listAll(options, {
-                    initialPage: initialPage + 1,
-                    users: newUsers,
-                });
+        return this.list({ ...options, pageSize: LIST_ALL_USERS_PAGE_SIZE, page: initialPage }).flatMap(
+            ({ pager, objects }) => {
+                const newUsers = [...users, ...objects];
+                if (pager.page >= pager.pageCount) {
+                    return Future.success(newUsers);
+                } else {
+                    return this.listAll(options, {
+                        initialPage: initialPage + 1,
+                        users: newUsers,
+                    });
+                }
             }
-        });
+        );
     }
 
     public save(usersToSave: User[]): FutureData<MetadataResponse> {
@@ -286,12 +534,18 @@ export class UserD2ApiRepository implements UserRepository {
         const userIds = users.map(user => user.id);
 
         return this.getLogger().flatMap(logger => {
-            return this.getFullUsers({ filters: { id: ["in", userIds] } }).flatMap(existingUsers => {
-                const usersToSend = _(existingUsers)
-                    .map(existingUser => {
-                        const user = users.find(user => user.id === existingUser.id);
+            return this.getFullUsers({
+                filters: { id: userIds },
+                onlyUsersOrgUnits: false,
+                onlyActiveUsers: false,
+                hideUsers: [],
+            }).flatMap(existingUsers => {
+                const usersToSend = _(userIds)
+                    .map(userId => {
+                        const existingUser = existingUsers.find(user => user.id === userId);
+                        const user = users.find(user => user.id === userId);
                         if (!user) return undefined;
-                        return this.buildUsersToSave(existingUser, user);
+                        return buildUserToSave(existingUser, user);
                     })
                     .compact()
                     .value();
@@ -299,10 +553,10 @@ export class UserD2ApiRepository implements UserRepository {
                 logger?.log({ users: buildUserWithoutPassword(usersToSend as ApiUser[]) });
                 return apiToFuture(this.api.metadata.post({ users: usersToSend }))
                     .flatMap(data => {
-                        return Future.joinObj({
-                            saveLocales: this.saveLocales(usersToSave),
-                            saveGroupsStats: this.updateUserGroups(users, existingUsers, logger),
-                        }).map(() => {
+                        return Future.sequential([
+                            this.updateUserGroups(users, existingUsers, logger),
+                            this.saveLocales(usersToSave),
+                        ]).map(() => {
                             logger?.log(data);
                             return data;
                         });
@@ -315,6 +569,11 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
+    public saveInChunks(users: User[], chunkSize: number): FutureData<void> {
+        const requests = _.chunk(users, chunkSize).map(usersChunk => this.save(usersChunk));
+        return Future.sequential(requests).toVoid();
+    }
+
     private getLogger(): FutureData<Maybe<D2LoggerMessage>> {
         return this.getCurrent().flatMap(currentUser => {
             const d2ApiTracker = new D2ApiLogger(this.api);
@@ -322,26 +581,9 @@ export class UserD2ApiRepository implements UserRepository {
         });
     }
 
-    private buildUsersToSave(existingUser: ApiUser, user: ApiUser) {
-        return {
-            ...existingUser,
-            ...user,
-            // include these fields here and in userCredentials due to a bug in v2.38
-            userRoles: user.userCredentials.userRoles,
-            username: user.userCredentials.username,
-            disabled: user.userCredentials.disabled,
-            openId: user.userCredentials.openId,
-            password: user.userCredentials.password,
-            userCredentials: {
-                ...existingUser.userCredentials,
-                ...user.userCredentials,
-                id: user.id,
-                accountExpiry: user.userCredentials.accountExpiry ? user.userCredentials.accountExpiry : undefined,
-            },
-        };
-    }
-
-    public updateRoles(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    //TODO: this method should be an use case or part of a existed use case because contains application business rules
+    // retrieve users, update them and save them again
+    public updateRoles(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonRoles = _.intersectionBy(
                 ...storedUsers.map(user => user.userRoles.map(role => role)),
@@ -349,7 +591,7 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
+                const userResult = User.createExisted({
                     ...user,
                     userRoles:
                         strategy === "merge"
@@ -358,14 +600,27 @@ export class UserD2ApiRepository implements UserRepository {
                                   ({ id }) => id
                               )
                             : update,
-                };
+                });
+
+                return userResult.match({
+                    success: user => {
+                        return user;
+                    },
+                    error: errors => {
+                        throw new Error(
+                            `Error updating roles for user ${user.id}: ${validationErrorsToString(errors)}`
+                        );
+                    },
+                });
             });
 
             return this.save(users);
         });
     }
 
-    public updateGroups(ids: string[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
+    //TODO: this method should be an use case or part of a existed use case because contains application business rules
+    // retrieve users, update them and save them again
+    public updateGroups(ids: Id[], update: NamedRef[], strategy: UpdateStrategy): FutureData<MetadataResponse> {
         return this.getByIds(ids).flatMap(storedUsers => {
             const commonGroups = _.intersectionBy(
                 ...storedUsers.map(user => user.userGroups.map(group => group)),
@@ -373,7 +628,7 @@ export class UserD2ApiRepository implements UserRepository {
             );
 
             const users = storedUsers.map(user => {
-                return {
+                const userResult = User.createExisted({
                     ...user,
                     userGroups:
                         strategy === "merge"
@@ -382,7 +637,16 @@ export class UserD2ApiRepository implements UserRepository {
                                   ({ id }) => id
                               )
                             : update,
-                };
+                });
+
+                return userResult.match({
+                    success: user => {
+                        return user;
+                    },
+                    error: errors => {
+                        throw new Error(`Error creating user ${user.id}: ${validationErrorsToString(errors)}`);
+                    },
+                });
             });
 
             return this.save(users);
@@ -394,9 +658,9 @@ export class UserD2ApiRepository implements UserRepository {
             Namespaces.VISIBLE_COLUMNS,
             defaultColumns
         );
-        return $request.flatMap(columns => {
+        return $request.map(columns => {
             const result = columns.length ? columns : defaultColumns;
-            return Future.success(result);
+            return result;
         });
     }
 
@@ -404,43 +668,64 @@ export class UserD2ApiRepository implements UserRepository {
         return this.userStorage.saveObject<Array<keyof User>>(Namespaces.VISIBLE_COLUMNS, columns);
     }
 
-    updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<Stats> {
-        const allUsersGroups = this.buildUsersByGroupId(users);
+    updateUserGroups(users: ApiUser[], existing: ApiUser[], logger: Maybe<D2LoggerMessage>): FutureData<void> {
+        const allUsersGroupsToUpdate = this.buildUsersByGroupId(users);
         const allExistingUsersGroups = this.buildUsersByGroupId(existing);
 
-        const groupsIdsToAdd = users.flatMap(user => {
-            return user.userGroups.map(userGroup => ({ id: userGroup.id }));
+        const userGroupsWithUsersToAdd = getDiffUserIdsByGroup(allUsersGroupsToUpdate, allExistingUsersGroups);
+        const userGroupsWithUsersToRemove = getDiffUserIdsByGroup(allExistingUsersGroups, allUsersGroupsToUpdate);
+
+        const $requestsToAdd = this.buildRequestsGroups(userGroupsWithUsersToAdd, "add");
+        const $requestsToDelete = this.buildRequestsGroups(userGroupsWithUsersToRemove, "delete");
+
+        return Future.sequential([$requestsToAdd, $requestsToDelete]).flatMap(() => {
+            const groupsIdsToAdd = userGroupsWithUsersToAdd
+                .filter(group => group.usersIds.length > 0)
+                .map(group => group.id);
+            const groupsIdsToDelete = userGroupsWithUsersToRemove
+                .filter(group => group.usersIds.length > 0)
+                .map(group => group.id);
+
+            if (logger) {
+                this.logGroupChanges(logger, userGroupsWithUsersToAdd, "add");
+                this.logGroupChanges(logger, userGroupsWithUsersToRemove, "delete");
+
+                logger.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
+            }
+
+            return Future.success(undefined);
         });
+    }
 
-        const groupsIdsToDelete = users.flatMap(user => {
-            const existingUser = existing.find(({ id }) => id === user.id);
-            const difference = _.differenceWith(existingUser?.userGroups, user.userGroups, _.isEqual);
-            return difference.map(userGroup => ({ id: userGroup.id }));
-        });
-
-        const $requestsToAdd = this.buildRequestsGroups(groupsIdsToAdd, allUsersGroups, "add");
-        const $requestsToDelete = this.buildRequestsGroups(groupsIdsToDelete, allExistingUsersGroups, "delete");
-
-        return Future.sequential([...$requestsToAdd, ...$requestsToDelete]).map(stats => {
-            logger?.log({ groupsIdsToAdd: groupsIdsToAdd, groupsIdsToDelete: groupsIdsToDelete });
-            return Stats.combine(stats);
+    private logGroupChanges(
+        logger: D2LoggerMessage,
+        groups: Array<{
+            id: Id;
+            usersIds: Id[];
+        }>,
+        action: "add" | "delete"
+    ) {
+        groups.forEach(group => {
+            if (group.usersIds.length > 0) {
+                logger.log({
+                    action: action,
+                    groupId: group.id,
+                    userIds: group.usersIds,
+                });
+            }
         });
     }
 
     private buildRequestsGroups(
-        groups: Array<{ id: Id }>,
-        allUsersGroups: D2UserGroupByKey,
+        userGroups: Array<{ id: Id; usersIds: Id[] }>,
         action: D2ActionGroup
-    ): FutureData<Stats>[] {
-        return _(groups)
-            .map(group => {
-                const users = allUsersGroups[group.id] || [];
-                if (users.length === 0) return undefined;
-                const userGroup = { id: group.id, users: users.map(({ id }) => ({ id })) };
-                return this.buildGroupsToSave(userGroup, action);
-            })
-            .compact()
-            .value();
+    ): FutureData<void> {
+        const $requests = userGroups.map((userGroup): FutureData<void> => {
+            if (userGroup.usersIds.length === 0) return Future.success(undefined);
+            return this.buildGroupsToSave(userGroup, action);
+        });
+
+        return Future.sequential($requests).toVoid();
     }
 
     private buildUsersByGroupId(users: ApiUser[]): D2UserGroupByKey {
@@ -452,39 +737,60 @@ export class UserD2ApiRepository implements UserRepository {
                 }))
             )
             .groupBy(x => x.groupId)
-            .mapValues(groupUsers => groupUsers.map(groupUser => groupUser.user))
+            .mapValues(groupUsers => groupUsers.map(({ user }) => ({ id: user.id, name: user.name })))
             .value();
     }
 
-    private buildGroupsToSave(
-        userGroup: { id: Id; users: Array<{ id: Id }> },
-        action: D2ActionGroup
-    ): FutureData<Stats> {
+    private buildGroupsToSave(userGroup: { id: Id; usersIds: Id[] }, action: D2ActionGroup): FutureData<void> {
         const isAdding = action === "add";
-        const usersIds = userGroup.users.map(({ id }) => ({ id: id }));
-        return apiToFuture(
-            this.api.request<Dhis2Response>({
-                method: "post",
-                url: `/userGroups/${userGroup.id}/users`,
-                data: isAdding ? { additions: usersIds } : { deletions: usersIds },
-            })
-        ).flatMap(d2Response => {
-            const response = d2Response.response ? d2Response.response : d2Response;
-            const errorMessage = getErrorFromResponse(response.typeReports);
-            if (response.status === "ERROR") return Future.error(errorMessage);
-            return Future.success(new Stats({ ...response.stats, errorMessage: errorMessage }));
+        const usersIdRefs = userGroup.usersIds.map(id => ({ id: id }));
+
+        const patchOperations: PatchOperation[] = usersIdRefs.map(userIdRef =>
+            isAdding
+                ? {
+                      op: "add",
+                      path: "/users/-",
+                      value: userIdRef,
+                  }
+                : {
+                      op: "remove-by-id",
+                      path: "/users",
+                      id: userIdRef.id,
+                  }
+        );
+        return apiToFuture(this.api.models.userGroups.patch(userGroup.id, patchOperations)).flatMap(d2Response => {
+            if (d2Response.errorReports && d2Response.errorReports.length !== 0) {
+                const messages =
+                    d2Response.errorReports?.map((e: ErrorReport): string => e.message).filter(Boolean) ?? [];
+                const errorMessage = Array.from(new Set(messages)).join("\n");
+                return Future.error(errorMessage);
+            } else {
+                return Future.success(undefined);
+            }
         });
     }
 
     private toDomainUser(input: ApiUserWithAudit): User {
-        const { userCredentials, ...user } = input;
-        const authorities = _(userCredentials.userRoles)
-            .map(userRole => userRole.authorities)
+        const { userCredentials: rawUserCredentials, ...user } = input;
+
+        const userCredentials = rawUserCredentials ?? {};
+
+        const userRoles = input.userRoles || userCredentials.userRoles || [];
+        const username = input.username || userCredentials.username || "";
+
+        const lastLoginRaw = input.lastLogin ?? userCredentials.lastLogin;
+        const disabled: boolean = input.disabled ?? userCredentials.disabled ?? false;
+        const externalAuth: boolean = input.externalAuth ?? userCredentials.externalAuth ?? false;
+        const ldapId = input.ldapId ?? userCredentials.ldapId;
+        const openId = input.openId ?? userCredentials.openId;
+
+        const authorities = _(userRoles)
+            .map(userRole => userRole.authorities ?? [])
             .flatten()
             .uniq()
             .value();
 
-        return {
+        const userResult = User.createExisted({
             id: user.id,
             name: user.name,
             firstName: user.firstName,
@@ -498,32 +804,49 @@ export class UserD2ApiRepository implements UserRepository {
             twitter: user.twitter,
             lastUpdated: new Date(user.lastUpdated),
             created: new Date(user.created),
-            userGroups: user.userGroups,
-            username: userCredentials.username,
+            userGroups: _(user.userGroups)
+                .orderBy(ug => ug.name)
+                .value(),
+            username,
             apiUrl: `${this.api.baseUrl}/api/users/${user.id}.json`,
-            userRoles: userCredentials.userRoles?.map(userRole => ({ id: userRole.id, name: userRole.name })) || [],
-            lastLogin: userCredentials.lastLogin ? new Date(userCredentials.lastLogin) : undefined,
-            status: userCredentials.disabled ? "Disabled" : "Active",
-            disabled: userCredentials.disabled,
+            userRoles:
+                _(userRoles)
+                    .map(userRole => ({ id: userRole.id, name: userRole.name }))
+                    .orderBy(ur => ur.name)
+                    .value() || [],
+            lastLogin: lastLoginRaw ? new Date(lastLoginRaw) : undefined,
+            status: disabled ? "Disabled" : "Active",
+            disabled,
             organisationUnits: this.getDomainOrgUnits(user.organisationUnits),
             dataViewOrganisationUnits: this.getDomainOrgUnits(user.dataViewOrganisationUnits),
             searchOrganisationsUnits: this.getDomainOrgUnits(user.teiSearchOrganisationUnits),
             access: user.access,
-            openId: userCredentials.openId,
-            ldapId: userCredentials.ldapId,
-            externalAuth: userCredentials.externalAuth,
+            openId,
+            ldapId,
+            externalAuth,
+            twoFactorEnabled: userCredentials.twoFA,
             password: userCredentials.password,
             accountExpiry: userCredentials.accountExpiry,
             authorities,
             dbLocale: "",
             uiLocale: "",
             ...this.getUserAuditFields(input),
-        };
+        });
+
+        return userResult.match({
+            success: user => {
+                return user;
+            },
+            error: errors => {
+                throw new Error(`Error processing user ${user.id}: ${validationErrorsToString(errors)}`);
+            },
+        });
     }
 
     private getUserAuditFields(user: ApiUserWithAudit): Pick<User, "createdBy" | "lastModifiedBy"> {
-        const createdBy = user.userCredentials.createdBy || user.createdBy;
-        const lastUpdatedBy = user.userCredentials.lastUpdatedBy || user.lastUpdatedBy;
+        const uc = user.userCredentials;
+        const createdBy = uc?.createdBy || user.createdBy;
+        const lastUpdatedBy = uc?.lastUpdatedBy || user.lastUpdatedBy;
         return {
             createdBy: createdBy ? { id: createdBy.id, username: createdBy.displayName } : undefined,
             lastModifiedBy: lastUpdatedBy ? { id: lastUpdatedBy?.id, username: lastUpdatedBy?.displayName } : undefined,
@@ -534,6 +857,9 @@ export class UserD2ApiRepository implements UserRepository {
         return {
             id: input.id,
             name: input.name,
+            username: input.username,
+            openId: input.openId ?? "",
+            ldapId: input.ldapId ?? "",
             firstName: input.firstName,
             surname: input.surname,
             email: input.email,
@@ -545,7 +871,12 @@ export class UserD2ApiRepository implements UserRepository {
             twitter: input.twitter,
             lastUpdated: input.lastUpdated.toISOString(),
             created: input.created.toISOString(),
+            // DHIS2 2.42 exposes these at root; keep populated for compatibility
+            lastLogin: input.lastLogin?.toISOString() ?? "",
+            disabled: input.disabled,
+            externalAuth: input.externalAuth ?? false,
             userGroups: input.userGroups,
+            userRoles: input.userRoles.map(userRole => ({ id: userRole.id, name: userRole.name, authorities: [] })),
             organisationUnits: this.getApiOrgUnits(input.organisationUnits),
             dataViewOrganisationUnits: this.getApiOrgUnits(input.dataViewOrganisationUnits),
             teiSearchOrganisationUnits: this.getApiOrgUnits(input.searchOrganisationsUnits),
@@ -561,6 +892,7 @@ export class UserD2ApiRepository implements UserRepository {
                 externalAuth: input.externalAuth ?? "",
                 password: input.password ?? "",
                 accountExpiry: input.accountExpiry ?? "",
+                twoFA: input.twoFactorEnabled ?? false,
                 ...this.getApiAuditFields(input),
             },
             ...this.getApiAuditFields(input),
@@ -587,20 +919,87 @@ export class UserD2ApiRepository implements UserRepository {
     }
 
     private getApiOrgUnits(orgUnits: OrgUnit[]): ApiD2OrgUnit[] {
-        return orgUnits.map(orgUnit => ({ ...orgUnit, path: joinPaths(orgUnit) }));
+        return _.compact(
+            orgUnits.map(orgUnit => {
+                return orgUnit.id === "" ? undefined : { ...orgUnit, path: joinPaths(orgUnit) };
+            })
+        );
+    }
+
+    public getInMyOrgUnit(): FutureData<UserIdentifier[]> {
+        return apiToFuture(
+            this.api.models.users.get({
+                fields: { id: true, displayName: true, name: true },
+                paging: false,
+                userOrgUnits: "true",
+                includeChildren: "true",
+            })
+        ).map(({ objects }) => {
+            return objects.map(
+                user => new UserIdentifier({ id: user.id, username: user.displayName, name: user.name })
+            );
+        });
+    }
+
+    private recalculatePagination(options: ListOptions, is242Plus: boolean): FutureData<Maybe<Pager>> {
+        // There is a bug in v41 where the pager total and pageCount are incorrect when
+        // filters are applied together with userOrgUnits=true. To work around this, we recalculate
+        // the pagination based on the total number of users that match the filters.
+        const { onlyUsersOrgUnits, filters = {} } = options;
+        const hasActiveFilters =
+            Object.entries(filters).filter(
+                ([_, v]) => v !== undefined && v !== null && (Array.isArray(v) ? v.length > 0 : true)
+            ).length > 0;
+        const calculatePager = onlyUsersOrgUnits && hasActiveFilters;
+
+        if (!calculatePager) return Future.void();
+
+        if (is242Plus) return Future.void(); // Bug only on v41
+
+        return Future.fromPromise(this.api.getVersion()).flatMap(version => {
+            const majorVersion = getMajorVersion(version);
+            if (majorVersion !== 41) return Future.void();
+
+            console.warn("Recalculating pagination due to known DHIS2 v41 bug with userOrgUnits and filters.");
+
+            const optionsWithoutUserIds: ListOptions = {
+                ...options,
+                filters: { ...options.filters, id: undefined },
+            };
+
+            return this.listAllUserIdentifiersWithVersion(optionsWithoutUserIds, false).map(userIds => {
+                return {
+                    page: options.page ?? 1,
+                    pageSize: options.pageSize ?? 25,
+                    total: userIds.length,
+                    pageCount: Math.ceil(userIds.length / (options.pageSize ?? 25)),
+                };
+            });
+        });
+    }
+
+    @cache()
+    private getIs242Plus(): FutureData<boolean> {
+        return Future.fromPromise(this.api.getVersion()).map(version => getMajorVersion(version) >= 42);
     }
 }
+
+const verifyPasswordResponseCodec = Codec.interface({
+    response: exactly("success", "error"),
+    message: string,
+});
 
 const orgUnitsFields = { id: true, name: true, code: true, path: true } as const;
 
 const auditFields = {
     createdBy: { id: true, displayName: true },
     lastUpdatedBy: { id: true, displayName: true },
-};
+} as const;
 
 const fields = {
     id: true,
     name: true,
+    username: true,
     firstName: true,
     surname: true,
     email: true,
@@ -612,17 +1011,32 @@ const fields = {
     twitter: true,
     lastUpdated: true,
     created: true,
+    // DHIS2 2.42 exposes some credentials fields at root
+    lastLogin: true,
+    disabled: true,
+    externalAuth: true,
+    ldapId: true,
+    openId: true,
     userGroups: { id: true, name: true },
     organisationUnits: orgUnitsFields,
     dataViewOrganisationUnits: orgUnitsFields,
     teiSearchOrganisationUnits: orgUnitsFields,
-    access: true,
+    userRoles: { id: true, name: true, authorities: true },
+    access: {
+        manage: true,
+        externalize: true,
+        write: true,
+        read: true,
+        update: true,
+        delete: true,
+    },
     userCredentials: {
         id: true,
         username: true,
         userRoles: { id: true, name: true, authorities: true },
         lastLogin: true,
         disabled: true,
+        twoFA: true,
         openId: true,
         ldapId: true,
         externalAuth: true,
@@ -631,10 +1045,20 @@ const fields = {
     },
 } as const;
 
+/** POST /api/metadata defaults to mergeMode=REPLACE: the server nulls each owned property that the
+ * payload omits. Request $owner, not a whitelist, to keep the properties the app does not map, such
+ * as verifiedEmail. `fields` adds what $owner does not return. */
+export const savePrefetchFields = {
+    $owner: true,
+    ...fields,
+    ...auditFields,
+    userCredentials: { ...fields.userCredentials, passwordLastUpdated: true, $all: true },
+} as const;
+
 export type ApiUser = SelectedPick<D2UserSchema, typeof fields>;
 export type ApiUserWithAudit = ApiUser & { userCredentials: ApiUser["userCredentials"] & D2UserAudit } & D2UserAudit;
 
-const defaultColumns: Array<keyof User> = [
+export const defaultColumns: Array<keyof User> = [
     "username",
     "firstName",
     "surname",
@@ -662,5 +1086,5 @@ type D2UserSettings = { keyDbLocale: LocaleCode; keyUiLocale: LocaleCode };
 type KeyLocale = "keyUiLocale" | "keyDbLocale";
 const UI_LOCALE_KEY = "keyUiLocale";
 const DB_LOCALE_KEY = "keyDbLocale";
-type D2UserGroupByKey = Record<Id, NamedRef[]>;
+export type D2UserGroupByKey = Record<Id, NamedRef[]>;
 type D2ActionGroup = "add" | "delete";

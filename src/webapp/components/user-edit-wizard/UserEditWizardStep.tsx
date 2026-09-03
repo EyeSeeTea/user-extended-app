@@ -17,12 +17,13 @@ export const UserEditWizardStep: React.FC<UserEditWizardStepProps> = ({ fields, 
 };
 
 const Row = styled.div`
-    margin: 20px 0;
+    margin-block: 20px;
+    margin-inline: 0;
 `;
 
 const Label = styled.b`
     display: block;
-    margin-bottom: 15px;
+    margin-block-end: 15px;
 `;
 
 export interface UserEditWizardStepProps {

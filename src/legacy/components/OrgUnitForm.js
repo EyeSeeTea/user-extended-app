@@ -2,7 +2,7 @@ import React from "react";
 import LoadingMask from "d2-ui/lib/loading-mask/LoadingMask.component";
 import TextField from "material-ui/TextField/TextField";
 import Action from "d2-ui/lib/action/Action";
-import { Observable } from "rxjs/Rx";
+import { Observable } from "rxjs";
 import { OrganisationUnitTree } from "@dhis2/ui";
 import OrgUnitSelectByLevel from "d2-ui/lib/org-unit-select/OrgUnitSelectByLevel.component";
 import OrgUnitSelectByGroup from "d2-ui/lib/org-unit-select/OrgUnitSelectByGroup.component";
@@ -11,6 +11,7 @@ import PropTypes from "prop-types";
 import _ from "lodash";
 import { listWithInFilter } from "../utils/dhis2Helpers";
 
+// NOTICE: component not used anywhere
 class OrgUnitForm extends React.Component {
     constructor(props, context) {
         super(props, context);

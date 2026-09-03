@@ -1,6 +1,6 @@
 import { Future, FutureData } from "../../../domain/entities/Future";
 import { D2Api, DataStore } from "../../../types/d2-api";
-import { getD2APiFromInstance } from "../../../utils/d2-api";
+import { getD2ApiFromInstance } from "../../../utils/d2-api";
 import { apiToFuture } from "../../../utils/futures";
 import { Instance } from "../../entities/Instance";
 import { dataStoreNamespace } from "./Namespaces";
@@ -12,7 +12,7 @@ export class DataStoreStorageClient extends StorageClient {
 
     constructor(type: "user" | "global", instance: Instance) {
         super();
-        this.api = getD2APiFromInstance(instance);
+        this.api = getD2ApiFromInstance(instance);
         this.dataStore =
             type === "user" ? this.api.userDataStore(dataStoreNamespace) : this.api.dataStore(dataStoreNamespace);
     }

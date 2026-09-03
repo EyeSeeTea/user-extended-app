@@ -3,7 +3,7 @@ import { Variant } from "@material-ui/core/styles/createTypography";
 import Typography from "@material-ui/core/Typography";
 import { DialogButton } from "@eyeseetea/d2-ui-components";
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import styled from "styled-components";
 
 export const PageHeader: React.FC<PageHeaderProps> = React.memo(props => {
@@ -57,10 +57,10 @@ const HelpButton: React.FC<{ text: string }> = ({ text }) => (
 );
 
 const IconButton = styled(MUIIConButton)`
-    margin-bottom: 8px;
+    margin-block-end: 8px;
 `;
 
 const BackButton = styled(IconButton)`
-    padding-top: 10px;
-    margin-bottom: 5px;
+    padding-block-start: 10px;
+    margin-block-end: 5px;
 `;

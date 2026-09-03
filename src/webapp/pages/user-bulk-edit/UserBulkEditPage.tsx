@@ -1,5 +1,5 @@
 import { Button, ButtonStrip, CenteredContent, NoticeBox } from "@dhis2/ui";
-import { MetadataResponse } from "@eyeseetea/d2-api/2.36";
+import { MetadataResponse } from "../../../types/d2-api";
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import { Paper } from "@material-ui/core";
 import { Delete, ViewColumn } from "@material-ui/icons";
@@ -10,9 +10,8 @@ import { Navigate, useLocation } from "react-router";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { VariableSizeGrid as Grid } from "react-window";
 import styled from "styled-components";
-import { defaultUser, User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
-import { generateUid } from "../../../utils/uid";
+import { defaultUserProps, UserProps } from "../../../domain/entities/UserProps";
+import i18n from "../../../utils/i18n";
 import { ColumnSelectorDialog } from "../../components/column-selector-dialog/ColumnSelectorDialog";
 import { ImportSummary } from "../../components/import-summary/ImportSummary";
 import { PageHeader } from "../../components/page-header/PageHeader";
@@ -31,9 +30,9 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
     const snackbar = useSnackbar();
 
     const location = useLocation();
-    const { users: locationUsers = [] } = location.state as { users: User[] };
+    const { users: locationUsers = [] } = location.state as { users: UserProps[] };
 
-    const [users, setUsers] = useState<User[]>(locationUsers);
+    const [users, setUsers] = useState<UserProps[]>(locationUsers);
     const [summary, setSummary] = useState<MetadataResponse[]>();
     const [columns, setColumns] = useState<string[]>(baseUserColumns);
     const [columnSelectorOpen, setColumnSelectorOpen] = useState<boolean>(false);
@@ -41,7 +40,7 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
     const goHome = useCallback(() => goBack(true), [goBack]);
 
     const onSubmit = useCallback(
-        async ({ users }: { users: User[] }) => {
+        async ({ users }: { users: UserProps[] }) => {
             loading.show(true, i18n.t("Saving users"));
 
             const { data, error } = await compositionRoot.users.save(users).runAsync();
@@ -63,8 +62,7 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
 
     const addRow = useCallback(() => {
         const newUser = {
-            ...defaultUser,
-            id: generateUid(),
+            ...defaultUserProps,
             username: "",
             password: `District123$`,
         };
@@ -83,7 +81,7 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
                 <IconButton
                     tooltip={i18n.t("Column settings")}
                     onClick={() => setColumnSelectorOpen(true)}
-                    style={{ float: "right" }}
+                    style={{ float: "inline-end" }}
                 >
                     <ViewColumn />
                 </IconButton>
@@ -100,7 +98,7 @@ export const UserBulkEditPage: React.FC<{ isEdit: boolean }> = ({ isEdit }) => {
                 />
             )}
             <Container>
-                <Form<{ users: User[] }>
+                <Form<{ users: UserProps[] }>
                     autocomplete="off"
                     onSubmit={onSubmit}
                     initialValues={{ users }}
@@ -182,7 +180,7 @@ interface RowItemProps {
 }
 
 const RowItem: React.FC<RowItemProps> = ({ data, columnIndex, rowIndex }) => {
-    const form = useForm<{ users: User[] }>();
+    const form = useForm<{ users: UserProps[] }>();
     const headerRow = rowIndex === 0;
     const deleteRow = columnIndex === 0;
     const row = rowIndex - 1;
@@ -235,7 +233,8 @@ const Container = styled(Paper)`
 `;
 
 const Item = styled.div`
-    margin: 4px 0;
+    margin-block: 4px;
+    margin-inline: 0;
     padding: 10px;
 `;
 

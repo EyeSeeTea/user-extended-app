@@ -1,10 +1,9 @@
 import _ from "lodash";
 import { Future, FutureData } from "../domain/entities/Future";
 import { LoggerSettings } from "../domain/entities/LoggerSettings";
-import { D2Api } from "../types/d2-api";
+import { D2Api, TeiGetRequest } from "../types/d2-api";
 import { Id } from "../domain/entities/Ref";
 import { apiToFuture } from "../utils/futures";
-import { TeiGetRequest } from "@eyeseetea/d2-api/api/trackedEntityInstances";
 import { getUid } from "../utils/uid";
 
 export class D2ApiTracker {
@@ -34,9 +33,10 @@ export class D2ApiTracker {
     save(options: SaveTrackerType): FutureData<D2TeiResponse> {
         const { data, settings } = options;
         const orgUnitId = data.orgUnitId;
+        const timestamp = new Date().getTime();
         const currentDateISO = new Date().toISOString();
-        const teiId = getUid(`${data.username}_${data.orgUnitId}_tei_${new Date().getTime()}`);
-        const enrollmentId = getUid(`${data.username}_${data.orgUnitId}_enrollment_${new Date().getTime()}`);
+        const teiId = getUid(`${data.username}_${data.orgUnitId}_tei_${timestamp}`);
+        const enrollmentId = getUid(`${data.username}_${data.orgUnitId}_enrollment_${timestamp}`);
         return this.getTrackedEntityTypeByProgramId(settings.programId).flatMap(trackedEntityTypeId => {
             return apiToFuture(
                 this.api.trackedEntityInstances.post(

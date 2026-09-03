@@ -1,15 +1,19 @@
 import _ from "lodash";
 import moment from "moment";
 import Papa from "papaparse";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 
 import { Future, FutureData } from "../entities/Future";
 import { User } from "../entities/User";
 import { ListOptions, UserRepository } from "../repositories/UserRepository";
 import { OrgUnitKey } from "../entities/OrgUnit";
+import { AppSettingsRepository } from "../repositories/AppSettingsRepository";
+import { getAppSettings } from "./common/settings";
 
 const fieldSplitChar = "||";
 const defaultNameField = "name";
+
+//FIXME: If this columns are used for export, should be translated? Now i18n is not being processed as it's called before initialization
 const columnNameFromPropertyMapping = {
     id: i18n.t("ID"),
     username: i18n.t("Username"),
@@ -36,18 +40,24 @@ const columnNameFromPropertyMapping = {
 };
 
 export class ExportUsersUseCase {
-    constructor(private userRepository: UserRepository) {}
+    constructor(private userRepository: UserRepository, private appSettingsRepository: AppSettingsRepository) {}
 
     public execute({
-        filterOptions = {},
+        filterOptions,
         isEmptyTemplate = false,
         ...options
     }: ExportUsersUseCaseOptions): FutureData<{ blob: Blob; filename: string }> {
         if (isEmptyTemplate) {
             return Future.success(this.buildBlobAndFilename([], options));
         }
-        return this.userRepository.listAll(filterOptions).map(users => {
-            return this.buildBlobAndFilename(users, options);
+        return this.userRepository.getCurrent().flatMap(currentUser => {
+            return getAppSettings(this.appSettingsRepository, currentUser).flatMap(appSettings => {
+                return this.userRepository
+                    .listAll({ ...filterOptions, hideUsers: appSettings.hide.users })
+                    .map(users => {
+                        return this.buildBlobAndFilename(users, options);
+                    });
+            });
         });
     }
 

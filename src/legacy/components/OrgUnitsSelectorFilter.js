@@ -4,7 +4,7 @@ import TextField from "material-ui/TextField";
 import PropTypes from "prop-types";
 import React from "react";
 import { extractIdsFromPaths, orgUnitControls, orgUnitListParams } from "../../utils/d2-api";
-import { listWithInFilter } from "../utils/dhis2Helpers";
+import { listWithInFilterD2Api } from "../utils/dhis2Helpers";
 
 class OrgUnitsSelectorFilter extends React.Component {
     constructor(props, context) {
@@ -54,7 +54,7 @@ class OrgUnitsSelectorFilter extends React.Component {
     async onChange(paths) {
         const ids = extractIdsFromPaths(paths);
 
-        const selected = await listWithInFilter(this.context.d2.models.organisationUnits, "id", ids, {
+        const selected = await listWithInFilterD2Api(this.props.api, "organisationUnits", "id", ids, {
             paging: false,
             fields: "id,displayName,shortName,path",
         });
@@ -81,7 +81,7 @@ class OrgUnitsSelectorFilter extends React.Component {
     }
 
     render() {
-        const { title, styles } = this.props;
+        const { title, styles, rootIds } = this.props;
         const { dialogOpen } = this.state;
         const t = this.getTranslation.bind(this);
 
@@ -104,6 +104,7 @@ class OrgUnitsSelectorFilter extends React.Component {
                         listParams={orgUnitListParams}
                         controls={orgUnitControls}
                         showNameSetting={true}
+                        rootIds={rootIds}
                     />
                 </ConfirmationDialog>
 

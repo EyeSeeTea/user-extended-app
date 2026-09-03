@@ -4,7 +4,7 @@ import { ConfirmationDialog, useLoading, useSnackbar } from "@eyeseetea/d2-ui-co
 
 import { useAppContext } from "../../contexts/app-context";
 import { User } from "../../../domain/entities/User";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 
 type UsersRemoveModalProps = {
     isOpen: boolean;
@@ -82,7 +82,8 @@ export const UsersSelectedModal: React.FC<UsersRemoveModalProps> = ({
     const onSave = () => {
         loading.show();
         if (actionType === "remove") {
-            compositionRoot.users.remove(users).run(() => {
+            const ids = users.map(user => user.id);
+            compositionRoot.users.remove(ids).run(() => {
                 onSuccessAction();
             }, onErrorAction);
         } else if (actionType === "disable" || actionType === "enable") {

@@ -1,14 +1,20 @@
 import { useLoading, useSnackbar } from "@eyeseetea/d2-ui-components";
 import React from "react";
 import { Id } from "../../domain/entities/Ref";
-import { User } from "../../domain/entities/User";
+import { User, UserColumns } from "../../domain/entities/User";
+import { UserIdentifier } from "../../domain/entities/UserIdentifier";
 import { UpdateStrategy, AccessElements, ListOptions } from "../../domain/repositories/UserRepository";
 import { SaveUserOrgUnitOptions } from "../../domain/usecases/SaveUserOrgUnitUseCase";
 import { useAppContext } from "../contexts/app-context";
-import i18n from "../../locales";
+import i18n from "../../utils/i18n";
 import { AllowedExportFormat, ColumnMappingKeys } from "../../domain/usecases/ExportUsersUseCase";
 import FileSaver from "file-saver";
 import { OrgUnitKey } from "../../domain/entities/OrgUnit";
+import { AppSettings } from "../../domain/entities/AppSettings";
+import { Maybe } from "../../types/utils";
+import { useAppSettingsContext } from "../contexts/AppSettingsProvider";
+import { Column } from "../../domain/entities/UserColumn";
+import { UserProps } from "../../domain/entities/UserProps";
 
 type UseSaveUsersOrgUnitsProps = { onSuccess: () => void };
 type UseExportUsersProps = {
@@ -19,6 +25,13 @@ type UseExportUsersProps = {
 };
 
 type UseCopyInUserProps = { onSuccess: () => void };
+
+type UseVisibleColumnsProps = {
+    appSettings: Maybe<AppSettings>;
+    user: UserProps;
+    onChangeVisibleColumns: (columns: UserColumns[]) => void;
+    columnsKey: string;
+};
 
 export function useGetUsersByIds(ids: Id[]) {
     const { compositionRoot } = useAppContext();
@@ -81,23 +94,36 @@ export function useSaveUsersOrgUnits(props: UseSaveUsersOrgUnitsProps) {
     return { saveUsersOrgUnits };
 }
 
-export function useGetAllUsers() {
+export function useGetAllUserIdentifiers(onlyUsersOrgUnits: boolean): {
+    userIdentifiers: UserIdentifier[];
+    isLoading: boolean;
+} {
     const { compositionRoot } = useAppContext();
-    const [users, setUsers] = React.useState<User[]>();
+    const { appSettings } = useAppSettingsContext();
     const snackbar = useSnackbar();
+    const onlyActiveUsers = appSettings.showOnlyActiveUsers;
+    const hideUsers = appSettings.hide.users;
 
-    React.useMemo(() => {
-        compositionRoot.users.listAll({}).run(
-            allUsers => {
-                setUsers(allUsers);
+    const [userIdentifiers, setUserIdentifiers] = React.useState<UserIdentifier[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        setIsLoading(true);
+
+        return compositionRoot.users.listAllIdentifiers({ onlyUsersOrgUnits, onlyActiveUsers, hideUsers }).run(
+            userIdentifiers => {
+                setUserIdentifiers(userIdentifiers);
+                setIsLoading(false);
             },
             error => {
                 snackbar.error(error);
+                setUserIdentifiers([]);
+                setIsLoading(false);
             }
         );
-    }, [compositionRoot, snackbar]);
+    }, [compositionRoot.users, snackbar, onlyUsersOrgUnits, onlyActiveUsers, hideUsers]);
 
-    return { users };
+    return { userIdentifiers, isLoading };
 }
 
 export function useCopyInUser(props: UseCopyInUserProps) {
@@ -173,4 +199,42 @@ export const useExportUsers = (props: UseExportUsersProps) => {
         exportUsersToJSON: React.useCallback(() => exportUsers("users", "json", false), [exportUsers]),
         exportEmptyTemplate: React.useCallback(() => exportUsers("empty-user-template", "csv", true), [exportUsers]),
     };
+};
+
+/** Instance DHIS2 version string (e.g. "2.42.1"). Undefined while loading or on error. */
+export function useDhis2Version(): string | undefined {
+    const { compositionRoot } = useAppContext();
+    const [version, setVersion] = React.useState<string | undefined>(undefined);
+
+    React.useEffect(() => {
+        const cancel = compositionRoot.instance.getVersion().run(
+            v => setVersion(v),
+            () => setVersion(undefined)
+        );
+        return () => cancel();
+    }, [compositionRoot.instance]);
+
+    return version;
+}
+
+export const useColumnsPreferences = (props: UseVisibleColumnsProps) => {
+    const { columnsKey, appSettings, user, onChangeVisibleColumns } = props;
+
+    const [columnsPreferences, setColumnsPreferences] = React.useState<Column[]>();
+
+    const { compositionRoot } = useAppContext();
+    const snackbar = useSnackbar();
+
+    React.useEffect(() => {
+        console.debug("Loading columns preferences for key:", columnsKey);
+        return compositionRoot.users.getColumns(user).run(
+            columnsPreferences => {
+                setColumnsPreferences(columnsPreferences);
+                onChangeVisibleColumns(columnsPreferences.map(col => col.fieldName));
+            },
+            error => snackbar.error(error)
+        );
+    }, [appSettings?.columns, compositionRoot, snackbar, user, onChangeVisibleColumns, columnsKey]);
+
+    return { columnsPreferences };
 };

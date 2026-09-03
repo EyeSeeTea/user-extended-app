@@ -4,7 +4,7 @@ import { OrgUnit } from "../../entities/OrgUnit";
 import { Future } from "../../entities/Future";
 import { anything, deepEqual, instance, mock, when, verify } from "ts-mockito";
 import _ from "lodash";
-import { MetadataResponse } from "@eyeseetea/d2-api/api";
+import { MetadataResponse } from "../../../types/d2-api";
 import { UserD2ApiRepository } from "../../../data/repositories/UserD2ApiRepository";
 import { sourceUser, targetUser } from "./data/user";
 
@@ -79,18 +79,22 @@ function givenOptionsToMerge(): SaveUserOrgUnitOptions {
 }
 
 function givenExpectedUsersReplaced(): User[] {
-    return selectedUsers.map(user => ({
-        ...user,
-        organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
-    }));
+    return selectedUsers.map(user =>
+        User.createExisted({
+            ...user,
+            organisationUnits: selectedOrgUnits.map(({ id }) => ({ id, name: "", code: "", path: [] })),
+        }).getOrThrow()
+    );
 }
 
 function givenExpectedUsersMerged(): User[] {
-    return selectedUsers.map(user => ({
-        ...user,
-        organisationUnits: _(selectedOrgUnits)
-            .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))
-            .unionBy(user.organisationUnits, "id")
-            .value(),
-    }));
+    return selectedUsers.map(user =>
+        User.createExisted({
+            ...user,
+            organisationUnits: _(selectedOrgUnits)
+                .map<OrgUnit>(({ id }) => ({ id, name: "", code: "", path: [] }))
+                .unionBy(user.organisationUnits, "id")
+                .value(),
+        }).getOrThrow()
+    );
 }

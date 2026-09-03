@@ -43,8 +43,8 @@ function createAppTheme(style: MuiTheme) {
             borderStyle: "1px solid #e1e1e1",
         },
         forms: {
-            minWidth: 350,
-            maxWidth: 900,
+            minInlineSize: 350,
+            maxInlineSize: 900,
         },
         formFields: {
             secondaryColor: style.palette?.accent3Color,

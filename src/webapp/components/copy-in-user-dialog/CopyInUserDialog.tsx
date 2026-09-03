@@ -1,7 +1,7 @@
 import React from "react";
-import i18n from "../../../locales";
+import i18n from "../../../utils/i18n";
 import _ from "lodash";
-import { User } from "../../../domain/entities/User";
+import { UserProps } from "../../../domain/entities/UserProps";
 import { Id } from "../../../domain/entities/Ref";
 import { AccessElements, AccessElementsKeys, UpdateStrategy } from "../../../domain/repositories/UserRepository";
 import { Toggle } from "material-ui";
@@ -9,9 +9,12 @@ import { Box } from "@material-ui/core";
 import styled from "styled-components";
 import { SegmentedControl, Transfer } from "@dhis2/ui";
 import { ConfirmationDialog, useSnackbar } from "@eyeseetea/d2-ui-components";
+import { useGetAllUserIdentifiers } from "../../hooks/userHooks";
 
 export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
-    const { onCancel, onSave, user, visible, usersList } = props;
+    const { onCancel, onSave, user, visible, onlyUsersOrgUnits } = props;
+
+    const { userIdentifiers: usersList, isLoading: isLoadingUsers } = useGetAllUserIdentifiers(onlyUsersOrgUnits);
 
     const [selectedUsersIds, setSelectedUsersIds] = React.useState<Id[]>([]);
     const [updateStrategy, setUpdateStrategy] = React.useState<UpdateStrategy>("merge");
@@ -29,7 +32,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
         nsSeparator: false,
     });
 
-    const getOptions = (): Array<{ value: Id; label: string }> => {
+    const options = React.useMemo((): Array<{ value: Id; label: string }> => {
         return _(usersList)
             .reject({ id: user.id }) // Remove user source from target users
             .map(({ id, name, username }) => ({
@@ -37,7 +40,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
                 value: id,
             }))
             .value();
-    };
+    }, [usersList, user.id]);
 
     const onDialogSave = React.useCallback(() => {
         // Make sure one accessElements property is truthful
@@ -62,6 +65,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
             open={visible}
             onCancel={onCancel}
             onSave={onDialogSave}
+            disableSave={isLoadingUsers}
         >
             <Container>
                 <Label>{i18n.t("Bulk update strategy: ", { nsSeparator: false })}</Label>
@@ -83,7 +87,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
             </Container>
 
             <Transfer
-                options={getOptions()}
+                options={options}
                 selected={selectedUsersIds}
                 onChange={({ selected }) => {
                     setSelectedUsersIds(selected);
@@ -95,6 +99,7 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
                 selectedWidth="100%"
                 optionsWidth="100%"
                 height="400px"
+                loading={isLoadingUsers}
             />
 
             <Box display="flex">
@@ -127,17 +132,17 @@ export const CopyInUserDialog: React.FC<CopyInUserDialogProps> = props => {
     );
 };
 
-export type CopyInUserDialogProps = {
+export type CopyInUserDialogProps = Readonly<{
     onCancel: () => void;
     onSave: (selectedUsersIds: Id[], updateStrategy: UpdateStrategy, accessElements: AccessElements) => void;
-    user: User;
+    user: UserProps;
     visible: boolean;
-    usersList: User[];
-};
+    onlyUsersOrgUnits: boolean;
+}>;
 
 const Container = styled.div`
     display: flex;
-    justify-content: right;
+    justify-content: end;
     margin-block-end: 1em;
     align-items: center;
 `;

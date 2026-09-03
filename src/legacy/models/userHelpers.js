@@ -12,8 +12,16 @@ const fieldSplitChar = "||";
 
 export const fieldImportSuffix = "Import";
 
-// NOTE: UEApp allows to create a user without organisationUnits, but DHIS2 User App does not.
-const requiredPropertiesOnImport = ["username", "password", "firstName", "surname", "userRoles", "organisationUnits"];
+// NOTE: userGroups is not a required property, but the app will not work without it
+const requiredPropertiesOnImport = [
+    "username",
+    "password",
+    "firstName",
+    "surname",
+    "userRoles",
+    "userGroups",
+    "organisationUnits",
+];
 
 const propertiesIgnoredOnImport = ["id", "created", "lastUpdated", "lastLogin"];
 
@@ -53,9 +61,9 @@ const modelByField = {
 };
 
 const queryFieldsByModel = {
-    userRoles: ["id", "displayName"],
-    userGroups: ["id", "displayName"],
-    organisationUnits: ["id", "path", "code", "displayName", "shortName"],
+    userRoles: ["id", "name", "displayName"],
+    userGroups: ["id", "name", "displayName"],
+    organisationUnits: ["id", "path", "code", "name", "displayName", "shortName"],
 };
 
 async function getAssociations(d2, objs, { orgUnitsField }) {
@@ -73,9 +81,9 @@ async function getAssociations(d2, objs, { orgUnitsField }) {
 
     const pairs = await mapPromise(_.toPairs(valuesByField), async ([model, values]) => {
         const fields = queryFieldsByModel[model];
-        const matchField = model === "organisationUnits" ? orgUnitsField : "displayName";
-        // On org units, match both by shortName and displayName
-        const dbFields = matchField === "shortName" ? [matchField, "displayName"] : [matchField];
+        const matchField = model === "organisationUnits" ? orgUnitsField : "name";
+        // On org units, match both by shortName and name
+        const dbFields = matchField === "shortName" ? [matchField, "name"] : [matchField];
 
         const modelsByFieldList = await Promise.all(
             dbFields.map(async dbField => {
@@ -92,19 +100,32 @@ async function getAssociations(d2, objs, { orgUnitsField }) {
                     .value();
             })
         );
+
         const modelsByField = _(modelsByFieldList)
             .flatten()
             .groupBy(({ value }) => value)
             .mapValues(objs => objs.map(({ obj }) => obj))
             .value();
-
         return [model, modelsByField];
     });
 
     return _.fromPairs(pairs);
 }
 
-function collectionFromNames(user, rowIndex, field, objectsByName) {
+function buildObjects(data, pathToArray) {
+    if (pathToArray) {
+        return _(data)
+            .flatMap(({ objs }) => objs)
+            .map(obj => ({ ...obj, path: [obj.path] || [] }))
+            .value();
+    } else {
+        return _(data)
+            .flatMap(({ objs }) => objs)
+            .value();
+    }
+}
+
+function collectionFromNames(user, rowIndex, field, objectsByName, pathToArray = false) {
     const value = user[field];
     const names = (value || "")
         .split(fieldSplitChar)
@@ -116,7 +137,7 @@ function collectionFromNames(user, rowIndex, field, objectsByName) {
         missingValue =>
             `Value not found: ${missingValue} [username=${username || "-"} csv-row=${rowIndex} csv-column=${field}]`
     );
-    if (!value || !objectsByName) return { warnings };
+    if (!value || !objectsByName) return { objects: undefined, warnings };
 
     const data = _(names)
         .map(name => {
@@ -126,13 +147,11 @@ function collectionFromNames(user, rowIndex, field, objectsByName) {
         .compact()
         .value();
 
-    const objects = _(data)
-        .flatMap(({ objs }) => objs)
-        .value();
-
     const info = {
         hasDuplicates: _(data).some(({ hasDuplicates }) => hasDuplicates),
     };
+
+    const objects = buildObjects(data, pathToArray);
 
     return { objects, warnings, info };
 }
@@ -140,21 +159,14 @@ function collectionFromNames(user, rowIndex, field, objectsByName) {
 function getPlainUserFromRow(user, modelValuesByField, rowIndex) {
     const byField = modelValuesByField;
     const relationships = {
-        userRoles: collectionFromNames(user, rowIndex, "userRoles", byField.userRoles),
-        userGroups: collectionFromNames(user, rowIndex, "userGroups", byField.userGroups),
-        organisationUnits: collectionFromNames(user, rowIndex, "organisationUnits", byField.organisationUnits),
-        dataViewOrganisationUnits: collectionFromNames(
-            user,
-            rowIndex,
-            "dataViewOrganisationUnits",
-            byField.organisationUnits
-        ),
-        searchOrganisationsUnits: collectionFromNames(
-            user,
-            rowIndex,
-            "searchOrganisationsUnits",
-            byField.organisationUnits
-        ),
+        userRoles: collectionFromNames(user, rowIndex, "userRoles", byField.userRoles) || [],
+        userGroups: collectionFromNames(user, rowIndex, "userGroups", byField.userGroups) || [],
+        organisationUnits:
+            collectionFromNames(user, rowIndex, "organisationUnits", byField.organisationUnits, true) || [],
+        dataViewOrganisationUnits:
+            collectionFromNames(user, rowIndex, "dataViewOrganisationUnits", byField.organisationUnits, true) || [],
+        searchOrganisationsUnits:
+            collectionFromNames(user, rowIndex, "searchOrganisationsUnits", byField.organisationUnits, true) || [],
     };
     const warnings = _(relationships).values().flatMap("warnings").value();
     const objectRelationships = _(relationships).mapValues("objects").value();
@@ -301,15 +313,31 @@ function getUserPayloadFromPlainAttributes(baseUser, userFields) {
 
 function getUsersToSave(users, existingUsersToUpdate) {
     const usersByUsername = _.keyBy(users, "username");
-    const existingUsernamesSet = new Set(existingUsersToUpdate.map(user => user.userCredentials.username));
+    const existingUsernamesSet = new Set(
+        existingUsersToUpdate.map(user => user.username || user.userCredentials?.username)
+    );
     const usersToCreate = _(users)
         .filter(user => !existingUsernamesSet.has(user.username))
         .map(userAttributes => getUserPayloadFromPlainAttributes({}, userAttributes))
         .value();
     const usersToUpdate = existingUsersToUpdate.map(existingUser =>
-        getUserPayloadFromPlainAttributes(existingUser, usersByUsername[existingUser.userCredentials.username])
+        getUserPayloadFromPlainAttributes(
+            existingUser,
+            usersByUsername[existingUser.username || existingUser.userCredentials?.username]
+        )
     );
-    return usersToCreate.concat(usersToUpdate);
+    const allUsers = usersToCreate.concat(usersToUpdate);
+
+    // NOTE: Aditional fields present in this user objects made updateUserGroups fail
+    // when comparing with the metadata as the objects were not identical.
+    return allUsers.map(user => {
+        return {
+            ...user,
+            userRoles: user.userRoles.map(role => ({ id: role.id })),
+            organisationUnits: user.organisationUnits.map(ou => ({ id: ou.id })),
+            userGroups: user.userGroups.map(ug => ({ id: ug.id })),
+        };
+    });
 }
 
 /*
@@ -325,16 +353,17 @@ but that would require one request by each new user.
 
 async function getUserGroupsToSave(d2, api, usersToSave, existingUsersToUpdate) {
     const userGroupsByUsername = _(usersToSave)
-        .map(user => [user.userCredentials.username, (user.userGroups || []).map(ug => ug.id)])
+        .map(user => [user.username || user.userCredentials?.username, (user.userGroups || []).map(ug => ug.id)])
         .fromPairs()
         .value();
 
     const userGroupsInvolved = _(usersToSave).concat(existingUsersToUpdate).flatMap("userGroups").uniqBy("id").value();
     const usersByGroupId = _(usersToSave)
-        .uniqBy(user => user.userCredentials.username)
+        .uniqBy(user => user.username || user.userCredentials?.username)
         .flatMap(user => {
             const userGroupIds =
-                userGroupsByUsername[user.userCredentials.username] || user.userGroups.map(ug => ug.id);
+                userGroupsByUsername[user.username || user.userCredentials?.username] ||
+                user.userGroups.map(ug => ug.id);
             return userGroupIds.map(userGroupId => ({ user, userGroupId }));
         })
         .groupBy("userGroupId")
@@ -397,16 +426,25 @@ async function getUserGroupsToSaveAndPostMetadata(d2, api, users, existingUsersT
 async function saveUsers(d2, users, d2Api, currentUser) {
     const api = d2.Api.getApi();
     const userRepository = new UserD2ApiRepository({ url: d2Api.baseUrl });
+    const version = d2?.system?.systemInfo?.version;
+    const minor = version ? Number(String(version).split(".")[1]) : undefined;
+    const is242Plus = minor !== undefined && !Number.isNaN(minor) && minor >= 42;
     const existingUsersToUpdate = await getExistingUsers(d2, {
         fields: ":owner,userCredentials,userGroups[id]",
-        filter: "userCredentials.username:in:[" + _(users).map("username").join(",") + "]",
+        filter:
+            `${is242Plus ? "username" : "userCredentials.username"}:in:[` + _(users).map("username").join(",") + "]",
     });
     const usersToSave = getUsersToSave(users, existingUsersToUpdate);
+
     const d2Logger = await buildLogger(d2Api, currentUser);
     d2Logger?.log({ users: buildUserWithoutPassword(users) });
+
     const response = await postMetadata(api, { users: usersToSave }, d2Logger);
-    // NOTE: this executes even when postMetadata fails
-    await userRepository.updateUserGroups(usersToSave, existingUsersToUpdate, d2Logger).runAsync();
+
+    if (response.success) {
+        await userRepository.updateUserGroups(usersToSave, existingUsersToUpdate, d2Logger).runAsync();
+    }
+
     return response;
 }
 
@@ -420,10 +458,19 @@ async function buildLogger(d2Api, currentUser) {
 
 async function saveCopyInUsers(d2, users, copyUserGroups) {
     const api = d2.Api.getApi();
+    const version = d2?.system?.systemInfo?.version;
+    const minor = version ? Number(String(version).split(".")[1]) : undefined;
+    const is242Plus = minor !== undefined && !Number.isNaN(minor) && minor >= 42;
     if (copyUserGroups) {
         const existingUsersToUpdate = await getExistingUsers(d2, {
             fields: ":owner,userCredentials,userGroups[id]",
-            filter: "userCredentials.username:in:[" + _(users).map("userCredentials.username").join(",") + "]",
+            filter:
+                `${is242Plus ? "username" : "userCredentials.username"}:in:[` +
+                _(users)
+                    .map(user => user.username || user.userCredentials?.username)
+                    .compact()
+                    .join(",") +
+                "]",
         });
         return getUserGroupsToSaveAndPostMetadata(d2, api, users, existingUsersToUpdate);
     } else {
@@ -547,6 +594,25 @@ function getPayload(d2, parentUser, destUsers, fields, updateStrategy) {
     return saveCopyInUsers(d2, users, fields.userGroups);
 }
 
+async function addUserToUserGroup(d2, users, userGroups) {
+    const userGroupIds = userGroups.map(group => ({ id: group.id }));
+
+    const userEntities = users.map(user => ({
+        ...user,
+        userGroups: userGroupIds,
+    }));
+
+    const baseUrl = getFormattedBaseUrl(d2);
+    const userRepository = new UserD2ApiRepository({ url: baseUrl });
+
+    return userRepository.updateUserGroups(userEntities, []).runAsync();
+}
+
+function getFormattedBaseUrl(d2) {
+    const d2Api = d2.Api.getApi();
+    return d2Api.baseUrl.replace(/\/api\/?$/, "");
+}
+
 export {
     importFromCsv,
     importFromJson,
@@ -556,4 +622,5 @@ export {
     getExistingUsers,
     getPayload,
     postMetadata,
+    addUserToUserGroup,
 };
